@@ -5,23 +5,35 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2023-09-18T13:40:05.079Z\n"
-"PO-Revision-Date: 2023-09-18T13:40:05.079Z\n"
+"POT-Creation-Date: 2024-06-07T18:24:28.361Z\n"
+"PO-Revision-Date: 2024-06-07T18:24:28.361Z\n"
 
-msgid "Add"
+msgid "Add new option"
 msgstr ""
 
-msgid "List"
+msgid "N/A"
 msgstr ""
 
-msgid "Back"
+msgid "Incident Management Team Builder"
 msgstr ""
 
-msgid "Help"
+msgid "Cholera in NW Province, June 2023"
 msgstr ""
 
-msgid "Hello {{name}}"
+msgid "Create Event"
 msgstr ""
 
-msgid "Detail page"
+msgid "Incident Action Plan"
+msgstr ""
+
+msgid "Create Risk Assessment"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Event Tracker"
+msgstr ""
+
+msgid "Resources"
 msgstr ""
