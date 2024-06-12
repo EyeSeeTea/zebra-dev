@@ -1,13 +1,13 @@
 {
-    "name": "dhis2-app-skeleton",
-    "description": "DHIS2 Skeleton App",
+    "name": "zebra",
+    "description": "Zambia Emergency Bridge for Response Application",
     "version": "0.0.1",
     "license": "GPL-3.0",
     "author": "EyeSeeTea team",
     "homepage": ".",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/eyeseetea/dhis2-app-skeleton.git"
+        "url": "git+https://github.com/eyeseetea/zebra-dev.git"
     },
     "dependencies": {
         "@dhis2/app-runtime": "2.8.0",
@@ -108,8 +108,8 @@
         "script-example": "npx ts-node src/scripts/example.ts"
     },
     "manifest.webapp": {
-        "name": "DHIS2 Skeleton App",
-        "description": "DHIS2 Skeleton App",
+        "name": "zebra",
+        "description": "Zambia Emergency Bridge for Response Application",
         "icons": {
             "48": "icon.png"
         },
