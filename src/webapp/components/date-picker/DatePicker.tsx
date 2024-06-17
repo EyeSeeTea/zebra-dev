@@ -9,7 +9,7 @@ import { IconCalendar24 } from "@dhis2/ui";
 interface DatePickerProps {
     id: string;
     label?: string;
-    value?: Date;
+    value: Date | null;
     onChange: (value: Date | null) => void;
     helperText?: string;
     errorText?: string;
@@ -56,6 +56,7 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
 const Container = styled.div`
     display: flex;
     flex-direction: column;
+    width: 100%;
 `;
 
 const Label = styled(InputLabel)`

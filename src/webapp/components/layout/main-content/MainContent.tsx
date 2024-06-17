@@ -10,6 +10,7 @@ interface MainContentProps {
     hideSideBarOptions?: boolean;
     sideBarOpen: boolean;
     toggleSideBar: (isOpen: boolean) => void;
+    showCreateEvent?: boolean;
 }
 
 export const MainContent: React.FC<MainContentProps> = React.memo(
@@ -18,6 +19,7 @@ export const MainContent: React.FC<MainContentProps> = React.memo(
         title = "",
         subtitle = "",
         hideSideBarOptions = false,
+        showCreateEvent = false,
         toggleSideBar,
         sideBarOpen,
     }) => {
@@ -27,6 +29,7 @@ export const MainContent: React.FC<MainContentProps> = React.memo(
                     hideOptions={hideSideBarOptions}
                     open={sideBarOpen}
                     toggleSideBar={toggleSideBar}
+                    showCreateEvent={showCreateEvent}
                 />
                 <Main>
                     {title && <Title>{title}</Title>}

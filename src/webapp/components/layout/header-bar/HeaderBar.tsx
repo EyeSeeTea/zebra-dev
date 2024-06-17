@@ -26,6 +26,7 @@ const FlagBar = styled.div<{ color: string }>`
     background-color: ${props => props.theme.palette.flag[props.color]};
     height: 48px;
     width: 16.56px;
+    min-width: 16.56px;
 `;
 
 const AppName = styled.span`
@@ -36,6 +37,7 @@ const AppName = styled.span`
     color: ${props => props.theme.palette.common.white};
     height: 48px;
     width: 94px;
+    min-width: 94px;
     padding-inline: 16px;
 `;
 

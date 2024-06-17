@@ -9,20 +9,25 @@ interface SideBarProps {
     hideOptions?: boolean;
     open: boolean;
     toggleSideBar: (isOpen: boolean) => void;
+    showCreateEvent?: boolean;
 }
 
 export const SideBar: React.FC<SideBarProps> = React.memo(
-    ({ children, hideOptions = false, toggleSideBar, open = false }) => {
+    ({ children, hideOptions = false, toggleSideBar, open = false, showCreateEvent = false }) => {
         const theme = useTheme();
         const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
         return (
             <React.Fragment>
                 {isSmallScreen ? (
                     <StyledDrawer open={open} onClose={() => toggleSideBar(false)}>
-                        <SideBarContent hideOptions={hideOptions}>{children}</SideBarContent>
+                        <SideBarContent hideOptions={hideOptions} showCreateEvent={showCreateEvent}>
+                            {children}
+                        </SideBarContent>
                     </StyledDrawer>
                 ) : (
-                    <SideBarContent hideOptions={hideOptions}>{children}</SideBarContent>
+                    <SideBarContent hideOptions={hideOptions} showCreateEvent={showCreateEvent}>
+                        {children}
+                    </SideBarContent>
                 )}
             </React.Fragment>
         );

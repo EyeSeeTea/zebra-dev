@@ -1,7 +1,6 @@
 import React from "react";
 import { HashRouter, Route, Switch } from "react-router-dom";
 
-import { LandingPage } from "./landing/LandingPage";
 import { DashboardPage } from "./dashboard/DashboardPage";
 import { EventTrackerPage } from "./event-tracker/EventTrackerPage";
 import { IncidentActionPlanPage } from "./incident-action-plan/IncidentActionPlanPage";
@@ -16,33 +15,28 @@ export function Router() {
     return (
         <HashRouter>
             <Switch>
-                <Route path="/dashboard" render={() => <DashboardPage />} />
                 <Route path="/create-event" render={() => <CreateEventPage />} />
-                <Route path="/edit-event/:event" render={() => <CreateEventPage />} />
-                <Route path="/event-tracker" render={() => <EventTrackerPage />} />
-                <Route path="/create-risk-assessment" render={() => <CreateRiskAssessmentPage />} />
+                <Route path="/event-tracker/:event" render={() => <EventTrackerPage />} />
                 <Route
-                    path="/incident-management-team-builder"
+                    path="/create-risk-assessment/:event"
+                    render={() => <CreateRiskAssessmentPage />}
+                />
+                <Route
+                    path="/incident-management-team-builder/:event"
                     render={() => <IMTeamBuilderPage />}
                 />
-                <Route path="/assign-role" render={() => <AssignRolePage />} />
-                <Route path="/edit-role/:role" render={() => <AssignRolePage />} />
-                <Route path="/incident-action-plan" render={() => <IncidentActionPlanPage />} />
+                <Route path="/assign-role/:event" render={() => <AssignRolePage />} />
                 <Route
-                    path="/create-incident-action-plan"
-                    render={() => <CreateIncidentActionPlanPage />}
+                    path="/incident-action-plan/:event"
+                    render={() => <IncidentActionPlanPage />}
                 />
                 <Route
-                    path="/edit-incident-action-plan/:plan"
+                    path="/create-incident-action-plan/:event"
                     render={() => <CreateIncidentActionPlanPage />}
                 />
-                <Route
-                    path="/edit-incident-action-plan/:response"
-                    render={() => <CreateIncidentActionPlanPage />}
-                />
-                <Route path="/resources" render={() => <ResourcesPage />} />
+                <Route path="/resources/:event" render={() => <ResourcesPage />} />
                 {/* Default route */}
-                <Route render={() => <LandingPage />} />
+                <Route render={() => <DashboardPage />} />
             </Switch>
         </HashRouter>
     );

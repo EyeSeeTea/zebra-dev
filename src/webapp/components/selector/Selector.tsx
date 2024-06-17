@@ -93,6 +93,7 @@ export const Selector: React.FC<SelectorProps> = React.memo(
 const Container = styled.div`
     display: flex;
     flex-direction: column;
+    width: 100%;
 `;
 
 const Label = styled(InputLabel)`
@@ -109,11 +110,16 @@ const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`
 `;
 
 const StyledSelect = styled(Select)<{ error?: boolean }>`
-    padding-inline-start: 12px;
-    padding-inline-end: 6px;
-    padding-block: 10px;
     .MuiOutlinedInput-notchedOutline {
         border-color: ${props =>
             props.error ? props.theme.palette.common.red600 : props.theme.palette.common.grey500};
+    }
+    .MuiSelect-root {
+        padding-inline-start: 12px;
+        padding-inline-end: 6px;
+        padding-block: 10px;
+        &:focus {
+            background-color: ${props => props.theme.palette.common.white};
+        }
     }
 `;

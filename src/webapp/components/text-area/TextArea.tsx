@@ -54,6 +54,7 @@ export const TextArea: React.FC<TextAreaProps> = React.memo(
 const Container = styled.div`
     display: flex;
     flex-direction: column;
+    width: 100%;
 `;
 
 const Label = styled.label`

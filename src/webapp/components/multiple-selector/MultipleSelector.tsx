@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Select, InputLabel, MenuItem, FormHelperText, Chip } from "@material-ui/core";
-import { IconChevronDown24, IconCross24 } from "@dhis2/ui";
+import { IconChevronDown24, IconCross16 } from "@dhis2/ui";
 
 export type MultipleSelectorOption<T extends string = string> = {
     value: T;
@@ -56,7 +56,11 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(
         );
 
         const handleDelete = useCallback(
-            (value: MultipleSelectorOption["value"]) => {
+            (
+                event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+                value: MultipleSelectorOption["value"]
+            ) => {
+                event.stopPropagation();
                 onChange(selected?.filter(selection => selection !== value));
             },
             [onChange, selected]
@@ -81,8 +85,9 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(
                                     <SelectedChip
                                         key={value}
                                         label={getLabelFromValue(value)}
-                                        deleteIcon={<IconCross24 />}
-                                        onDelete={() => handleDelete(value)}
+                                        deleteIcon={<IconCross16 />}
+                                        onDelete={event => handleDelete(event, value)}
+                                        onMouseDown={event => handleDelete(event, value)}
                                     />
                                 ))}
                             </div>
@@ -114,6 +119,7 @@ export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(
 const Container = styled.div`
     display: flex;
     flex-direction: column;
+    width: 100%;
 `;
 
 const Label = styled(InputLabel)`
@@ -130,15 +136,30 @@ const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`
 `;
 
 const StyledSelect = styled(Select)<{ error?: boolean }>`
-    padding-inline-start: 12px;
-    padding-inline-end: 6px;
-    padding-block: 10px;
     .MuiOutlinedInput-notchedOutline {
         border-color: ${props =>
             props.error ? props.theme.palette.common.red600 : props.theme.palette.common.grey500};
+    }
+    .MuiSelect-root {
+        padding-inline-start: 12px;
+        padding-inline-end: 6px;
+        padding-block: 10px;
+        &:focus {
+            background-color: ${props => props.theme.palette.common.white};
+        }
     }
 `;
 
 const SelectedChip = styled(Chip)`
     margin-inline-end: 16px;
+    font-weight: 400;
+    font-size: 0.813rem;
+    padding-inline-end: 8px;
+    svg {
+        color: ${props => props.theme.palette.common.grey600};
+        cursor: pointer;
+        &:hover {
+            color: ${props => props.theme.palette.common.grey900};
+        }
+    }
 `;

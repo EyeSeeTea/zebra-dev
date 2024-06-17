@@ -90,6 +90,12 @@ const colors = {
     green: "#008B45",
     red: "#E4312B",
     orange: "#FABE5F",
+    grey1: "#2F2727",
+    grey2: "#4B4343",
+    grey3: "#8C8484",
+    grey4: "#bfbebe",
+
+    background1: "#F5F5F5",
 };
 
 const palette = {
@@ -154,6 +160,7 @@ const palette = {
     },
     icon: {
         color: colors.grey700,
+        hover: colors.grey900,
     },
     header: {
         color: colors.green600,
@@ -162,6 +169,14 @@ const palette = {
         red: colors.red,
         black: colors.black,
         orange: colors.orange,
+    },
+    stats: {
+        green: colors.green,
+        red: colors.red,
+        normal: colors.green700,
+        title: colors.black,
+        subtitle: colors.grey3,
+        pretitle: colors.grey3,
     },
 };
 

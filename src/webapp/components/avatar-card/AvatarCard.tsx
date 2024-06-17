@@ -23,6 +23,7 @@ export const AvatarCard: React.FC<AvatarCardProps> = React.memo(
 );
 
 const StyledCard = styled(Card)`
+    width: 100%;
     display: flex;
     @media (max-width: 600px) {
         flex-direction: column;

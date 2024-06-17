@@ -47,6 +47,7 @@ export const InputField: React.FC<InputFieldProps> = React.memo(
 const Container = styled.div`
     display: flex;
     flex-direction: column;
+    width: 100%;
 `;
 
 const Label = styled(InputLabel)`

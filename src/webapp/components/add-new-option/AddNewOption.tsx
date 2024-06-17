@@ -13,8 +13,8 @@ interface AddNewOptionProps {
 export const AddNewOption: React.FC<AddNewOptionProps> = React.memo(
     ({ id, label = "", onAddNewOption }) => {
         return (
-            <Container>
-                <StyledAddIcon id={id} aria-label="Add new option" onClick={onAddNewOption} />
+            <Container onClick={onAddNewOption}>
+                <StyledAddIcon id={id} aria-label="Add new option" />
                 <Label htmlFor={id}>{label || i18n.t("Add new option")}</Label>
             </Container>
         );
@@ -24,10 +24,14 @@ export const AddNewOption: React.FC<AddNewOptionProps> = React.memo(
 const Container = styled.div`
     display: flex;
     align-items: center;
+    cursor: pointer;
 `;
 
 const StyledAddIcon = styled(AddCircleOutline)`
     color: ${props => props.theme.palette.icon.color};
+    &:hover {
+        color: ${props => props.theme.palette.icon.hover};
+    }
 `;
 
 const Label = styled.label`
@@ -36,4 +40,5 @@ const Label = styled.label`
     font-size: 0.875rem;
     color: ${props => props.theme.palette.common.black};
     margin-inline-start: 8px;
+    cursor: pointer;
 `;

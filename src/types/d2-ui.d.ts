@@ -10,4 +10,7 @@ declare module "@dhis2/ui" {
     export function IconCalendar24(props: { color?: string }): React.ReactElement;
     export function IconChevronDown24(props: { color?: string }): React.ReactElement;
     export function IconCross24(props: { color?: string }): React.ReactElement;
+    export function IconCross16(props: { color?: string }): React.ReactElement;
+    export function IconSearch24(props: { color?: string }): React.ReactElement;
+    export function IconInfo24(props: { color?: string }): React.ReactElement;
 }
