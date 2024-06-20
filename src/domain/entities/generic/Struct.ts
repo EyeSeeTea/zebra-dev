@@ -15,7 +15,7 @@
 
 export function Struct<Attrs>() {
     abstract class Base {
-        constructor(_attributes: Attrs) {
+        private constructor(_attributes: Attrs) {
             Object.assign(this, _attributes);
         }
 

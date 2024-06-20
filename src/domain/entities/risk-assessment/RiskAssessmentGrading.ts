@@ -95,7 +95,18 @@ interface RiskAssessmentGradingAttrs extends Ref {
 }
 
 export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() {
-    calculateAndSetGrade(): void {
+    private constructor(attrs: RiskAssessmentGradingAttrs) {
+        super(attrs);
+    }
+
+    public static createAndCalculateGrade(
+        attrs: RiskAssessmentGradingAttrs
+    ): RiskAssessmentGrading {
+        const riskAssessmentGrading = new RiskAssessmentGrading(attrs);
+        return riskAssessmentGrading._update({ grade: riskAssessmentGrading.calculateGrade() });
+    }
+
+    calculateGrade(): Grade {
         const totalWeight =
             this.populationAtRisk.weight +
             this.attackRate.weight +
@@ -108,11 +119,10 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
 
         if (totalWeight > 21) throw new Error("Invalid grade");
 
-        this.grade =
-            totalWeight <= 7
-                ? "Grade 1"
-                : totalWeight > 7 && totalWeight <= 14
-                ? "Grade 2"
-                : "Grade 3";
+        return totalWeight <= 7
+            ? "Grade 1"
+            : totalWeight > 7 && totalWeight <= 14
+            ? "Grade 2"
+            : "Grade 3";
     }
 }

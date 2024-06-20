@@ -17,7 +17,7 @@ import {
 
 describe("RiskAssessmentGrading", () => {
     it("should be Grade1 if total weight is less than or equal to 7", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.create({
+        const riskAssessmentGrading = RiskAssessmentGrading.createAndCalculateGrade({
             id: "1",
             lastUpdated: new Date(),
             populationAtRisk: LowPopulationAtRisk,
@@ -30,13 +30,11 @@ describe("RiskAssessmentGrading", () => {
             // capability: LowWeightedOption,
         });
 
-        riskAssessmentGrading.calculateAndSetGrade();
-
         expect(riskAssessmentGrading.grade).toBe("Grade 1");
     });
 
     it("should be Grade2 if total weight is greater than 7 and less than equal to 14", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.create({
+        const riskAssessmentGrading = RiskAssessmentGrading.createAndCalculateGrade({
             id: "2",
             lastUpdated: new Date(),
             populationAtRisk: MediumPopulationAtRisk,
@@ -49,13 +47,11 @@ describe("RiskAssessmentGrading", () => {
             // capability: MediumWeightedOption,
         });
 
-        riskAssessmentGrading.calculateAndSetGrade();
-
         expect(riskAssessmentGrading.grade).toBe("Grade 2");
     });
 
     it("should be Grade3 if score is greater than 14", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.create({
+        const riskAssessmentGrading = RiskAssessmentGrading.createAndCalculateGrade({
             id: "3",
             lastUpdated: new Date(),
             populationAtRisk: HighPopulationAtRisk,
@@ -68,13 +64,11 @@ describe("RiskAssessmentGrading", () => {
             // capability: MediumWeightedOption,
         });
 
-        riskAssessmentGrading.calculateAndSetGrade();
-
         expect(riskAssessmentGrading.grade).toBe("Grade 3");
     });
 
     it("should be Grade3 if score is greater than 14", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.create({
+        const riskAssessmentGrading = RiskAssessmentGrading.createAndCalculateGrade({
             id: "4",
             lastUpdated: new Date(),
             populationAtRisk: LowPopulationAtRisk,
@@ -86,8 +80,6 @@ describe("RiskAssessmentGrading", () => {
             severity: HighWeightedOption,
             // capability: MediumWeightedOption,
         });
-
-        riskAssessmentGrading.calculateAndSetGrade();
 
         expect(riskAssessmentGrading.grade).toBe("Grade 3");
     });
