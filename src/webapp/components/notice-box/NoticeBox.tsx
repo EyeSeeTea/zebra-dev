@@ -22,7 +22,6 @@ export const NoticeBox: React.FC<NoticeBoxProps> = React.memo(({ title, children
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    width: 100%;
     padding-inline: 16px;
     padding-block: 12px;
     gap: 8px;
@@ -44,6 +43,7 @@ const TitleContainer = styled.div`
 `;
 
 const Content = styled.div`
+    margin-inline-start: 32px;
     font-size: 0.875rem;
     font-weight: 400;
     color: ${props => props.theme.palette.text.primary};

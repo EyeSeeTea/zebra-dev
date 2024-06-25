@@ -59,7 +59,7 @@ const SubTitle = styled.span`
 `;
 
 const PageContent = styled.div`
-    margin-block-start: 64px;
+    margin-block-start: 48px;
 `;
 
 const Main = styled.main`

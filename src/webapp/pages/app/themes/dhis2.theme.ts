@@ -314,8 +314,8 @@ export const muiTheme = createTheme({
                 color: colors.grey400,
                 borderColor: colors.grey300,
                 backgroundColor: colors.grey100,
-                fontWeight: 400,
                 "& .MuiButton-label": {
+                    fontWeight: 400,
                     color: colors.grey900,
                 },
                 "& .MuiButton-startIcon": {
@@ -337,8 +337,8 @@ export const muiTheme = createTheme({
                 color: colors.grey400,
                 borderColor: colors.grey400,
                 backgroundColor: colors.grey100,
-                fontWeight: 400,
                 "& .MuiButton-label": {
+                    fontWeight: 400,
                     color: colors.grey900,
                 },
                 "& .MuiButton-startIcon": {
