@@ -11,5 +11,3 @@ export interface NamedRef extends Ref {
 export interface CodedNamedRef extends NamedRef {
     code: string;
 }
-
-export type Option = CodedNamedRef;

@@ -4,13 +4,14 @@ import { Struct } from "../generic/Struct";
 type PhoneNumber = string;
 type Email = string;
 type IncidentManagerStatus = "Available" | "Unavailable";
+type Postion = string; //TO DO : make a list once available from client.
 
 interface TeamMemberAttrs extends NamedRef {
-    position: string;
+    position: Postion;
     phone: PhoneNumber;
     email: Email;
     status: IncidentManagerStatus;
-    photo: string; //URL to photo
+    photo: URL;
 }
 
 export class TeamMember extends Struct<TeamMemberAttrs>() {

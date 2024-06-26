@@ -1,11 +1,9 @@
-//Note: DiseaseOutbreak represents Event in the Figma.
-//Not using event as it is a keyword and can also be confused with dhis event
 import { Struct } from "./generic/Struct";
 import { IncidentActionPlan } from "./incident-action-plan/IncidentActionPlan";
 import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
 import { TeamMember } from "./incident-management-team/TeamMember";
 import { OrgUnit } from "./OrgUnit";
-import { NamedRef, Option } from "./Ref";
+import { CodedNamedRef, NamedRef } from "./Ref";
 import { RiskAssessment } from "./risk-assessment/RiskAssessment";
 
 type HazardType =
@@ -22,35 +20,40 @@ type DateWithNarrative = {
     narrative: string;
 };
 
-interface DiseaseOutbreakAttrs extends NamedRef {
+type Syndrome = CodedNamedRef;
+type Disease = CodedNamedRef;
+type NotificationSource = CodedNamedRef;
+
+type DiseaseOutbreakEventAttrs = NamedRef & {
     created: Date;
     lastUpdated: Date;
     createdBy: TeamMember;
     hazardType: HazardType;
-    mainSyndrome: Option;
-    suspectedDisease: Option;
-    notificationSource: Option;
+    mainSyndrome: Syndrome;
+    suspectedDisease: Disease;
+    notificationSource: NotificationSource;
     areasAffected: {
         provinces: OrgUnit[];
         districts: OrgUnit[];
     };
     incidentStatus: IncidentStatusType;
-    dateEmerged: DateWithNarrative;
-    dateDetected: DateWithNarrative;
-    dateNotified: DateWithNarrative;
+    emerged: DateWithNarrative;
+    detected: DateWithNarrative;
+    notified: DateWithNarrative;
     responseNarrative: string;
     incidentManager: TeamMember;
     notes: string;
-    //when should risk assessment, IAP,IMT be fetched? Only when the user clicks on the risk assessment tab?
-    //Can we async get only 1 property in a class?
     riskAssessments: RiskAssessment[];
-    //we need only response actions property from IncidentActionPlan. How can we map that?
     IncidentActionPlan: IncidentActionPlan;
     IncidentManagementTeam: IncidentManagementTeam;
-}
+};
+/**
+ * Note: DiseaseOutbreak represents Event in the Figma.
+ * Not using event as it is a keyword and can also be confused with dhis event
+ **/
 
-export class DiseaseOutbreak extends Struct<DiseaseOutbreakAttrs>() {
+export class DiseaseOutbreakEvent extends Struct<DiseaseOutbreakEventAttrs>() {
     static validateEventName() {
-        //Ensure event name is unique on event creation.
+        //TO DO : Ensure event name is unique on event creation.
     }
 }

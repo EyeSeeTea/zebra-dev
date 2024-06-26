@@ -1,5 +1,7 @@
+import i18n from "@eyeseetea/feedback-component/locales";
 import { Ref } from "../Ref";
 import { Struct } from "../generic/Struct";
+import { Maybe } from "../../../utils/ts-utils";
 
 type WeightedOptions = {
     label: "Low" | "Medium" | "High";
@@ -60,14 +62,14 @@ export const HighGeographicalSpread: GeographicalSpreadOptions = {
 
 type CapacityOptions = {
     label:
-        | "Available within the district with support from provincial and national level "
+        | "Available within the district with support from provincial and national level"
         | "Available within the province with minimal support from national level"
-        | " Available at national with support required from international";
+        | "Available at national with support required from international";
     weight: 1 | 2 | 3;
 };
 
 export const LowCapacity: CapacityOptions = {
-    label: "Available within the district with support from provincial and national level ",
+    label: "Available within the district with support from provincial and national level",
     weight: 1,
 };
 export const MediumCapacity: CapacityOptions = {
@@ -75,7 +77,7 @@ export const MediumCapacity: CapacityOptions = {
     weight: 2,
 };
 export const HighCapacity: CapacityOptions = {
-    label: " Available at national with support required from international",
+    label: "Available at national with support required from international",
     weight: 3,
 };
 
@@ -90,8 +92,7 @@ interface RiskAssessmentGradingAttrs extends Ref {
     capacity: CapacityOptions;
     reputationalRisk: WeightedOptions;
     severity: WeightedOptions;
-    // capability: WeightedOptions;
-    grade?: Grade;
+    grade: Maybe<Grade>;
 }
 
 export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() {
@@ -99,9 +100,7 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
         super(attrs);
     }
 
-    public static createAndCalculateGrade(
-        attrs: RiskAssessmentGradingAttrs
-    ): RiskAssessmentGrading {
+    public static create(attrs: RiskAssessmentGradingAttrs): RiskAssessmentGrading {
         const riskAssessmentGrading = new RiskAssessmentGrading(attrs);
         return riskAssessmentGrading._update({ grade: riskAssessmentGrading.calculateGrade() });
     }
@@ -115,9 +114,8 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
             this.capacity.weight +
             this.reputationalRisk.weight +
             this.severity.weight;
-        // this.capability.weight;
 
-        if (totalWeight > 21) throw new Error("Invalid grade");
+        if (totalWeight > 21) throw new Error(i18n.t("Invalid grade"));
 
         return totalWeight <= 7
             ? "Grade 1"

@@ -2,6 +2,6 @@ import { CodedNamedRef } from "./Ref";
 
 type OrgUnitLevelType = "Province" | "District";
 
-export interface OrgUnit extends CodedNamedRef {
+export type OrgUnit = CodedNamedRef & {
     level: OrgUnitLevelType;
-}
+};

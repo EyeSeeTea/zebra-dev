@@ -1,18 +1,20 @@
+import { CodedNamedRef } from "../Ref";
 import { Struct } from "../generic/Struct";
 import { TeamMember } from "../incident-management-team/TeamMember";
-import { Option } from "../Ref";
 
-//TO DO : Should this be Option?
-type ResponseActionStatusType = "Not done" | "Pending" | "In Progress" | "Complete";
+type ResponseActionStatusType = "NotDone" | "Pending" | "InProgress" | "Complete";
 type ResponseActionVerificationType = "Verified" | "Unverified";
+type MainTask = CodedNamedRef;
+type SubPillar = CodedNamedRef;
+type TimeLine = CodedNamedRef;
 
 interface ResponseActionAttrs {
-    mainTask: Option;
+    mainTask: MainTask;
     subActivities: string;
-    subPillar: Option;
+    subPillar: SubPillar;
     responsibleOfficer: TeamMember;
     dueDate: Date;
-    timeLine: Option;
+    timeLine: TimeLine;
     status: ResponseActionStatusType;
     verification: ResponseActionVerificationType;
 }

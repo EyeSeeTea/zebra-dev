@@ -17,7 +17,7 @@ import {
 
 describe("RiskAssessmentGrading", () => {
     it("should be Grade1 if total weight is less than or equal to 7", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.createAndCalculateGrade({
+        const riskAssessmentGrading = RiskAssessmentGrading.create({
             id: "1",
             lastUpdated: new Date(),
             populationAtRisk: LowPopulationAtRisk,
@@ -27,14 +27,14 @@ describe("RiskAssessmentGrading", () => {
             capacity: LowCapacity,
             reputationalRisk: LowWeightedOption,
             severity: LowWeightedOption,
-            // capability: LowWeightedOption,
+            grade: undefined,
         });
 
         expect(riskAssessmentGrading.grade).toBe("Grade 1");
     });
 
     it("should be Grade2 if total weight is greater than 7 and less than equal to 14", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.createAndCalculateGrade({
+        const riskAssessmentGrading = RiskAssessmentGrading.create({
             id: "2",
             lastUpdated: new Date(),
             populationAtRisk: MediumPopulationAtRisk,
@@ -44,14 +44,14 @@ describe("RiskAssessmentGrading", () => {
             capacity: MediumCapacity,
             reputationalRisk: MediumWeightedOption,
             severity: MediumWeightedOption,
-            // capability: MediumWeightedOption,
+            grade: undefined,
         });
 
         expect(riskAssessmentGrading.grade).toBe("Grade 2");
     });
 
     it("should be Grade3 if score is greater than 14", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.createAndCalculateGrade({
+        const riskAssessmentGrading = RiskAssessmentGrading.create({
             id: "3",
             lastUpdated: new Date(),
             populationAtRisk: HighPopulationAtRisk,
@@ -61,14 +61,14 @@ describe("RiskAssessmentGrading", () => {
             capacity: HighCapacity,
             reputationalRisk: HighWeightedOption,
             severity: HighWeightedOption,
-            // capability: MediumWeightedOption,
+            grade: undefined,
         });
 
         expect(riskAssessmentGrading.grade).toBe("Grade 3");
     });
 
     it("should be Grade3 if score is greater than 14", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.createAndCalculateGrade({
+        const riskAssessmentGrading = RiskAssessmentGrading.create({
             id: "4",
             lastUpdated: new Date(),
             populationAtRisk: LowPopulationAtRisk,
@@ -78,7 +78,7 @@ describe("RiskAssessmentGrading", () => {
             capacity: LowCapacity,
             reputationalRisk: HighWeightedOption,
             severity: HighWeightedOption,
-            // capability: MediumWeightedOption,
+            grade: undefined,
         });
 
         expect(riskAssessmentGrading.grade).toBe("Grade 3");

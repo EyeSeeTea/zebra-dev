@@ -15,7 +15,7 @@
 
 export function Struct<Attrs>() {
     abstract class Base {
-        private constructor(_attributes: Attrs) {
+        protected constructor(_attributes: Attrs) {
             Object.assign(this, _attributes);
         }
 
@@ -28,15 +28,10 @@ export function Struct<Attrs>() {
             const ParentClass = this.constructor as new (values: Attrs) => typeof this;
             return new ParentClass({ ...this._getAttributes(), ...partialAttrs });
         }
-
-        static create<U extends Base>(this: new (attrs: Attrs) => U, attrs: Attrs): U {
-            return new this(attrs);
-        }
     }
 
     return Base as {
         new (values: Attrs): Attrs & Base;
-        create: (typeof Base)["create"];
     };
 }
 
