@@ -3,38 +3,35 @@ import _ from "lodash";
 import { Table, TableBody, TableCell, TableHead, TableRow, Link } from "@material-ui/core";
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
+import { User } from "../../../domain/entities/User";
 
-interface TableCellData {
-    value: string;
-    type?: "link";
-    link?: string;
-}
+type TableCellData = Maybe<string | User>;
 
-export type TableColumn = string;
+export type TableColumn = { name: string; type?: "link" | "select" };
 
 interface BasicTableProps {
     columns: TableColumn[];
     rows: {
-        [key: TableColumn]: TableCellData;
+        [key: TableColumn["name"]]: string | User;
     }[];
-    onChange?: (cell: Maybe<TableCellData>, rowIndex: number, column: TableColumn) => void;
+    onChange?: (cell: TableCellData, rowIndex: number, column: TableColumn["name"]) => void;
 }
 
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
     ({ columns, rows, onChange = () => {} }) => {
-        const renderCell = (cell: Maybe<TableCellData>, rowIndex: number, column: TableColumn) => {
+        const renderCell = (cell: TableCellData, rowIndex: number, { name, type }: TableColumn) => {
             if (!cell) {
                 return "";
             }
-            switch (cell.type) {
+            switch (type) {
                 case "link":
                     return (
-                        <StyledLink href="#" onClick={() => onChange(cell, rowIndex, column)}>
-                            {cell.value}
+                        <StyledLink onClick={() => onChange(cell, rowIndex, name)}>
+                            {_.isObject(cell) ? cell.name : cell}
                         </StyledLink>
                     );
                 default:
-                    return cell.value;
+                    return _.isObject(cell) ? cell.name : cell;
             }
         };
 
@@ -42,8 +39,8 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
             <StyledTable>
                 <TableHead>
                     <TableRow>
-                        {columns.map(column => (
-                            <TableCell key={column}>{_.startCase(column)}</TableCell>
+                        {columns.map(({ name }) => (
+                            <TableCell key={name}>{_.startCase(name)}</TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
@@ -51,8 +48,8 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                     {rows.map((row, rowIndex) => (
                         <TableRow key={rowIndex}>
                             {columns.map(column => (
-                                <TableCell key={`${rowIndex}-${column}`}>
-                                    {renderCell(row[column], rowIndex, column)}
+                                <TableCell key={`${rowIndex}-${column.name}`}>
+                                    {renderCell(row[column.name], rowIndex, column)}
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -80,4 +77,5 @@ const StyledTable = styled(Table)`
 const StyledLink = styled(Link)`
     color: ${props => props.theme.palette.common.blue600};
     text-decoration: underline;
+    cursor: pointer;
 `;
