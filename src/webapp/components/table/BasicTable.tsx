@@ -15,10 +15,11 @@ interface BasicTableProps {
         [key: TableColumn["name"]]: string | User;
     }[];
     onChange?: (cell: TableCellData, rowIndex: number, column: TableColumn["name"]) => void;
+    showRowIndex?: boolean;
 }
 
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
-    ({ columns, rows, onChange = () => {} }) => {
+    ({ columns, rows, onChange = () => {}, showRowIndex = false }) => {
         const renderCell = (cell: TableCellData, rowIndex: number, { name, type }: TableColumn) => {
             if (!cell) {
                 return "";
@@ -39,6 +40,7 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
             <StyledTable>
                 <TableHead>
                     <TableRow>
+                        <TableCell />
                         {columns.map(({ name }) => (
                             <TableCell key={name}>{_.startCase(name)}</TableCell>
                         ))}
@@ -47,6 +49,7 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                 <TableBody>
                     {rows.map((row, rowIndex) => (
                         <TableRow key={rowIndex}>
+                            {showRowIndex && <TableCell>{rowIndex + 1}</TableCell>}
                             {columns.map(column => (
                                 <TableCell key={`${rowIndex}-${column.name}`}>
                                     {renderCell(row[column.name], rowIndex, column)}
