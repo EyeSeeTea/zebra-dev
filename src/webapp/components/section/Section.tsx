@@ -30,7 +30,9 @@ export const Section: React.FC<SectionProps> = React.memo(
                         {title ? <Title $titleVariant={titleVariant}>{title}</Title> : null}
                         {lastUpdated ? (
                             <LastUpdatedContainer>
-                                <LastUpdatedTitle>{i18n.t("Last updated: ")}</LastUpdatedTitle>
+                                <LastUpdatedTitle>
+                                    {i18n.t("Last updated: ", { nsSeparator: false })}
+                                </LastUpdatedTitle>
                                 {lastUpdated}
                             </LastUpdatedContainer>
                         ) : null}
