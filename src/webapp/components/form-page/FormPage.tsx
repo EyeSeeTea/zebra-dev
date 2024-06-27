@@ -12,7 +12,7 @@ type FormPageProps = {
     cancelLabel?: string;
     children: React.ReactNode;
     onSave: () => void;
-    onCancel: () => void;
+    onCancel?: () => void;
 };
 
 export const FormPage: React.FC<FormPageProps> = React.memo(
@@ -31,9 +31,11 @@ export const FormPage: React.FC<FormPageProps> = React.memo(
                     <Separator margin="12px" />
                     <ButtonsFooter>
                         <Button onClick={onSave}>{saveLabel || i18n.t("Save")}</Button>
-                        <Button onClick={onCancel} variant="outlined" color="secondary">
-                            {cancelLabel || i18n.t("Cancel")}
-                        </Button>
+                        {onCancel && (
+                            <Button onClick={onCancel} variant="outlined" color="secondary">
+                                {cancelLabel || i18n.t("Cancel")}
+                            </Button>
+                        )}
                     </ButtonsFooter>
                 </Footer>
             </StyledFormPage>
