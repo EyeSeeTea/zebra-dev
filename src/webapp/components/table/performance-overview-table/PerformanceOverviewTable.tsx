@@ -21,17 +21,36 @@ export type TableColumn = {
 };
 
 interface PerformanceOverviewTableProps {
-    columns: TableColumn[];
     rows: {
         [key: TableColumn["value"]]: CellType;
     }[];
 }
 
 export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> = React.memo(
-    ({ columns, rows }) => {
+    ({ rows }) => {
         const [searchTerm, setSearchTerm] = useState<string>("");
         const [filterValue, setFilterValue] = useState("");
         const [filteredRows, setFilteredRows] = useState(rows);
+
+        const columns: TableColumn[] = [
+            { label: "Event", value: "event" },
+            { label: "Location", value: "location" },
+            { label: "Cases", value: "cases" },
+            { label: "Deaths", value: "deaths" },
+            { label: "Duration", value: "duration" },
+            { label: "Manager", value: "manager" },
+            { label: "Detect 7d", dark: true, value: "detect7d" },
+            { label: "Notify 1d", dark: true, value: "notify1d" },
+            { label: "ERA1", value: "era1" },
+            { label: "ERA2", value: "era2" },
+            { label: "ERA3", value: "era3" },
+            { label: "ERA4", value: "era4" },
+            { label: "ERA5", value: "era5" },
+            { label: "ERA6", value: "era6" },
+            { label: "ERA7", value: "era7" },
+            { label: "ERI", value: "eri" },
+            { label: "Respond 7d", dark: true, value: "respond7d" },
+        ];
 
         useEffect(() => {
             if (searchTerm === "") {
@@ -50,7 +69,7 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
             <React.Fragment>
                 <Container>
                     <StyledSelector
-                        id="selector"
+                        id="filter"
                         selected={filterValue}
                         options={[...columns]}
                         onChange={(value: string) => {
@@ -132,7 +151,7 @@ const BodyTableCell = styled(TableCell)<{ color?: string; boldUnderline?: boolea
         props.color ? props.theme.palette.common[props.color] : "initial"};
     color: ${props => (props.color ? props.theme.palette.common.white : "initial")};
     text-decoration: ${props => props.boldUnderline && "underline"};
-    font-weight: ${props => (props.boldUnderline || props.color) && "700"};
+    font-weight: ${props => (props.boldUnderline || props.color) && "600"};
 `;
 
 const Container = styled.div`
