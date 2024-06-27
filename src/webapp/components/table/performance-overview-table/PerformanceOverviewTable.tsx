@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import _ from "lodash";
 import {
     Table,
@@ -66,6 +66,9 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
             notify1d: 1,
             respond7d: 7,
         };
+
+        const calculateColumns = [...editRiskAssessmentColumns, ..._.keys(columnRules)];
+
         useEffect(() => {
             if (searchTerm === "") {
                 setFilteredRows(rows);
@@ -103,6 +106,58 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
             // Return "green" if value is less than or equal to the rule, otherwise "red"
             return value <= rule ? "green" : "red";
         };
+
+        const calculateMedian = (
+            rows: PerformanceOverviewTableProps["rows"],
+            column: TableColumn["value"]
+        ) => {
+            const values = rows.map(row => Number(row[column])).filter(value => !isNaN(value));
+            values.sort((a, b) => a - b);
+            const mid = Math.floor(values.length / 2);
+            return values.length % 2 !== 0
+                ? values[mid]
+                : ((values[mid - 1] || 0) + (values[mid] || 0)) / 2;
+        };
+
+        const calculatePercentTargetMet = (
+            rows: PerformanceOverviewTableProps["rows"],
+            column: TableColumn["value"],
+            target: number
+        ) => {
+            const count = rows.filter(row => Number(row[column]) <= target).length;
+            const percentage = (count / rows.length) * 100 || 0;
+            return `${percentage.toFixed(0) || 0}%`;
+        };
+
+        const buildMedianRow = useMemo(() => {
+            return columns.map((column, columnIndex) => (
+                <FooterTableCell key={`median-${column.value}`} $boldUnderline={columnIndex === 0}>
+                    {columnIndex === 0 && "Median"}
+                    {_.includes(calculateColumns, column.value)
+                        ? calculateMedian(filteredRows, column.value)
+                        : ""}
+                </FooterTableCell>
+            ));
+        }, [filteredRows]);
+
+        const buildPercentTargetMetRow = useMemo(() => {
+            return columns.map((column, columnIndex) => {
+                const rule = columnRules[column.value] || 7;
+
+                return (
+                    <FooterTableCell
+                        key={`percent-${column.value}`}
+                        $boldUnderline={columnIndex === 0}
+                    >
+                        {columnIndex === 0 && "% Target Met"}
+
+                        {_.includes(calculateColumns, column.value)
+                            ? calculatePercentTargetMet(filteredRows, column.value, rule)
+                            : ""}
+                    </FooterTableCell>
+                );
+            });
+        }, [filteredRows]);
 
         return (
             <React.Fragment>
@@ -146,6 +201,8 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
                                     ))}
                                 </TableRow>
                             ))}
+                            <TableRow>{buildMedianRow}</TableRow>
+                            <TableRow>{buildPercentTargetMetRow}</TableRow>
                         </TableBody>
                     </Table>
                 </StyledTableContainer>
@@ -164,7 +221,7 @@ const StyledTableContainer = styled(TableContainer)`
     }
     & .MuiTableHead-root {
         color: ${props => props.theme.palette.common.greyBlack};
-        background-color: ${props => props.theme.palette.common.greyLight};
+        background-color: ${props => props.theme.palette.common.grey4};
     }
     & .MuiTableBody-root {
         color: ${props => props.theme.palette.common.grey};
@@ -189,6 +246,12 @@ const BodyTableCell = styled(TableCell)<{ color?: string; $boldUnderline: boolea
     background-color: ${props =>
         props.color ? props.theme.palette.common[props.color] : "initial"};
     color: ${props => (props.color ? props.theme.palette.common.white : "initial")};
+    text-decoration: ${props => props.$boldUnderline && "underline"};
+    font-weight: ${props => (props.$boldUnderline || !!props.color) && "600"};
+`;
+
+const FooterTableCell = styled(TableCell)<{ $boldUnderline: boolean }>`
+    background-color: ${props => props.theme.palette.common.greyLight};
     text-decoration: ${props => props.$boldUnderline && "underline"};
     font-weight: ${props => (props.$boldUnderline || !!props.color) && "600"};
 `;
