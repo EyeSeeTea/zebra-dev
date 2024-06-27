@@ -6,7 +6,8 @@ import { Separator } from "../separator/Separator";
 import { IconButton } from "../icon-button/IconButton";
 
 type FormSectionProps = {
-    title: string;
+    title?: string;
+    required?: boolean;
     children: React.ReactNode;
     hasSeparator?: boolean;
     onClickInfo?: () => void;
@@ -14,15 +15,28 @@ type FormSectionProps = {
 };
 
 export const FormSection: React.FC<FormSectionProps> = React.memo(
-    ({ title, hasSeparator = false, children, onClickInfo, direction = "row" }) => {
+    ({
+        title,
+        hasSeparator = false,
+        children,
+        onClickInfo,
+        direction = "row",
+        required = false,
+    }) => {
         return (
             <FormSectionContainer>
                 {hasSeparator && <Separator margin="12px" />}
                 <Container direction={direction}>
-                    <TitleContainer>
-                        <RequiredText>{title}</RequiredText>
-                        {onClickInfo && <IconButton icon={<IconInfo24 />} onClick={onClickInfo} />}
-                    </TitleContainer>
+                    {title && (
+                        <TitleContainer>
+                            <RequiredText className={required ? "required" : ""}>
+                                {title}
+                            </RequiredText>
+                            {onClickInfo && (
+                                <IconButton icon={<IconInfo24 />} onClick={onClickInfo} />
+                            )}
+                        </TitleContainer>
+                    )}
                     <FormContainer>{children}</FormContainer>
                 </Container>
             </FormSectionContainer>
@@ -58,7 +72,8 @@ const RequiredText = styled.span`
     font-size: 0.875rem;
     font-weight: 700;
     white-space: nowrap;
-    &::after {
+
+    &.required::after {
         content: "*";
         color: ${props => props.theme.palette.common.red};
         margin-inline-start: 4px;
