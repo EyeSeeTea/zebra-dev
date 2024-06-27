@@ -4,14 +4,14 @@ import styled from "styled-components";
 import i18n from "../../../utils/i18n";
 import { Separator } from "../separator/Separator";
 
-interface SectionProps {
+type SectionProps = {
     title?: string;
     lastUpdated?: string;
     children: React.ReactNode;
     headerButtom?: React.ReactNode;
     hasSeparator?: boolean;
     titleVariant?: "primary" | "secondary";
-}
+};
 
 export const Section: React.FC<SectionProps> = React.memo(
     ({

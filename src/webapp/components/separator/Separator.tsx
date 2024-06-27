@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-interface SeparatorProps {
+type SeparatorProps = {
     margin?: string;
-}
+};
 
 export const Separator: React.FC<SeparatorProps> = React.memo(({ margin = "" }) => {
     return <StyledSeparator margin={margin} />;

@@ -6,7 +6,7 @@ import { DatePicker as DatePickerMUI } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { IconCalendar24 } from "@dhis2/ui";
 
-interface DatePickerProps {
+type DatePickerProps = {
     id: string;
     label?: string;
     value: Date | null;
@@ -15,7 +15,7 @@ interface DatePickerProps {
     errorText?: string;
     disabled?: boolean;
     error?: boolean;
-}
+};
 
 export const DatePicker: React.FC<DatePickerProps> = React.memo(
     ({

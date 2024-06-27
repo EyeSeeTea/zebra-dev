@@ -5,13 +5,13 @@ import { IconInfo24 } from "@dhis2/ui";
 import { Separator } from "../separator/Separator";
 import { IconButton } from "../icon-button/IconButton";
 
-interface FormSectionProps {
+type FormSectionProps = {
     title: string;
     children: React.ReactNode;
     hasSeparator?: boolean;
     onClickInfo?: () => void;
     direction?: "row" | "column";
-}
+};
 
 export const FormSection: React.FC<FormSectionProps> = React.memo(
     ({ title, hasSeparator = false, children, onClickInfo, direction = "row" }) => {

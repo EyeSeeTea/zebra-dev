@@ -4,13 +4,13 @@ import styled from "styled-components";
 
 import { SideBarContent } from "./SideBarContent";
 
-interface SideBarProps {
+type SideBarProps = {
     children?: React.ReactNode;
     hideOptions?: boolean;
     open: boolean;
     toggleSideBar: (isOpen: boolean) => void;
     showCreateEvent?: boolean;
-}
+};
 
 export const SideBar: React.FC<SideBarProps> = React.memo(
     ({ children, hideOptions = false, toggleSideBar, open = false, showCreateEvent = false }) => {

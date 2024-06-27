@@ -2,10 +2,10 @@ import React from "react";
 import { IconInfo24 } from "@dhis2/ui";
 import styled from "styled-components";
 
-interface NoticeBoxProps {
+type NoticeBoxProps = {
     title: string;
     children: React.ReactNode;
-}
+};
 
 export const NoticeBox: React.FC<NoticeBoxProps> = React.memo(({ title, children }) => {
     return (

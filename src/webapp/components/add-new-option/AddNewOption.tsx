@@ -4,11 +4,11 @@ import { AddCircleOutline } from "@material-ui/icons";
 
 import i18n from "../../../utils/i18n";
 
-interface AddNewOptionProps {
+type AddNewOptionProps = {
     id: string;
     label?: string;
     onAddNewOption: () => void;
-}
+};
 
 export const AddNewOption: React.FC<AddNewOptionProps> = React.memo(
     ({ id, label = "", onAddNewOption }) => {

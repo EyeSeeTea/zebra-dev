@@ -2,12 +2,12 @@ import React from "react";
 import { CardContent, Card, Avatar } from "@material-ui/core";
 import styled from "styled-components";
 
-interface AvatarCardProps {
+type AvatarCardProps = {
     children: React.ReactNode;
     avatarSize?: "small" | "medium";
     alt?: string;
     src?: string;
-}
+};
 
 export const AvatarCard: React.FC<AvatarCardProps> = React.memo(
     ({ children, src, alt, avatarSize = "small" }) => {

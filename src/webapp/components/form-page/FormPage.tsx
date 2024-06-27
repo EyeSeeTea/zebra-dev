@@ -5,15 +5,15 @@ import i18n from "../../../utils/i18n";
 import { Button } from "../button/Button";
 import { Separator } from "../separator/Separator";
 
-interface FormPageProps {
+type FormPageProps = {
     title?: string;
     subtitle?: string;
     saveLabel?: string;
     cancelLabel?: string;
     children: React.ReactNode;
     onSave: () => void;
-    onCancel: () => void;
-}
+    onCancel?: () => void;
+};
 
 export const FormPage: React.FC<FormPageProps> = React.memo(
     ({ title, subtitle = "", saveLabel = "", cancelLabel = "", children, onSave, onCancel }) => {
@@ -31,9 +31,11 @@ export const FormPage: React.FC<FormPageProps> = React.memo(
                     <Separator margin="12px" />
                     <ButtonsFooter>
                         <Button onClick={onSave}>{saveLabel || i18n.t("Save")}</Button>
-                        <Button onClick={onCancel} variant="outlined" color="secondary">
-                            {cancelLabel || i18n.t("Cancel")}
-                        </Button>
+                        {onCancel && (
+                            <Button onClick={onCancel} variant="outlined" color="secondary">
+                                {cancelLabel || i18n.t("Cancel")}
+                            </Button>
+                        )}
                     </ButtonsFooter>
                 </Footer>
             </StyledFormPage>

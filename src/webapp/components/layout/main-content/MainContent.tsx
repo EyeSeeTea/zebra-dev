@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { SideBar } from "../side-bar/SideBar";
 
-interface MainContentProps {
+type MainContentProps = {
     children?: React.ReactNode;
     title?: string;
     subtitle?: string;
@@ -11,7 +11,7 @@ interface MainContentProps {
     sideBarOpen: boolean;
     toggleSideBar: (isOpen: boolean) => void;
     showCreateEvent?: boolean;
-}
+};
 
 export const MainContent: React.FC<MainContentProps> = React.memo(
     ({

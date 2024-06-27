@@ -8,7 +8,7 @@ export type RadioOption<T extends string = string> = {
     disabled?: boolean;
 };
 
-interface RadioButtonsGroupProps {
+type RadioButtonsGroupProps = {
     id: string;
     selected: string;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -17,7 +17,7 @@ interface RadioButtonsGroupProps {
     helperText?: string;
     errorText?: string;
     error?: boolean;
-}
+};
 
 export const RadioButtonsGroup: React.FC<RadioButtonsGroupProps> = React.memo(
     ({
