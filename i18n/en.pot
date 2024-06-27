@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-06-26T13:33:38.517Z\n"
-"PO-Revision-Date: 2024-06-26T13:33:38.517Z\n"
+"POT-Creation-Date: 2024-06-27T12:51:45.020Z\n"
+"PO-Revision-Date: 2024-06-27T12:51:45.020Z\n"
 
 msgid "Add new option"
 msgstr ""
@@ -39,12 +39,6 @@ msgid "Incident Management Team Builder"
 msgstr ""
 
 msgid "Cholera in NW Province, June 2023"
-msgstr ""
-
-msgid "Event Name"
-msgstr ""
-
-msgid "Hazard Type"
 msgstr ""
 
 msgid "Incident Action Plan"
