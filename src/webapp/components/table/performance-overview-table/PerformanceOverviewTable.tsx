@@ -11,8 +11,7 @@ import {
 import styled from "styled-components";
 import { SearchInput } from "../../search-input/SearchInput";
 import { Selector } from "../../selector/Selector";
-
-type CellType = { value?: string; color?: string };
+import { Maybe } from "../../../../utils/ts-utils";
 
 export type TableColumn = {
     value: string;
@@ -22,7 +21,7 @@ export type TableColumn = {
 
 interface PerformanceOverviewTableProps {
     rows: {
-        [key: TableColumn["value"]]: CellType;
+        [key: TableColumn["value"]]: string;
     }[];
 }
 
@@ -52,18 +51,58 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
             { label: "Respond 7d", dark: true, value: "respond7d" },
         ];
 
+        const editRiskAssessmentColumns = [
+            "era1",
+            "era2",
+            "era3",
+            "era4",
+            "era5",
+            "era6",
+            "era7",
+            "eri",
+        ];
+        const columnRules: { [key: string]: number } = {
+            detect7d: 7,
+            notify1d: 1,
+            respond7d: 7,
+        };
         useEffect(() => {
             if (searchTerm === "") {
                 setFilteredRows(rows);
             } else {
                 const filtered = _.filter(rows, row => {
                     return _.some(row, cell => {
-                        return _.includes(_.toLower(cell.value), _.toLower(searchTerm));
+                        return _.includes(_.toLower(cell), _.toLower(searchTerm));
                     });
                 });
                 setFilteredRows(filtered);
             }
         }, [searchTerm, rows]);
+
+        const getCellColor = (cellValue: Maybe<string>, column: TableColumn["value"]) => {
+            // Return "orange" for empty Edit Risk Assessment column
+            if (!cellValue) {
+                return _.includes(editRiskAssessmentColumns, column) ? "orange" : undefined;
+            }
+
+            const value = Number(cellValue);
+
+            // Return "red" for value greater than rule in Edit Risk Assessment column
+            if (_.includes(editRiskAssessmentColumns, column)) {
+                return columnRules.respond7d && value > columnRules.respond7d ? "red" : undefined;
+            }
+
+            // Get the column rule for the current column
+            const rule = columnRules[column];
+
+            // If there is no rule for the current column, return undefined
+            if (rule === undefined) {
+                return undefined;
+            }
+
+            // Return "green" if value is less than or equal to the rule, otherwise "red"
+            return value <= rule ? "green" : "red";
+        };
 
         return (
             <React.Fragment>
@@ -87,7 +126,7 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
                         <TableHead>
                             <TableRow>
                                 {columns.map(({ value, label, dark = false }) => (
-                                    <HeadTableCell key={value} dark={dark}>
+                                    <HeadTableCell key={value} $dark={dark}>
                                         {label}
                                     </HeadTableCell>
                                 ))}
@@ -99,10 +138,10 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
                                     {columns.map((column, columnIndex) => (
                                         <BodyTableCell
                                             key={`${rowIndex}-${column.value}`}
-                                            color={row[column.value]?.color}
-                                            boldUnderline={columnIndex === 0}
+                                            color={getCellColor(row[column.value], column.value)}
+                                            $boldUnderline={columnIndex === 0}
                                         >
-                                            {row[column.value]?.value || ""}
+                                            {row[column.value] || ""}
                                         </BodyTableCell>
                                     ))}
                                 </TableRow>
@@ -131,27 +170,27 @@ const StyledTableContainer = styled(TableContainer)`
         color: ${props => props.theme.palette.common.grey};
     }
     & .MuiTableCell-root {
+        min-width: 2rem;
         font-size: 0.75rem;
         white-space: nowrap;
-
         border: 1px solid ${props => props.theme.palette.common.grey};
         padding-inline: 0.5rem;
         padding-block: 0.625rem;
     }
 `;
 
-const HeadTableCell = styled(TableCell)<{ dark?: boolean }>`
-    background-color: ${props => (props.dark ? props.theme.palette.common.grey2 : "initial")};
-    color: ${props => (props.dark ? props.theme.palette.common.white : "initial")};
+const HeadTableCell = styled(TableCell)<{ $dark?: boolean }>`
+    background-color: ${props => (props.$dark ? props.theme.palette.common.grey2 : "initial")};
+    color: ${props => (props.$dark ? props.theme.palette.common.white : "initial")};
     font-weight: 600;
 `;
 
-const BodyTableCell = styled(TableCell)<{ color?: string; boldUnderline?: boolean }>`
+const BodyTableCell = styled(TableCell)<{ color?: string; $boldUnderline: boolean }>`
     background-color: ${props =>
         props.color ? props.theme.palette.common[props.color] : "initial"};
     color: ${props => (props.color ? props.theme.palette.common.white : "initial")};
-    text-decoration: ${props => props.boldUnderline && "underline"};
-    font-weight: ${props => (props.boldUnderline || props.color) && "600"};
+    text-decoration: ${props => props.$boldUnderline && "underline"};
+    font-weight: ${props => (props.$boldUnderline || !!props.color) && "600"};
 `;
 
 const Container = styled.div`
