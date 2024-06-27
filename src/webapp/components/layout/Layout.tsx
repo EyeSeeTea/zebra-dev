@@ -5,13 +5,14 @@ import { Menu } from "@material-ui/icons";
 
 import { MainContent } from "./main-content/MainContent";
 import { Button } from "../button/Button";
-interface LayoutProps {
+
+type LayoutProps = {
     children?: React.ReactNode;
     title?: string;
     subtitle?: string;
     hideSideBarOptions?: boolean;
     showCreateEvent?: boolean;
-}
+};
 
 export const Layout: React.FC<LayoutProps> = React.memo(
     ({

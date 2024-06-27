@@ -5,7 +5,7 @@ import i18n from "../../../utils/i18n";
 import { Button } from "../button/Button";
 import { Separator } from "../separator/Separator";
 
-interface FormPageProps {
+type FormPageProps = {
     title?: string;
     subtitle?: string;
     saveLabel?: string;
@@ -13,7 +13,7 @@ interface FormPageProps {
     children: React.ReactNode;
     onSave: () => void;
     onCancel: () => void;
-}
+};
 
 export const FormPage: React.FC<FormPageProps> = React.memo(
     ({ title, subtitle = "", saveLabel = "", cancelLabel = "", children, onSave, onCancel }) => {

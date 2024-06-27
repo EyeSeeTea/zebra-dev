@@ -2,7 +2,7 @@ import React from "react";
 import { TextField, InputLabel } from "@material-ui/core";
 import styled from "styled-components";
 
-interface InputFieldProps {
+type InputFieldProps = {
     id: string;
     label?: string;
     value: string;
@@ -12,7 +12,7 @@ interface InputFieldProps {
     required?: boolean;
     disabled?: boolean;
     error?: boolean;
-}
+};
 
 export const InputField: React.FC<InputFieldProps> = React.memo(
     ({

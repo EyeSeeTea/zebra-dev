@@ -9,7 +9,7 @@ export type MultipleSelectorOption<T extends string = string> = {
     disabled?: boolean;
 };
 
-interface MultipleSelectorProps<T extends string = string> {
+type MultipleSelectorProps<T extends string = string> = {
     id: string;
     selected: T[];
     onChange: (value: MultipleSelectorOption["value"][]) => void;
@@ -20,7 +20,7 @@ interface MultipleSelectorProps<T extends string = string> {
     helperText?: string;
     errorText?: string;
     error?: boolean;
-}
+};
 
 export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(
     ({

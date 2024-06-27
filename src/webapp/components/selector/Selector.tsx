@@ -9,7 +9,7 @@ export type SelectorOption<T extends string = string> = {
     disabled?: boolean;
 };
 
-interface SelectorProps<T extends string = string> {
+type SelectorProps<T extends string = string> = {
     id: string;
     selected: T;
     onChange: (value: SelectorOption["value"]) => void;
@@ -20,7 +20,7 @@ interface SelectorProps<T extends string = string> {
     helperText?: string;
     errorText?: string;
     error?: boolean;
-}
+};
 
 export const Selector: React.FC<SelectorProps> = React.memo(
     ({

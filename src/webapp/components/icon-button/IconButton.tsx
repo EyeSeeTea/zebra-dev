@@ -2,11 +2,11 @@ import React from "react";
 import { IconButton as MUIIconButton } from "@material-ui/core";
 import styled from "styled-components";
 
-interface IconButtonProps {
+type IconButtonProps = {
     icon: React.ReactNode;
     disabled?: boolean;
     onClick: () => void;
-}
+};
 
 export const IconButton: React.FC<IconButtonProps> = React.memo(
     ({ icon, disabled = false, onClick }) => {

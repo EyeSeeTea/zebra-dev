@@ -2,7 +2,7 @@ import React from "react";
 import { CardContent, Card } from "@material-ui/core";
 import styled from "styled-components";
 
-interface StatsCardProps {
+type StatsCardProps = {
     color?: "normal" | "green" | "red";
     stat: string;
     pretitle?: string;
@@ -10,7 +10,7 @@ interface StatsCardProps {
     subtitle?: string;
     isPercentage?: boolean;
     error?: boolean;
-}
+};
 
 export const StatsCard: React.FC<StatsCardProps> = React.memo(
     ({

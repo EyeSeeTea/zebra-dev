@@ -7,11 +7,11 @@ import { AddCircleOutline } from "@material-ui/icons";
 import i18n from "../../../../utils/i18n";
 import { Button } from "../../button/Button";
 
-interface SideBarContentProps {
+type SideBarContentProps = {
     children?: React.ReactNode;
     hideOptions?: boolean;
     showCreateEvent?: boolean;
-}
+};
 
 type SideBarOption = {
     text: string;

@@ -6,12 +6,12 @@ import _ from "lodash";
 
 import i18n from "../../../utils/i18n";
 
-interface SearchInputProps {
+type SearchInputProps = {
     value: string;
     onChange: (event: string) => void;
     placeholder?: string;
     disabled?: boolean;
-}
+};
 
 export const SearchInput: React.FC<SearchInputProps> = React.memo(
     ({ value, onChange, placeholder = "", disabled = false }) => {

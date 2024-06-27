@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { FormHelperText, TextareaAutosize } from "@material-ui/core";
 
-interface TextAreaProps {
+type TextAreaProps = {
     id: string;
     label?: string;
     value: string;
@@ -11,7 +11,7 @@ interface TextAreaProps {
     helperText?: string;
     errorText?: string;
     error?: boolean;
-}
+};
 
 export const TextArea: React.FC<TextAreaProps> = React.memo(
     ({

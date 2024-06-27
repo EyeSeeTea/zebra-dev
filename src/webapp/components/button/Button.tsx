@@ -2,14 +2,14 @@ import React from "react";
 import { Button as MUIButton } from "@material-ui/core";
 import styled from "styled-components";
 
-interface ButtonProps {
+type ButtonProps = {
     children?: React.ReactNode;
     variant?: "contained" | "outlined";
     color?: "primary" | "secondary" | "dark-secondary";
     disabled?: boolean;
     startIcon?: React.ReactNode;
     onClick: () => void;
-}
+};
 
 export const Button: React.FC<ButtonProps> = React.memo(
     ({

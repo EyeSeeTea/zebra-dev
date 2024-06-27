@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import i18n from "../../../utils/i18n";
 
-interface NACheckboxProps {
+type NACheckboxProps = {
     id: string;
     label?: string;
     checked: boolean;
@@ -12,7 +12,7 @@ interface NACheckboxProps {
     helperText?: string;
     disabled?: boolean;
     indeterminate?: boolean;
-}
+};
 
 export const NACheckbox: React.FC<NACheckboxProps> = React.memo(
     ({

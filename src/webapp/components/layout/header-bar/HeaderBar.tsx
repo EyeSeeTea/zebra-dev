@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { HeaderBar as D2HeaderBar } from "@dhis2/ui";
 
-interface HeaderBarProps {
+type HeaderBarProps = {
     name: string;
-}
+};
 
 export const HeaderBar: React.FC<HeaderBarProps> = React.memo(({ name }) => {
     return (

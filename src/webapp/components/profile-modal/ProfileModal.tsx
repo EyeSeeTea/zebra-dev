@@ -5,7 +5,7 @@ import styled from "styled-components";
 import i18n from "../../../utils/i18n";
 import { Button } from "../button/Button";
 
-interface ProfileModalProps {
+type ProfileModalProps = {
     name: string;
     children: React.ReactNode;
     avatarSize?: "small" | "medium";
@@ -13,7 +13,7 @@ interface ProfileModalProps {
     src?: string;
     open: boolean;
     onClose: () => void;
-}
+};
 
 export const ProfileModal: React.FC<ProfileModalProps> = React.memo(
     ({ children, src, alt, open = false, onClose, name }) => {
