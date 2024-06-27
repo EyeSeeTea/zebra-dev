@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-06-26T13:33:38.517Z\n"
-"PO-Revision-Date: 2024-06-26T13:33:38.517Z\n"
+"POT-Creation-Date: 2024-06-27T08:53:15.150Z\n"
+"PO-Revision-Date: 2024-06-27T08:53:15.150Z\n"
 
 msgid "Add new option"
 msgstr ""
@@ -41,13 +41,13 @@ msgstr ""
 msgid "Cholera in NW Province, June 2023"
 msgstr ""
 
-msgid "Event Name"
-msgstr ""
-
-msgid "Hazard Type"
-msgstr ""
-
 msgid "Incident Action Plan"
+msgstr ""
+
+msgid "Team"
+msgstr ""
+
+msgid "Response Actions"
 msgstr ""
 
 msgid "Create Risk Assessment"
@@ -99,9 +99,6 @@ msgid "Action plan"
 msgstr ""
 
 msgid "Edit Action Plan"
-msgstr ""
-
-msgid "Team"
 msgstr ""
 
 msgid "Edit Team"

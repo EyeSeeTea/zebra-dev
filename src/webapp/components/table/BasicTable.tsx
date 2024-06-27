@@ -23,7 +23,7 @@ interface BasicTableProps {
         [key: TableColumn["name"]]: string;
     }[];
     onChange?: (cell: Maybe<string>, rowIndex: number, column: TableColumn["name"]) => void;
-    showRowIndex: Maybe<boolean>;
+    showRowIndex?: boolean;
 }
 
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
