@@ -9,6 +9,9 @@ import {
     TableContainer,
 } from "@material-ui/core";
 import styled from "styled-components";
+import { SearchInput } from "../../search-input/SearchInput";
+import { Selector } from "../../selector/Selector";
+
 type CellType = { value?: string; color?: string };
 
 export type TableColumn = {
@@ -26,12 +29,40 @@ interface PerformanceOverviewTableProps {
 
 export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> = React.memo(
     ({ columns, rows }) => {
+        const [searchTerm, setSearchTerm] = useState<string>("");
+        const [filterValue, setFilterValue] = useState("");
         const [filteredRows, setFilteredRows] = useState(rows);
 
+        useEffect(() => {
+            if (searchTerm === "") {
                 setFilteredRows(rows);
+            } else {
+                const filtered = _.filter(rows, row => {
+                    return _.some(row, cell => {
+                        return _.includes(_.toLower(cell.value), _.toLower(searchTerm));
+                    });
+                });
+                setFilteredRows(filtered);
+            }
+        }, [searchTerm, rows]);
 
         return (
             <React.Fragment>
+                <Container>
+                    <StyledSelector
+                        id="selector"
+                        selected={filterValue}
+                        options={[...columns]}
+                        onChange={(value: string) => {
+                            setFilterValue(value);
+                            console.log(value);
+                        }}
+                    />
+                    <StyledSearchInput
+                        value={searchTerm}
+                        onChange={value => setSearchTerm(value)}
+                    />
+                </Container>
                 <StyledTableContainer>
                     <Table size="small">
                         <TableHead>
@@ -102,4 +133,24 @@ const BodyTableCell = styled(TableCell)<{ color?: string; boldUnderline?: boolea
     color: ${props => (props.color ? props.theme.palette.common.white : "initial")};
     text-decoration: ${props => props.boldUnderline && "underline"};
     font-weight: ${props => (props.boldUnderline || props.color) && "700"};
+`;
+
+const Container = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: 1rem;
+    margin-right: auto;
+`;
+
+const StyledSelector = styled(Selector)`
+    max-width: 10rem;
+    width: 100px;
+    height: 100%;
+`;
+
+const StyledSearchInput = styled(SearchInput)`
+    max-width: 19rem;
+    width: 100px;
+    height: 100%;
 `;
