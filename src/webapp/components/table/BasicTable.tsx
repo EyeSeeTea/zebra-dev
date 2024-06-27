@@ -57,7 +57,7 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
             <StyledTable>
                 <TableHead>
                     <TableRow>
-                        <TableCell />
+                        {showRowIndex && <TableCell />}
                         {columns.map(({ name }) => (
                             <TableCell key={name}>{_.startCase(name)}</TableCell>
                         ))}
