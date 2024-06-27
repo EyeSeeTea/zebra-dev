@@ -28,7 +28,11 @@ export const InputField: React.FC<InputFieldProps> = React.memo(
     }) => {
         return (
             <Container>
-                {label && <Label htmlFor={id}>{label}</Label>}
+                {label && (
+                    <Label className={required ? "required" : ""} htmlFor={id}>
+                        {label}
+                    </Label>
+                )}
                 <StyledTextField
                     id={id}
                     value={value}
@@ -52,10 +56,16 @@ const Container = styled.div`
 
 const Label = styled(InputLabel)`
     display: inline-block;
-    font-weight: 400;
+    font-weight: 700;
     font-size: 0.875rem;
     color: ${props => props.theme.palette.text.primary};
     margin-block-end: 8px;
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
+    }
 `;
 
 const StyledTextField = styled(TextField)<{ error?: boolean }>`

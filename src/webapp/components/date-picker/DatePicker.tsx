@@ -15,6 +15,7 @@ type DatePickerProps = {
     errorText?: string;
     disabled?: boolean;
     error?: boolean;
+    required?: boolean;
 };
 
 export const DatePicker: React.FC<DatePickerProps> = React.memo(
@@ -27,10 +28,15 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
         helperText = "",
         errorText = "",
         error = false,
+        required = false,
     }) => {
         return (
             <Container>
-                {label && <Label htmlFor={id}>{label}</Label>}
+                {label && (
+                    <Label className={required ? "required" : ""} htmlFor={id}>
+                        {label}
+                    </Label>
+                )}
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <StyledDatePicker
                         value={value}
@@ -61,10 +67,16 @@ const Container = styled.div`
 
 const Label = styled(InputLabel)`
     display: inline-block;
-    font-weight: 400;
+    font-weight: 700;
     font-size: 0.875rem;
     color: ${props => props.theme.palette.text.primary};
     margin-block-end: 8px;
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
+    }
 `;
 
 const StyledDatePicker = styled(DatePickerMUI)<{ error?: boolean; disabled?: boolean }>`

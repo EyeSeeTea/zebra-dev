@@ -20,6 +20,7 @@ type SelectorProps<T extends string = string> = {
     helperText?: string;
     errorText?: string;
     error?: boolean;
+    required?: boolean;
 };
 
 export const Selector: React.FC<SelectorProps> = React.memo(
@@ -34,6 +35,7 @@ export const Selector: React.FC<SelectorProps> = React.memo(
         helperText = "",
         errorText = "",
         error = false,
+        required = false,
     }) => {
         const getLabelFromValue = useCallback(
             (value: SelectorOption["value"]) => {
@@ -57,7 +59,11 @@ export const Selector: React.FC<SelectorProps> = React.memo(
 
         return (
             <Container>
-                {label && <Label htmlFor={id}>{label}</Label>}
+                {label && (
+                    <Label className={required ? "required" : ""} htmlFor={id}>
+                        {label}
+                    </Label>
+                )}
                 <StyledSelect
                     labelId={label || `${id}-label`}
                     id={id}
@@ -98,10 +104,16 @@ const Container = styled.div`
 
 const Label = styled(InputLabel)`
     display: inline-block;
-    font-weight: 400;
+    font-weight: 700;
     font-size: 0.875rem;
     color: ${props => props.theme.palette.text.primary};
     margin-block-end: 8px;
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
+    }
 `;
 
 const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`
