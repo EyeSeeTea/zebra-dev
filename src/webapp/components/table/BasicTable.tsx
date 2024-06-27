@@ -3,37 +3,54 @@ import _ from "lodash";
 import { Table, TableBody, TableCell, TableHead, TableRow, Link } from "@material-ui/core";
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
-import { User } from "../../../domain/entities/User";
+import { Selector, SelectorOption } from "../selector/Selector";
 
-type TableCellData = Maybe<string | User>;
+interface BaseColumn {
+    name: string;
+}
+interface LinkColumn extends BaseColumn {
+    type: "link";
+}
+interface SelectorColumn extends BaseColumn {
+    type: "selector";
+    options: SelectorOption[];
+}
 
-export type TableColumn = { name: string; type?: "link" | "select" };
-
+export type TableColumn = BaseColumn | LinkColumn | SelectorColumn;
 interface BasicTableProps {
     columns: TableColumn[];
     rows: {
-        [key: TableColumn["name"]]: string | User;
+        [key: TableColumn["name"]]: string;
     }[];
-    onChange?: (cell: TableCellData, rowIndex: number, column: TableColumn["name"]) => void;
+    onChange?: (cell: Maybe<string>, rowIndex: number, column: TableColumn["name"]) => void;
     showRowIndex?: boolean;
 }
 
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
     ({ columns, rows, onChange = () => {}, showRowIndex = false }) => {
-        const renderCell = (cell: TableCellData, rowIndex: number, { name, type }: TableColumn) => {
-            if (!cell) {
-                return "";
+        const Cell = (cell: string, rowIndex: number, column: TableColumn) => {
+            const [selectorValue, setSelectorValue] = React.useState<string>(cell);
+            if ("type" in column && column.type === "link") {
+                return (
+                    <StyledLink onClick={() => onChange(cell, rowIndex, column.name)}>
+                        {cell}
+                    </StyledLink>
+                );
+            } else if ("type" in column && column.type === "selector") {
+                const handleChange = (value: string) => {
+                    setSelectorValue(value);
+                    onChange(value, rowIndex, column.name);
+                };
+                return (
+                    <Selector
+                        id={`selector-${rowIndex}-${column.name}`}
+                        options={column.options}
+                        selected={selectorValue}
+                        onChange={handleChange}
+                    />
+                );
             }
-            switch (type) {
-                case "link":
-                    return (
-                        <StyledLink onClick={() => onChange(cell, rowIndex, name)}>
-                            {_.isObject(cell) ? cell.name : cell}
-                        </StyledLink>
-                    );
-                default:
-                    return _.isObject(cell) ? cell.name : cell;
-            }
+            return cell;
         };
 
         return (
@@ -52,7 +69,7 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                             {showRowIndex && <TableCell>{rowIndex + 1}</TableCell>}
                             {columns.map(column => (
                                 <TableCell key={`${rowIndex}-${column.name}`}>
-                                    {renderCell(row[column.name], rowIndex, column)}
+                                    {Cell(row[column.name] || "", rowIndex, column)}
                                 </TableCell>
                             ))}
                         </TableRow>
