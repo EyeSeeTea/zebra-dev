@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { TextField } from "@material-ui/core";
 import { IconSearch24 } from "@dhis2/ui";
 import styled from "styled-components";
-import _ from "lodash";
 
 import i18n from "../../../utils/i18n";
 
@@ -19,14 +18,14 @@ export const SearchInput: React.FC<SearchInputProps> = React.memo(
 
         useEffect(() => updateStateValue(value), [value]);
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // TODO: needs debounce function from Collection
         const onChangeDebounced = useCallback(
-            _.debounce((value: string) => {
+            (value: string) => {
                 if (onChange) {
                     onChange(value);
                 }
-            }, 400),
-            []
+            },
+            [onChange]
         );
 
         const handleChange = useCallback(
