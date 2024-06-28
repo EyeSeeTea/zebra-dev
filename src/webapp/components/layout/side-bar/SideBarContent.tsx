@@ -46,11 +46,11 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
         const history = useHistory();
 
         const goToCreateEvent = useCallback(() => {
-            history.push(`/create-event`);
+            history.push(`/create/diseaseOutbreakEvent`);
         }, [history]);
 
         return (
-            <SideBarContainer>
+            <SideBarContainer hideOptions={hideOptions}>
                 {hideOptions ? null : children ? (
                     children
                 ) : showCreateEvent ? (
@@ -78,18 +78,17 @@ const StyledText = styled(ListItemText)<{ selected?: boolean }>`
         color: ${props => props.theme.palette.sidebar.text};
         font-weight: ${props => (props.selected ? 700 : 400)};
         font-size: 0.875rem;
+        padding-inline-start: 8px;
     }
 `;
 
-const SideBarContainer = styled.div`
+const SideBarContainer = styled.div<{ hideOptions?: boolean }>`
     display: flex;
     max-width: 245px;
+    width: ${props => (props.hideOptions ? "338px" : "initial")};
     background-color: ${props => props.theme.palette.sidebar.background};
     .MuiList-root {
         padding-block: 50px;
-    }
-    .MuiListItem-root {
-        margin-inline: 8px;
     }
     .MuiButtonBase-root {
         padding-inline: 24px;

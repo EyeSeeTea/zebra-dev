@@ -17,7 +17,7 @@ type NACheckboxProps = {
 export const NACheckbox: React.FC<NACheckboxProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         checked,
         onChange,
         helperText = "",

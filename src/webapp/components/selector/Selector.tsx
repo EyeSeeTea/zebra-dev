@@ -2,12 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Select, InputLabel, MenuItem, FormHelperText } from "@material-ui/core";
 import { IconChevronDown24 } from "@dhis2/ui";
-
-export type SelectorOption<T extends string = string> = {
-    value: T;
-    label: string;
-    disabled?: boolean;
-};
+import { SelectorOption, getLabelFromValue } from "./utils/selectorHelper";
 
 type SelectorProps<T extends string = string> = {
     id: string;
@@ -20,12 +15,13 @@ type SelectorProps<T extends string = string> = {
     helperText?: string;
     errorText?: string;
     error?: boolean;
+    required?: boolean;
 };
 
 export const Selector: React.FC<SelectorProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         placeholder = "",
         selected,
         onChange,
@@ -34,14 +30,8 @@ export const Selector: React.FC<SelectorProps> = React.memo(
         helperText = "",
         errorText = "",
         error = false,
+        required = false,
     }) => {
-        const getLabelFromValue = useCallback(
-            (value: SelectorOption["value"]) => {
-                return options.find(option => option.value === value)?.label || "";
-            },
-            [options]
-        );
-
         const handleChange = useCallback(
             (
                 event: React.ChangeEvent<{
@@ -57,7 +47,11 @@ export const Selector: React.FC<SelectorProps> = React.memo(
 
         return (
             <Container>
-                {label && <Label htmlFor={id}>{label}</Label>}
+                {label && (
+                    <Label className={required ? "required" : ""} htmlFor={id}>
+                        {label}
+                    </Label>
+                )}
                 <StyledSelect
                     labelId={label || `${id}-label`}
                     id={id}
@@ -68,7 +62,8 @@ export const Selector: React.FC<SelectorProps> = React.memo(
                     IconComponent={IconChevronDown24}
                     error={error}
                     renderValue={(selected: unknown) =>
-                        getLabelFromValue(selected as SelectorOption["value"]) || placeholder
+                        getLabelFromValue(selected as SelectorOption["value"], options) ||
+                        placeholder
                     }
                     displayEmpty
                 >
@@ -98,10 +93,16 @@ const Container = styled.div`
 
 const Label = styled(InputLabel)`
     display: inline-block;
-    font-weight: 400;
+    font-weight: 700;
     font-size: 0.875rem;
     color: ${props => props.theme.palette.text.primary};
     margin-block-end: 8px;
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
+    }
 `;
 
 const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`

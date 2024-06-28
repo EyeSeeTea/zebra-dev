@@ -11,18 +11,20 @@ type TextAreaProps = {
     helperText?: string;
     errorText?: string;
     error?: boolean;
+    required?: boolean;
 };
 
 export const TextArea: React.FC<TextAreaProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         value,
         onChange,
         disabled = false,
         helperText = "",
         errorText = "",
         error = false,
+        required = false,
     }) => {
         const handleChange = useCallback(
             (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -33,7 +35,11 @@ export const TextArea: React.FC<TextAreaProps> = React.memo(
 
         return (
             <Container>
-                {label && <Label htmlFor={id}>{label}</Label>}
+                {label && (
+                    <Label className={required ? "required" : ""} htmlFor={id}>
+                        {label}
+                    </Label>
+                )}
                 <StyledTextareaAutosize
                     id={id}
                     aria-label={label || `${id}-label`}
@@ -59,10 +65,16 @@ const Container = styled.div`
 
 const Label = styled.label`
     display: inline-block;
-    font-weight: 400;
+    font-weight: 700;
     font-size: 0.875rem;
     color: ${props => props.theme.palette.text.primary};
     margin-block-end: 8px;
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
+    }
 `;
 
 const StyledTextareaAutosize = styled(TextareaAutosize)<{

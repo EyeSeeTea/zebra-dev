@@ -3,8 +3,9 @@ import _ from "lodash";
 import { Table, TableBody, TableCell, TableHead, TableRow, Link } from "@material-ui/core";
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
-import { Selector, SelectorOption } from "../selector/Selector";
+import { Selector } from "../selector/Selector";
 import i18n from "../../../utils/i18n";
+import { SelectorOption } from "../selector/utils/selectorHelper";
 
 interface BaseColumn {
     value: string;
