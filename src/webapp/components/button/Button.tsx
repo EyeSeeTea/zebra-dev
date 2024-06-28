@@ -1,11 +1,10 @@
 import React from "react";
 import { Button as MUIButton } from "@material-ui/core";
-import styled from "styled-components";
 
 type ButtonProps = {
     children?: React.ReactNode;
     variant?: "contained" | "outlined";
-    color?: "primary" | "secondary" | "dark-secondary";
+    color?: "primary" | "secondary";
     disabled?: boolean;
     startIcon?: React.ReactNode;
     onClick: () => void;
@@ -21,22 +20,16 @@ export const Button: React.FC<ButtonProps> = React.memo(
         onClick,
     }) => {
         return (
-            <StyledButton
+            <MUIButton
                 variant={variant}
-                color={color === "dark-secondary" ? "secondary" : color}
+                color={color}
                 disabled={disabled}
                 startIcon={startIcon}
                 disableElevation
-                $darkBorder={color === "dark-secondary"}
                 onClick={onClick}
             >
                 {children}
-            </StyledButton>
+            </MUIButton>
         );
     }
 );
-
-const StyledButton = styled(MUIButton)<{ $darkBorder: boolean }>`
-    border-color: ${props =>
-        props.$darkBorder ? props.theme.palette.button.borderDarkSecondary : "initial"};
-`;
