@@ -27,10 +27,9 @@ describe("RiskAssessmentGrading", () => {
             capacity: LowCapacity,
             reputationalRisk: LowWeightedOption,
             severity: LowWeightedOption,
-            grade: undefined,
         });
-
-        expect(riskAssessmentGrading.grade).toBe("Grade 1");
+        const grade = riskAssessmentGrading.getGrade().value.data;
+        expect(grade).toBe("Grade 1");
     });
 
     it("should be Grade2 if total weight is greater than 7 and less than equal to 14", () => {
@@ -44,10 +43,9 @@ describe("RiskAssessmentGrading", () => {
             capacity: MediumCapacity,
             reputationalRisk: MediumWeightedOption,
             severity: MediumWeightedOption,
-            grade: undefined,
         });
-
-        expect(riskAssessmentGrading.grade).toBe("Grade 2");
+        const grade = riskAssessmentGrading.getGrade().value.data;
+        expect(grade).toBe("Grade 2");
     });
 
     it("should be Grade3 if score is greater than 14", () => {
@@ -61,10 +59,10 @@ describe("RiskAssessmentGrading", () => {
             capacity: HighCapacity,
             reputationalRisk: HighWeightedOption,
             severity: HighWeightedOption,
-            grade: undefined,
         });
 
-        expect(riskAssessmentGrading.grade).toBe("Grade 3");
+        const grade = riskAssessmentGrading.getGrade().value.data;
+        expect(grade).toBe("Grade 3");
     });
 
     it("should be Grade3 if score is greater than 14", () => {
@@ -78,9 +76,9 @@ describe("RiskAssessmentGrading", () => {
             capacity: LowCapacity,
             reputationalRisk: HighWeightedOption,
             severity: HighWeightedOption,
-            grade: undefined,
         });
 
-        expect(riskAssessmentGrading.grade).toBe("Grade 3");
+        const grade = riskAssessmentGrading.getGrade().value.data;
+        expect(grade).toBe("Grade 3");
     });
 });

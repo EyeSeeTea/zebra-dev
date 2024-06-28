@@ -1,13 +1,12 @@
 import i18n from "@eyeseetea/feedback-component/locales";
 import { Ref } from "../Ref";
 import { Struct } from "../generic/Struct";
-import { Maybe } from "../../../utils/ts-utils";
+import { Either } from "../generic/Either";
 
 type WeightedOptions = {
     label: "Low" | "Medium" | "High";
     weight: 1 | 2 | 3;
 };
-
 export const LowWeightedOption: WeightedOptions = {
     label: "Low",
     weight: 1,
@@ -92,7 +91,6 @@ interface RiskAssessmentGradingAttrs extends Ref {
     capacity: CapacityOptions;
     reputationalRisk: WeightedOptions;
     severity: WeightedOptions;
-    grade: Maybe<Grade>;
 }
 
 export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() {
@@ -101,11 +99,14 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
     }
 
     public static create(attrs: RiskAssessmentGradingAttrs): RiskAssessmentGrading {
-        const riskAssessmentGrading = new RiskAssessmentGrading(attrs);
-        return riskAssessmentGrading._update({ grade: riskAssessmentGrading.calculateGrade() });
+        return new RiskAssessmentGrading(attrs);
     }
 
-    calculateGrade(): Grade {
+    getGrade = (): Either<Error, Grade> => {
+        return this.calculateGrade();
+    };
+
+    calculateGrade(): Either<Error, Grade> {
         const totalWeight =
             this.populationAtRisk.weight +
             this.attackRate.weight +
@@ -115,12 +116,15 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
             this.reputationalRisk.weight +
             this.severity.weight;
 
-        if (totalWeight > 21) throw new Error(i18n.t("Invalid grade"));
+        if (totalWeight > 21) return Either.error(new Error(i18n.t("Invalid grade")));
 
-        return totalWeight <= 7
-            ? "Grade 1"
-            : totalWeight > 7 && totalWeight <= 14
-            ? "Grade 2"
-            : "Grade 3";
+        const grade: Grade =
+            totalWeight <= 7
+                ? "Grade 1"
+                : totalWeight > 7 && totalWeight <= 14
+                ? "Grade 2"
+                : "Grade 3";
+
+        return Either.success(grade);
     }
 }
