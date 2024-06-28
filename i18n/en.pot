@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-06-27T12:51:45.020Z\n"
-"PO-Revision-Date: 2024-06-27T12:51:45.020Z\n"
+"POT-Creation-Date: 2024-06-28T07:41:17.026Z\n"
+"PO-Revision-Date: 2024-06-28T07:41:17.026Z\n"
 
 msgid "Add new option"
 msgstr ""
@@ -33,18 +33,6 @@ msgid "Search"
 msgstr ""
 
 msgid "Last updated: "
-msgstr ""
-
-msgid "Incident Management Team Builder"
-msgstr ""
-
-msgid "Cholera in NW Province, June 2023"
-msgstr ""
-
-msgid "Incident Action Plan"
-msgstr ""
-
-msgid "Create Risk Assessment"
 msgstr ""
 
 msgid "Dashboard"
@@ -77,10 +65,19 @@ msgstr ""
 msgid "Risk Assessment"
 msgstr ""
 
+msgid "Create Risk Assessment"
+msgstr ""
+
 msgid "Risk assessment incomplete"
 msgstr ""
 
 msgid "Risks associated with this event have not yet been assessed."
+msgstr ""
+
+msgid "Incident Action Plan"
+msgstr ""
+
+msgid "Cholera in NW Province, June 2023"
 msgstr ""
 
 msgid "Response actions"
@@ -99,6 +96,9 @@ msgid "Team"
 msgstr ""
 
 msgid "Edit Team"
+msgstr ""
+
+msgid "Incident Management Team Builder"
 msgstr ""
 
 msgid "Resources"
