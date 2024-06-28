@@ -11,7 +11,7 @@ type AddNewOptionProps = {
 };
 
 export const AddNewOption: React.FC<AddNewOptionProps> = React.memo(
-    ({ id, label = "", onAddNewOption }) => {
+    ({ id, label, onAddNewOption }) => {
         return (
             <Container onClick={onAddNewOption}>
                 <StyledAddIcon id={id} aria-label="Add new option" />
