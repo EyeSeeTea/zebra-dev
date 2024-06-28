@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-06-27T12:51:45.020Z\n"
-"PO-Revision-Date: 2024-06-27T12:51:45.020Z\n"
+"POT-Creation-Date: 2024-06-28T07:18:27.936Z\n"
+"PO-Revision-Date: 2024-06-28T07:18:27.936Z\n"
 
 msgid "Add new option"
 msgstr ""
@@ -33,6 +33,9 @@ msgid "Search"
 msgstr ""
 
 msgid "Last updated: "
+msgstr ""
+
+msgid "Filter"
 msgstr ""
 
 msgid "Incident Management Team Builder"

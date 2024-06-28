@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import _ from "lodash";
 import {
     Table,
@@ -12,6 +12,7 @@ import styled from "styled-components";
 import { SearchInput } from "../../search-input/SearchInput";
 import { Selector } from "../../selector/Selector";
 import { Maybe } from "../../../../utils/ts-utils";
+import i18n from "../../../../utils/i18n";
 
 export type TableColumn = {
     value: string;
@@ -162,19 +163,21 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
         return (
             <React.Fragment>
                 <Container>
-                    <StyledSelector
-                        id="filter"
-                        selected={filterValue}
-                        options={[...columns]}
-                        onChange={(value: string) => {
-                            setFilterValue(value);
-                            console.log(value);
-                        }}
-                    />
-                    <StyledSearchInput
-                        value={searchTerm}
-                        onChange={value => setSearchTerm(value)}
-                    />
+                    <StyledSelectorWrapper>
+                        <Selector
+                            id="filter"
+                            selected={filterValue}
+                            placeholder={i18n.t("Filter")}
+                            options={[...columns]}
+                            onChange={(value: string) => {
+                                setFilterValue(value);
+                                console.log(value);
+                            }}
+                        />
+                    </StyledSelectorWrapper>
+                    <StyledSearchInputWrapper>
+                        <SearchInput value={searchTerm} onChange={value => setSearchTerm(value)} />
+                    </StyledSearchInputWrapper>
                 </Container>
                 <StyledTableContainer>
                     <Table size="small">
@@ -260,18 +263,15 @@ const Container = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-block-end: 1rem;
-    margin-right: auto;
+    margin-bottom: 1rem;
+    width: 100%;
 `;
 
-const StyledSelector = styled(Selector)`
-    max-width: 10rem;
-    width: 100px;
-    height: 100%;
+const Wrapper = styled.div<{ width: string }>`
+    width: ${({ width }) => width};
+    max-width: ${({ width }) => width};
 `;
 
-const StyledSearchInput = styled(SearchInput)`
-    max-width: 19rem;
-    width: 100px;
-    height: 100%;
-`;
+const StyledSelectorWrapper = styled(Wrapper).attrs({ width: "10rem" })``;
+
+const StyledSearchInputWrapper = styled(Wrapper).attrs({ width: "19rem" })``;
