@@ -17,7 +17,7 @@ type TextAreaProps = {
 export const TextArea: React.FC<TextAreaProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         value,
         onChange,
         disabled = false,

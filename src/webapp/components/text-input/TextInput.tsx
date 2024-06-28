@@ -2,7 +2,7 @@ import React from "react";
 import { TextField, InputLabel } from "@material-ui/core";
 import styled from "styled-components";
 
-type InputFieldProps = {
+type TextInputProps = {
     id: string;
     label?: string;
     value: string;
@@ -14,10 +14,10 @@ type InputFieldProps = {
     error?: boolean;
 };
 
-export const InputField: React.FC<InputFieldProps> = React.memo(
+export const TextInput: React.FC<TextInputProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         value,
         onChange,
         helperText = "",

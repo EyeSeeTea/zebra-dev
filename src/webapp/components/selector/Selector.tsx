@@ -2,12 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Select, InputLabel, MenuItem, FormHelperText } from "@material-ui/core";
 import { IconChevronDown24 } from "@dhis2/ui";
-
-export type SelectorOption<T extends string = string> = {
-    value: T;
-    label: string;
-    disabled?: boolean;
-};
+import { SelectorOption, getLabelFromValue } from "./utils/selectorHelper";
 
 type SelectorProps<T extends string = string> = {
     id: string;
@@ -26,7 +21,7 @@ type SelectorProps<T extends string = string> = {
 export const Selector: React.FC<SelectorProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         placeholder = "",
         selected,
         onChange,
@@ -37,13 +32,6 @@ export const Selector: React.FC<SelectorProps> = React.memo(
         error = false,
         required = false,
     }) => {
-        const getLabelFromValue = useCallback(
-            (value: SelectorOption["value"]) => {
-                return options.find(option => option.value === value)?.label || "";
-            },
-            [options]
-        );
-
         const handleChange = useCallback(
             (
                 event: React.ChangeEvent<{
@@ -74,7 +62,8 @@ export const Selector: React.FC<SelectorProps> = React.memo(
                     IconComponent={IconChevronDown24}
                     error={error}
                     renderValue={(selected: unknown) =>
-                        getLabelFromValue(selected as SelectorOption["value"]) || placeholder
+                        getLabelFromValue(selected as SelectorOption["value"], options) ||
+                        placeholder
                     }
                     displayEmpty
                 >
