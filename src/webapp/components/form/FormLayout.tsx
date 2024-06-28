@@ -5,7 +5,7 @@ import i18n from "../../../utils/i18n";
 import { Button } from "../button/Button";
 import { Separator } from "../separator/Separator";
 
-type FormPageProps = {
+type FormLayoutProps = {
     title?: string;
     subtitle?: string;
     saveLabel?: string;
@@ -15,10 +15,10 @@ type FormPageProps = {
     onCancel?: () => void;
 };
 
-export const FormPage: React.FC<FormPageProps> = React.memo(
+export const FormLayout: React.FC<FormLayoutProps> = React.memo(
     ({ title, subtitle, saveLabel, cancelLabel, children, onSave, onCancel }) => {
         return (
-            <StyledFormPage>
+            <StyledFormLayout>
                 <Header>
                     <TitleContainer>
                         {title && <Title>{title}</Title>}
@@ -38,12 +38,12 @@ export const FormPage: React.FC<FormPageProps> = React.memo(
                         )}
                     </ButtonsFooter>
                 </Footer>
-            </StyledFormPage>
+            </StyledFormLayout>
         );
     }
 );
 
-const StyledFormPage = styled.div`
+const StyledFormLayout = styled.div`
     width: 100%;
 `;
 

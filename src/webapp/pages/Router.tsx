@@ -6,17 +6,16 @@ import { EventTrackerPage } from "./event-tracker/EventTrackerPage";
 import { IncidentActionPlanPage } from "./incident-action-plan/IncidentActionPlanPage";
 import { ResourcesPage } from "./resources/ResourcesPage";
 import { IMTeamBuilderPage } from "./incident-management-team-builder/IMTeamBuilderPage";
-import { EditFormPage } from "./edit-form/EditFormPage";
-import { CreateFormPage } from "./create-form/CreateFormPage";
+import { FormPage } from "./form/FormPage";
 
 export function Router() {
     return (
         <HashRouter>
             <Switch>
-                <Route path="/create/:formType" render={() => <CreateFormPage />} />
+                <Route path="/create/:formType" render={() => <FormPage />} />
                 <Route
                     path="/edit/:formType/:diseaseOutbreakEventId/:id?"
-                    render={() => <EditFormPage />}
+                    render={() => <FormPage />}
                 />
                 <Route
                     path="/event-tracker/:diseaseOutbreakEvent"
