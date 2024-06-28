@@ -16,13 +16,13 @@ type FormPageProps = {
 };
 
 export const FormPage: React.FC<FormPageProps> = React.memo(
-    ({ title, subtitle = "", saveLabel = "", cancelLabel = "", children, onSave, onCancel }) => {
+    ({ title, subtitle, saveLabel, cancelLabel, children, onSave, onCancel }) => {
         return (
             <StyledFormPage>
                 <Header>
                     <TitleContainer>
-                        {title ? <Title>{title}</Title> : null}
-                        {subtitle ? <Subtitle>{subtitle}</Subtitle> : null}
+                        {title && <Title>{title}</Title>}
+                        {subtitle && <Subtitle>{subtitle}</Subtitle>}
                     </TitleContainer>
                     <RequiredText>{i18n.t("Indicates required")}</RequiredText>
                 </Header>
