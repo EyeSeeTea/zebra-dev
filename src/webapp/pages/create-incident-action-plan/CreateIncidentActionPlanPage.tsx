@@ -8,7 +8,7 @@ import { Section } from "../../components/section/Section";
 export const CreateIncidentActionPlanPage: React.FC = React.memo(() => {
     const columnsTeam: TableColumn[] = [
         { value: "role", label: "Role" },
-        { value: "label", label: "Name", type: "link" },
+        { value: "name", label: "Name", type: "link" },
         { value: "email", label: "Email", type: "link" },
         { value: "phone", label: "Phone" },
     ];
@@ -16,7 +16,6 @@ export const CreateIncidentActionPlanPage: React.FC = React.memo(() => {
     const dataTeam = [
         {
             role: "Incident Manager",
-
             name: "George Abitbol",
             email: "george.abitbol@gmail.com",
             phone: "+33 6 12 34 56 78",
