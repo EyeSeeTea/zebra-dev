@@ -1,5 +1,4 @@
 import React from "react";
-import _ from "lodash";
 import { Table, TableBody, TableCell, TableHead, TableRow, Link } from "@material-ui/core";
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
