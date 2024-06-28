@@ -4,9 +4,11 @@ import { Table, TableBody, TableCell, TableHead, TableRow, Link } from "@materia
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
 import { Selector, SelectorOption } from "../selector/Selector";
+import i18n from "../../../utils/i18n";
 
 interface BaseColumn {
-    name: string;
+    value: string;
+    label: string;
 }
 interface LinkColumn extends BaseColumn {
     type: "link";
@@ -20,9 +22,9 @@ export type TableColumn = BaseColumn | LinkColumn | SelectorColumn;
 interface BasicTableProps {
     columns: TableColumn[];
     rows: {
-        [key: TableColumn["name"]]: string;
+        [key: TableColumn["value"]]: string;
     }[];
-    onChange?: (cell: Maybe<string>, rowIndex: number, column: TableColumn["name"]) => void;
+    onChange?: (cell: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => void;
     showRowIndex?: boolean;
 }
 
@@ -32,18 +34,18 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
             const [selectorValue, setSelectorValue] = React.useState<string>(cell);
             if ("type" in column && column.type === "link") {
                 return (
-                    <StyledLink onClick={() => onChange(cell, rowIndex, column.name)}>
+                    <StyledLink onClick={() => onChange(cell, rowIndex, column.value)}>
                         {cell}
                     </StyledLink>
                 );
             } else if ("type" in column && column.type === "selector") {
                 const handleChange = (value: string) => {
                     setSelectorValue(value);
-                    onChange(value, rowIndex, column.name);
+                    onChange(value, rowIndex, column.value);
                 };
                 return (
                     <Selector
-                        id={`selector-${rowIndex}-${column.name}`}
+                        id={`selector-${rowIndex}-${column.value}`}
                         options={column.options}
                         selected={selectorValue}
                         onChange={handleChange}
@@ -58,8 +60,8 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                 <TableHead>
                     <TableRow>
                         {showRowIndex && <TableCell />}
-                        {columns.map(({ name }) => (
-                            <TableCell key={name}>{_.startCase(name)}</TableCell>
+                        {columns.map(({ value, label }) => (
+                            <TableCell key={value}>{i18n.t(label)}</TableCell>
                         ))}
                     </TableRow>
                 </TableHead>
@@ -68,8 +70,8 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                         <TableRow key={rowIndex}>
                             {showRowIndex && <TableCell>{rowIndex + 1}</TableCell>}
                             {columns.map(column => (
-                                <TableCell key={`${rowIndex}-${column.name}`}>
-                                    {Cell(row[column.name] || "", rowIndex, column)}
+                                <TableCell key={`${rowIndex}-${column.value}`}>
+                                    {Cell(row[column.value] || "", rowIndex, column)}
                                 </TableCell>
                             ))}
                         </TableRow>

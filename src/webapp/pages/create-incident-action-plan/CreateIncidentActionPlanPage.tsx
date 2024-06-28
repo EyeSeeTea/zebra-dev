@@ -7,10 +7,10 @@ import { Section } from "../../components/section/Section";
 
 export const CreateIncidentActionPlanPage: React.FC = React.memo(() => {
     const columnsTeam: TableColumn[] = [
-        { name: "role" },
-        { name: "name", type: "link" },
-        { name: "email", type: "link" },
-        { name: "phone" },
+        { value: "role", label: "Role" },
+        { value: "label", label: "Name", type: "link" },
+        { value: "email", label: "Email", type: "link" },
+        { value: "phone", label: "Phone" },
     ];
 
     const dataTeam = [
@@ -30,12 +30,13 @@ export const CreateIncidentActionPlanPage: React.FC = React.memo(() => {
     ];
 
     const columnsResponseActions: TableColumn[] = [
-        { name: "mainTask" },
-        { name: "subActivities" },
-        { name: "subPillar" },
-        { name: "responsibleOfficer" },
+        { value: "mainTask", label: "Main Task" },
+        { value: "subActivities", label: "Sub Activities" },
+        { value: "subPillar", label: "Sub Pillar" },
+        { value: "responsibleOfficer", label: "Responsible officer" },
         {
-            name: "status",
+            value: "status",
+            label: "Status",
             type: "selector",
             options: [
                 { value: "Complete", label: "Complete" },
@@ -44,15 +45,16 @@ export const CreateIncidentActionPlanPage: React.FC = React.memo(() => {
             ],
         },
         {
-            name: "verification",
+            value: "verification",
+            label: "Verification",
             type: "selector",
             options: [
                 { value: "Unverified", label: "Unverified" },
                 { value: "Verified", label: "Verified" },
             ],
         },
-        { name: "timeline" },
-        { name: "dueDate" },
+        { value: "timeline", label: "Timeline" },
+        { value: "dueDate", label: "Due date" },
     ];
 
     const dataResponseActions = [
