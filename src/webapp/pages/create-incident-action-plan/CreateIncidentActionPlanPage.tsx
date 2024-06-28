@@ -29,7 +29,7 @@ export const CreateIncidentActionPlanPage: React.FC = React.memo(() => {
     ];
 
     const columnsResponseActions: TableColumn[] = [
-        { value: "mainTask", label: "Main Task" },
+        { value: "mainTask", label: "Main Task", underline: true },
         { value: "subActivities", label: "Sub Activities" },
         { value: "subPillar", label: "Sub Pillar" },
         { value: "responsibleOfficer", label: "Responsible officer" },

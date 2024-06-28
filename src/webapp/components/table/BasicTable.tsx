@@ -9,6 +9,7 @@ import i18n from "../../../utils/i18n";
 interface BaseColumn {
     value: string;
     label: string;
+    underline?: boolean;
 }
 interface LinkColumn extends BaseColumn {
     type: "link";
@@ -68,11 +69,14 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                 <TableBody>
                     {rows.map((row, rowIndex) => (
                         <TableRow key={rowIndex}>
-                            {showRowIndex && <TableCell>{rowIndex + 1}</TableCell>}
+                            {showRowIndex && <IndexTableCell>{rowIndex + 1}</IndexTableCell>}
                             {columns.map(column => (
-                                <TableCell key={`${rowIndex}-${column.value}`}>
+                                <StyledTableCell
+                                    key={`${rowIndex}-${column.value}`}
+                                    $underline={column.underline}
+                                >
                                     {Cell(row[column.value] || "", rowIndex, column)}
-                                </TableCell>
+                                </StyledTableCell>
                             ))}
                         </TableRow>
                     ))}
@@ -85,15 +89,33 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
 const StyledTable = styled(Table)`
     border-collapse: collapse;
     & .MuiTableHead-root {
-        color: ${props => props.theme.palette.common.greyBlack};
+        color: ${props => props.theme.palette.common.grey1};
         background-color: ${props => props.theme.palette.common.greyLight};
+        font-weight: 600;
+        height: 2.25rem;
+        & .MuiTableCell-root {
+            white-space: nowrap;
+        }
     }
     & .MuiTableBody-root {
         color: ${props => props.theme.palette.common.grey};
     }
     & .MuiTableCell-root {
-        border: 1px solid ${props => props.theme.palette.common.grey};
+        font-size: 0.75rem;
+        padding-block: 0.375rem;
+        border: 1px solid ${props => props.theme.palette.common.grey4};
+        height: 1.875rem;
     }
+`;
+
+const IndexTableCell = styled(TableCell)`
+    min-width: 2.25rem;
+    padding-inline: 0.375rem;
+    text-align: center;
+`;
+
+const StyledTableCell = styled(TableCell)<{ $underline?: boolean }>`
+    ${props => props.$underline && "text-decoration: underline;"}
 `;
 
 const StyledLink = styled(Link)`
