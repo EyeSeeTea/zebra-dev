@@ -13,23 +13,17 @@ export function Router() {
         <HashRouter>
             <Switch>
                 <Route path="/create/:formType" render={() => <FormPage />} />
+                <Route path="/edit/:formType/:id" render={() => <FormPage />} />
+                <Route path="/event-tracker" render={() => <EventTrackerPage />} />
                 <Route
-                    path="/edit/:formType/:diseaseOutbreakEventId/:id?"
-                    render={() => <FormPage />}
-                />
-                <Route
-                    path="/event-tracker/:diseaseOutbreakEvent"
-                    render={() => <EventTrackerPage />}
-                />
-                <Route
-                    path="/incident-management-team-builder/:diseaseOutbreakEvent"
+                    path="/incident-management-team-builder"
                     render={() => <IMTeamBuilderPage />}
                 />
                 <Route
-                    path="/:diseaseOutbreakEvent/incident-action-plan/:incidentActionPlan"
+                    path="/incident-action-plan/:incidentActionPlanId"
                     render={() => <IncidentActionPlanPage />}
                 />
-                <Route path="/resources/:diseaseOutbreakEvent" render={() => <ResourcesPage />} />
+                <Route path="/resources" render={() => <ResourcesPage />} />
                 {/* Default route */}
                 <Route render={() => <DashboardPage />} />
             </Switch>
