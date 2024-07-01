@@ -1,12 +1,12 @@
-export type SelectorOption<T extends string = string> = {
-    value: T;
+export type SelectorOption<Value extends string = string> = {
+    value: Value;
     label: string;
     disabled?: boolean;
 };
 
-export function getLabelFromValue<T extends string = string>(
-    value: SelectorOption["value"],
-    options: SelectorOption<T>[]
+export function getLabelFromValue<Value extends string = string>(
+    value: Value,
+    options: SelectorOption<Value>[]
 ) {
     return options.find(option => option.value === value)?.label;
 }

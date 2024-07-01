@@ -4,11 +4,11 @@ import { Select, InputLabel, MenuItem, FormHelperText } from "@material-ui/core"
 import { IconChevronDown24 } from "@dhis2/ui";
 import { SelectorOption, getLabelFromValue } from "./utils/selectorHelper";
 
-type SelectorProps<T extends string = string> = {
+type SelectorProps<Value extends string = string> = {
     id: string;
-    selected: T;
-    onChange: (value: SelectorOption["value"]) => void;
-    options: SelectorOption<T>[];
+    selected: Value;
+    onChange: (value: Value) => void;
+    options: SelectorOption<Value>[];
     label?: string;
     placeholder?: string;
     disabled?: boolean;
@@ -18,72 +18,65 @@ type SelectorProps<T extends string = string> = {
     required?: boolean;
 };
 
-export const Selector: React.FC<SelectorProps> = React.memo(
-    ({
-        id,
-        label,
-        placeholder = "",
-        selected,
-        onChange,
-        options,
-        disabled = false,
-        helperText = "",
-        errorText = "",
-        error = false,
-        required = false,
-    }) => {
-        const handleChange = useCallback(
-            (
-                event: React.ChangeEvent<{
-                    value: unknown;
-                }>,
-                _child: React.ReactNode
-            ) => {
-                const value = event.target.value as SelectorOption["value"];
-                onChange(value);
-            },
-            [onChange]
-        );
+export function Selector<Value extends string>({
+    id,
+    label,
+    placeholder = "",
+    selected,
+    onChange,
+    options,
+    disabled = false,
+    helperText = "",
+    errorText = "",
+    error = false,
+    required = false,
+}: SelectorProps<Value>): JSX.Element {
+    const handleChange = useCallback(
+        (
+            event: React.ChangeEvent<{
+                value: unknown;
+            }>,
+            _child: React.ReactNode
+        ) => {
+            const value = event.target.value as Value;
+            onChange(value);
+        },
+        [onChange]
+    );
 
-        return (
-            <Container>
-                {label && (
-                    <Label className={required ? "required" : ""} htmlFor={id}>
-                        {label}
-                    </Label>
-                )}
-                <StyledSelect
-                    labelId={label || `${id}-label`}
-                    id={id}
-                    value={selected}
-                    onChange={handleChange}
-                    disabled={disabled}
-                    variant="outlined"
-                    IconComponent={IconChevronDown24}
-                    error={error}
-                    renderValue={(selected: unknown) =>
-                        getLabelFromValue(selected as SelectorOption["value"], options) ||
-                        placeholder
-                    }
-                    displayEmpty
-                >
-                    {options.map(option => (
-                        <MenuItem
-                            key={option.value}
-                            value={option.value}
-                            disabled={option.disabled}
-                        >
-                            {option.label}
-                        </MenuItem>
-                    ))}
-                </StyledSelect>
-                <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
-                    {error && !!errorText ? errorText : helperText}
-                </StyledFormHelperText>
-            </Container>
-        );
-    }
-);
+    return (
+        <Container>
+            {label && (
+                <Label className={required ? "required" : ""} htmlFor={id}>
+                    {label}
+                </Label>
+            )}
+            <StyledSelect
+                labelId={label || `${id}-label`}
+                id={id}
+                value={selected}
+                onChange={handleChange}
+                disabled={disabled}
+                variant="outlined"
+                IconComponent={IconChevronDown24}
+                error={error}
+                renderValue={(selected: unknown) =>
+                    getLabelFromValue(selected as Value, options) || placeholder
+                }
+                displayEmpty
+            >
+                {options.map(option => (
+                    <MenuItem key={option.value} value={option.value} disabled={option.disabled}>
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </StyledSelect>
+            <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
+                {error && !!errorText ? errorText : helperText}
+            </StyledFormHelperText>
+        </Container>
+    );
+}
 
 const Container = styled.div`
     display: flex;
