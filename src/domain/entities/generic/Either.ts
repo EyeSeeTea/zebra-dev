@@ -17,6 +17,13 @@
 export class Either<Error, Data> {
     constructor(public value: EitherValue<Error, Data>) {}
 
+    getOrThrow(): Data | undefined {
+        if (this.isError()) {
+            throw this.value.error;
+        }
+        return this.value.data;
+    }
+
     match<Res>(matchObj: MatchObject<Error, Data, Res>): Res {
         switch (this.value.type) {
             case "success":

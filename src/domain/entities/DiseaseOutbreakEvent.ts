@@ -49,7 +49,7 @@ type DiseaseOutbreakEventAttrs = NamedRef & {
     IncidentManagementTeam: IncidentManagementTeam;
 };
 /**
- * Note: DiseaseOutbreak represents Event in the Figma.
+ * Note: DiseaseOutbreakEvent represents Event in the Figma.
  * Not using event as it is a keyword and can also be confused with dhis event
  **/
 

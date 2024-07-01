@@ -1,19 +1,18 @@
 import { describe, expect, it } from "vitest";
-import {
-    HighCapacity,
-    HighGeographicalSpread,
-    HighPopulationAtRisk,
-    HighWeightedOption,
-    LowCapacity,
-    LowGeographicalSpread,
-    LowPopulationAtRisk,
-    LowWeightedOption,
-    MediumCapacity,
-    MediumGeographicalSpread,
-    MediumPopulationAtRisk,
-    MediumWeightedOption,
-    RiskAssessmentGrading,
-} from "../RiskAssessmentGrading";
+import { RiskAssessmentGrading } from "../RiskAssessmentGrading";
+
+const LowPopulationAtRisk = { type: "LessPercentage" as const, weight: 1 as const };
+const MediumPopulationAtRisk = { type: "MediumPercentage" as const, weight: 2 as const };
+const HighPopulationAtRisk = { type: "HighPercentage" as const, weight: 3 as const };
+const LowWeightedOption = { type: "Low" as const, weight: 1 as const };
+const MediumWeightedOption = { type: "Medium" as const, weight: 2 as const };
+const HighWeightedOption = { type: "High" as const, weight: 3 as const };
+const LowGeographicalSpread = { type: "WithinDistrict" as const, weight: 1 as const };
+const MediumGeographicalSpread = { type: "MoretThanOneDistrict" as const, weight: 2 as const };
+const HighGeographicalSpread = { type: "MoreThanOneProvince" as const, weight: 3 as const };
+const LowCapacity = { type: "ProvincialNationalLevel" as const, weight: 1 as const };
+const MediumCapacity = { type: "ProvincialLevel" as const, weight: 2 as const };
+const HighCapacity = { type: "NationalInternationalLevel" as const, weight: 3 as const };
 
 describe("RiskAssessmentGrading", () => {
     it("should be Grade1 if total weight is less than or equal to 7", () => {
@@ -28,7 +27,7 @@ describe("RiskAssessmentGrading", () => {
             reputationalRisk: LowWeightedOption,
             severity: LowWeightedOption,
         });
-        const grade = riskAssessmentGrading.getGrade().value.data;
+        const grade = riskAssessmentGrading.getGrade().getOrThrow();
         if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 1");
     });
 
@@ -44,7 +43,7 @@ describe("RiskAssessmentGrading", () => {
             reputationalRisk: MediumWeightedOption,
             severity: MediumWeightedOption,
         });
-        const grade = riskAssessmentGrading.getGrade().value.data;
+        const grade = riskAssessmentGrading.getGrade().getOrThrow();
         if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 2");
     });
 
@@ -61,7 +60,7 @@ describe("RiskAssessmentGrading", () => {
             severity: HighWeightedOption,
         });
 
-        const grade = riskAssessmentGrading.getGrade().value.data;
+        const grade = riskAssessmentGrading.getGrade().getOrThrow();
         if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 3");
     });
 });

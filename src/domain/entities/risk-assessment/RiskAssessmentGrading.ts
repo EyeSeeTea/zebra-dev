@@ -14,72 +14,56 @@ type CapacityOptionsTypes =
     | "ProvincialLevel"
     | "NationalInternationalLevel";
 
-type WeightedOptions = {
-    type: WeightedOptionTypes;
-    weight: 1 | 2 | 3;
+export type LowWeightedOption = {
+    type: "Low";
+    weight: 1;
 };
-export const LowWeightedOption: WeightedOptions = {
-    type: "Low",
-    weight: 1,
+export type MediumWeightedOption = {
+    type: "Medium";
+    weight: 2;
 };
-export const MediumWeightedOption: WeightedOptions = {
-    type: "Medium",
-    weight: 2,
-};
-export const HighWeightedOption: WeightedOptions = {
-    type: "High",
-    weight: 3,
+export type HighWeightedOption = {
+    type: "High";
+    weight: 3;
 };
 
-type PopulationWeightOptions = {
-    type: PopulationWeightOptionsTypes;
-    weight: 1 | 2 | 3;
+export type LowPopulationAtRisk = {
+    type: "LessPercentage";
+    weight: 1;
 };
-export const LowPopulationAtRisk: PopulationWeightOptions = {
-    type: "LessPercentage",
-    weight: 1,
+export type MediumPopulationAtRisk = {
+    type: "MediumPercentage";
+    weight: 2;
 };
-export const MediumPopulationAtRisk: PopulationWeightOptions = {
-    type: "MediumPercentage",
-    weight: 2,
-};
-export const HighPopulationAtRisk: PopulationWeightOptions = {
-    type: "HighPercentage",
-    weight: 3,
+export type HighPopulationAtRisk = {
+    type: "HighPercentage";
+    weight: 3;
 };
 
-type GeographicalSpreadOptions = {
-    type: GeographicalSpreadOptionsTypes;
-    weight: 1 | 2 | 3;
+export type LowGeographicalSpread = {
+    type: "WithinDistrict";
+    weight: 1;
 };
-export const LowGeographicalSpread: GeographicalSpreadOptions = {
-    type: "WithinDistrict",
-    weight: 1,
+export type MediumGeographicalSpread = {
+    type: "MoretThanOneDistrict";
+    weight: 2;
 };
-export const MediumGeographicalSpread: GeographicalSpreadOptions = {
-    type: "MoretThanOneDistrict",
-    weight: 2,
-};
-export const HighGeographicalSpread: GeographicalSpreadOptions = {
-    type: "MoreThanOneProvince",
-    weight: 3,
+export type HighGeographicalSpread = {
+    type: "MoreThanOneProvince";
+    weight: 3;
 };
 
-type CapacityOptions = {
-    type: CapacityOptionsTypes;
-    weight: 1 | 2 | 3;
+export type LowCapacity = {
+    type: "ProvincialNationalLevel";
+    weight: 1;
 };
-export const LowCapacity: CapacityOptions = {
-    type: "ProvincialNationalLevel",
-    weight: 1,
+export type MediumCapacity = {
+    type: "ProvincialLevel";
+    weight: 2;
 };
-export const MediumCapacity: CapacityOptions = {
-    type: "ProvincialLevel",
-    weight: 2,
-};
-export const HighCapacity: CapacityOptions = {
-    type: "NationalInternationalLevel",
-    weight: 3,
+export type HighCapacity = {
+    type: "NationalInternationalLevel";
+    weight: 3;
 };
 
 export type Grade = "Grade1" | "Grade2" | "Grade3";
@@ -119,13 +103,13 @@ const translations: Record<AllOptionTypes, string> = {
 
 interface RiskAssessmentGradingAttrs extends Ref {
     lastUpdated: Date;
-    populationAtRisk: PopulationWeightOptions;
-    attackRate: WeightedOptions;
-    geographicalSpread: GeographicalSpreadOptions;
-    complexity: WeightedOptions;
-    capacity: CapacityOptions;
-    reputationalRisk: WeightedOptions;
-    severity: WeightedOptions;
+    populationAtRisk: LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk;
+    attackRate: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
+    geographicalSpread: LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread;
+    complexity: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
+    capacity: LowCapacity | MediumCapacity | HighCapacity;
+    reputationalRisk: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
+    severity: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
 }
 
 export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() {
@@ -141,9 +125,9 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
         return translations[key];
     }
 
-    getGrade = (): Either<Error, Grade> => {
+    getGrade(): Either<Error, Grade> {
         return this.calculateGrade();
-    };
+    }
 
     calculateGrade(): Either<Error, Grade> {
         const totalWeight =
