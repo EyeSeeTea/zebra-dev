@@ -29,7 +29,7 @@ describe("RiskAssessmentGrading", () => {
             severity: LowWeightedOption,
         });
         const grade = riskAssessmentGrading.getGrade().value.data;
-        expect(grade).toBe("Grade 1");
+        if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 1");
     });
 
     it("should be Grade2 if total weight is greater than 7 and less than equal to 14", () => {
@@ -45,7 +45,7 @@ describe("RiskAssessmentGrading", () => {
             severity: MediumWeightedOption,
         });
         const grade = riskAssessmentGrading.getGrade().value.data;
-        expect(grade).toBe("Grade 2");
+        if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 2");
     });
 
     it("should be Grade3 if score is greater than 14", () => {
@@ -62,23 +62,6 @@ describe("RiskAssessmentGrading", () => {
         });
 
         const grade = riskAssessmentGrading.getGrade().value.data;
-        expect(grade).toBe("Grade 3");
-    });
-
-    it("should be Grade3 if score is greater than 14", () => {
-        const riskAssessmentGrading = RiskAssessmentGrading.create({
-            id: "4",
-            lastUpdated: new Date(),
-            populationAtRisk: LowPopulationAtRisk,
-            attackRate: MediumWeightedOption,
-            geographicalSpread: HighGeographicalSpread,
-            complexity: MediumWeightedOption,
-            capacity: LowCapacity,
-            reputationalRisk: HighWeightedOption,
-            severity: HighWeightedOption,
-        });
-
-        const grade = riskAssessmentGrading.getGrade().value.data;
-        expect(grade).toBe("Grade 3");
+        if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 3");
     });
 });

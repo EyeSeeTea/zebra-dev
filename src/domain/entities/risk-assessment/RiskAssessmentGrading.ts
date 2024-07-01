@@ -3,84 +3,119 @@ import { Ref } from "../Ref";
 import { Struct } from "../generic/Struct";
 import { Either } from "../generic/Either";
 
+type WeightedOptionTypes = "Low" | "Medium" | "High";
+type PopulationWeightOptionsTypes = "LessPercentage" | "MediumPercentage" | "HighPercentage";
+type GeographicalSpreadOptionsTypes =
+    | "WithinDistrict"
+    | "MoretThanOneDistrict"
+    | "MoreThanOneProvince";
+type CapacityOptionsTypes =
+    | "ProvincialNationalLevel"
+    | "ProvincialLevel"
+    | "NationalInternationalLevel";
+
 type WeightedOptions = {
-    label: "Low" | "Medium" | "High";
+    type: WeightedOptionTypes;
     weight: 1 | 2 | 3;
 };
 export const LowWeightedOption: WeightedOptions = {
-    label: "Low",
+    type: "Low",
     weight: 1,
 };
 export const MediumWeightedOption: WeightedOptions = {
-    label: "Medium",
+    type: "Medium",
     weight: 2,
 };
 export const HighWeightedOption: WeightedOptions = {
-    label: "High",
+    type: "High",
     weight: 3,
 };
 
 type PopulationWeightOptions = {
-    label: "Less than 0.1%" | "Between 0.1% to 0.25%" | "Above 0.25%";
+    type: PopulationWeightOptionsTypes;
     weight: 1 | 2 | 3;
 };
-
 export const LowPopulationAtRisk: PopulationWeightOptions = {
-    label: "Less than 0.1%",
+    type: "LessPercentage",
     weight: 1,
 };
 export const MediumPopulationAtRisk: PopulationWeightOptions = {
-    label: "Between 0.1% to 0.25%",
+    type: "MediumPercentage",
     weight: 2,
 };
 export const HighPopulationAtRisk: PopulationWeightOptions = {
-    label: "Above 0.25%",
+    type: "HighPercentage",
     weight: 3,
 };
 
 type GeographicalSpreadOptions = {
-    label:
-        | "Within a district"
-        | "Within a province with more than one district affected"
-        | "More than one province affected with high threat of spread locally and internationally";
+    type: GeographicalSpreadOptionsTypes;
     weight: 1 | 2 | 3;
 };
-
 export const LowGeographicalSpread: GeographicalSpreadOptions = {
-    label: "Within a district",
+    type: "WithinDistrict",
     weight: 1,
 };
 export const MediumGeographicalSpread: GeographicalSpreadOptions = {
-    label: "Within a province with more than one district affected",
+    type: "MoretThanOneDistrict",
     weight: 2,
 };
 export const HighGeographicalSpread: GeographicalSpreadOptions = {
-    label: "More than one province affected with high threat of spread locally and internationally",
+    type: "MoreThanOneProvince",
     weight: 3,
 };
 
 type CapacityOptions = {
-    label:
-        | "Available within the district with support from provincial and national level"
-        | "Available within the province with minimal support from national level"
-        | "Available at national with support required from international";
+    type: CapacityOptionsTypes;
     weight: 1 | 2 | 3;
 };
-
 export const LowCapacity: CapacityOptions = {
-    label: "Available within the district with support from provincial and national level",
+    type: "ProvincialNationalLevel",
     weight: 1,
 };
 export const MediumCapacity: CapacityOptions = {
-    label: "Available within the province with minimal support from national level",
+    type: "ProvincialLevel",
     weight: 2,
 };
 export const HighCapacity: CapacityOptions = {
-    label: "Available at national with support required from international",
+    type: "NationalInternationalLevel",
     weight: 3,
 };
 
-export type Grade = "Grade 1" | "Grade 2" | "Grade 3";
+export type Grade = "Grade1" | "Grade2" | "Grade3";
+
+type AllOptionTypes =
+    | WeightedOptionTypes
+    | PopulationWeightOptionsTypes
+    | GeographicalSpreadOptionsTypes
+    | CapacityOptionsTypes
+    | Grade;
+
+const translations: Record<AllOptionTypes, string> = {
+    Low: i18n.t("Low"),
+    Medium: i18n.t("Medium"),
+    High: i18n.t("High"),
+    LessPercentage: i18n.t("Less than 0.1%"),
+    MediumPercentage: i18n.t("Between 0.1% to 0.25%"),
+    HighPercentage: i18n.t("Above 0.25%"),
+    WithinDistrict: i18n.t("Within a district"),
+    MoretThanOneDistrict: i18n.t("Within a province with more than one district affected"),
+    MoreThanOneProvince: i18n.t(
+        "More than one province affected with high threat of spread locally and internationally"
+    ),
+    ProvincialNationalLevel: i18n.t(
+        "Available within the district with support from provincial and national level"
+    ),
+    ProvincialLevel: i18n.t(
+        "Available within the province with minimal support from national level"
+    ),
+    NationalInternationalLevel: i18n.t(
+        "Available at national with support required from international"
+    ),
+    Grade1: i18n.t("Grade 1"),
+    Grade2: i18n.t("Grade 2"),
+    Grade3: i18n.t("Grade 3"),
+};
 
 interface RiskAssessmentGradingAttrs extends Ref {
     lastUpdated: Date;
@@ -102,6 +137,10 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
         return new RiskAssessmentGrading(attrs);
     }
 
+    public static getTranslatedLabel(key: AllOptionTypes): string {
+        return translations[key];
+    }
+
     getGrade = (): Either<Error, Grade> => {
         return this.calculateGrade();
     };
@@ -120,10 +159,10 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
 
         const grade: Grade =
             totalWeight <= 7
-                ? "Grade 1"
+                ? "Grade1"
                 : totalWeight > 7 && totalWeight <= 14
-                ? "Grade 2"
-                : "Grade 3";
+                ? "Grade2"
+                : "Grade3";
 
         return Either.success(grade);
     }
