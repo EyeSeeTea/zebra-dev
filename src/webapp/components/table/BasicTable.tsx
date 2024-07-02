@@ -1,10 +1,12 @@
 import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow, Link } from "@material-ui/core";
+import { Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
 import i18n from "../../../utils/i18n";
 import { SelectorOption } from "../selector/utils/selectorHelper";
 import { Cell } from "./Cell";
+
+const noop = () => {};
 
 interface BaseColumn {
     value: string;
@@ -33,7 +35,7 @@ interface BasicTableProps {
 }
 
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
-    ({ columns, rows, onChange = () => {}, showRowIndex = false }) => {
+    ({ columns, rows, onChange = noop, showRowIndex = false }) => {
         return (
             <StyledTable stickyHeader>
                 <TableHead>
@@ -91,14 +93,4 @@ const IndexTableCell = styled(TableCell)`
     min-width: 2.25rem;
     padding-inline: 0.375rem;
     text-align: center;
-`;
-
-const StyledTableCell = styled(TableCell)<{ $underline?: boolean }>`
-    ${props => props.$underline && "text-decoration: underline;"}
-`;
-
-const StyledLink = styled(Link)`
-    color: ${props => props.theme.palette.common.blue600};
-    text-decoration: underline;
-    cursor: pointer;
 `;

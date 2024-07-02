@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { Selector } from "../selector/Selector";
 import { TableColumn } from "./BasicTable";
 
+const noop = () => {};
+
 type CellProps = {
     value: string;
     rowIndex: number;
@@ -12,7 +14,7 @@ type CellProps = {
 };
 
 export const Cell: React.FC<CellProps> = React.memo(
-    ({ value, rowIndex, column, onChange = () => {} }) => {
+    ({ value, rowIndex, column, onChange = noop }) => {
         const [selectorValue, setSelectorValue] = React.useState<string>(value);
         const handleChange = (value: string) => {
             setSelectorValue(value);
