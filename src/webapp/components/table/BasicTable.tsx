@@ -2,13 +2,16 @@ import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow, Link } from "@material-ui/core";
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
-import { Selector } from "../selector/Selector";
 import i18n from "../../../utils/i18n";
 import { SelectorOption } from "../selector/utils/selectorHelper";
+import { Cell } from "./Cell";
 
 interface BaseColumn {
     value: string;
     label: string;
+}
+interface TextColumn extends BaseColumn {
+    type: "text";
     underline?: boolean;
 }
 interface LinkColumn extends BaseColumn {
@@ -19,7 +22,7 @@ interface SelectorColumn extends BaseColumn {
     options: SelectorOption[];
 }
 
-export type TableColumn = BaseColumn | LinkColumn | SelectorColumn;
+export type TableColumn = TextColumn | LinkColumn | SelectorColumn;
 interface BasicTableProps {
     columns: TableColumn[];
     rows: {
@@ -31,31 +34,6 @@ interface BasicTableProps {
 
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
     ({ columns, rows, onChange = () => {}, showRowIndex = false }) => {
-        const Cell = (cell: string, rowIndex: number, column: TableColumn) => {
-            const [selectorValue, setSelectorValue] = React.useState<string>(cell);
-            if ("type" in column && column.type === "link") {
-                return (
-                    <StyledLink onClick={() => onChange(cell, rowIndex, column.value)}>
-                        {cell}
-                    </StyledLink>
-                );
-            } else if ("type" in column && column.type === "selector") {
-                const handleChange = (value: string) => {
-                    setSelectorValue(value);
-                    onChange(value, rowIndex, column.value);
-                };
-                return (
-                    <Selector
-                        id={`selector-${rowIndex}-${column.value}`}
-                        options={column.options}
-                        selected={selectorValue}
-                        onChange={handleChange}
-                    />
-                );
-            }
-            return cell;
-        };
-
         return (
             <StyledTable>
                 <TableHead>
@@ -71,12 +49,13 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                         <TableRow key={rowIndex}>
                             {showRowIndex && <IndexTableCell>{rowIndex + 1}</IndexTableCell>}
                             {columns.map(column => (
-                                <StyledTableCell
+                                <Cell
                                     key={`${rowIndex}-${column.value}`}
-                                    $underline={column.underline}
-                                >
-                                    {Cell(row[column.value] || "", rowIndex, column)}
-                                </StyledTableCell>
+                                    value={row[column.value] || ""}
+                                    rowIndex={rowIndex}
+                                    column={column}
+                                    onChange={onChange}
+                                />
                             ))}
                         </TableRow>
                     ))}

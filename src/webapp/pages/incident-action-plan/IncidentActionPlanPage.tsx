@@ -9,10 +9,10 @@ import { BasicTable, TableColumn } from "../../components/table/BasicTable";
 
 export const IncidentActionPlanPage: React.FC = React.memo(() => {
     const columnsTeam: TableColumn[] = [
-        { value: "role", label: "Role" },
+        { value: "role", label: "Role", type: "text" },
         { value: "name", label: "Name", type: "link" },
         { value: "email", label: "Email", type: "link" },
-        { value: "phone", label: "Phone" },
+        { value: "phone", label: "Phone", type: "text" },
     ];
 
     const dataTeam = [
@@ -31,10 +31,10 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
     ];
 
     const columnsResponseActions: TableColumn[] = [
-        { value: "mainTask", label: "Main Task", underline: true },
-        { value: "subActivities", label: "Sub Activities" },
-        { value: "subPillar", label: "Sub Pillar" },
-        { value: "responsibleOfficer", label: "Responsible officer" },
+        { value: "mainTask", label: "Main Task", type: "text", underline: true },
+        { value: "subActivities", label: "Sub Activities", type: "text" },
+        { value: "subPillar", label: "Sub Pillar", type: "text" },
+        { value: "responsibleOfficer", label: "Responsible officer", type: "text" },
         {
             value: "status",
             label: "Status",
@@ -54,8 +54,8 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
                 { value: "Verified", label: "Verified" },
             ],
         },
-        { value: "timeline", label: "Timeline" },
-        { value: "dueDate", label: "Due date" },
+        { value: "timeline", label: "Timeline", type: "text" },
+        { value: "dueDate", label: "Due date", type: "text" },
     ];
 
     const dataResponseActions = [
