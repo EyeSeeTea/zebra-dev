@@ -20,53 +20,22 @@ export type TableColumn = {
     dark?: boolean;
 };
 
-interface PerformanceOverviewTableProps {
+type PerformanceOverviewTableProps = {
+    columns: TableColumn[];
+    columnRules: {
+        [key: TableColumn["value"]]: number;
+    };
+    editRiskAssessmentColumns: TableColumn["value"][];
     rows: {
         [key: TableColumn["value"]]: string;
     }[];
-}
+};
 
 export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> = React.memo(
-    ({ rows }) => {
+    ({ rows, columns, columnRules, editRiskAssessmentColumns }) => {
         const [searchTerm, setSearchTerm] = useState<string>("");
         const [filterValue, setFilterValue] = useState("");
         const [filteredRows, setFilteredRows] = useState(rows);
-
-        const columns: TableColumn[] = [
-            { label: "Event", value: "event" },
-            { label: "Location", value: "location" },
-            { label: "Cases", value: "cases" },
-            { label: "Deaths", value: "deaths" },
-            { label: "Duration", value: "duration" },
-            { label: "Manager", value: "manager" },
-            { label: "Detect 7d", dark: true, value: "detect7d" },
-            { label: "Notify 1d", dark: true, value: "notify1d" },
-            { label: "ERA1", value: "era1" },
-            { label: "ERA2", value: "era2" },
-            { label: "ERA3", value: "era3" },
-            { label: "ERA4", value: "era4" },
-            { label: "ERA5", value: "era5" },
-            { label: "ERA6", value: "era6" },
-            { label: "ERA7", value: "era7" },
-            { label: "ERI", value: "eri" },
-            { label: "Respond 7d", dark: true, value: "respond7d" },
-        ];
-
-        const editRiskAssessmentColumns = [
-            "era1",
-            "era2",
-            "era3",
-            "era4",
-            "era5",
-            "era6",
-            "era7",
-            "eri",
-        ];
-        const columnRules: { [key: string]: number } = {
-            detect7d: 7,
-            notify1d: 1,
-            respond7d: 7,
-        };
 
         const calculateColumns = [...editRiskAssessmentColumns, ..._.keys(columnRules)];
 
