@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import _ from "../../../../domain/entities/generic/Collection";
 import {
     Table,
@@ -13,6 +13,8 @@ import { SearchInput } from "../../search-input/SearchInput";
 import { Selector } from "../../selector/Selector";
 import { Maybe } from "../../../../utils/ts-utils";
 import i18n from "../../../../utils/i18n";
+import { MedianRow } from "./MedianRow";
+import { PercentTargetMetRow } from "./PercentTargetMetRow";
 
 export type TableColumn = {
     value: string;
@@ -20,7 +22,7 @@ export type TableColumn = {
     dark?: boolean;
 };
 
-type PerformanceOverviewTableProps = {
+export type PerformanceOverviewTableProps = {
     columns: TableColumn[];
     columnRules: {
         [key: TableColumn["value"]]: number;
@@ -66,58 +68,6 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
             return value <= rule ? "green" : "red";
         };
 
-        const calculateMedian = (
-            rows: PerformanceOverviewTableProps["rows"],
-            column: TableColumn["value"]
-        ) => {
-            const values = rows.map(row => Number(row[column])).filter(value => !isNaN(value));
-            values.sort((a, b) => a - b);
-            const mid = Math.floor(values.length / 2);
-            return values.length % 2 !== 0
-                ? values[mid]
-                : ((values[mid - 1] || 0) + (values[mid] || 0)) / 2;
-        };
-
-        const calculatePercentTargetMet = (
-            rows: PerformanceOverviewTableProps["rows"],
-            column: TableColumn["value"],
-            target: number
-        ) => {
-            const count = rows.filter(row => Number(row[column]) <= target).length;
-            const percentage = (count / rows.length) * 100 || 0;
-            return `${percentage.toFixed(0) || 0}%`;
-        };
-
-        const buildMedianRow = useMemo(() => {
-            return columns.map((column, columnIndex) => (
-                <FooterTableCell key={`median-${column.value}`} $boldUnderline={columnIndex === 0}>
-                    {columnIndex === 0 && "Median"}
-                    {calculateColumns.includes(column.value)
-                        ? calculateMedian(filteredRows, column.value)
-                        : ""}
-                </FooterTableCell>
-            ));
-        }, [filteredRows]);
-
-        const buildPercentTargetMetRow = useMemo(() => {
-            return columns.map((column, columnIndex) => {
-                const rule = columnRules[column.value] || 7;
-
-                return (
-                    <FooterTableCell
-                        key={`percent-${column.value}`}
-                        $boldUnderline={columnIndex === 0}
-                    >
-                        {columnIndex === 0 && "% Target Met"}
-
-                        {calculateColumns.includes(column.value)
-                            ? calculatePercentTargetMet(filteredRows, column.value, rule)
-                            : ""}
-                    </FooterTableCell>
-                );
-            });
-        }, [filteredRows]);
-
         return (
             <React.Fragment>
                 <Container>
@@ -162,8 +112,17 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
                                     ))}
                                 </TableRow>
                             ))}
-                            <TableRow>{buildMedianRow}</TableRow>
-                            <TableRow>{buildPercentTargetMetRow}</TableRow>
+                            <MedianRow
+                                columns={columns}
+                                rows={filteredRows}
+                                calculateColumns={calculateColumns}
+                            />
+                            <PercentTargetMetRow
+                                columns={columns}
+                                rows={filteredRows}
+                                calculateColumns={calculateColumns}
+                                columnRules={columnRules}
+                            />
                         </TableBody>
                     </Table>
                 </StyledTableContainer>
