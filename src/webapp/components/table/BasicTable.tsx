@@ -35,7 +35,7 @@ interface BasicTableProps {
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
     ({ columns, rows, onChange = () => {}, showRowIndex = false }) => {
         return (
-            <StyledTable>
+            <StyledTable stickyHeader>
                 <TableHead>
                     <TableRow>
                         {showRowIndex && <TableCell />}
