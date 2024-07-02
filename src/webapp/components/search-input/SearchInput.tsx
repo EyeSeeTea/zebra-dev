@@ -18,13 +18,11 @@ export const SearchInput: React.FC<SearchInputProps> = React.memo(
 
         useEffect(() => updateStateValue(value), [value]);
 
-        // TODO: needs debounce function from Collection
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         const onChangeDebounced = useCallback(
-            (value: string) => {
-                if (onChange) {
-                    onChange(value);
-                }
-            },
+            debounce((value: string) => {
+                if (onChange) onChange(value);
+            }, 400),
             [onChange]
         );
 
@@ -60,6 +58,19 @@ export const SearchInput: React.FC<SearchInputProps> = React.memo(
         );
     }
 );
+
+function debounce<F extends (...args: any[]) => any>(func: F, delay: number) {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+
+    const debounced = (...args: Parameters<F>): void => {
+        if (timeout !== null) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => func(...args), delay);
+    };
+
+    return debounced as (...args: Parameters<F>) => ReturnType<F>;
+}
 
 const Container = styled.div`
     display: flex;

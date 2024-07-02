@@ -2,13 +2,14 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Select, InputLabel, MenuItem, FormHelperText } from "@material-ui/core";
 import { IconChevronDown24 } from "@dhis2/ui";
-import { SelectorOption, getLabelFromValue } from "./utils/selectorHelper";
+import { getLabelFromValue } from "./utils/selectorHelper";
+import { Option } from "../utils/option";
 
 type SelectorProps<Value extends string = string> = {
     id: string;
     selected: Value;
     onChange: (value: Value) => void;
-    options: SelectorOption<Value>[];
+    options: Option<Value>[];
     label?: string;
     placeholder?: string;
     disabled?: boolean;
