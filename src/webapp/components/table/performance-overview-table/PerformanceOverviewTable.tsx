@@ -35,24 +35,11 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
     ({ rows, columns, columnRules, editRiskAssessmentColumns }) => {
         const [searchTerm, setSearchTerm] = useState<string>("");
         const [filterValue, setFilterValue] = useState("");
-        const [filteredRows, setFilteredRows] = useState(rows);
+        // const [filteredRows, setFilteredRows] = useState(rows);
 
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
-        useEffect(() => {
-            if (searchTerm === "") {
-                setFilteredRows(rows);
-            } else {
-                const filtered = _(rows)
-                    .filter(row => {
-                        return _(Object.values(row)).some(cell => {
-                            return cell.toLowerCase().includes(searchTerm.toLowerCase());
-                        });
-                    })
-                    .value();
-                setFilteredRows(filtered);
-            }
-        }, [searchTerm, rows]);
+        const filteredRows = useTableSearch(rows, searchTerm);
 
         const getCellColor = (cellValue: Maybe<string>, column: TableColumn["value"]) => {
             // Return "orange" for empty Edit Risk Assessment column
@@ -184,6 +171,22 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
         );
     }
 );
+
+const useTableSearch = (rows: PerformanceOverviewTableProps["rows"], searchTerm: string) => {
+    return useMemo(() => {
+        if (searchTerm === "") {
+            return rows;
+        } else {
+            return _(rows)
+                .filter(row => {
+                    return _(Object.values(row)).some(cell => {
+                        return cell.toLowerCase().includes(searchTerm.toLowerCase());
+                    });
+                })
+                .value();
+        }
+    }, [rows, searchTerm]);
+};
 
 const StyledTableContainer = styled(TableContainer)`
     border-radius: 4px;
