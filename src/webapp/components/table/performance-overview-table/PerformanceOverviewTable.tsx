@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import _ from "lodash";
+import _ from "../../../../domain/entities/generic/Collection";
 import {
     Table,
     TableBody,
@@ -37,17 +37,19 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
         const [filterValue, setFilterValue] = useState("");
         const [filteredRows, setFilteredRows] = useState(rows);
 
-        const calculateColumns = [...editRiskAssessmentColumns, ..._.keys(columnRules)];
+        const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
         useEffect(() => {
             if (searchTerm === "") {
                 setFilteredRows(rows);
             } else {
-                const filtered = _.filter(rows, row => {
-                    return _.some(row, cell => {
-                        return _.includes(_.toLower(cell), _.toLower(searchTerm));
-                    });
-                });
+                const filtered = _(rows)
+                    .filter(row => {
+                        return _(Object.values(row)).some(cell => {
+                            return cell.toLowerCase().includes(searchTerm.toLowerCase());
+                        });
+                    })
+                    .value();
                 setFilteredRows(filtered);
             }
         }, [searchTerm, rows]);
@@ -55,13 +57,13 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
         const getCellColor = (cellValue: Maybe<string>, column: TableColumn["value"]) => {
             // Return "orange" for empty Edit Risk Assessment column
             if (!cellValue) {
-                return _.includes(editRiskAssessmentColumns, column) ? "orange" : undefined;
+                return editRiskAssessmentColumns.includes(column) ? "orange" : undefined;
             }
 
             const value = Number(cellValue);
 
             // Return "red" for value greater than rule in Edit Risk Assessment column
-            if (_.includes(editRiskAssessmentColumns, column)) {
+            if (editRiskAssessmentColumns.includes(column)) {
                 return columnRules.respond7d && value > columnRules.respond7d ? "red" : undefined;
             }
 
@@ -103,7 +105,7 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
             return columns.map((column, columnIndex) => (
                 <FooterTableCell key={`median-${column.value}`} $boldUnderline={columnIndex === 0}>
                     {columnIndex === 0 && "Median"}
-                    {_.includes(calculateColumns, column.value)
+                    {calculateColumns.includes(column.value)
                         ? calculateMedian(filteredRows, column.value)
                         : ""}
                 </FooterTableCell>
@@ -121,7 +123,7 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
                     >
                         {columnIndex === 0 && "% Target Met"}
 
-                        {_.includes(calculateColumns, column.value)
+                        {calculateColumns.includes(column.value)
                             ? calculatePercentTargetMet(filteredRows, column.value, rule)
                             : ""}
                     </FooterTableCell>
