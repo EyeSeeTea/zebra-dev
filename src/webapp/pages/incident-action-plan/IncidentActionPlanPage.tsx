@@ -8,13 +8,13 @@ import { Button } from "../../components/button/Button";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
 
 export const IncidentActionPlanPage: React.FC = React.memo(() => {
+    // TODO remove hard coding
     const columnsTeam: TableColumn[] = [
         { value: "role", label: "Role", type: "text" },
         { value: "name", label: "Name", type: "link" },
         { value: "email", label: "Email", type: "link" },
         { value: "phone", label: "Phone", type: "text" },
     ];
-
     const dataTeam = [
         {
             role: "Incident Manager",
@@ -30,6 +30,7 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
         },
     ];
 
+    // TODO remove hard coding
     const columnsResponseActions: TableColumn[] = [
         { value: "mainTask", label: "Main Task", type: "text", underline: true },
         { value: "subActivities", label: "Sub Activities", type: "text" },
@@ -57,7 +58,6 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
         { value: "timeline", label: "Timeline", type: "text" },
         { value: "dueDate", label: "Due date", type: "text" },
     ];
-
     const dataResponseActions = [
         {
             mainTask: "Data management",
