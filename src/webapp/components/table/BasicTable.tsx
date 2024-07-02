@@ -15,6 +15,7 @@ interface BaseColumn {
 interface TextColumn extends BaseColumn {
     type: "text";
     underline?: boolean;
+    bold?: boolean;
 }
 interface LinkColumn extends BaseColumn {
     type: "link";

@@ -43,13 +43,18 @@ export const Cell: React.FC<CellProps> = React.memo(
                 );
             case "text":
             default:
-                return <StyledTableCell $underline={column.underline}>{value}</StyledTableCell>;
+                return (
+                    <StyledTableCell $underline={column.underline} $bold={column.bold}>
+                        {value}
+                    </StyledTableCell>
+                );
         }
     }
 );
 
-const StyledTableCell = styled(TableCell)<{ $underline?: boolean }>`
-    ${props => props.$underline && "text-decoration: underline;"}
+const StyledTableCell = styled(TableCell)<{ $underline?: boolean; $bold?: boolean }>`
+    text-decoration: ${props => (props.$underline ? "underline" : "initial")};
+    font-weight: ${props => (props.$bold ? 700 : 400)};
 `;
 
 const StyledLink = styled(Link)`
