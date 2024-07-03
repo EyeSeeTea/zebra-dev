@@ -4,6 +4,7 @@ import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import {
+    FilterType,
     StatisticTable,
     TableColumn,
 } from "../../components/table/performance-overview-table/StatisticTable";
@@ -179,6 +180,13 @@ export const DashboardPage: React.FC = React.memo(() => {
             respond7d: "12",
         },
     ];
+    const filters: FilterType[] = [
+        { value: "event", label: "Event", type: "multiselector" },
+        // { value: "name", label: "Name", type: "multiselector" },
+        // { value: "disease", label: "Disease", type: "multiselector" },
+        { value: "location", label: "Location", type: "multiselector" },
+        // { value: "dateRange", label: "Date range", type: "datepicker" },
+    ];
 
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
@@ -191,6 +199,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                 <StatisticTable
                     columns={columns}
                     rows={dataPerformanceOverview}
+                    filters={filters}
                     columnRules={columnRules}
                     editRiskAssessmentColumns={editRiskAssessmentColumns}
                 />

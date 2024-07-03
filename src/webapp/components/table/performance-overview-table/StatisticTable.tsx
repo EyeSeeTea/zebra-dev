@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import _ from "../../../../domain/entities/generic/Collection";
 import {
     Table,
@@ -10,16 +10,26 @@ import {
 } from "@material-ui/core";
 import styled from "styled-components";
 import { SearchInput } from "../../search-input/SearchInput";
-import { Selector } from "../../selector/Selector";
 import { Maybe } from "../../../../utils/ts-utils";
 import i18n from "../../../../utils/i18n";
 import { MedianRow } from "./MedianRow";
 import { PercentTargetMetRow } from "./PercentTargetMetRow";
+import { MultipleSelector } from "../../multiple-selector/MultipleSelector";
 
 export type TableColumn = {
     value: string;
     label: string;
     dark?: boolean;
+};
+
+export type FilterType = {
+    value: TableColumn["value"];
+    label: TableColumn["label"];
+    type: "multiselector" | "datepicker";
+};
+
+export type FiltersValuesType = {
+    [key: TableColumn["value"]]: string[];
 };
 
 export type StatisticTableProps = {
@@ -31,17 +41,36 @@ export type StatisticTableProps = {
     rows: {
         [key: TableColumn["value"]]: string;
     }[];
+    filters: FilterType[];
 };
 
 export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
-    ({ rows, columns, columnRules, editRiskAssessmentColumns }) => {
+    ({ rows, columns, columnRules, editRiskAssessmentColumns, filters: filtersConfig }) => {
         const [searchTerm, setSearchTerm] = useState<string>("");
-        const [filterValue, setFilterValue] = useState("");
+
+        const [filters, setFilters] = useState<FiltersValuesType>(
+            filtersConfig.reduce((acc: FiltersValuesType, filter) => {
+                acc[filter.value] = [];
+                return acc;
+            }, {})
+        );
 
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
-        const filteredRows = useTableSearch(rows, searchTerm);
+        const filteredRows = useTableSearch(rows, searchTerm, filters);
 
+        const filterOptions = useCallback(
+            (column: TableColumn["value"]) => {
+                return _(rows)
+                    .map(row => ({
+                        value: row[column] || "",
+                        label: row[column] || "",
+                    }))
+                    .uniqBy(filter => filter.value)
+                    .value();
+            },
+            [rows]
+        );
         const getCellColor = (cellValue: Maybe<string>, column: TableColumn["value"]) => {
             // Return "orange" for empty Edit Risk Assessment column
             if (!cellValue) {
@@ -70,21 +99,22 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         return (
             <React.Fragment>
                 <Container>
-                    <StyledSelectorWrapper>
-                        <Selector
-                            id="filter"
-                            selected={filterValue}
-                            placeholder={i18n.t("Filter")}
-                            options={[...columns]}
-                            onChange={(value: string) => {
-                                setFilterValue(value);
-                                console.log(value);
-                            }}
-                        />
-                    </StyledSelectorWrapper>
-                    <StyledSearchInputWrapper>
-                        <SearchInput value={searchTerm} onChange={value => setSearchTerm(value)} />
-                    </StyledSearchInputWrapper>
+                    {_(filtersConfig)
+                        .map(({ value, label }) => (
+                            <MultipleSelector
+                                id={`filters-${value}`}
+                                key={`filters-${value}`}
+                                selected={filters[value] || []}
+                                placeholder={i18n.t(label)}
+                                options={filterOptions(value)}
+                                onChange={(values: string[]) => {
+                                    console.log(values);
+                                    setFilters({ ...filters, [value]: values });
+                                }}
+                            />
+                        ))
+                        .value()}
+                    <SearchInput value={searchTerm} onChange={value => setSearchTerm(value)} />
                 </Container>
                 <StyledTableContainer>
                     <Table size="small">
@@ -130,20 +160,37 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
     }
 );
 
-const useTableSearch = (rows: StatisticTableProps["rows"], searchTerm: string) => {
+const useTableSearch = (
+    rows: StatisticTableProps["rows"],
+    searchTerm: string,
+    filters: FiltersValuesType
+) => {
     return useMemo(() => {
-        if (searchTerm === "") {
+        const allFiltersEmpty = Object.keys(filters).every(
+            key => (filters[key] || []).length === 0
+        );
+
+        if (searchTerm === "" && allFiltersEmpty) {
             return rows;
         } else {
             return _(rows)
                 .filter(row => {
-                    return _(Object.values(row)).some(cell => {
+                    // Filter by filters values
+                    const matchesFilters = Object.keys(filters).every(key => {
+                        const filterValues = filters[key] || [];
+                        if (filterValues.length === 0) return true;
+                        return filterValues.includes(row[key] || "");
+                    });
+
+                    const matchesSearchTerm = _(Object.values(row)).some(cell => {
                         return cell.toLowerCase().includes(searchTerm.toLowerCase());
                     });
+
+                    return matchesFilters && matchesSearchTerm;
                 })
                 .value();
         }
-    }, [rows, searchTerm]);
+    }, [rows, searchTerm, filters]);
 };
 
 const StyledTableContainer = styled(TableContainer)`
@@ -185,25 +232,11 @@ const BodyTableCell = styled(TableCell)<{ color?: string; $boldUnderline: boolea
     font-weight: ${props => (props.$boldUnderline || !!props.color) && "600"};
 `;
 
-const FooterTableCell = styled(TableCell)<{ $boldUnderline: boolean }>`
-    background-color: ${props => props.theme.palette.common.greyLight};
-    text-decoration: ${props => props.$boldUnderline && "underline"};
-    font-weight: ${props => (props.$boldUnderline || !!props.color) && "600"};
-`;
-
 const Container = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
     width: 100%;
+    gap: 1rem;
 `;
-
-const Wrapper = styled.div<{ width: string }>`
-    width: ${({ width }) => width};
-    max-width: ${({ width }) => width};
-`;
-
-const StyledSelectorWrapper = styled(Wrapper).attrs({ width: "10rem" })``;
-
-const StyledSearchInputWrapper = styled(Wrapper).attrs({ width: "19rem" })``;
