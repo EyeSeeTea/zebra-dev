@@ -7,7 +7,7 @@ import {
     FilterType,
     StatisticTable,
     TableColumn,
-} from "../../components/table/performance-overview-table/StatisticTable";
+} from "../../components/table/statistic-table/StatisticTable";
 
 export const DashboardPage: React.FC = React.memo(() => {
     // TODO remove harcoded data
