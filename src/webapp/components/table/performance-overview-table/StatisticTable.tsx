@@ -22,7 +22,7 @@ export type TableColumn = {
     dark?: boolean;
 };
 
-export type PerformanceOverviewTableProps = {
+export type StatisticTableProps = {
     columns: TableColumn[];
     columnRules: {
         [key: TableColumn["value"]]: number;
@@ -33,11 +33,10 @@ export type PerformanceOverviewTableProps = {
     }[];
 };
 
-export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> = React.memo(
+export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
     ({ rows, columns, columnRules, editRiskAssessmentColumns }) => {
         const [searchTerm, setSearchTerm] = useState<string>("");
         const [filterValue, setFilterValue] = useState("");
-        // const [filteredRows, setFilteredRows] = useState(rows);
 
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
@@ -131,7 +130,7 @@ export const PerformanceOverviewTable: React.FC<PerformanceOverviewTableProps> =
     }
 );
 
-const useTableSearch = (rows: PerformanceOverviewTableProps["rows"], searchTerm: string) => {
+const useTableSearch = (rows: StatisticTableProps["rows"], searchTerm: string) => {
     return useMemo(() => {
         if (searchTerm === "") {
             return rows;

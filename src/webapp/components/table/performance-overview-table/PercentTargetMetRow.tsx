@@ -2,7 +2,7 @@ import React from "react";
 import _ from "../../../../domain/entities/generic/Collection";
 import { TableCell, TableRow } from "@material-ui/core";
 import styled from "styled-components";
-import { PerformanceOverviewTableProps } from "./PerformanceOverviewTable";
+import { StatisticTableProps } from "./StatisticTable";
 
 export type TableColumn = {
     value: string;
@@ -24,7 +24,7 @@ type PercentTargetMetRowProps = {
 export const PercentTargetMetRow: React.FC<PercentTargetMetRowProps> = React.memo(
     ({ rows, columns, columnRules, calculateColumns }) => {
         const calculatePercentTargetMet = (
-            rows: PerformanceOverviewTableProps["rows"],
+            rows: StatisticTableProps["rows"],
             column: TableColumn["value"],
             target: number
         ) => {

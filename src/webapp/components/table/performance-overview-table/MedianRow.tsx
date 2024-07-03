@@ -2,7 +2,7 @@ import React from "react";
 import _ from "../../../../domain/entities/generic/Collection";
 import { TableCell, TableRow } from "@material-ui/core";
 import styled from "styled-components";
-import { PerformanceOverviewTableProps } from "./PerformanceOverviewTable";
+import { StatisticTableProps } from "./StatisticTable";
 
 export type TableColumn = {
     value: string;
@@ -21,7 +21,7 @@ type MedianRowProps = {
 export const MedianRow: React.FC<MedianRowProps> = React.memo(
     ({ rows, columns, calculateColumns }) => {
         const calculateMedian = (
-            rows: PerformanceOverviewTableProps["rows"],
+            rows: StatisticTableProps["rows"],
             column: TableColumn["value"]
         ) => {
             const values = rows.map(row => Number(row[column])).filter(value => !isNaN(value));

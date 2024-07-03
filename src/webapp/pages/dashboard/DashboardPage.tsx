@@ -4,9 +4,9 @@ import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import {
-    PerformanceOverviewTable,
+    StatisticTable,
     TableColumn,
-} from "../../components/table/performance-overview-table/PerformanceOverviewTable";
+} from "../../components/table/performance-overview-table/StatisticTable";
 
 export const DashboardPage: React.FC = React.memo(() => {
     // TODO remove harcoded data
@@ -188,7 +188,7 @@ export const DashboardPage: React.FC = React.memo(() => {
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>7-1-7 performance content</Section>
             <Section title={i18n.t("Performance overview")}>
-                <PerformanceOverviewTable
+                <StatisticTable
                     columns={columns}
                     rows={dataPerformanceOverview}
                     columnRules={columnRules}
