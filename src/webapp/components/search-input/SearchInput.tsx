@@ -72,7 +72,7 @@ function debounce<F extends (...args: any[]) => any>(func: F, delay: number) {
         timeout = setTimeout(() => func(...args), delay);
     };
 
-    return debounced as (...args: Parameters<F>) => ReturnType<F>;
+    return debounced;
 }
 
 const Container = styled.div`
