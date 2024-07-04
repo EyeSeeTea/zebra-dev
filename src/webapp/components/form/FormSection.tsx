@@ -26,17 +26,20 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
         return (
             <FormSectionContainer>
                 {hasSeparator && <Separator margin="12px" />}
+
                 <Container direction={direction}>
                     {title && (
                         <TitleContainer direction={direction}>
                             <RequiredText className={required ? "required" : ""}>
                                 {title}
                             </RequiredText>
+
                             {onClickInfo && (
                                 <IconButton icon={<IconInfo24 />} onClick={onClickInfo} />
                             )}
                         </TitleContainer>
                     )}
+
                     <FormContainer fulWidth={!title}>{children}</FormContainer>
                 </Container>
             </FormSectionContainer>

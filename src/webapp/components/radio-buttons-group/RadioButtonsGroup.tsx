@@ -38,6 +38,7 @@ export function RadioButtonsGroup<Value extends string>({
                     {label}
                 </Label>
             )}
+
             <StyledRadioGroup
                 aria-label={id}
                 name={id}
@@ -56,6 +57,7 @@ export function RadioButtonsGroup<Value extends string>({
                     />
                 ))}
             </StyledRadioGroup>
+
             <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
                 {error && !!errorText ? errorText : helperText}
             </StyledFormHelperText>

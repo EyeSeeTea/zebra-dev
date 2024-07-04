@@ -27,12 +27,15 @@ export const ProfileModal: React.FC<ProfileModalProps> = React.memo(
             >
                 <StyledCard variant="outlined">
                     <Name>{name}</Name>
+
                     <Content>
                         <AvatarContainer>
                             <Avatar alt={alt} src={src} />
                         </AvatarContainer>
+
                         <StyledCardContent>{children}</StyledCardContent>
                     </Content>
+
                     <Footer>
                         <Button onClick={onClose}>{i18n.t("Close")}</Button>
                     </Footer>

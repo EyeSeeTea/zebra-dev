@@ -14,6 +14,7 @@ export const NoticeBox: React.FC<NoticeBoxProps> = React.memo(({ title, children
                 <IconInfo24 />
                 {title}
             </TitleContainer>
+
             <Content>{children}</Content>
         </Container>
     );

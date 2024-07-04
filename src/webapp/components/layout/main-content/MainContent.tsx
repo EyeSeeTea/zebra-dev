@@ -31,9 +31,12 @@ export const MainContent: React.FC<MainContentProps> = React.memo(
                     toggleSideBar={toggleSideBar}
                     showCreateEvent={showCreateEvent}
                 />
+
                 <Main>
                     {title && <Title>{title}</Title>}
+
                     {subtitle && <SubTitle>{subtitle}</SubTitle>}
+
                     <PageContent>{children}</PageContent>
                 </Main>
             </Container>

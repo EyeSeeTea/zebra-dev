@@ -60,6 +60,7 @@ export function MultipleSelector<Value extends string>({
                     {label}
                 </Label>
             )}
+
             <StyledSelect
                 labelId={label || `${id}-label`}
                 id={id}
@@ -95,6 +96,7 @@ export function MultipleSelector<Value extends string>({
                     </MenuItem>
                 ))}
             </StyledSelect>
+
             <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
                 {error && !!errorText ? errorText : helperText}
             </StyledFormHelperText>

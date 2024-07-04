@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Checkbox as MUICheckbox, InputLabel, FormHelperText } from "@material-ui/core";
 import styled from "styled-components";
 
@@ -32,6 +32,8 @@ export const Checkbox: React.FC<CheckboxProps> = React.memo(
             [onChange]
         );
 
+        const inputProps = useMemo(() => ({ "aria-label": label || `${id}-label` }), [id, label]);
+
         return (
             <Container>
                 <CheckboxWrapper>
@@ -42,12 +44,14 @@ export const Checkbox: React.FC<CheckboxProps> = React.memo(
                         onChange={handleChange}
                         disabled={disabled}
                         size="small"
-                        inputProps={{ "aria-label": label || `${id}-label` }}
+                        inputProps={inputProps}
                     />
+
                     <Label htmlFor={id} disabled={disabled}>
                         {label}
                     </Label>
                 </CheckboxWrapper>
+
                 <StyledFormHelperText id={`${id}-helper-text`}>{helperText}</StyledFormHelperText>
             </Container>
         );

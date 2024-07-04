@@ -25,9 +25,11 @@ export const Section: React.FC<SectionProps> = React.memo(
         return (
             <SectionContainer $hasSeparator={hasSeparator}>
                 {hasSeparator && <Separator />}
+
                 <Header>
                     <TitleContainer>
                         {title ? <Title $titleVariant={titleVariant}>{title}</Title> : null}
+
                         {lastUpdated ? (
                             <LastUpdatedContainer>
                                 <LastUpdatedTitle>
@@ -37,8 +39,10 @@ export const Section: React.FC<SectionProps> = React.memo(
                             </LastUpdatedContainer>
                         ) : null}
                     </TitleContainer>
+
                     {headerButtom ? <div>{headerButtom}</div> : null}
                 </Header>
+
                 <Content>{children}</Content>
             </SectionContainer>
         );

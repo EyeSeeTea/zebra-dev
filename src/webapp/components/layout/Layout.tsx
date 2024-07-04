@@ -33,6 +33,7 @@ export const Layout: React.FC<LayoutProps> = React.memo(
                         <Button onClick={() => setSideBarOpen(!sideBarOpen)} startIcon={<Menu />} />
                     </OpenMenuContainer>
                 ) : null}
+
                 <MainContent
                     sideBarOpen={sideBarOpen}
                     toggleSideBar={setSideBarOpen}
