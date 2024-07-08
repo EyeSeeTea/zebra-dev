@@ -130,6 +130,7 @@ const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`
 `;
 
 const StyledSelect = styled(Select)<{ error?: boolean }>`
+    height: 40px;
     .MuiOutlinedInput-notchedOutline {
         border-color: ${props =>
             props.error ? props.theme.palette.common.red600 : props.theme.palette.common.grey500};

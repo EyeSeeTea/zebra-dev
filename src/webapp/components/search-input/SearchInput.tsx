@@ -100,7 +100,11 @@ const IconContainer = styled.div<{ $disabled?: boolean }>`
 
 const StyledTextField = styled(TextField)<{ error?: boolean }>`
     font-weight: 400;
+    height: 40px;
     font-size: 0.875rem;
+    .MuiOutlinedInput-root {
+        height: 40px;
+    }
     color: ${props => props.theme.palette.common.grey1};
     .MuiFormHelperText-root {
         color: ${props =>

@@ -70,6 +70,10 @@ const Label = styled(InputLabel)`
 `;
 
 const StyledTextField = styled(TextField)<{ error?: boolean }>`
+    height: 40px;
+    .MuiOutlinedInput-root {
+        height: 40px;
+    }
     .MuiFormHelperText-root {
         color: ${props =>
             props.error ? props.theme.palette.common.red700 : props.theme.palette.common.grey700};
