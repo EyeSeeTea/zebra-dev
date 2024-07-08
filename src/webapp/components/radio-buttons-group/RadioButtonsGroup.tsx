@@ -1,62 +1,89 @@
-import { FormControlLabel, Radio, RadioGroup, FormHelperText } from "@material-ui/core";
+import { FormControlLabel, InputLabel, Radio, RadioGroup, FormHelperText } from "@material-ui/core";
 import React from "react";
 import styled from "styled-components";
 
-export type RadioOption<T extends string = string> = {
-    value: T;
-    label: string;
-    disabled?: boolean;
-};
+import { Option } from "../utils/option";
 
-type RadioButtonsGroupProps = {
+type RadioButtonsGroupProps<Value extends string = string> = {
     id: string;
     selected: string;
+    label?: string;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    options: RadioOption[];
+    options: Option<Value>[];
     gap?: string;
     helperText?: string;
     errorText?: string;
     error?: boolean;
+    disabled?: boolean;
+    required?: boolean;
 };
 
-export const RadioButtonsGroup: React.FC<RadioButtonsGroupProps> = React.memo(
-    ({
-        id,
-        selected,
-        onChange,
-        options,
-        gap = "24px",
-        helperText = "",
-        errorText = "",
-        error = false,
-    }) => {
-        return (
-            <>
-                <StyledRadioGroup
-                    aria-label={id}
-                    name={id}
-                    value={selected}
-                    onChange={onChange}
-                    gap={gap}
-                >
-                    {options.map(option => (
-                        <FormControlLabel
-                            key={option.value}
-                            value={option.value}
-                            control={<StyledRadio />}
-                            label={option.label}
-                            disabled={option.disabled}
-                            aria-label={option.label}
-                        />
-                    ))}
-                </StyledRadioGroup>
-                <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
-                    {error && !!errorText ? errorText : helperText}
-                </StyledFormHelperText>
-            </>
-        );
+export function RadioButtonsGroup<Value extends string>({
+    id,
+    selected,
+    label,
+    onChange,
+    options,
+    gap = "24px",
+    helperText = "",
+    errorText = "",
+    error = false,
+    disabled = false,
+    required = false,
+}: RadioButtonsGroupProps<Value>): JSX.Element {
+    return (
+        <Container>
+            {label && (
+                <Label className={required ? "required" : ""} htmlFor={id}>
+                    {label}
+                </Label>
+            )}
+
+            <StyledRadioGroup
+                aria-label={id}
+                name={id}
+                value={selected}
+                onChange={onChange}
+                gap={gap}
+            >
+                {options.map(option => (
+                    <FormControlLabel
+                        key={option.value}
+                        value={option.value}
+                        control={<StyledRadio />}
+                        label={option.label}
+                        disabled={option.disabled || disabled}
+                        aria-label={option.label}
+                    />
+                ))}
+            </StyledRadioGroup>
+
+            <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
+                {error && !!errorText ? errorText : helperText}
+            </StyledFormHelperText>
+        </Container>
+    );
+}
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+`;
+
+const Label = styled(InputLabel)`
+    display: inline-block;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: ${props => props.theme.palette.text.primary};
+    margin-block-end: 8px;
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
     }
-);
+`;
 
 const StyledRadioGroup = styled(RadioGroup)<{ gap: string }>`
     flex-direction: row;

@@ -20,8 +20,8 @@ type DatePickerProps = {
 
 export const DatePicker: React.FC<DatePickerProps> = React.memo(
     ({
-        id = "",
-        label = "",
+        id,
+        label,
         value,
         onChange,
         disabled = false,
@@ -37,6 +37,7 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
                         {label}
                     </Label>
                 )}
+
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <StyledDatePicker
                         value={value}

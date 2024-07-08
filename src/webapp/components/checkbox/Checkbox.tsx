@@ -1,10 +1,8 @@
-import React, { useCallback } from "react";
-import { Checkbox, InputLabel, FormHelperText } from "@material-ui/core";
+import React, { useCallback, useMemo } from "react";
+import { Checkbox as MUICheckbox, InputLabel, FormHelperText } from "@material-ui/core";
 import styled from "styled-components";
 
-import i18n from "../../../utils/i18n";
-
-type NACheckboxProps = {
+type CheckboxProps = {
     id: string;
     label?: string;
     checked: boolean;
@@ -12,12 +10,15 @@ type NACheckboxProps = {
     helperText?: string;
     disabled?: boolean;
     indeterminate?: boolean;
+    errorText?: string;
+    error?: boolean;
+    required?: boolean;
 };
 
-export const NACheckbox: React.FC<NACheckboxProps> = React.memo(
+export const Checkbox: React.FC<CheckboxProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         checked,
         onChange,
         helperText = "",
@@ -31,22 +32,26 @@ export const NACheckbox: React.FC<NACheckboxProps> = React.memo(
             [onChange]
         );
 
+        const inputProps = useMemo(() => ({ "aria-label": label || `${id}-label` }), [id, label]);
+
         return (
             <Container>
                 <CheckboxWrapper>
-                    <Checkbox
+                    <MUICheckbox
                         id={id}
                         checked={checked}
                         indeterminate={indeterminate}
                         onChange={handleChange}
                         disabled={disabled}
                         size="small"
-                        inputProps={{ "aria-label": label || `${id}-label` }}
+                        inputProps={inputProps}
                     />
+
                     <Label htmlFor={id} disabled={disabled}>
-                        {label || i18n.t("N/A")}
+                        {label}
                     </Label>
                 </CheckboxWrapper>
+
                 <StyledFormHelperText id={`${id}-helper-text`}>{helperText}</StyledFormHelperText>
             </Container>
         );

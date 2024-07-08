@@ -16,6 +16,7 @@ export const AvatarCard: React.FC<AvatarCardProps> = React.memo(
                 <AvatarContainer $size={avatarSize}>
                     <Avatar alt={alt} src={src} />
                 </AvatarContainer>
+
                 <StyledCardContent>{children}</StyledCardContent>
             </StyledCard>
         );

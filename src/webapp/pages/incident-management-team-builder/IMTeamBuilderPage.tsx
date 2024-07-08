@@ -8,8 +8,6 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
         <Layout
             title={i18n.t("Incident Management Team Builder")}
             subtitle={i18n.t("Cholera in NW Province, June 2023")}
-        >
-            IMTeamBuilderPage
-        </Layout>
+        ></Layout>
     );
 });

@@ -10,9 +10,13 @@ export const HeaderBar: React.FC<HeaderBarProps> = React.memo(({ name }) => {
     return (
         <Container>
             <FlagBar color="red" />
+
             <FlagBar color="black" />
+
             <FlagBar color="orange" />
+
             <AppName>{name}</AppName>
+
             <StyledHeaderBar className="app-header" appName="ZEBRA App" />
         </Container>
     );

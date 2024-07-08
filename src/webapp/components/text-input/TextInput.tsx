@@ -2,7 +2,7 @@ import React from "react";
 import { TextField, InputLabel } from "@material-ui/core";
 import styled from "styled-components";
 
-type InputFieldProps = {
+type TextInputProps = {
     id: string;
     label?: string;
     value: string;
@@ -14,10 +14,10 @@ type InputFieldProps = {
     error?: boolean;
 };
 
-export const InputField: React.FC<InputFieldProps> = React.memo(
+export const TextInput: React.FC<TextInputProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         value,
         onChange,
         helperText = "",
@@ -33,6 +33,7 @@ export const InputField: React.FC<InputFieldProps> = React.memo(
                         {label}
                     </Label>
                 )}
+
                 <StyledTextField
                     id={id}
                     value={value}
@@ -69,6 +70,10 @@ const Label = styled(InputLabel)`
 `;
 
 const StyledTextField = styled(TextField)<{ error?: boolean }>`
+    height: 40px;
+    .MuiOutlinedInput-root {
+        height: 40px;
+    }
     .MuiFormHelperText-root {
         color: ${props =>
             props.error ? props.theme.palette.common.red700 : props.theme.palette.common.grey700};

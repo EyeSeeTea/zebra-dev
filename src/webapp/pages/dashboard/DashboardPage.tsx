@@ -9,6 +9,8 @@ import {
     TableColumn,
 } from "../../components/table/statistic-table/StatisticTable";
 
+// TODO: Add every section here, first it's just an example
+
 export const DashboardPage: React.FC = React.memo(() => {
     // TODO remove harcoded data
     const columns: TableColumn[] = [

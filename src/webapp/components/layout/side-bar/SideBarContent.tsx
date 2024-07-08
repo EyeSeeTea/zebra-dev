@@ -46,7 +46,7 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
         const history = useHistory();
 
         const goToCreateEvent = useCallback(() => {
-            history.push(`/create-event`);
+            history.push(`/create/diseaseOutbreakEvent`);
         }, [history]);
 
         return (

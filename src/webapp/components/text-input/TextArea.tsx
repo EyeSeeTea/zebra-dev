@@ -17,7 +17,7 @@ type TextAreaProps = {
 export const TextArea: React.FC<TextAreaProps> = React.memo(
     ({
         id,
-        label = "",
+        label,
         value,
         onChange,
         disabled = false,
@@ -40,6 +40,7 @@ export const TextArea: React.FC<TextAreaProps> = React.memo(
                         {label}
                     </Label>
                 )}
+
                 <StyledTextareaAutosize
                     id={id}
                     aria-label={label || `${id}-label`}
@@ -49,6 +50,7 @@ export const TextArea: React.FC<TextAreaProps> = React.memo(
                     disabled={disabled}
                     $hasError={error}
                 />
+
                 <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
                     {error && !!errorText ? errorText : helperText}
                 </StyledFormHelperText>

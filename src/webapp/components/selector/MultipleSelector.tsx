@@ -1,14 +1,14 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Select, InputLabel, MenuItem, FormHelperText } from "@material-ui/core";
-import { IconChevronDown24 } from "@dhis2/ui";
+import { Select, InputLabel, MenuItem, FormHelperText, Chip } from "@material-ui/core";
+import { IconChevronDown24, IconCross16 } from "@dhis2/ui";
 import { getLabelFromValue } from "./utils/selectorHelper";
 import { Option } from "../utils/option";
 
-type SelectorProps<Value extends string = string> = {
+type MultipleSelectorProps<Value extends string = string> = {
     id: string;
-    selected: Value;
-    onChange: (value: Value) => void;
+    selected: Value[];
+    onChange: (value: Value[]) => void;
     options: Option<Value>[];
     label?: string;
     placeholder?: string;
@@ -19,7 +19,7 @@ type SelectorProps<Value extends string = string> = {
     required?: boolean;
 };
 
-export function Selector<Value extends string>({
+export function MultipleSelector<Value extends string>({
     id,
     label,
     placeholder = "",
@@ -31,7 +31,7 @@ export function Selector<Value extends string>({
     errorText = "",
     error = false,
     required = false,
-}: SelectorProps<Value>): JSX.Element {
+}: MultipleSelectorProps<Value>): JSX.Element {
     const handleChange = useCallback(
         (
             event: React.ChangeEvent<{
@@ -39,10 +39,18 @@ export function Selector<Value extends string>({
             }>,
             _child: React.ReactNode
         ) => {
-            const value = event.target.value as Value;
+            const value = event.target.value as Value[];
             onChange(value);
         },
         [onChange]
+    );
+
+    const handleDelete = useCallback(
+        (event: React.MouseEvent<HTMLDivElement, MouseEvent>, value: Value) => {
+            event.stopPropagation();
+            onChange(selected?.filter(selection => selection !== value));
+        },
+        [onChange, selected]
     );
 
     return (
@@ -63,9 +71,24 @@ export function Selector<Value extends string>({
                 IconComponent={IconChevronDown24}
                 error={error}
                 renderValue={(selected: unknown) =>
-                    getLabelFromValue(selected as Value, options) || placeholder
+                    (selected as Value[])?.length ? (
+                        <div>
+                            {(selected as Value[]).map(value => (
+                                <SelectedChip
+                                    key={value}
+                                    label={getLabelFromValue(value, options)}
+                                    deleteIcon={<IconCross16 />}
+                                    onDelete={event => handleDelete(event, value)}
+                                    onMouseDown={event => handleDelete(event, value)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        placeholder
+                    )
                 }
                 displayEmpty
+                multiple
             >
                 {options.map(option => (
                     <MenuItem key={option.value} value={option.value} disabled={option.disabled}>
@@ -118,6 +141,20 @@ const StyledSelect = styled(Select)<{ error?: boolean }>`
         padding-block: 10px;
         &:focus {
             background-color: ${props => props.theme.palette.common.white};
+        }
+    }
+`;
+
+const SelectedChip = styled(Chip)`
+    margin-inline-end: 16px;
+    font-weight: 400;
+    font-size: 0.813rem;
+    padding-inline-end: 8px;
+    svg {
+        color: ${props => props.theme.palette.common.grey600};
+        cursor: pointer;
+        &:hover {
+            color: ${props => props.theme.palette.common.grey900};
         }
     }
 `;

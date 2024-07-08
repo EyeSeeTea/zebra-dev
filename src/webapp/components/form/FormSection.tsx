@@ -26,18 +26,21 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
         return (
             <FormSectionContainer>
                 {hasSeparator && <Separator margin="12px" />}
+
                 <Container direction={direction}>
                     {title && (
-                        <TitleContainer>
+                        <TitleContainer direction={direction}>
                             <RequiredText className={required ? "required" : ""}>
                                 {title}
                             </RequiredText>
+
                             {onClickInfo && (
                                 <IconButton icon={<IconInfo24 />} onClick={onClickInfo} />
                             )}
                         </TitleContainer>
                     )}
-                    <FormContainer>{children}</FormContainer>
+
+                    <FormContainer fulWidth={!title}>{children}</FormContainer>
                 </Container>
             </FormSectionContainer>
         );
@@ -55,16 +58,21 @@ const Container = styled.div<{ direction: string }>`
     width: 100%;
     gap: ${props => (props.direction === "row" ? "48px" : "24px")};
     align-items: ${props => (props.direction === "row" ? "center" : "flex-start")};
+    @media (max-width: 600px) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 `;
 
-const TitleContainer = styled.div`
+const TitleContainer = styled.div<{ direction: string }>`
     display: flex;
     align-items: center;
     gap: 4px;
+    width: 30%;
 `;
 
-const FormContainer = styled.div`
-    width: 100%;
+const FormContainer = styled.div<{ fulWidth: boolean }>`
+    width: ${props => (props.fulWidth ? "100%" : "70%")};
 `;
 
 const RequiredText = styled.span`

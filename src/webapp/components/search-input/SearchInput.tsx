@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { TextField } from "@material-ui/core";
 import { IconSearch24 } from "@dhis2/ui";
 import styled from "styled-components";
-import _ from "lodash";
 
 import i18n from "../../../utils/i18n";
 
@@ -13,20 +12,20 @@ type SearchInputProps = {
     disabled?: boolean;
 };
 
+const INPUT_PROPS = { "aria-label": "search" };
+
 export const SearchInput: React.FC<SearchInputProps> = React.memo(
     ({ value, onChange, placeholder = "", disabled = false }) => {
         const [stateValue, updateStateValue] = useState(value);
 
         useEffect(() => updateStateValue(value), [value]);
 
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        const onChangeDebounced = useCallback(
-            _.debounce((value: string) => {
-                if (onChange) {
-                    onChange(value);
-                }
-            }, 400),
-            []
+        const onChangeDebounced = React.useMemo(
+            () =>
+                debounce((value: string) => {
+                    if (onChange) onChange(value);
+                }, 400),
+            [onChange]
         );
 
         const handleChange = useCallback(
@@ -47,6 +46,7 @@ export const SearchInput: React.FC<SearchInputProps> = React.memo(
                 <IconContainer $disabled={disabled}>
                     <IconSearch24 />
                 </IconContainer>
+
                 <StyledTextField
                     onChange={handleChange}
                     placeholder={placeholder || i18n.t("Search")}
@@ -55,12 +55,25 @@ export const SearchInput: React.FC<SearchInputProps> = React.memo(
                     onKeyDown={handleKeydown}
                     disabled={disabled}
                     variant="outlined"
-                    inputProps={{ "aria-label": "search" }}
+                    inputProps={INPUT_PROPS}
                 />
             </Container>
         );
     }
 );
+
+function debounce<F extends (...args: any[]) => any>(func: F, delay: number) {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+
+    const debounced = (...args: Parameters<F>): void => {
+        if (timeout !== null) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => func(...args), delay);
+    };
+
+    return debounced;
+}
 
 const Container = styled.div`
     display: flex;
@@ -87,7 +100,11 @@ const IconContainer = styled.div<{ $disabled?: boolean }>`
 
 const StyledTextField = styled(TextField)<{ error?: boolean }>`
     font-weight: 400;
+    height: 40px;
     font-size: 0.875rem;
+    .MuiOutlinedInput-root {
+        height: 40px;
+    }
     color: ${props => props.theme.palette.common.grey1};
     .MuiFormHelperText-root {
         color: ${props =>
