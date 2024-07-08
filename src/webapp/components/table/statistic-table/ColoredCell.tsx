@@ -1,25 +1,30 @@
 import React from "react";
 import styled from "styled-components";
 import { TableCell } from "@material-ui/core";
+import { CellStatus, CellStatusValues } from "../../../hooks/useTableCell";
 
 type ColoredCellProps = {
     value: string;
-    color?: string;
-    boldUnderline?: boolean;
+    color?: CellStatusValues;
 };
 
-const StyledTableCell = styled(TableCell)<{ color?: string; boldUnderline?: boolean }>`
-    background-color: ${props =>
-        props.color ? props.theme.palette.common[props.color] : "initial"};
-    color: ${props => (props.color ? props.theme.palette.common.white : "initial")};
-    text-decoration: ${props => (props.boldUnderline ? "underline" : "none")};
-    font-weight: ${props => (props.boldUnderline || props.color ? "600" : "initial")};
-`;
+const cellStatusColor = {
+    [CellStatus.Valid]: "green",
+    [CellStatus.Alert]: "red",
+    [CellStatus.Warning]: "orange",
+};
 
-export const ColoredCell: React.FC<ColoredCellProps> = ({ value, color, boldUnderline }) => {
+export const ColoredCell: React.FC<ColoredCellProps> = ({ value, color }) => {
     return (
-        <StyledTableCell color={color} boldUnderline={boldUnderline}>
+        <StyledTableCell color={color ? cellStatusColor[color] : undefined}>
             {value}
         </StyledTableCell>
     );
 };
+
+const StyledTableCell = styled(TableCell)<{ color?: string }>`
+    background-color: ${props =>
+        props.color ? props.theme.palette.common[props.color] : "initial"};
+    color: ${props => (props.color ? props.theme.palette.common.white : "initial")};
+    font-weight: ${props => (props.color ? "600" : "initial")};
+`;

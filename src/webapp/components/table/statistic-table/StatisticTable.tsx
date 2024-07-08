@@ -106,14 +106,25 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                         <TableBody>
                             {filteredRows.map((row, rowIndex) => (
                                 <TableRow key={rowIndex}>
-                                    {columns.map((column, columnIndex) => (
-                                        <ColoredCell
-                                            key={`${rowIndex}-${column.value}`}
-                                            value={row[column.value] || ""}
-                                            color={getCellColor(row[column.value], column.value)}
-                                            boldUnderline={columnIndex === 0}
-                                        />
-                                    ))}
+                                    {columns.map((column, columnIndex) =>
+                                        calculateColumns.includes(column.value) ? (
+                                            <ColoredCell
+                                                key={`${rowIndex}-${column.value}`}
+                                                value={row[column.value] || ""}
+                                                color={getCellColor(
+                                                    row[column.value],
+                                                    column.value
+                                                )}
+                                            />
+                                        ) : (
+                                            <StyledTableCell
+                                                key={`${rowIndex}-${column.value}`}
+                                                boldUnderline={columnIndex === 0}
+                                            >
+                                                {row[column.value] || ""}
+                                            </StyledTableCell>
+                                        )
+                                    )}
                                 </TableRow>
                             ))}
                             <MedianRow
@@ -164,6 +175,11 @@ const HeadTableCell = styled(TableCell)<{ $dark?: boolean }>`
     background-color: ${props => (props.$dark ? props.theme.palette.common.grey2 : "initial")};
     color: ${props => (props.$dark ? props.theme.palette.common.white : "initial")};
     font-weight: 600;
+`;
+
+const StyledTableCell = styled(TableCell)<{ boldUnderline?: boolean }>`
+    text-decoration: ${props => (props.boldUnderline ? "underline" : "none")};
+    font-weight: ${props => (props.boldUnderline ? "600" : "initial")};
 `;
 
 const Container = styled.div`
