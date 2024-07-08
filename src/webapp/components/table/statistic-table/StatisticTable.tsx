@@ -14,7 +14,7 @@ import { Maybe } from "../../../../utils/ts-utils";
 import i18n from "../../../../utils/i18n";
 import { MedianRow } from "./MedianRow";
 import { PercentTargetMetRow } from "./PercentTargetMetRow";
-import { MultipleSelector } from "../../multiple-selector/MultipleSelector";
+import { MultipleSelector } from "../../selector/MultipleSelector";
 
 export type TableColumn = {
     value: string;
