@@ -59,20 +59,62 @@ msgstr ""
 msgid "Invalid grade"
 msgstr ""
 
-msgid "Add"
-msgstr "Añadir"
-
-msgid "List"
-msgstr "Listar"
-
-msgid "Back"
-msgstr "Volver"
-
-msgid "Help"
-msgstr "Ayuda"
-
-msgid "Hello {{name}}"
-msgstr "Hola {{name}}"
-
-msgid "Detail page"
+msgid "Add new option"
 msgstr ""
+
+msgid "Indicates required"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Create Event"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Last updated: "
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Respond, alert, watch"
+msgstr ""
+
+msgid "Event Tracker"
+msgstr ""
+
+msgid "Incident Action Plan"
+msgstr ""
+
+msgid "Cholera in NW Province, June 2023"
+msgstr ""
+
+msgid "Incident Management Team Builder"
+msgstr ""
+
+msgid "Resources"
+msgstr ""
+
+#~ msgid "Add"
+#~ msgstr "Añadir"
+
+#~ msgid "List"
+#~ msgstr "Listar"
+
+#~ msgid "Back"
+#~ msgstr "Volver"
+
+#~ msgid "Help"
+#~ msgstr "Ayuda"
+
+#~ msgid "Hello {{name}}"
+#~ msgstr "Hola {{name}}"
