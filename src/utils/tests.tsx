@@ -4,6 +4,11 @@ import { ReactNode } from "react";
 import { AppContext, AppContextState } from "../webapp/contexts/app-context";
 import { getTestCompositionRoot } from "../CompositionRoot";
 import { createAdminUser } from "../domain/entities/__tests__/userFixtures";
+import { MuiThemeProvider } from "@material-ui/core";
+import { ThemeProvider } from "styled-components";
+import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
+import muiThemeLegacy from "../webapp/pages/app/themes/dhis2-legacy.theme";
+import { muiTheme } from "../webapp/pages/app/themes/dhis2.theme";
 
 export function getTestContext() {
     const context: AppContextState = {
@@ -18,8 +23,14 @@ export function getReactComponent(children: ReactNode): RenderResult {
     const context = getTestContext();
 
     return render(
-        <AppContext.Provider value={context}>
-            <SnackbarProvider>{children}</SnackbarProvider>
-        </AppContext.Provider>
+        <MuiThemeProvider theme={muiTheme}>
+            <ThemeProvider theme={muiTheme}>
+                <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
+                    <AppContext.Provider value={context}>
+                        <SnackbarProvider>{children}</SnackbarProvider>
+                    </AppContext.Provider>
+                </OldMuiThemeProvider>
+            </ThemeProvider>
+        </MuiThemeProvider>
     );
 }

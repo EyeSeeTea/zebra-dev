@@ -4,24 +4,31 @@ import { IconInfo24 } from "@dhis2/ui";
 
 import { Separator } from "../separator/Separator";
 import { IconButton } from "../icon-button/IconButton";
+import { FieldWidget } from "./FieldWidget";
+import { FormFieldState } from "./FormFieldState";
+import { FormSectionState } from "./FormSectionState";
 
 type FormSectionProps = {
     title?: string;
     required?: boolean;
-    children: React.ReactNode;
     hasSeparator?: boolean;
     onClickInfo?: () => void;
     direction?: "row" | "column";
+    subsections?: FormSectionState[];
+    fields: FormFieldState[];
+    onUpdateField: (updatedField: FormFieldState) => void;
 };
 
 export const FormSection: React.FC<FormSectionProps> = React.memo(
     ({
         title,
         hasSeparator = false,
-        children,
         onClickInfo,
         direction = "row",
         required = false,
+        subsections,
+        fields,
+        onUpdateField,
     }) => {
         return (
             <FormSectionContainer>
@@ -29,7 +36,7 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
 
                 <Container direction={direction}>
                     {title && (
-                        <TitleContainer direction={direction}>
+                        <TitleContainer>
                             <RequiredText className={required ? "required" : ""}>
                                 {title}
                             </RequiredText>
@@ -40,7 +47,45 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
                         </TitleContainer>
                     )}
 
-                    <FormContainer fulWidth={!title}>{children}</FormContainer>
+                    <FormContainer fullWidth={!title || direction === "column"}>
+                        {fields.map(field => {
+                            if (!field.isVisible) return null;
+                            return (
+                                <FieldContainer key={field.id} width={field.width}>
+                                    <FieldWidget
+                                        field={field}
+                                        disabled={field.disabled}
+                                        onChange={onUpdateField}
+                                    />
+                                </FieldContainer>
+                            );
+                        })}
+                    </FormContainer>
+
+                    {subsections?.map(subsection => (
+                        <SubsectionContainer
+                            key={subsection.id}
+                            direction={subsection.direction || "row"}
+                        >
+                            {subsection.title && <Title>{subsection.title}</Title>}
+                            <FieldsContainer>
+                                {subsection.fields.map(field => {
+                                    if (!field.isVisible) return null;
+
+                                    return (
+                                        <FieldContainer key={field.id} width={field.width}>
+                                            <FieldWidget
+                                                key={field.id}
+                                                field={field}
+                                                disabled={field.disabled}
+                                                onChange={onUpdateField}
+                                            />
+                                        </FieldContainer>
+                                    );
+                                })}
+                            </FieldsContainer>
+                        </SubsectionContainer>
+                    ))}
                 </Container>
             </FormSectionContainer>
         );
@@ -61,18 +106,26 @@ const Container = styled.div<{ direction: string }>`
     @media (max-width: 600px) {
         flex-direction: column;
         align-items: flex-start;
+        gap: 24px;
     }
 `;
 
-const TitleContainer = styled.div<{ direction: string }>`
+const TitleContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 4px;
-    width: 30%;
+    width: 20%;
 `;
 
-const FormContainer = styled.div<{ fulWidth: boolean }>`
-    width: ${props => (props.fulWidth ? "100%" : "70%")};
+const FormContainer = styled.div<{ fullWidth: boolean }>`
+    width: ${props => (props.fullWidth ? "100%" : "80%")};
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+    @media (max-width: 600px) {
+        width: 100%;
+    }
 `;
 
 const RequiredText = styled.span`
@@ -85,5 +138,56 @@ const RequiredText = styled.span`
         content: "*";
         color: ${props => props.theme.palette.common.red};
         margin-inline-start: 4px;
+    }
+
+    @media (max-width: 600px) {
+        white-space: wrap;
+    }
+`;
+
+const FieldsContainer = styled.div`
+    display: flex;
+    width: 40%;
+    align-items: flex-end;
+    @media (max-width: 600px) {
+        width: 100%;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 12px;
+    }
+`;
+
+const SubsectionContainer = styled.div<{ direction: string }>`
+    display: flex;
+    justify-content: space-between;
+    flex-direction: ${props => props.direction};
+    width: 100%;
+    gap: ${props => (props.direction === "row" ? "48px" : "24px")};
+    align-items: ${props => (props.direction === "row" ? "center" : "flex-start")};
+    @media (max-width: 600px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
+`;
+
+const Title = styled.div`
+    color: ${props => props.theme.palette.common.black};
+    font-size: 0.875rem;
+    font-weight: 400;
+    width: 60%;
+    @media (max-width: 600px) {
+        width: 100%;
+    }
+`;
+
+const FieldContainer = styled.div<{ width?: string }>`
+    display: flex;
+    width: ${props => props.width || "100%"};
+    justify-content: flex-end;
+    @media (max-width: 600px) {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        width: 100%;
     }
 `;

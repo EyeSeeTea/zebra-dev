@@ -6,7 +6,7 @@ import { EventTrackerPage } from "./event-tracker/EventTrackerPage";
 import { IncidentActionPlanPage } from "./incident-action-plan/IncidentActionPlanPage";
 import { ResourcesPage } from "./resources/ResourcesPage";
 import { IMTeamBuilderPage } from "./incident-management-team-builder/IMTeamBuilderPage";
-import { FormPage } from "./form/FormPage";
+import { FormPage } from "./form-page/FormPage";
 
 export function Router() {
     return (
