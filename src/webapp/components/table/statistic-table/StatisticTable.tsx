@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import i18n from "../../../../utils/i18n";
 import {
     Table,
     TableBody,
@@ -9,13 +10,12 @@ import {
     TableContainer,
 } from "@material-ui/core";
 import { SearchInput } from "../../search-input/SearchInput";
-import i18n from "../../../../utils/i18n";
-import { MedianRow } from "./MedianRow";
-import { PercentTargetMetRow } from "./PercentTargetMetRow";
 import { MultipleSelector } from "../../selector/MultipleSelector";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import { useTableCell } from "../../../hooks/useTableCell";
+import { useStatisticCalculations } from "../../../hooks/useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
+import { CalculationRow } from "./CalculationRow";
 
 export type TableColumn = {
     value: string;
@@ -52,6 +52,10 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         const { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions } =
             useTableFilters(rows, filtersConfig);
         const { getCellColor } = useTableCell(editRiskAssessmentColumns, columnRules);
+        const { calculateMedian, calculatePercentTargetMet } = useStatisticCalculations(
+            filteredRows,
+            columnRules
+        );
 
         return (
             <React.Fragment>
@@ -105,16 +109,17 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                     )}
                                 </TableRow>
                             ))}
-                            <MedianRow
+                            <CalculationRow
                                 columns={columns}
-                                rows={filteredRows}
                                 calculateColumns={calculateColumns}
+                                label={i18n.t("Median")}
+                                calculate={calculateMedian}
                             />
-                            <PercentTargetMetRow
+                            <CalculationRow
                                 columns={columns}
-                                rows={filteredRows}
                                 calculateColumns={calculateColumns}
-                                columnRules={columnRules}
+                                label={i18n.t("% Target Met")}
+                                calculate={calculatePercentTargetMet}
                             />
                         </TableBody>
                     </Table>
