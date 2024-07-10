@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-07-10T08:54:31.455Z\n"
-"PO-Revision-Date: 2024-07-10T08:54:31.455Z\n"
+"POT-Creation-Date: 2024-07-10T14:02:24.269Z\n"
+"PO-Revision-Date: 2024-07-10T14:02:24.269Z\n"
 
 msgid "Add new option"
 msgstr ""
@@ -42,15 +42,6 @@ msgid "Dashboard"
 msgstr ""
 
 msgid "Respond, alert, watch"
-msgstr ""
-
-msgid "All public health events"
-msgstr ""
-
-msgid "7-1-7 performance"
-msgstr ""
-
-msgid "Performance overview"
 msgstr ""
 
 msgid "Event Tracker"
