@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/c
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
 import i18n from "../../../utils/i18n";
-import { SelectorOption } from "../selector/utils/selectorHelper";
+import { Option } from "../utils/option";
 import { Cell } from "./Cell";
 
 const noop = () => {};
@@ -22,7 +22,7 @@ interface LinkColumn extends BaseColumn {
 }
 interface SelectorColumn extends BaseColumn {
     type: "selector";
-    options: SelectorOption[];
+    options: Option[];
 }
 
 export type TableColumn = TextColumn | LinkColumn | SelectorColumn;
