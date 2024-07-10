@@ -24,11 +24,15 @@ export const FormLayout: React.FC<FormLayoutProps> = React.memo(
                         {title && <Title>{title}</Title>}
                         {subtitle && <Subtitle>{subtitle}</Subtitle>}
                     </TitleContainer>
+
                     <RequiredText>{i18n.t("Indicates required")}</RequiredText>
                 </Header>
+
                 <Content>{children}</Content>
+
                 <Footer>
                     <Separator margin="12px" />
+
                     <ButtonsFooter>
                         <Button onClick={onSave}>{saveLabel || i18n.t("Save")}</Button>
                         {onCancel && (

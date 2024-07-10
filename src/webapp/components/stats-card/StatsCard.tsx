@@ -26,8 +26,11 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
             <StyledCard $error={error}>
                 <StyledCardContent>
                     <Stat color={color}>{`${stat}${isPercentage ? " %" : ""}`}</Stat>
+
                     <PreTitle>{pretitle}</PreTitle>
+
                     <Title>{title}</Title>
+
                     <SubTitle>{subtitle}</SubTitle>
                 </StyledCardContent>
             </StyledCard>

@@ -1,12 +1,63 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-06-28T09:08:39.454Z\n"
+"POT-Creation-Date: 2024-07-01T02:04:44.570Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgid "Low"
+msgstr ""
+
+msgid "Medium"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+msgid "Less than 0.1%"
+msgstr ""
+
+msgid "Between 0.1% to 0.25%"
+msgstr ""
+
+msgid "Above 0.25%"
+msgstr ""
+
+msgid "Within a district"
+msgstr ""
+
+msgid "Within a province with more than one district affected"
+msgstr ""
+
+msgid ""
+"More than one province affected with high threat of spread locally and "
+"internationally"
+msgstr ""
+
+msgid ""
+"Available within the district with support from provincial and national level"
+msgstr ""
+
+msgid "Available within the province with minimal support from national level"
+msgstr ""
+
+msgid "Available at national with support required from international"
+msgstr ""
+
+msgid "Grade 1"
+msgstr ""
+
+msgid "Grade 2"
+msgstr ""
+
+msgid "Grade 3"
+msgstr ""
+
+msgid "Invalid grade"
+msgstr ""
 
 msgid "Add new option"
 msgstr ""
@@ -21,9 +72,6 @@ msgid "Cancel"
 msgstr ""
 
 msgid "Create Event"
-msgstr ""
-
-msgid "N/A"
 msgstr ""
 
 msgid "Close"
@@ -41,61 +89,13 @@ msgstr ""
 msgid "Respond, alert, watch"
 msgstr ""
 
-msgid "All public health events"
-msgstr ""
-
-msgid "7-1-7 performance"
-msgstr ""
-
-msgid "Performance overview"
-msgstr ""
-
 msgid "Event Tracker"
-msgstr ""
-
-msgid "Edit Details"
-msgstr ""
-
-msgid "Districts affected"
-msgstr ""
-
-msgid "Overview"
-msgstr ""
-
-msgid "Risk Assessment"
-msgstr ""
-
-msgid "Create Risk Assessment"
-msgstr ""
-
-msgid "Risk assessment incomplete"
-msgstr ""
-
-msgid "Risks associated with this event have not yet been assessed."
 msgstr ""
 
 msgid "Incident Action Plan"
 msgstr ""
 
 msgid "Cholera in NW Province, June 2023"
-msgstr ""
-
-msgid "Response actions"
-msgstr ""
-
-msgid "Edit Response Actions"
-msgstr ""
-
-msgid "Action plan"
-msgstr ""
-
-msgid "Edit Action Plan"
-msgstr ""
-
-msgid "Team"
-msgstr ""
-
-msgid "Edit Team"
 msgstr ""
 
 msgid "Incident Management Team Builder"

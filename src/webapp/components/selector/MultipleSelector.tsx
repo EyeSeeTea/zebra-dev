@@ -2,13 +2,14 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Select, InputLabel, MenuItem, FormHelperText, Chip } from "@material-ui/core";
 import { IconChevronDown24, IconCross16 } from "@dhis2/ui";
-import { SelectorOption, getLabelFromValue } from "./utils/selectorHelper";
+import { getLabelFromValue } from "./utils/selectorHelper";
+import { Option } from "../utils/option";
 
-type MultipleSelectorProps<T extends string = string> = {
+type MultipleSelectorProps<Value extends string = string> = {
     id: string;
-    selected: T[];
-    onChange: (value: SelectorOption["value"][]) => void;
-    options: SelectorOption<T>[];
+    selected: Value[];
+    onChange: (value: Value[]) => void;
+    options: Option<Value>[];
     label?: string;
     placeholder?: string;
     disabled?: boolean;
@@ -18,97 +19,90 @@ type MultipleSelectorProps<T extends string = string> = {
     required?: boolean;
 };
 
-export const MultipleSelector: React.FC<MultipleSelectorProps> = React.memo(
-    ({
-        id,
-        label,
-        placeholder = "",
-        selected,
-        onChange,
-        options,
-        disabled = false,
-        helperText = "",
-        errorText = "",
-        error = false,
-        required = false,
-    }) => {
-        const handleChange = useCallback(
-            (
-                event: React.ChangeEvent<{
-                    value: unknown;
-                }>,
-                _child: React.ReactNode
-            ) => {
-                const value = event.target.value as SelectorOption["value"][];
-                onChange(value);
-            },
-            [onChange]
-        );
+export function MultipleSelector<Value extends string>({
+    id,
+    label,
+    placeholder = "",
+    selected,
+    onChange,
+    options,
+    disabled = false,
+    helperText = "",
+    errorText = "",
+    error = false,
+    required = false,
+}: MultipleSelectorProps<Value>): JSX.Element {
+    const handleChange = useCallback(
+        (
+            event: React.ChangeEvent<{
+                value: unknown;
+            }>,
+            _child: React.ReactNode
+        ) => {
+            const value = event.target.value as Value[];
+            onChange(value);
+        },
+        [onChange]
+    );
 
-        const handleDelete = useCallback(
-            (
-                event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-                value: SelectorOption["value"]
-            ) => {
-                event.stopPropagation();
-                onChange(selected?.filter(selection => selection !== value));
-            },
-            [onChange, selected]
-        );
+    const handleDelete = useCallback(
+        (event: React.MouseEvent<HTMLDivElement, MouseEvent>, value: Value) => {
+            event.stopPropagation();
+            onChange(selected?.filter(selection => selection !== value));
+        },
+        [onChange, selected]
+    );
 
-        return (
-            <Container>
-                {label && (
-                    <Label className={required ? "required" : ""} htmlFor={id}>
-                        {label}
-                    </Label>
-                )}
-                <StyledSelect
-                    labelId={label || `${id}-label`}
-                    id={id}
-                    value={selected}
-                    onChange={handleChange}
-                    disabled={disabled}
-                    variant="outlined"
-                    IconComponent={IconChevronDown24}
-                    error={error}
-                    renderValue={(selected: unknown) =>
-                        (selected as SelectorOption["value"][])?.length ? (
-                            <div>
-                                {(selected as SelectorOption["value"][]).map(value => (
-                                    <SelectedChip
-                                        key={value}
-                                        label={getLabelFromValue(value, options)}
-                                        deleteIcon={<IconCross16 />}
-                                        onDelete={event => handleDelete(event, value)}
-                                        onMouseDown={event => handleDelete(event, value)}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            placeholder
-                        )
-                    }
-                    displayEmpty
-                    multiple
-                >
-                    {options.map(option => (
-                        <MenuItem
-                            key={option.value}
-                            value={option.value}
-                            disabled={option.disabled}
-                        >
-                            {option.label}
-                        </MenuItem>
-                    ))}
-                </StyledSelect>
-                <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
-                    {error && !!errorText ? errorText : helperText}
-                </StyledFormHelperText>
-            </Container>
-        );
-    }
-);
+    return (
+        <Container>
+            {label && (
+                <Label className={required ? "required" : ""} htmlFor={id}>
+                    {label}
+                </Label>
+            )}
+
+            <StyledSelect
+                labelId={label || `${id}-label`}
+                id={id}
+                value={selected}
+                onChange={handleChange}
+                disabled={disabled}
+                variant="outlined"
+                IconComponent={IconChevronDown24}
+                error={error}
+                renderValue={(selected: unknown) =>
+                    (selected as Value[])?.length ? (
+                        <div>
+                            {(selected as Value[]).map(value => (
+                                <SelectedChip
+                                    key={value}
+                                    label={getLabelFromValue(value, options)}
+                                    deleteIcon={<IconCross16 />}
+                                    onDelete={event => handleDelete(event, value)}
+                                    onMouseDown={event => handleDelete(event, value)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        placeholder
+                    )
+                }
+                displayEmpty
+                multiple
+            >
+                {options.map(option => (
+                    <MenuItem key={option.value} value={option.value} disabled={option.disabled}>
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </StyledSelect>
+
+            <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
+                {error && !!errorText ? errorText : helperText}
+            </StyledFormHelperText>
+        </Container>
+    );
+}
 
 const Container = styled.div`
     display: flex;
@@ -136,6 +130,7 @@ const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`
 `;
 
 const StyledSelect = styled(Select)<{ error?: boolean }>`
+    height: 40px;
     .MuiOutlinedInput-notchedOutline {
         border-color: ${props =>
             props.error ? props.theme.palette.common.red600 : props.theme.palette.common.grey500};

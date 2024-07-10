@@ -1,11 +1,11 @@
 import React from "react";
-import { IconEdit24 } from "@dhis2/ui";
 
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import { Button } from "../../components/button/Button";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
+import { IconEdit24 } from "@dhis2/ui";
 
 export const IncidentActionPlanPage: React.FC = React.memo(() => {
     // TODO remove hard coding
@@ -136,7 +136,6 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
             title={i18n.t("Incident Action Plan")}
             subtitle={i18n.t("Cholera in NW Province, June 2023")}
         >
-            <Section>IAP details</Section>
             <Section
                 title={i18n.t("Response actions")}
                 headerButtom={
@@ -152,30 +151,12 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
                     </Button>
                 }
             >
-                Response actions content
                 <BasicTable
                     showRowIndex
                     columns={columnsResponseActions}
                     rows={dataResponseActions}
                     onChange={(...arg) => console.log(arg)}
                 />
-            </Section>
-            <Section
-                title={i18n.t("Action plan")}
-                headerButtom={
-                    <Button
-                        onClick={function (): void {
-                            throw new Error("Function not implemented.");
-                        }}
-                        variant="outlined"
-                        color="secondary"
-                        startIcon={<IconEdit24 />}
-                    >
-                        {i18n.t("Edit Action Plan")}
-                    </Button>
-                }
-            >
-                Action plan content
             </Section>
             <Section
                 title={i18n.t("Team")}
@@ -192,7 +173,6 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
                     </Button>
                 }
             >
-                Team content
                 <BasicTable
                     columns={columnsTeam}
                     rows={dataTeam}
