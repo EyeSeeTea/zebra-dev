@@ -23,10 +23,10 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     getAll(): FutureData<DiseaseOutbreakEvent[]> {
         throw new Error("Method not implemented.");
     }
-    save(diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void> {
+    save(_diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void> {
         throw new Error("Method not implemented.");
     }
-    delete(id: Id): FutureData<void> {
+    delete(_id: Id): FutureData<void> {
         throw new Error("Method not implemented.");
     }
     getOptions(): FutureData<DiseaseOutbreakEventOption[]> {

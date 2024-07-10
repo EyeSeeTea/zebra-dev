@@ -15,24 +15,6 @@ type NestedKeyOf<ObjectType extends object> = {
         : Key;
 }[keyof ObjectType & (string | number)];
 
-type NestedKeyOf2<T, K = keyof T> = K extends keyof T & (string | number)
-    ? `${K}` | (T[K] extends object ? `${K}.${NestedKeyOf<T[K]>}` : never)
-    : never;
-
-type NestedKeyOf3<ObjectType extends object> = {
-    [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
-        ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
-        : `${Key}`;
-}[keyof ObjectType & (string | number)];
-
-type NestedArrayKeyOf4<ObjectType extends object> = {
-    [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends Array<object> | undefined
-        ? `${Key}[${number}].${NestedArrayKeyOf4<NonNullable<ObjectType[Key]>[number]>}`
-        : ObjectType[Key] extends object | undefined
-        ? `${Key}.${NestedArrayKeyOf4<NonNullable<ObjectType[Key]>>}`
-        : `${Key}`;
-}[keyof ObjectType & (string | number)];
-
 type PropertyKeyAttributeCodeMap = {
     propertyKey: NestedKeyOf<DiseaseOutbreakEvent>;
     code: string;

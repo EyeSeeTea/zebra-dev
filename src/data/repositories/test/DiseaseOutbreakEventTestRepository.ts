@@ -5,16 +5,16 @@ import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/Dis
 import { FutureData } from "../../api-futures";
 
 export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventRepository {
-    get(id: Id): FutureData<DiseaseOutbreakEvent> {
+    get(_id: Id): FutureData<DiseaseOutbreakEvent> {
         throw new Error("Method not implemented.");
     }
     getAll(): FutureData<DiseaseOutbreakEvent[]> {
         throw new Error("Method not implemented.");
     }
-    save(diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void> {
+    save(_diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void> {
         throw new Error("Method not implemented.");
     }
-    delete(id: Id): FutureData<void> {
+    delete(_id: Id): FutureData<void> {
         throw new Error("Method not implemented.");
     }
     getOptions(): FutureData<DiseaseOutbreakEventOption[]> {
