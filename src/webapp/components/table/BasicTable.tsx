@@ -72,11 +72,11 @@ const StyledTable = styled(Table)`
     border-collapse: collapse;
     & .MuiTableHead-root {
         color: ${props => props.theme.palette.common.grey1};
-        background-color: ${props => props.theme.palette.common.greyLight};
         font-weight: 600;
         height: 2.25rem;
         & .MuiTableCell-root {
             white-space: nowrap;
+            background-color: ${props => props.theme.palette.common.greyLight};
         }
     }
     & .MuiTableBody-root {
