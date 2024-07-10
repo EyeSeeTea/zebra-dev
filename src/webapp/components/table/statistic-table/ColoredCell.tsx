@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { TableCell } from "@material-ui/core";
-import { CellStatus, CellStatusValues } from "../../../hooks/useTableCell";
+import { CellStatus, CellStatusValues } from "./useTableCell";
 
 type ColoredCellProps = {
     value: string;

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { StatisticTableProps } from "../components/table/statistic-table/StatisticTable";
+import { StatisticTableProps } from "./StatisticTable";
 
 export const useStatisticCalculations = (
     rows: StatisticTableProps["rows"],

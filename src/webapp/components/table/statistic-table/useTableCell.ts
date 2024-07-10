@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { Maybe } from "../../utils/ts-utils";
-import _ from "../../domain/entities/generic/Collection";
+import { Maybe } from "../../../../utils/ts-utils";
+import _ from "../../../../domain/entities/generic/Collection";
 
 export const enum CellStatus {
     Valid = "valid",

@@ -1,11 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import _ from "../../domain/entities/generic/Collection";
-import {
-    FiltersValuesType,
-    FilterType,
-    StatisticTableProps,
-    TableColumn,
-} from "../components/table/statistic-table/StatisticTable";
+import _ from "../../../../domain/entities/generic/Collection";
+import { FiltersValuesType, FilterType, StatisticTableProps, TableColumn } from "./StatisticTable";
 
 export const useTableFilters = (rows: StatisticTableProps["rows"], filtersConfig: FilterType[]) => {
     const [searchTerm, setSearchTerm] = useState<string>("");

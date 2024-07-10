@@ -11,9 +11,9 @@ import {
 } from "@material-ui/core";
 import { SearchInput } from "../../search-input/SearchInput";
 import { MultipleSelector } from "../../selector/MultipleSelector";
-import { useTableFilters } from "../../../hooks/useTableFilters";
-import { useTableCell } from "../../../hooks/useTableCell";
-import { useStatisticCalculations } from "../../../hooks/useStatisticCalculations";
+import { useTableFilters } from "./useTableFilters";
+import { useTableCell } from "./useTableCell";
+import { useStatisticCalculations } from "./useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
 
