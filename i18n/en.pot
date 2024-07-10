@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-07-01T02:04:44.570Z\n"
-"PO-Revision-Date: 2024-07-01T02:04:44.570Z\n"
+"POT-Creation-Date: 2024-07-10T08:03:15.296Z\n"
+"PO-Revision-Date: 2024-07-10T08:03:15.296Z\n"
 
 msgid "Low"
 msgstr ""
@@ -32,10 +32,14 @@ msgstr ""
 msgid "Within a province with more than one district affected"
 msgstr ""
 
-msgid "More than one province affected with high threat of spread locally and internationally"
+msgid ""
+"More than one province affected with high threat of spread locally and "
+"internationally"
 msgstr ""
 
-msgid "Available within the district with support from provincial and national level"
+msgid ""
+"Available within the district with support from provincial and national "
+"level"
 msgstr ""
 
 msgid "Available within the province with minimal support from national level"
@@ -93,6 +97,18 @@ msgid "Incident Action Plan"
 msgstr ""
 
 msgid "Cholera in NW Province, June 2023"
+msgstr ""
+
+msgid "Response actions"
+msgstr ""
+
+msgid "Edit Response Actions"
+msgstr ""
+
+msgid "Team"
+msgstr ""
+
+msgid "Edit Team"
 msgstr ""
 
 msgid "Incident Management Team Builder"
