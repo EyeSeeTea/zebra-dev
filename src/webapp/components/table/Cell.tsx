@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { TableCell, Link } from "@material-ui/core";
 import styled from "styled-components";
 import { Selector } from "../selector/Selector";
@@ -16,10 +16,13 @@ type CellProps = {
 export const Cell: React.FC<CellProps> = React.memo(
     ({ value, rowIndex, column, onChange = noop }) => {
         const [selectorValue, setSelectorValue] = React.useState<string>(value);
-        const handleChange = (value: string) => {
-            setSelectorValue(value);
-            onChange(value, rowIndex, column.value);
-        };
+        const handleChange = useCallback(
+            (value: string) => {
+                setSelectorValue(value);
+                onChange(value, rowIndex, column.value);
+            },
+            [onChange, rowIndex, column.value]
+        );
 
         switch (column.type) {
             case "link":
