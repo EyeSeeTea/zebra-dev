@@ -1,3 +1,4 @@
+import { Maybe } from "../../../utils/ts-utils";
 import { NamedRef } from "../Ref";
 import { Struct } from "../generic/Struct";
 
@@ -10,11 +11,11 @@ export type TeamRole = NamedRef & {
 };
 
 interface TeamMemberAttrs extends NamedRef {
-    phone: PhoneNumber;
-    email: Email;
-    status: IncidentManagerStatus;
-    photo: URL;
-    role: TeamRole;
+    phone: Maybe<PhoneNumber>;
+    email: Maybe<Email>;
+    status: Maybe<IncidentManagerStatus>;
+    photo: Maybe<URL>;
+    role: Maybe<TeamRole>;
 }
 
 export class TeamMember extends Struct<TeamMemberAttrs>() {
