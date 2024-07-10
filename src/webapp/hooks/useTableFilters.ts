@@ -1,15 +1,22 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import _ from "../../domain/entities/generic/Collection";
 import {
     FiltersValuesType,
+    FilterType,
     StatisticTableProps,
+    TableColumn,
 } from "../components/table/statistic-table/StatisticTable";
 
-export const useTableFilters = (
-    rows: StatisticTableProps["rows"],
-    searchTerm: string,
-    filters: FiltersValuesType
-) => {
+export const useTableFilters = (rows: StatisticTableProps["rows"], filtersConfig: FilterType[]) => {
+    const [searchTerm, setSearchTerm] = useState<string>("");
+
+    const [filters, setFilters] = useState<FiltersValuesType>(
+        filtersConfig.reduce((acc: FiltersValuesType, filter) => {
+            acc[filter.value] = [];
+            return acc;
+        }, {})
+    );
+
     const filteredRows = useMemo(() => {
         const allFiltersEmpty = Object.keys(filters).every(
             key => (filters[key] || []).length === 0
@@ -36,5 +43,18 @@ export const useTableFilters = (
         }
     }, [rows, searchTerm, filters]);
 
-    return filteredRows;
+    const filterOptions = useCallback(
+        (column: TableColumn["value"]) => {
+            return _(rows)
+                .map(row => ({
+                    value: row[column] || "",
+                    label: row[column] || "",
+                }))
+                .uniqBy(filter => filter.value)
+                .value();
+        },
+        [rows]
+    );
+
+    return { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions };
 };

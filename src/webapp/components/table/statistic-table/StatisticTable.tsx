@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import {
     Table,
@@ -16,7 +16,6 @@ import { MultipleSelector } from "../../selector/MultipleSelector";
 import { useTableFilters } from "../../../hooks/useTableFilters";
 import { useTableCell } from "../../../hooks/useTableCell";
 import { ColoredCell } from "./ColoredCell";
-import _ from "../../../../domain/entities/generic/Collection";
 
 export type TableColumn = {
     value: string;
@@ -48,32 +47,11 @@ export type StatisticTableProps = {
 
 export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
     ({ rows, columns, columnRules, editRiskAssessmentColumns, filters: filtersConfig }) => {
-        const [searchTerm, setSearchTerm] = useState<string>("");
-
-        const [filters, setFilters] = useState<FiltersValuesType>(
-            filtersConfig.reduce((acc: FiltersValuesType, filter) => {
-                acc[filter.value] = [];
-                return acc;
-            }, {})
-        );
-
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
-        const filteredRows = useTableFilters(rows, searchTerm, filters);
+        const { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions } =
+            useTableFilters(rows, filtersConfig);
         const { getCellColor } = useTableCell(editRiskAssessmentColumns, columnRules);
-
-        const filterOptions = useCallback(
-            (column: TableColumn["value"]) => {
-                return _(rows)
-                    .map(row => ({
-                        value: row[column] || "",
-                        label: row[column] || "",
-                    }))
-                    .uniqBy(filter => filter.value)
-                    .value();
-            },
-            [rows]
-        );
 
         return (
             <React.Fragment>
