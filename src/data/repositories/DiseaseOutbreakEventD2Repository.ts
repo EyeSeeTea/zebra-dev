@@ -3,8 +3,7 @@ import { DiseaseOutbreakEventRepository } from "../../domain/repositories/Diseas
 import { FutureData } from "../api-futures";
 import { DiseaseOutbreakEvent } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id, ConfigLabel } from "../../domain/entities/Ref";
-import { getTrackerEntityAttributes as getTrackedEntityAttributes } from "./utils/getTrackedEntityInstances";
-import { DiseaseOutbreakEventOption } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventOptions";
+import { getTrackerEntityAttributes } from "./utils/getTrackerEntityAttributes";
 
 const RTSL_ZEBRA_PROGRAM_ID = "qkOTdxkte8V";
 const RTSL_ZEBRA_ORG_UNIT_ID = "PS5JpkoHHio";
@@ -13,7 +12,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     constructor(private api: D2Api) {}
 
     get(id: Id): FutureData<DiseaseOutbreakEvent> {
-        return getTrackedEntityAttributes(
+        return getTrackerEntityAttributes(
             this.api,
             RTSL_ZEBRA_PROGRAM_ID,
             RTSL_ZEBRA_ORG_UNIT_ID,
@@ -29,9 +28,9 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     delete(_id: Id): FutureData<void> {
         throw new Error("Method not implemented.");
     }
-    getOptions(): FutureData<DiseaseOutbreakEventOption[]> {
-        throw new Error("Method not implemented.");
-    }
+    // getOptions(): FutureData<DiseaseOutbreakEventOption[]> {
+    //     throw new Error("Method not implemented.");
+    // }
     getConfigStrings(): FutureData<ConfigLabel[]> {
         throw new Error("Method not implemented.");
     }

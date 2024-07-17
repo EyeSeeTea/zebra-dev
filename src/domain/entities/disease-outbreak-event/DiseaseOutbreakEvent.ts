@@ -3,7 +3,7 @@ import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
 import { IncidentManagementTeam } from "../incident-management-team/IncidentManagementTeam";
 import { TeamMember } from "../incident-management-team/TeamMember";
 import { OrgUnit } from "../OrgUnit";
-import { CodedNamedRef, NamedRef } from "../Ref";
+import { NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 
@@ -42,9 +42,9 @@ type DiseaseOutbreakEventAttrs = NamedRef & {
     lastUpdated: Date;
     createdBy: Maybe<TeamMember>;
     hazardType: HazardType;
-    mainSyndrome: CodedNamedRef;
-    suspectedDisease: CodedNamedRef;
-    notificationSource: CodedNamedRef;
+    mainSyndrome: NamedRef;
+    suspectedDisease: NamedRef;
+    notificationSource: NamedRef;
     areasAffectedProvinces: OrgUnit[];
     areasAffectedDistricts: OrgUnit[];
     incidentStatus: IncidentStatusType;

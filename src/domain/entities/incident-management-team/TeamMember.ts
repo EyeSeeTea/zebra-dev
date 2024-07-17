@@ -7,7 +7,7 @@ type Email = string;
 type IncidentManagerStatus = "Available" | "Unavailable";
 
 export type TeamRole = NamedRef & {
-    level: number;
+    level?: number;
 };
 
 interface TeamMemberAttrs extends NamedRef {
