@@ -37,7 +37,7 @@ type EarlyResponseActions = {
     responseNarrative: string;
 };
 
-type DiseaseOutbreakEventAttrs = NamedRef & {
+export type DiseaseOutbreakEventAttrs = NamedRef & {
     created: Date;
     lastUpdated: Date;
     createdBy: Maybe<TeamMember>;
@@ -64,6 +64,97 @@ type DiseaseOutbreakEventAttrs = NamedRef & {
  **/
 
 export class DiseaseOutbreakEvent extends Struct<DiseaseOutbreakEventAttrs>() {
+    static createEmpty(): DiseaseOutbreakEvent {
+        return new DiseaseOutbreakEvent({
+            // Hardcoded values for DiseaseOutbreakEvent properties
+            id: "",
+            name: "",
+            created: new Date(""),
+            lastUpdated: new Date(""),
+            createdBy: undefined,
+            hazardType: "" as HazardType,
+            mainSyndrome: {
+                id: "",
+                code: "",
+                name: "",
+            }, //TO DO : Option set not yet created
+            suspectedDisease: {
+                id: "",
+                code: "",
+                name: "",
+            }, //TO DO : Option set not yet created
+            notificationSource: {
+                id: "",
+                code: "",
+                name: "",
+            }, //TO DO : Option set not yet created
+            areasAffectedProvinces: [
+                {
+                    id: "",
+                    code: "",
+                    name: "",
+                },
+            ],
+            areasAffectedDistricts: [
+                {
+                    id: "",
+                    code: "",
+                    name: "",
+                },
+            ],
+            incidentStatus: "" as IncidentStatusType,
+            emerged: {
+                date: new Date(""),
+                narrative: "",
+            },
+            detected: {
+                date: new Date(""),
+                narrative: "",
+            },
+            notified: {
+                date: new Date(""),
+                narrative: "",
+            },
+            incidentManager: new TeamMember({
+                id: "",
+                name: "",
+                phone: undefined,
+                email: undefined,
+                status: undefined,
+                role: undefined,
+                photo: undefined,
+            }),
+            earlyResponseActions: {
+                initiateInvestigation: new Date(""),
+                conductEpidemiologicalAnalysis: new Date(""),
+                laboratoryConfirmation: {
+                    date: new Date(""),
+                    na: false,
+                },
+                appropriateCaseManagement: {
+                    date: new Date(""),
+                    na: false,
+                },
+                initiatePublicHealthCounterMeasures: {
+                    date: new Date(""),
+                    na: false,
+                },
+                initiateRiskCommunication: {
+                    date: new Date(""),
+                    na: false,
+                },
+                establishCoordination: new Date(""),
+                responseNarrative: "",
+            },
+            notes: "",
+            riskAssessments: undefined,
+            incidentActionPlan: undefined,
+            incidentManagementTeam: undefined,
+        });
+    }
+    static isKeyOfDiseaseOutbreakEvent(key: string): key is keyof DiseaseOutbreakEvent {
+        return key in DiseaseOutbreakEvent.prototype;
+    }
     static validateEventName() {
         //TO DO : Ensure event name is unique on event creation.
     }

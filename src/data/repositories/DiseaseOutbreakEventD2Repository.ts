@@ -3,7 +3,7 @@ import { DiseaseOutbreakEventRepository } from "../../domain/repositories/Diseas
 import { FutureData } from "../api-futures";
 import { DiseaseOutbreakEvent } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id, ConfigLabel } from "../../domain/entities/Ref";
-import { getTrackerEntityAttributes as getTrackedEntityAttributes } from "./utils/getTrackedEntityInstances";
+import { getTrackedEntityAttributes } from "./utils/getTrackedEntityInstances";
 import { DiseaseOutbreakEventOption } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventOptions";
 
 const RTSL_ZEBRA_PROGRAM_ID = "qkOTdxkte8V";
