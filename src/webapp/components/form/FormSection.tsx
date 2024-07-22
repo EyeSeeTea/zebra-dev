@@ -9,10 +9,11 @@ import { FormFieldState } from "./FormFieldState";
 import { FormSectionState } from "./FormSectionState";
 
 type FormSectionProps = {
+    id: string;
     title?: string;
     required?: boolean;
     hasSeparator?: boolean;
-    onClickInfo?: () => void;
+    onClickInfo?: (id: string) => void;
     direction?: "row" | "column";
     subsections?: FormSectionState[];
     fields: FormFieldState[];
@@ -21,6 +22,7 @@ type FormSectionProps = {
 
 export const FormSection: React.FC<FormSectionProps> = React.memo(
     ({
+        id,
         title,
         hasSeparator = false,
         onClickInfo,
@@ -42,7 +44,11 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
                             </RequiredText>
 
                             {onClickInfo && (
-                                <IconButton icon={<IconInfo24 />} onClick={onClickInfo} />
+                                <IconButton
+                                    icon={<IconInfo24 />}
+                                    ariaLabel="Section information"
+                                    onClick={() => onClickInfo(id)}
+                                />
                             )}
                         </TitleContainer>
                     )}

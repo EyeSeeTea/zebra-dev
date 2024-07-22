@@ -27,6 +27,7 @@ export const Form: React.FC<FormProps> = React.memo(props => {
                 onSave={onSave}
                 onCancel={onCancel}
                 saveLabel={formLocalState.saveButtonLabel}
+                cancelLabel={formLocalState.cancelButtonLabel}
                 disableSave={!formLocalState.isValid}
             >
                 {formLocalState.sections.map(section => {
@@ -35,6 +36,7 @@ export const Form: React.FC<FormProps> = React.memo(props => {
                     return (
                         <FormSection
                             key={section.id}
+                            id={section.id}
                             title={section.title}
                             hasSeparator
                             required={section.required}
@@ -42,6 +44,7 @@ export const Form: React.FC<FormProps> = React.memo(props => {
                             subsections={section.subsections}
                             fields={section.fields}
                             onUpdateField={handleUpdateFormField}
+                            onClickInfo={section.onClickInfo}
                         />
                     );
                 })}

@@ -8,6 +8,7 @@ export type FormSectionState = {
     direction?: "row" | "column";
     fields: FormFieldState[];
     subsections?: FormSectionState[];
+    onClickInfo?: (id: string) => void;
 };
 
 export class FormSection {
