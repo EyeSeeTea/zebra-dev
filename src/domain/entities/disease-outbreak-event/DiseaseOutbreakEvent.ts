@@ -3,7 +3,7 @@ import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
 import { IncidentManagementTeam } from "../incident-management-team/IncidentManagementTeam";
 import { TeamMember } from "../incident-management-team/TeamMember";
 import { OrgUnit } from "../OrgUnit";
-import { NamedRef } from "../Ref";
+import { Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 
@@ -37,27 +37,38 @@ type EarlyResponseActions = {
     responseNarrative: string;
 };
 
-type DiseaseOutbreakEventAttrs = NamedRef & {
+export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     created: Date;
     lastUpdated: Date;
-    createdBy: Maybe<TeamMember>;
+    createdByName: Maybe<string>;
     hazardType: HazardType;
-    mainSyndrome: NamedRef;
-    suspectedDisease: NamedRef;
-    notificationSource: NamedRef;
-    areasAffectedProvinces: OrgUnit[];
-    areasAffectedDistricts: OrgUnit[];
+    mainSyndromeId: Id;
+    suspectedDiseaseId: Id;
+    notificationSourceId: Id;
+    areasAffectedProvinceIds: Id[];
+    areasAffectedDistrictIds: Id[];
     incidentStatus: IncidentStatusType;
     emerged: DateWithNarrative;
     detected: DateWithNarrative;
     notified: DateWithNarrative;
     earlyResponseActions: EarlyResponseActions; //TO DO : mandatory field
-    incidentManager: TeamMember;
+    incidentManagerName: string;
     notes: Maybe<string>;
+};
+
+type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
+    createdBy: Maybe<TeamMember>;
+    mainSyndrome: NamedRef;
+    suspectedDisease: NamedRef;
+    notificationSource: NamedRef;
+    areasAffectedProvinces: OrgUnit[];
+    areasAffectedDistricts: OrgUnit[];
+    incidentManager: TeamMember;
     riskAssessments: Maybe<RiskAssessment[]>;
     incidentActionPlan: Maybe<IncidentActionPlan>;
     incidentManagementTeam: Maybe<IncidentManagementTeam>;
 };
+
 /**
  * Note: DiseaseOutbreakEvent represents Event in the Figma.
  * Not using event as it is a keyword and can also be confused with dhis event

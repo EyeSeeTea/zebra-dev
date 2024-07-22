@@ -17,25 +17,22 @@ export class GetDiseaseOutbreaksUseCase {
 
     public execute(id: Id): FutureData<DiseaseOutbreakEvent> {
         return this.diseaseOutbreakRepository.get(id).flatMap(diseaseOutbreakEventBase => {
+            const {
+                mainSyndromeId,
+                suspectedDiseaseId,
+                notificationSourceId,
+                incidentManagerName,
+                areasAffectedDistrictIds,
+                areasAffectedProvinceIds,
+            } = diseaseOutbreakEventBase;
+
             return Future.joinObj({
-                mainSyndrome: diseaseOutbreakEventBase.mainSyndrome.id 
-                    ? this.optionsRepository.get(diseaseOutbreakEventBase.mainSyndrome.id)
-                    : Future.success({ id: "", name: "" }),
-                suspectedDisease: diseaseOutbreakEventBase.suspectedDisease.id
-                    ? this.optionsRepository.get(diseaseOutbreakEventBase.suspectedDisease.id)
-                    : Future.success({ id: "", name: "" }),
-                notificationSource: diseaseOutbreakEventBase.notificationSource.id
-                    ? this.optionsRepository.get(diseaseOutbreakEventBase.notificationSource.id)
-                    : Future.success({ id: "", name: "" }),
-                incidentManager: this.teamMemberRepository.get(
-                    diseaseOutbreakEventBase.incidentManager.id
-                ),
-                areasAffectedProvinces: this.orgUnitRepository.get(
-                    diseaseOutbreakEventBase.areasAffectedProvinces.map(orgUnit => orgUnit.id)
-                ),
-                areasAffectedDistricts: this.orgUnitRepository.get(
-                    diseaseOutbreakEventBase.areasAffectedDistricts.map(orgUnit => orgUnit.id)
-                ),
+                mainSyndrome: this.optionsRepository.get(mainSyndromeId),
+                suspectedDisease: this.optionsRepository.get(suspectedDiseaseId),
+                notificationSource: this.optionsRepository.get(notificationSourceId),
+                incidentManager: this.teamMemberRepository.get(incidentManagerName),
+                areasAffectedProvinces: this.orgUnitRepository.get(areasAffectedProvinceIds),
+                areasAffectedDistricts: this.orgUnitRepository.get(areasAffectedDistrictIds),
             }).flatMap(
                 ({
                     mainSyndrome,
@@ -45,7 +42,9 @@ export class GetDiseaseOutbreaksUseCase {
                     areasAffectedProvinces,
                     areasAffectedDistricts,
                 }) => {
-                    const diseaseOutbreakEvent = diseaseOutbreakEventBase._update({
+                    const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent({
+                        ...diseaseOutbreakEventBase,
+                        createdBy: undefined, //TO DO : populate once metadata change is done.
                         mainSyndrome: mainSyndrome,
                         suspectedDisease: suspectedDisease,
                         notificationSource: notificationSource,
