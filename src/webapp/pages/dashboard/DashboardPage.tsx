@@ -29,7 +29,20 @@ export const DashboardPage: React.FC = React.memo(() => {
                 console.error("Error fetching disease outbreak events", err);
             }
         );
-    }, [compositionRoot.diseaseOutbreakEvent.get, compositionRoot.diseaseOutbreakEvent.getAll]);
+
+        compositionRoot.diseaseOutbreakEvent.save.execute().run(
+            () => {
+                console.debug("Disease Outbreak saved successfully");
+            },
+            err => {
+                console.error("Error saving disease outbreak", err);
+            }
+        );
+    }, [
+        compositionRoot.diseaseOutbreakEvent.get,
+        compositionRoot.diseaseOutbreakEvent.getAll,
+        compositionRoot.diseaseOutbreakEvent.save,
+    ]);
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>Respond, alert, watch content</Section>

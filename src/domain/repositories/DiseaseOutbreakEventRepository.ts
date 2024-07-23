@@ -1,14 +1,10 @@
 import { FutureData } from "../../data/api-futures";
-import {
-    DiseaseOutbreakEvent,
-    DiseaseOutbreakEventBaseAttrs,
-} from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { ConfigLabel, Id } from "../entities/Ref";
 
 export interface DiseaseOutbreakEventRepository {
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs>;
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]>;
-    save(diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void>;
-    delete(id: Id): FutureData<void>;
+    save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<void>;
     getConfigStrings(): FutureData<ConfigLabel[]>;
 }

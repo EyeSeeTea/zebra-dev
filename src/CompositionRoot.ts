@@ -17,6 +17,7 @@ import { OptionsTestRepository } from "./data/repositories/test/OptionsTestRepos
 import { TeamMemberTestRepository } from "./data/repositories/test/TeamMemberTestRepository";
 import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepository";
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
+import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -41,6 +42,7 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.orgUnitRepository
             ),
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
+            save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
         },
     };
 }
