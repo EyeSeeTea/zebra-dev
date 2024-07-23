@@ -5,7 +5,7 @@ import { UserD2Repository } from "./data/repositories/UserD2Repository";
 import { DiseaseOutbreakEventRepository } from "./domain/repositories/DiseaseOutbreakEventRepository";
 import { UserRepository } from "./domain/repositories/UserRepository";
 import { GetCurrentUserUseCase } from "./domain/usecases/GetCurrentUserUseCase";
-import { GetDiseaseOutbreaksUseCase } from "./domain/usecases/GetDiseaseOutbreaksUseCase";
+import { GetDiseaseOutbreakByIdUseCase } from "./domain/usecases/GetDiseaseOutbreakByIdUseCase";
 import { D2Api } from "./types/d2-api";
 import { OptionsRepository } from "./domain/repositories/OptionsRepository";
 import { TeamMemberRepository } from "./domain/repositories/TeamMemberRepository";
@@ -16,6 +16,7 @@ import { OrgUnitD2Repository } from "./data/repositories/OrgUnitD2Repository";
 import { OptionsTestRepository } from "./data/repositories/test/OptionsTestRepository";
 import { TeamMemberTestRepository } from "./data/repositories/test/TeamMemberTestRepository";
 import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepository";
+import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -33,12 +34,13 @@ function getCompositionRoot(repositories: Repositories) {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
         },
         diseaseOutbreakEvent: {
-            get: new GetDiseaseOutbreaksUseCase(
+            get: new GetDiseaseOutbreakByIdUseCase(
                 repositories.diseaseOutbreakEventRepository,
                 repositories.optionsRepository,
                 repositories.teamMemberRepository,
                 repositories.orgUnitRepository
             ),
+            getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
         },
     };
 }

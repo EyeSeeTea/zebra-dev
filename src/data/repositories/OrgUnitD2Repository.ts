@@ -20,9 +20,6 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
                 },
             })
         ).map(response => {
-            if (response.organisationUnits.length < 1)
-                throw new Error("District/Province not found");
-
             const orgUnits: OrgUnit[] = response.organisationUnits.map(ou => {
                 return {
                     id: ou.id,

@@ -1,6 +1,3 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
-import { Id } from "../../../domain/entities/Ref";
-import { apiToFuture, FutureData } from "../../api-futures";
 import {
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
@@ -8,27 +5,9 @@ import {
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { DiseaseOutbreakCodes } from "../consts/DiseaseOutbreakConstants";
+import _c from "../../../domain/entities/generic/Collection";
 
-export function getTrackerEntityAttributes(
-    api: D2Api,
-    programId: Id,
-    orgUnitId: Id,
-    trackedEntityId: Id
-): FutureData<DiseaseOutbreakEventBaseAttrs> {
-    return apiToFuture(
-        api.tracker.trackedEntities.get({
-            program: programId,
-            orgUnit: orgUnitId,
-            trackedEntity: trackedEntityId,
-            fields: { attributes: true, trackedEntity: true },
-        })
-    ).map(trackedEntity => {
-        if (!trackedEntity.instances[0]) throw new Error("Tracked entity not found");
-        return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity.instances[0]);
-    });
-}
-
-function mapTrackedEntityAttributesToDiseaseOutbreak(
+export function mapTrackedEntityAttributesToDiseaseOutbreak(
     trackedEntity: D2TrackerTrackedEntity
 ): DiseaseOutbreakEventBaseAttrs {
     if (!trackedEntity.trackedEntity) throw new Error("Tracked entity not found");
@@ -45,9 +24,12 @@ function mapTrackedEntityAttributesToDiseaseOutbreak(
 
         notificationSourceId: getValueFromMap("notificationSource", trackedEntity),
 
-        areasAffectedProvinceIds: [getValueFromMap("areasAffectedProvinces", trackedEntity)], //TO DO : handle multiple provinces when metadata change is done
-
-        areasAffectedDistrictIds: [getValueFromMap("areasAffectedDistricts", trackedEntity)], //TO DO : handle multiple provinces when metadata change is done
+        areasAffectedProvinceIds: [getValueFromMap("areasAffectedProvinces", trackedEntity)].filter(
+            ou => ou !== ""
+        ), //TO DO : handle multiple provinces when metadata change is done
+        areasAffectedDistrictIds: [getValueFromMap("areasAffectedDistricts", trackedEntity)].filter(
+            ou => ou !== ""
+        ), //TO DO : handle multiple provinces when metadata change is done
         incidentStatus: getValueFromMap("incidentStatus", trackedEntity) as IncidentStatusType,
         emerged: {
             date: new Date(getValueFromMap("emergedDate", trackedEntity)),

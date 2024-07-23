@@ -7,7 +7,7 @@ import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 
-export class GetDiseaseOutbreaksUseCase {
+export class GetDiseaseOutbreakByIdUseCase {
     constructor(
         private diseaseOutbreakRepository: DiseaseOutbreakEventRepository,
         private optionsRepository: OptionsRepository,
@@ -30,7 +30,9 @@ export class GetDiseaseOutbreaksUseCase {
                 mainSyndrome: this.optionsRepository.get(mainSyndromeId),
                 suspectedDisease: this.optionsRepository.get(suspectedDiseaseId),
                 notificationSource: this.optionsRepository.get(notificationSourceId),
-                incidentManager: this.teamMemberRepository.get(incidentManagerName),
+                incidentManager: incidentManagerName
+                    ? this.teamMemberRepository.get(incidentManagerName)
+                    : Future.success(undefined),
                 areasAffectedProvinces: this.orgUnitRepository.get(areasAffectedProvinceIds),
                 areasAffectedDistricts: this.orgUnitRepository.get(areasAffectedDistrictIds),
             }).flatMap(

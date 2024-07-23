@@ -63,7 +63,7 @@ type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     notificationSource: NamedRef;
     areasAffectedProvinces: OrgUnit[];
     areasAffectedDistricts: OrgUnit[];
-    incidentManager: TeamMember;
+    incidentManager: Maybe<TeamMember>; //TO DO : make mandatory once form rules applied.
     riskAssessments: Maybe<RiskAssessment[]>;
     incidentActionPlan: Maybe<IncidentActionPlan>;
     incidentManagementTeam: Maybe<IncidentManagementTeam>;

@@ -14,14 +14,22 @@ export const DashboardPage: React.FC = React.memo(() => {
     useEffect(() => {
         compositionRoot.diseaseOutbreakEvent.get.execute("daFY6ofh6CU").run(
             diseaseOutbreakEvent => {
-                console.debug("Disease outbreak event", JSON.stringify(diseaseOutbreakEvent));
                 console.debug(diseaseOutbreakEvent);
             },
             err => {
                 console.error("Error fetching disease outbreak event", err);
             }
         );
-    }, [compositionRoot.diseaseOutbreakEvent.get]);
+
+        compositionRoot.diseaseOutbreakEvent.getAll.execute().run(
+            diseaseOutbreakEvents => {
+                console.debug(diseaseOutbreakEvents);
+            },
+            err => {
+                console.error("Error fetching disease outbreak events", err);
+            }
+        );
+    }, [compositionRoot.diseaseOutbreakEvent.get, compositionRoot.diseaseOutbreakEvent.getAll]);
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>Respond, alert, watch content</Section>
