@@ -15,6 +15,17 @@ import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2TrackedEntityAttributeSchema } from "@eyeseetea/d2-api/2.36";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 
+type D2TrackedEntityAttribute = {
+    trackedEntityAttribute: SelectedPick<
+        D2TrackedEntityAttributeSchema,
+        {
+            id: true;
+            valueType: true;
+            code: true;
+        }
+    >;
+};
+
 export function mapTrackedEntityAttributesToDiseaseOutbreak(
     trackedEntity: D2TrackerTrackedEntity
 ): DiseaseOutbreakEventBaseAttrs {
@@ -94,16 +105,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 
 export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs,
-    attributesMetadata: {
-        trackedEntityAttribute: SelectedPick<
-            D2TrackedEntityAttributeSchema,
-            {
-                id: true;
-                valueType: true;
-                code: true;
-            }
-        >;
-    }[]
+    attributesMetadata: D2TrackedEntityAttribute[]
 ): D2TrackerTrackedEntity {
     const attributes: Attribute[] = attributesMetadata.map(attribute => {
         const populatedAttribute = {

@@ -9,6 +9,7 @@ import {
 } from "./utils/DiseaseOutbreakMapper";
 import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
+import { getProgramTEAsMetadata } from "./utils/MetadataHelper";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -40,41 +41,28 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         });
     }
     save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<void> {
-        return apiToFuture(
-            this.api.models.programs.get({
-                fields: {
-                    id: true,
-                    programTrackedEntityAttributes: {
-                        trackedEntityAttribute: {
-                            id: true,
-                            valueType: true,
-                            code: true,
-                        },
-                    },
-                },
-                filter: {
-                    id: { eq: RTSL_ZEBRA_PROGRAM_ID },
-                },
-            })
-        ).flatMap(metadataResponse => {
-            const attributesMetadata = metadataResponse.objects[0]?.programTrackedEntityAttributes;
-            if (!attributesMetadata) throw new Error("Program not found");
-            const trackedEntity: D2TrackerTrackedEntity =
-                mapDiseaseOutbreakEventToTrackedEntityAttributes(
-                    diseaseOutbreak,
-                    attributesMetadata
-                );
+        return apiToFuture(getProgramTEAsMetadata(this.api, RTSL_ZEBRA_PROGRAM_ID)).flatMap(
+            teasMetadataResponse => {
+                const teasMetadata =
+                    teasMetadataResponse.objects[0]?.programTrackedEntityAttributes;
 
-            return apiToFuture(
-                this.api.tracker.post(
-                    { importStrategy: "CREATE_AND_UPDATE" },
-                    { trackedEntities: [trackedEntity] }
-                )
-            ).map(saveResponse => {
-                if (saveResponse.status === "ERROR")
-                    throw new Error("Error saving disease ooutbreak event");
-            });
-        });
+                if (!teasMetadata)
+                    throw new Error("Program Tracked Entity Attributes metadata not found");
+
+                const trackedEntity: D2TrackerTrackedEntity =
+                    mapDiseaseOutbreakEventToTrackedEntityAttributes(diseaseOutbreak, teasMetadata);
+
+                return apiToFuture(
+                    this.api.tracker.post(
+                        { importStrategy: "CREATE_AND_UPDATE" },
+                        { trackedEntities: [trackedEntity] }
+                    )
+                ).map(saveResponse => {
+                    if (saveResponse.status === "ERROR")
+                        throw new Error("Error saving disease ooutbreak event");
+                });
+            }
+        );
     }
     getConfigStrings(): FutureData<ConfigLabel[]> {
         throw new Error("Method not implemented.");

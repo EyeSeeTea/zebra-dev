@@ -24,7 +24,7 @@ export function Struct<Attrs>() {
             return Object.fromEntries(entries) as Attrs;
         }
 
-        _update(partialAttrs: Partial<Attrs>): this {
+        protected _update(partialAttrs: Partial<Attrs>): this {
             const ParentClass = this.constructor as new (values: Attrs) => typeof this;
             return new ParentClass({ ...this._getAttributes(), ...partialAttrs });
         }
