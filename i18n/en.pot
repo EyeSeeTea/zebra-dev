@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-07-09T06:45:31.820Z\n"
-"PO-Revision-Date: 2024-07-09T06:45:31.820Z\n"
+"POT-Creation-Date: 2024-07-29T10:44:06.270Z\n"
+"PO-Revision-Date: 2024-07-29T10:44:06.270Z\n"
 
 msgid "Low"
 msgstr ""
@@ -63,9 +63,6 @@ msgstr ""
 msgid "Add new option"
 msgstr ""
 
-msgid "Error displaying this field in the form"
-msgstr ""
-
 msgid "Indicates required"
 msgstr ""
 
@@ -103,9 +100,6 @@ msgid "Page Not Found"
 msgstr ""
 
 msgid "Create Event form cannot be loaded"
-msgstr ""
-
-msgid "An error occurred while loading Create Event form"
 msgstr ""
 
 msgid "Incident Action Plan"
