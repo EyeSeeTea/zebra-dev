@@ -5,8 +5,7 @@ import { Maybe } from "../../../../utils/ts-utils";
 import i18n from "../../../../utils/i18n";
 import { useAppContext } from "../../../contexts/app-context";
 import { Id } from "../../../../domain/entities/Ref";
-import { FormState } from "../../../components/form/FormState";
-import { FormFieldState } from "../../../components/form/FormFieldState";
+import { FormFieldState, FormState } from "../../../components/form/FormState";
 import { FormType } from "../FormPage";
 import { DiseaseOutbreakEvent } from "../../../../domain/entities/DiseaseOutbreakEvent";
 
@@ -34,6 +33,7 @@ export type DiseaseOutbreakEventFormState =
     | DiseaseOutbreakEventFormStateLoading
     | DiseaseOutbreakEventFormStateError;
 
+// NOTICE: This hook is just an approximation, it will be modified when the real use cases are implemented
 export function useDiseaseOutbreakEventForm(
     formType: FormType,
     diseaseOutbreakEventId?: Id
@@ -55,18 +55,7 @@ export function useDiseaseOutbreakEventForm(
         if (diseaseOutbreakEventId) {
             compositionRoot.diseaseOutbreakEvent.get.execute(diseaseOutbreakEventId).run(
                 diseaseOutbreakEventData => {
-                    if (!diseaseOutbreakEventData) {
-                        setFormState({
-                            kind: "error",
-                            message: i18n.t(`Create Event form cannot be loaded`),
-                        });
-                        setGlobalMessage({
-                            text: i18n.t(`An error occurred while loading Create Event form`),
-                            type: "error",
-                        });
-                    } else {
-                        setDiseaseOutbreakEvent(diseaseOutbreakEventData);
-                    }
+                    setDiseaseOutbreakEvent(diseaseOutbreakEventData);
                 },
                 error => {
                     setFormState({
@@ -156,6 +145,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                         isVisible: true,
                         errors: [],
                         type: "radio",
+                        multiple: false,
                         options: [
                             {
                                 value: "Biological:Human",
@@ -194,6 +184,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                         isVisible: true,
                         errors: [],
                         type: "select",
+                        multiple: false,
                         options: [
                             {
                                 value: "Syndrome 1",
@@ -231,6 +222,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                         isVisible: true,
                         errors: [],
                         type: "select",
+                        multiple: false,
                         options: [
                             {
                                 value: "Disease 1",
@@ -269,6 +261,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                         isVisible: true,
                         errors: [],
                         type: "select",
+                        multiple: false,
                         options: [
                             {
                                 value: "Source 1",
@@ -359,6 +352,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                         isVisible: true,
                         errors: [],
                         type: "radio",
+                        multiple: false,
                         options: [
                             {
                                 value: "Watch",

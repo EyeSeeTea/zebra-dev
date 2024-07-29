@@ -1,7 +1,6 @@
 import { getReactComponent } from "../../../../utils/tests";
 import { FormProps, Form } from "../Form";
-import { FormFieldState } from "../FormFieldState";
-import { FormState } from "../FormState";
+import { FormFieldState, FormState } from "../FormState";
 
 describe("Given Form component", () => {
     describe("When render form and its layout", () => {
@@ -286,6 +285,7 @@ function givenFormProps(): FormProps {
                             isVisible: true,
                             errors: [],
                             type: "radio",
+                            multiple: false,
                             options: [
                                 {
                                     value: "radio 1",
@@ -311,6 +311,7 @@ function givenFormProps(): FormProps {
                             isVisible: false,
                             errors: [],
                             type: "select",
+                            multiple: false,
                             options: [
                                 {
                                     value: "select 1 not visible",
@@ -329,6 +330,7 @@ function givenFormProps(): FormProps {
                             isVisible: true,
                             errors: [],
                             type: "select",
+                            multiple: false,
                             options: [
                                 {
                                     value: "select 1",

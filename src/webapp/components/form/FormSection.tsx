@@ -5,8 +5,7 @@ import { IconInfo24 } from "@dhis2/ui";
 import { Separator } from "../separator/Separator";
 import { IconButton } from "../icon-button/IconButton";
 import { FieldWidget } from "./FieldWidget";
-import { FormFieldState } from "./FormFieldState";
-import { FormSectionState } from "./FormSectionState";
+import { FormFieldState, FormSectionState } from "./FormState";
 
 type FormSectionProps = {
     id: string;
