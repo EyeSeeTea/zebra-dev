@@ -84,6 +84,12 @@ msgstr ""
 msgid "Last updated: "
 msgstr ""
 
+msgid "Median"
+msgstr ""
+
+msgid "% Target Met"
+msgstr ""
+
 msgid "Dashboard"
 msgstr ""
 
