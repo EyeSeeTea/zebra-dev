@@ -27,7 +27,7 @@ export const TextArea: React.FC<TextAreaProps> = React.memo(
         error = false,
         required = false,
     }) => {
-        const [textFieldValue, setTextFieldValue] = useState<string>(value || "");
+        const [textFieldValue, setTextFieldValue] = useState(value || "");
         const debouncedTextFieldValue = useDebounce(textFieldValue);
 
         useEffect(() => {

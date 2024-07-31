@@ -25,17 +25,7 @@ export const DiseaseOutbreakEventForm: React.FC<DiseaseOutbreakEventFormProps> =
         useEffect(() => {
             if (!globalMessage) return;
 
-            if (globalMessage?.type === "error") {
-                snackbar.error(globalMessage.text);
-            }
-
-            if (globalMessage?.type === "warning") {
-                snackbar.warning(globalMessage.text);
-            }
-
-            if (globalMessage?.type === "success") {
-                snackbar.success(globalMessage?.text);
-            }
+            snackbar[globalMessage.type](globalMessage.text);
         }, [globalMessage, snackbar]);
 
         return formState.kind === "loading" ? (
