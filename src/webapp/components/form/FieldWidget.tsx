@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 
 import { TextInput } from "../text-input/TextInput";
 import { MemberSelector } from "../member-selector/MemberSelector";
@@ -16,38 +16,54 @@ export type FieldWidgetProps = {
     disabled?: boolean;
 };
 
-export const FieldWidget: React.FC<FieldWidgetProps> = React.memo(props => {
+export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.Element => {
     const { field, onChange, disabled = false } = props;
+
+    const handleChange = useCallback(
+        (newValue: FormFieldState["value"]) => {
+            onChange(updateFieldState(field, newValue));
+        },
+        [field, onChange]
+    );
+
+    const commonProps = useMemo(
+        () => ({
+            id: field.id,
+            label: field.label,
+            onChange: handleChange,
+            helperText: field.helperText,
+            errorText: field.errors ? field.errors.join("\n") : "",
+            error: field.errors && field.errors.length > 0,
+            required: field.required && field.showIsRequired,
+            disabled: disabled,
+        }),
+        [
+            disabled,
+            field.errors,
+            field.helperText,
+            field.id,
+            field.label,
+            field.required,
+            field.showIsRequired,
+            handleChange,
+        ]
+    );
 
     switch (field.type) {
         case "select": {
             return field.multiple ? (
                 <MultipleSelector
-                    id={field.id}
+                    {...commonProps}
                     placeholder={field.placeholder}
-                    label={field.label}
                     selected={field.value}
-                    onChange={newValue => onChange(updateFieldState(field, newValue))}
                     options={field.options}
-                    helperText={field.helperText}
-                    errorText={field.errors ? field.errors.join("/n") : ""}
-                    error={field.errors && field.errors.length > 0}
-                    required={field.required && field.showIsRequired}
-                    disabled={disabled}
                 />
             ) : (
                 <Selector
-                    id={field.id}
+                    {...commonProps}
                     placeholder={field.placeholder}
-                    label={field.label}
                     selected={field.value}
-                    onChange={newValue => onChange(updateFieldState(field, newValue))}
                     options={field.options}
-                    helperText={field.helperText}
-                    errorText={field.errors ? field.errors.join("/n") : ""}
-                    error={field.errors && field.errors.length > 0}
-                    required={field.required && field.showIsRequired}
-                    disabled={disabled}
                 />
             );
         }
@@ -55,89 +71,34 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo(props => {
         case "radio": {
             return (
                 <RadioButtonsGroup
-                    id={field.id}
-                    label={field.label}
+                    {...commonProps}
                     selected={field.value}
-                    onChange={event => onChange(updateFieldState(field, event.target.value))}
                     options={field.options}
-                    helperText={field.helperText}
-                    errorText={field.errors ? field.errors.join("/n") : ""}
-                    error={field.errors && field.errors.length > 0}
-                    required={field.required && field.showIsRequired}
-                    disabled={disabled}
                 />
             );
         }
 
         case "text":
             return field.multiline ? (
-                <TextArea
-                    id={field.id}
-                    label={field.label}
-                    value={field.value}
-                    onChange={newValue => onChange(updateFieldState(field, newValue))}
-                    helperText={field.helperText}
-                    errorText={field.errors ? field.errors.join("/n") : ""}
-                    error={field.errors && field.errors.length > 0}
-                    required={field.required && field.showIsRequired}
-                    disabled={disabled}
-                />
+                <TextArea {...commonProps} value={field.value} />
             ) : (
-                <TextInput
-                    id={field.id}
-                    label={field.label}
-                    value={field.value}
-                    onChange={newValue => onChange(updateFieldState(field, newValue))}
-                    helperText={field.helperText}
-                    errorText={field.errors ? field.errors.join("/n") : ""}
-                    error={field.errors && field.errors.length > 0}
-                    required={field.required && field.showIsRequired}
-                    disabled={disabled}
-                />
+                <TextInput {...commonProps} value={field.value} />
             );
 
         case "date":
-            return (
-                <DatePicker
-                    id={field.id}
-                    label={field.label}
-                    value={field.value}
-                    onChange={newValue => onChange(updateFieldState(field, newValue))}
-                    helperText={field.helperText}
-                    errorText={field.errors ? field.errors.join("/n") : ""}
-                    error={field.errors && field.errors.length > 0}
-                    required={field.required && field.showIsRequired}
-                    disabled={disabled}
-                />
-            );
+            return <DatePicker {...commonProps} value={field.value} />;
 
         case "boolean": {
-            return (
-                <Checkbox
-                    id={field.id}
-                    label={field.label}
-                    checked={field.value}
-                    onChange={newValue => onChange(updateFieldState(field, newValue))}
-                    helperText={field.helperText}
-                    disabled={disabled}
-                />
-            );
+            return <Checkbox {...commonProps} checked={field.value} />;
         }
 
         case "member": {
             return (
                 <MemberSelector
-                    id={field.id}
+                    {...commonProps}
                     placeholder={field.placeholder}
-                    label={field.label}
                     selected={field.value}
-                    onChange={newValue => onChange(updateFieldState(field, newValue))}
                     options={field.options}
-                    helperText={field.helperText}
-                    errorText={field.errors ? field.errors.join("/n") : ""}
-                    error={field.errors && field.errors.length > 0}
-                    required={field.required && field.showIsRequired}
-                    disabled={disabled}
                 />
             );
         }

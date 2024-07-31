@@ -24,6 +24,9 @@ export const Checkbox: React.FC<CheckboxProps> = React.memo(
         helperText = "",
         disabled = false,
         indeterminate = false,
+        errorText = "",
+        error = false,
+        required = false,
     }) => {
         const handleChange = useCallback(
             (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,12 +50,20 @@ export const Checkbox: React.FC<CheckboxProps> = React.memo(
                         inputProps={inputProps}
                     />
 
-                    <Label htmlFor={id} disabled={disabled}>
-                        {label}
-                    </Label>
+                    {label && (
+                        <Label
+                            className={required ? "required" : ""}
+                            htmlFor={id}
+                            disabled={disabled}
+                        >
+                            {label}
+                        </Label>
+                    )}
                 </CheckboxWrapper>
 
-                <StyledFormHelperText id={`${id}-helper-text`}>{helperText}</StyledFormHelperText>
+                <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
+                    {error && !!errorText ? errorText : helperText}
+                </StyledFormHelperText>
             </Container>
         );
     }
@@ -76,8 +87,15 @@ const Label = styled(InputLabel)`
     &.Mui-disabled {
         color: ${props => props.theme.palette.common.grey600};
     }
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
+    }
 `;
 
-const StyledFormHelperText = styled(FormHelperText)`
-    color: ${props => props.theme.palette.common.grey700};
+const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`
+    color: ${props =>
+        props.error ? props.theme.palette.common.red700 : props.theme.palette.common.grey700};
 `;
