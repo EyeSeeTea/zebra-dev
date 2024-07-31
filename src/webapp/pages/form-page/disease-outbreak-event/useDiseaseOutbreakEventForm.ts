@@ -652,7 +652,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                         placeholder: "Select a manager",
                         isVisible: true,
                         errors: [],
-                        type: "member",
+                        type: "user",
                         options: [
                             {
                                 value: "1",

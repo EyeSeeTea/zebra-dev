@@ -434,21 +434,21 @@ function givenFormProps(): FormProps {
                     ],
                 },
                 {
-                    title: "Member section Title",
-                    id: "Member_section",
+                    title: "User section Title",
+                    id: "User_section",
                     isVisible: true,
                     required: true,
                     fields: [
                         {
-                            id: "member",
-                            placeholder: "Select a member",
+                            id: "user",
+                            placeholder: "Select an user",
                             isVisible: true,
                             errors: [],
-                            type: "member",
+                            type: "user",
                             options: [
                                 {
                                     value: "1",
-                                    label: "member 1",
+                                    label: "user 1",
                                     workPosition: "Postion",
                                     phone: "PhoneNumber",
                                     email: "Email",
@@ -457,7 +457,7 @@ function givenFormProps(): FormProps {
                                 },
                                 {
                                     value: "2",
-                                    label: "member 2",
+                                    label: "user 2",
                                     workPosition: "Postion",
                                     phone: "PhoneNumber",
                                     email: "Email",

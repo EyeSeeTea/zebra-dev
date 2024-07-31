@@ -1,5 +1,5 @@
 import { Maybe } from "../../../utils/ts-utils";
-import { MemberOption } from "../member-selector/MemberSelector";
+import { UserOption } from "../user-selector/UserSelector";
 import { Option } from "../utils/option";
 
 export type FormState = {
@@ -25,7 +25,7 @@ export type FormSectionState = {
     onClickInfo?: (id: string) => void;
 };
 
-type FieldTypes = "text" | "boolean" | "select" | "radio" | "date" | "member";
+type FieldTypes = "text" | "boolean" | "select" | "radio" | "date" | "user";
 
 type FormFieldStateBase<T> = {
     id: string;
@@ -69,8 +69,8 @@ export type FormDateFieldState = FormFieldStateBase<Date | null> & {
 };
 
 export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
-    type: "member";
-    options: MemberOption[];
+    type: "user";
+    options: UserOption[];
 };
 
 export type FormFieldState =

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 
 import { TextInput } from "../text-input/TextInput";
-import { MemberSelector } from "../member-selector/MemberSelector";
+import { UserSelector } from "../user-selector/UserSelector";
 import { MultipleSelector } from "../selector/MultipleSelector";
 import { Selector } from "../selector/Selector";
 import { RadioButtonsGroup } from "../radio-buttons-group/RadioButtonsGroup";
@@ -92,9 +92,9 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
             return <Checkbox {...commonProps} checked={field.value} />;
         }
 
-        case "member": {
+        case "user": {
             return (
-                <MemberSelector
+                <UserSelector
                     {...commonProps}
                     placeholder={field.placeholder}
                     selected={field.value}
