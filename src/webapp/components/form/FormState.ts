@@ -95,11 +95,12 @@ export function updateSectionsState(
     const updatedSections = prevFormSectionsState.map(section => {
         if (section?.subsections) {
             return {
-                ...section,
+                ...updateSectionState(section, updatedField),
                 subsections: updateSectionsState(section?.subsections, updatedField),
             };
+        } else {
+            return updateSectionState(section, updatedField);
         }
-        return updateSectionState(section, updatedField);
     });
 
     return updatedSections;
