@@ -84,7 +84,7 @@ export function useDiseaseOutbreakEventForm(
     }, [diseaseOutbreakEvent, diseaseOutbreakEventId]);
 
     const handleFormChange = useCallback(
-        (newFormState: FormState, updatedField: FormFieldState) => {
+        (newFormState: FormState, _updatedField: FormFieldState) => {
             // TODO: Validate and update state
             setFormState({
                 kind: "loaded",
