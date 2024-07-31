@@ -27,7 +27,7 @@ export type FormSectionState = {
 
 type FieldTypes = "text" | "boolean" | "select" | "radio" | "date" | "member";
 
-interface FormFieldStateBase<T> {
+type FormFieldStateBase<T> = {
     id: string;
     label?: string;
     placeholder?: string;
@@ -41,37 +41,37 @@ interface FormFieldStateBase<T> {
     width?: string;
     value: T;
     type: FieldTypes;
-}
+};
 
-export interface FormTextFieldState extends FormFieldStateBase<string> {
+export type FormTextFieldState = FormFieldStateBase<string> & {
     type: "text";
     multiline?: boolean;
-}
+};
 
-export interface FormBooleanFieldState extends FormFieldStateBase<boolean> {
+export type FormBooleanFieldState = FormFieldStateBase<boolean> & {
     type: "boolean";
-}
+};
 
-export interface FormMultipleOptionsFieldState extends FormFieldStateBase<string[]> {
+export type FormMultipleOptionsFieldState = FormFieldStateBase<string[]> & {
     type: "select";
     options: Option[];
     multiple: true;
-}
+};
 
-export interface FormOptionsFieldState extends FormFieldStateBase<string> {
+export type FormOptionsFieldState = FormFieldStateBase<string> & {
     type: "select" | "radio";
     options: Option[];
     multiple: false;
-}
+};
 
-export interface FormDateFieldState extends FormFieldStateBase<Date | null> {
+export type FormDateFieldState = FormFieldStateBase<Date | null> & {
     type: "date";
-}
+};
 
-export interface FormAvatarFieldState extends FormFieldStateBase<Maybe<string>> {
+export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
     type: "member";
     options: MemberOption[];
-}
+};
 
 export type FormFieldState =
     | FormTextFieldState
