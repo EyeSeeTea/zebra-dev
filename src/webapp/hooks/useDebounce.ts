@@ -20,7 +20,7 @@ export function debounce<F extends (...args: any[]) => any>(func: F, delay: numb
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
     const debounced = (...args: Parameters<F>): void => {
-        if (timeout !== null) {
+        if (timeout) {
             clearTimeout(timeout);
         }
         timeout = setTimeout(() => func(...args), delay);

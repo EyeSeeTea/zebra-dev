@@ -6,23 +6,23 @@ import i18n from "../../../utils/i18n";
 import { Selector } from "../selector/Selector";
 import { AvatarCard } from "../avatar-card/AvatarCard";
 
-export type MemberOption = {
+export type UserOption = {
     value: string;
     label: string;
     disabled?: boolean;
-    workPosition: string;
+    workPosition?: string;
     phone: string;
     email: string;
-    status: string;
+    status?: string;
     src?: string;
     alt?: string;
 };
 
-type MemberSelectorProps = {
+type UserSelectorProps = {
     id: string;
     selected?: string;
     onChange: (value: string) => void;
-    options: MemberOption[];
+    options: UserOption[];
     label?: string;
     placeholder?: string;
     disabled?: boolean;
@@ -32,7 +32,7 @@ type MemberSelectorProps = {
     required?: boolean;
 };
 
-export const MemberSelector: React.FC<MemberSelectorProps> = React.memo(props => {
+export const UserSelector: React.FC<UserSelectorProps> = React.memo(props => {
     const {
         id,
         label,
@@ -47,7 +47,7 @@ export const MemberSelector: React.FC<MemberSelectorProps> = React.memo(props =>
         required = false,
     } = props;
 
-    const selectedMember = useMemo(() => {
+    const selectedUser = useMemo(() => {
         return options.find(option => option.value === selected);
     }, [options, selected]);
 
@@ -68,27 +68,31 @@ export const MemberSelector: React.FC<MemberSelectorProps> = React.memo(props =>
                     disabled={disabled}
                 />
             </SelectorContainer>
-            {selectedMember && (
+
+            {selectedUser && (
                 <AvatarContainer>
-                    <AvatarCard
-                        avatarSize="medium"
-                        alt={selectedMember?.alt}
-                        src={selectedMember?.src}
-                    >
+                    <AvatarCard avatarSize="medium" alt={selectedUser?.alt} src={selectedUser?.src}>
                         <Container>
                             <Content>
-                                <TextBold>{selectedMember?.label}</TextBold>
-                                <Text>{selectedMember?.workPosition}</Text>
+                                <TextBold>{selectedUser?.label}</TextBold>
+
+                                {selectedUser?.workPosition && (
+                                    <Text>{selectedUser?.workPosition}</Text>
+                                )}
                             </Content>
+
                             <Content>
-                                <Text>{selectedMember?.phone}</Text>
-                                <StyledLink href={`mailto:${selectedMember?.email}`}>
-                                    {selectedMember?.email}
+                                <Text>{selectedUser?.phone}</Text>
+
+                                <StyledLink href={`mailto:${selectedUser?.email}`}>
+                                    {selectedUser?.email}
                                 </StyledLink>
                             </Content>
+
                             <div>
                                 <TextBold>{i18n.t("Status: ", { nsSeparator: false })}</TextBold>
-                                <Text>{selectedMember?.status}</Text>
+
+                                {selectedUser?.status && <Text>{selectedUser?.status}</Text>}
                             </div>
                         </Container>
                     </AvatarCard>

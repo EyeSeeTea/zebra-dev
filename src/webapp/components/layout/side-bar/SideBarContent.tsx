@@ -1,11 +1,12 @@
 import { List, ListItem, ListItemText } from "@material-ui/core";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { NavLink, useHistory } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { AddCircleOutline } from "@material-ui/icons";
 
 import i18n from "../../../../utils/i18n";
 import { Button } from "../../button/Button";
+import { RouteNames, routes, useRoutes } from "../../../hooks/useRoutes";
 
 type SideBarContentProps = {
     children?: React.ReactNode;
@@ -13,41 +14,41 @@ type SideBarContentProps = {
     showCreateEvent?: boolean;
 };
 
-type SideBarOption = {
+export type SideBarOption = {
     text: string;
-    value: string;
+    value: RouteNames;
 };
 
 const DEFAULT_SIDEBAR_OPTIONS: SideBarOption[] = [
     {
         text: "Dashboard",
-        value: "/dashboard",
+        value: RouteNames.DASHBOARD,
     },
     {
         text: "Event Tracker",
-        value: "/event-tracker",
+        value: RouteNames.EVENT_TRACKER,
     },
     {
         text: "IM Team Builder",
-        value: "/incident-management-team-builder",
+        value: RouteNames.IM_TEAM_BUILDER,
     },
     {
         text: "Incident Action Plan",
-        value: "/incident-action-plan",
+        value: RouteNames.INCIDENT_ACTION_PLAN,
     },
     {
         text: "Resources",
-        value: "/resources",
+        value: RouteNames.RESOURCES,
     },
 ];
 
 export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
     ({ children, hideOptions = false, showCreateEvent = false }) => {
-        const history = useHistory();
+        const { goTo } = useRoutes();
 
         const goToCreateEvent = useCallback(() => {
-            history.push(`/create/disease-outbreak-event`);
-        }, [history]);
+            goTo(RouteNames.CREATE_FORM, { formType: "disease-outbreak-event" });
+        }, [goTo]);
 
         return (
             <SideBarContainer hideOptions={hideOptions}>
@@ -62,7 +63,7 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
                 ) : (
                     <StyledList>
                         {DEFAULT_SIDEBAR_OPTIONS.map(({ text, value }) => (
-                            <ListItem button key={text} component={NavLink} to={value}>
+                            <ListItem button key={text} component={NavLink} to={routes[value]}>
                                 <StyledText primary={i18n.t(text)} selected={false} />
                             </ListItem>
                         ))}

@@ -7,23 +7,27 @@ import { IncidentActionPlanPage } from "./incident-action-plan/IncidentActionPla
 import { ResourcesPage } from "./resources/ResourcesPage";
 import { IMTeamBuilderPage } from "./incident-management-team-builder/IMTeamBuilderPage";
 import { FormPage } from "./form-page/FormPage";
+import { RouteNames, routes } from "../hooks/useRoutes";
 
 export function Router() {
     return (
         <HashRouter>
             <Switch>
-                <Route path="/create/:formType" render={() => <FormPage />} />
-                <Route path="/edit/:formType/:id" render={() => <FormPage />} />
-                <Route path="/event-tracker" render={() => <EventTrackerPage />} />
+                <Route path={routes[RouteNames.CREATE_FORM]} render={() => <FormPage />} />
+                <Route path={routes[RouteNames.EDIT_FORM]} render={() => <FormPage />} />
                 <Route
-                    path="/incident-management-team-builder"
+                    path={routes[RouteNames.EVENT_TRACKER]}
+                    render={() => <EventTrackerPage />}
+                />
+                <Route
+                    path={routes[RouteNames.IM_TEAM_BUILDER]}
                     render={() => <IMTeamBuilderPage />}
                 />
                 <Route
-                    path="/incident-action-plan/:incidentActionPlanId"
+                    path={routes[RouteNames.INCIDENT_ACTION_PLAN]}
                     render={() => <IncidentActionPlanPage />}
                 />
-                <Route path="/resources" render={() => <ResourcesPage />} />
+                <Route path={routes[RouteNames.RESOURCES]} render={() => <ResourcesPage />} />
                 {/* Default route */}
                 <Route render={() => <DashboardPage />} />
             </Switch>

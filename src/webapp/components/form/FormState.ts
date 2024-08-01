@@ -1,5 +1,5 @@
 import { Maybe } from "../../../utils/ts-utils";
-import { MemberOption } from "../member-selector/MemberSelector";
+import { UserOption } from "../user-selector/UserSelector";
 import { Option } from "../utils/option";
 
 export type FormState = {
@@ -25,9 +25,9 @@ export type FormSectionState = {
     onClickInfo?: (id: string) => void;
 };
 
-type FieldTypes = "text" | "boolean" | "select" | "radio" | "date" | "member";
+type FieldTypes = "text" | "boolean" | "select" | "radio" | "date" | "user";
 
-interface FormFieldStateBase<T> {
+type FormFieldStateBase<T> = {
     id: string;
     label?: string;
     placeholder?: string;
@@ -41,37 +41,37 @@ interface FormFieldStateBase<T> {
     width?: string;
     value: T;
     type: FieldTypes;
-}
+};
 
-export interface FormTextFieldState extends FormFieldStateBase<string> {
+export type FormTextFieldState = FormFieldStateBase<string> & {
     type: "text";
     multiline?: boolean;
-}
+};
 
-export interface FormBooleanFieldState extends FormFieldStateBase<boolean> {
+export type FormBooleanFieldState = FormFieldStateBase<boolean> & {
     type: "boolean";
-}
+};
 
-export interface FormMultipleOptionsFieldState extends FormFieldStateBase<string[]> {
+export type FormMultipleOptionsFieldState = FormFieldStateBase<string[]> & {
     type: "select";
     options: Option[];
     multiple: true;
-}
+};
 
-export interface FormOptionsFieldState extends FormFieldStateBase<string> {
+export type FormOptionsFieldState = FormFieldStateBase<string> & {
     type: "select" | "radio";
     options: Option[];
     multiple: false;
-}
+};
 
-export interface FormDateFieldState extends FormFieldStateBase<Date | null> {
+export type FormDateFieldState = FormFieldStateBase<Date | null> & {
     type: "date";
-}
+};
 
-export interface FormAvatarFieldState extends FormFieldStateBase<Maybe<string>> {
-    type: "member";
-    options: MemberOption[];
-}
+export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
+    type: "user";
+    options: UserOption[];
+};
 
 export type FormFieldState =
     | FormTextFieldState
@@ -95,11 +95,12 @@ export function updateSectionsState(
     const updatedSections = prevFormSectionsState.map(section => {
         if (section?.subsections) {
             return {
-                ...section,
+                ...updateSectionState(section, updatedField),
                 subsections: updateSectionsState(section?.subsections, updatedField),
             };
+        } else {
+            return updateSectionState(section, updatedField);
         }
-        return updateSectionState(section, updatedField);
     });
 
     return updatedSections;

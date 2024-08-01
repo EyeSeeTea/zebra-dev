@@ -3,8 +3,8 @@ import { FormProps, Form } from "../Form";
 import { FormFieldState, FormState } from "../FormState";
 
 describe("Given Form component", () => {
-    describe("When render form and its layout", () => {
-        it("Then show form title", async () => {
+    describe("when render form and its layout", () => {
+        it("then shows form title", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -12,7 +12,7 @@ describe("Given Form component", () => {
             expect(await view.findByText("Form Title")).toBeInTheDocument();
         });
 
-        it("Then show form subtitle", async () => {
+        it("then shows form subtitle", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -20,7 +20,7 @@ describe("Given Form component", () => {
             expect(await view.findByText("Form Subtitle")).toBeInTheDocument();
         });
 
-        it("Then show save button label", async () => {
+        it("then shows save button label", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -28,7 +28,7 @@ describe("Given Form component", () => {
             expect(await view.findByText("Save & continue")).toBeInTheDocument();
         });
 
-        it("Then show save button disabled if form is not valid", async () => {
+        it("then shows save button disabled if form is not valid", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -36,7 +36,7 @@ describe("Given Form component", () => {
             expect(view.getByRole("button", { name: /save & continue/i })).toBeDisabled();
         });
 
-        it("Then show save button enabled if form is valid", async () => {
+        it("then shows save button enabled if form is valid", async () => {
             const formProps = givenFormProps();
 
             const view = getView({
@@ -50,7 +50,7 @@ describe("Given Form component", () => {
             expect(view.getByRole("button", { name: /save & continue/i })).not.toBeDisabled();
         });
 
-        it("Then show cancel button label and has to be enabled", async () => {
+        it("then shows cancel button label and has to be enabled", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -59,7 +59,7 @@ describe("Given Form component", () => {
             expect(view.getByRole("button", { name: /cancel & back/i })).not.toBeDisabled();
         });
 
-        it("Then show *indicates required text", async () => {
+        it("then shows *indicates required text", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -68,8 +68,8 @@ describe("Given Form component", () => {
         });
     });
 
-    describe("When render form and its sections", () => {
-        it("Then section is shown if it is visible", async () => {
+    describe("when render form and its sections", () => {
+        it("then section is shown if it is visible", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -77,7 +77,7 @@ describe("Given Form component", () => {
             expect(await view.findByText("Text section Title")).toBeInTheDocument();
         });
 
-        it("Then section is not shown if it is not visible", async () => {
+        it("then section is not shown if it is not visible", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -85,7 +85,7 @@ describe("Given Form component", () => {
             expect(view.queryByText("Text section Title not visible")).toBeNull();
         });
 
-        it("Then section title has required class if it's required", async () => {
+        it("then section title has required class if it's required", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -94,7 +94,7 @@ describe("Given Form component", () => {
             expect(titleElement).toHaveClass("required");
         });
 
-        it("Then section title has not required class if it's not required", async () => {
+        it("then section title has not required class if it's not required", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -103,7 +103,7 @@ describe("Given Form component", () => {
             expect(titleElement).not.toHaveClass("required");
         });
 
-        it("Then section title has info icon button if there is a function", async () => {
+        it("then section title has info icon button if there is a function", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -113,7 +113,7 @@ describe("Given Form component", () => {
             expect(sectionInfoButton).toBeInTheDocument();
         });
 
-        it("Then if section has a visible field, this has to be seen", async () => {
+        it("then if section has a visible field, this has to be seen", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -121,7 +121,7 @@ describe("Given Form component", () => {
             expect(await view.findByText("Field text visible required")).toBeInTheDocument();
         });
 
-        it("Then if section has a not visible field, this has not to be seen", async () => {
+        it("then if section has a not visible field, this has not to be seen", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -129,7 +129,7 @@ describe("Given Form component", () => {
             expect(view.queryByText("Field text not visible")).toBeNull();
         });
 
-        it("Then if section has subsections, show title", async () => {
+        it("then if section has subsections, show title", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -141,7 +141,7 @@ describe("Given Form component", () => {
             ).toBeInTheDocument();
         });
 
-        it("Then if section has a visible subsection field, this has to be seen", async () => {
+        it("then if section has a visible subsection field, this has to be seen", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -149,7 +149,7 @@ describe("Given Form component", () => {
             expect(await view.findByText("Subsection field visible")).toBeInTheDocument();
         });
 
-        it("Then if section has a not visible subsection field, this has not to be seen", async () => {
+        it("then if section has a not visible subsection field, this has not to be seen", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -158,8 +158,8 @@ describe("Given Form component", () => {
         });
     });
 
-    describe("When render form and a field", () => {
-        it("Then field label has required class if it's required", async () => {
+    describe("when render form and a field", () => {
+        it("then field label has required class if it's required", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -168,7 +168,7 @@ describe("Given Form component", () => {
             expect(titleElement).toHaveClass("required");
         });
 
-        it("Then field label has not required class if it's not required", async () => {
+        it("then field label has not required class if it's not required", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -177,7 +177,7 @@ describe("Given Form component", () => {
             expect(titleElement).not.toHaveClass("required");
         });
 
-        it("Then field helper text has to be visible", async () => {
+        it("then field helper text has to be visible", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -185,7 +185,7 @@ describe("Given Form component", () => {
             expect(await view.findByText("text field helper text required")).toBeInTheDocument();
         });
 
-        it("Then if a field has an error, it has to be red color", async () => {
+        it("then if a field has an error, it has to be red color", async () => {
             const formProps = givenFormProps();
 
             const view = getView(formProps);
@@ -434,21 +434,21 @@ function givenFormProps(): FormProps {
                     ],
                 },
                 {
-                    title: "Member section Title",
-                    id: "Member_section",
+                    title: "User section Title",
+                    id: "User_section",
                     isVisible: true,
                     required: true,
                     fields: [
                         {
-                            id: "member",
-                            placeholder: "Select a member",
+                            id: "user",
+                            placeholder: "Select an user",
                             isVisible: true,
                             errors: [],
-                            type: "member",
+                            type: "user",
                             options: [
                                 {
                                     value: "1",
-                                    label: "member 1",
+                                    label: "user 1",
                                     workPosition: "Postion",
                                     phone: "PhoneNumber",
                                     email: "Email",
@@ -457,7 +457,7 @@ function givenFormProps(): FormProps {
                                 },
                                 {
                                     value: "2",
-                                    label: "member 2",
+                                    label: "user 2",
                                     workPosition: "Postion",
                                     phone: "PhoneNumber",
                                     email: "Email",
