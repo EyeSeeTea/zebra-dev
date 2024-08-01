@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
 
 import { Maybe } from "../../../../utils/ts-utils";
 import i18n from "../../../../utils/i18n";
@@ -8,6 +7,7 @@ import { Id } from "../../../../domain/entities/Ref";
 import { FormFieldState, FormState } from "../../../components/form/FormState";
 import { FormType } from "../FormPage";
 import { DiseaseOutbreakEvent } from "../../../../domain/entities/DiseaseOutbreakEvent";
+import { RouteNames, useRoutes } from "../../../hooks/useRoutes";
 
 export type GlobalMessage = {
     text: string;
@@ -45,7 +45,7 @@ export function useDiseaseOutbreakEventForm(
     onCancelForm: () => void;
 } {
     const { compositionRoot } = useAppContext();
-    const history = useHistory();
+    const { goTo } = useRoutes();
 
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [formState, setFormState] = useState<DiseaseOutbreakEventFormState>({ kind: "loading" });
@@ -97,8 +97,8 @@ export function useDiseaseOutbreakEventForm(
     const onSaveForm = useCallback(() => {}, []);
 
     const onCancelForm = useCallback(() => {
-        history.push(`/`);
-    }, [history]);
+        goTo(RouteNames.DASHBOARD);
+    }, [goTo]);
 
     return {
         globalMessage,
