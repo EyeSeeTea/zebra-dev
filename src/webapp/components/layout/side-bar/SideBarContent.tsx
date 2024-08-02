@@ -6,7 +6,7 @@ import { AddCircleOutline } from "@material-ui/icons";
 
 import i18n from "../../../../utils/i18n";
 import { Button } from "../../button/Button";
-import { RouteNames, routes, useRoutes } from "../../../hooks/useRoutes";
+import { RouteName, routes, useRoutes } from "../../../hooks/useRoutes";
 
 type SideBarContentProps = {
     children?: React.ReactNode;
@@ -16,29 +16,29 @@ type SideBarContentProps = {
 
 export type SideBarOption = {
     text: string;
-    value: RouteNames;
+    value: RouteName;
 };
 
 const DEFAULT_SIDEBAR_OPTIONS: SideBarOption[] = [
     {
         text: "Dashboard",
-        value: RouteNames.DASHBOARD,
+        value: RouteName.DASHBOARD,
     },
     {
         text: "Event Tracker",
-        value: RouteNames.EVENT_TRACKER,
+        value: RouteName.EVENT_TRACKER,
     },
     {
         text: "IM Team Builder",
-        value: RouteNames.IM_TEAM_BUILDER,
+        value: RouteName.IM_TEAM_BUILDER,
     },
     {
         text: "Incident Action Plan",
-        value: RouteNames.INCIDENT_ACTION_PLAN,
+        value: RouteName.INCIDENT_ACTION_PLAN,
     },
     {
         text: "Resources",
-        value: RouteNames.RESOURCES,
+        value: RouteName.RESOURCES,
     },
 ];
 
@@ -47,7 +47,7 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
         const { goTo } = useRoutes();
 
         const goToCreateEvent = useCallback(() => {
-            goTo(RouteNames.CREATE_FORM, { formType: "disease-outbreak-event" });
+            goTo(RouteName.CREATE_FORM, { formType: "disease-outbreak-event" });
         }, [goTo]);
 
         return (
