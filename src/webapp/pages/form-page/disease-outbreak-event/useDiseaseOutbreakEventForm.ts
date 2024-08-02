@@ -7,7 +7,7 @@ import { Id } from "../../../../domain/entities/Ref";
 import { FormFieldState, FormState } from "../../../components/form/FormState";
 import { FormType } from "../FormPage";
 import { DiseaseOutbreakEvent } from "../../../../domain/entities/DiseaseOutbreakEvent";
-import { RouteNames, useRoutes } from "../../../hooks/useRoutes";
+import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 
 export type GlobalMessage = {
     text: string;
@@ -97,7 +97,7 @@ export function useDiseaseOutbreakEventForm(
     const onSaveForm = useCallback(() => {}, []);
 
     const onCancelForm = useCallback(() => {
-        goTo(RouteNames.DASHBOARD);
+        goTo(RouteName.DASHBOARD);
     }, [goTo]);
 
     return {

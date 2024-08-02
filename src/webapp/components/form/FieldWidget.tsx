@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 
 import { TextInput } from "../text-input/TextInput";
 import { UserSelector } from "../user-selector/UserSelector";
@@ -26,28 +26,16 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
         [field, onChange]
     );
 
-    const commonProps = useMemo(
-        () => ({
-            id: field.id,
-            label: field.label,
-            onChange: handleChange,
-            helperText: field.helperText,
-            errorText: field.errors ? field.errors.join("\n") : "",
-            error: field.errors && field.errors.length > 0,
-            required: field.required && field.showIsRequired,
-            disabled: disabled,
-        }),
-        [
-            disabled,
-            field.errors,
-            field.helperText,
-            field.id,
-            field.label,
-            field.required,
-            field.showIsRequired,
-            handleChange,
-        ]
-    );
+    const commonProps = {
+        id: field.id,
+        label: field.label,
+        onChange: handleChange,
+        helperText: field.helperText,
+        errorText: field.errors ? field.errors.join("\n") : "",
+        error: field.errors && field.errors.length > 0,
+        required: field.required && field.showIsRequired,
+        disabled: disabled,
+    };
 
     switch (field.type) {
         case "select": {
