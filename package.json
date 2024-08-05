@@ -36,6 +36,7 @@
         "react-dom": "^18.2.0",
         "react-router-dom": "5.2.0",
         "real-cancellable-promise": "^1.1.2",
+        "string-ts": "2.2.0",
         "styled-components": "5.3.5",
         "styled-jsx": "3.4.5",
         "typed-immutable-map": "^0.1.1",

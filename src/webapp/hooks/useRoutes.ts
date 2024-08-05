@@ -1,5 +1,7 @@
 import React from "react";
+import { join } from "string-ts";
 import { generatePath, useHistory } from "react-router-dom";
+
 import { FormType } from "../pages/form-page/FormPage";
 
 export enum RouteName {
@@ -14,7 +16,7 @@ export enum RouteName {
 
 const formTypes: FormType[] = ["disease-outbreak-event"];
 
-const formType = `:formType(${formTypes.join("|")})` as const;
+const formType = `:formType(${join(formTypes, "|")})` as const;
 
 export const routes: Record<RouteName, string> = {
     [RouteName.CREATE_FORM]: `/create/${formType}`,

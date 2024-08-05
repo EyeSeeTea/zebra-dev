@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-08-05T07:29:53.853Z\n"
-"PO-Revision-Date: 2024-08-05T07:29:53.853Z\n"
+"POT-Creation-Date: 2024-08-05T08:04:28.112Z\n"
+"PO-Revision-Date: 2024-08-05T08:04:28.112Z\n"
 
 msgid "Low"
 msgstr ""
@@ -85,6 +85,12 @@ msgid "Search"
 msgstr ""
 
 msgid "Last updated: "
+msgstr ""
+
+msgid "Median"
+msgstr ""
+
+msgid "% Target Met"
 msgstr ""
 
 msgid "Status: "
