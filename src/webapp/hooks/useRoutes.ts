@@ -12,7 +12,7 @@ export enum RouteName {
     DASHBOARD = "DASHBOARD",
 }
 
-const formTypes = ["disease-outbreak-event"] as const satisfies FormType[];
+const formTypes: FormType[] = ["disease-outbreak-event"];
 
 const formType = `:formType(${formTypes.join("|")})` as const;
 

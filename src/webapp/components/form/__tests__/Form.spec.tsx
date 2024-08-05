@@ -1,6 +1,6 @@
 import { getReactComponent } from "../../../../utils/tests";
 import { FormProps, Form } from "../Form";
-import { FormFieldState, FormState } from "../FormState";
+import { FormFieldState } from "../FormState";
 
 describe("Given Form component", () => {
     describe("when render form and its layout", () => {
@@ -190,7 +190,7 @@ describe("Given Form component", () => {
 
             const view = getView(formProps);
 
-            const errorTextElement = await view.findByText("This is an error");
+            const errorTextElement = await view.findByText("There is an error in this field");
             expect(errorTextElement).toHaveStyle("color: rgb(198, 40, 40)");
         });
     });
@@ -233,7 +233,7 @@ function givenFormProps(): FormProps {
                             label: "Field text visible not required",
                             isVisible: true,
                             helperText: "text field helper text not required",
-                            errors: ["This is an error"],
+                            errors: ["this_is_an_error"],
                             type: "text",
                             value: "text value not required",
                             multiline: false,
@@ -487,7 +487,7 @@ function givenFormProps(): FormProps {
                 },
             ],
         },
-        onFormChange: (_newFormState: FormState, _updatedField: FormFieldState) => {},
+        onFormChange: (_updatedField: FormFieldState) => {},
         onSave: () => {},
         onCancel: () => {},
     };

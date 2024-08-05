@@ -5,22 +5,21 @@ import styled from "styled-components";
 import { useDiseaseOutbreakEventForm } from "./useDiseaseOutbreakEventForm";
 import { Form } from "../../../components/form/Form";
 import { Id } from "../../../../domain/entities/Ref";
-import { FormType } from "../FormPage";
 import { Layout } from "../../../components/layout/Layout";
 import { Loader } from "../../../components/loader/Loader";
 
 type DiseaseOutbreakEventFormProps = {
-    formType: FormType;
     diseaseOutbreakEventId?: Id;
 };
 
+// TODO: Thinking for the future about making this more generic
 export const DiseaseOutbreakEventForm: React.FC<DiseaseOutbreakEventFormProps> = React.memo(
     props => {
-        const { diseaseOutbreakEventId, formType } = props;
+        const { diseaseOutbreakEventId } = props;
 
         const snackbar = useSnackbar();
-        const { globalMessage, formState, handleFormChange, onSaveForm, onCancelForm } =
-            useDiseaseOutbreakEventForm(formType, diseaseOutbreakEventId);
+        const { formLabels, globalMessage, formState, handleFormChange, onSaveForm, onCancelForm } =
+            useDiseaseOutbreakEventForm(diseaseOutbreakEventId);
 
         useEffect(() => {
             if (!globalMessage) return;
@@ -38,6 +37,7 @@ export const DiseaseOutbreakEventForm: React.FC<DiseaseOutbreakEventFormProps> =
                 onFormChange={handleFormChange}
                 onSave={onSaveForm}
                 onCancel={onCancelForm}
+                errorLabels={formLabels?.errors}
             />
         ) : (
             formState.message && <ErrorMessageContainer>{formState.message}</ErrorMessageContainer>

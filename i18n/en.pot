@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-07-29T10:44:06.270Z\n"
-"PO-Revision-Date: 2024-07-29T10:44:06.270Z\n"
+"POT-Creation-Date: 2024-08-05T07:29:53.853Z\n"
+"PO-Revision-Date: 2024-08-05T07:29:53.853Z\n"
 
 msgid "Low"
 msgstr ""
@@ -63,6 +63,9 @@ msgstr ""
 msgid "Add new option"
 msgstr ""
 
+msgid "There is an error in this field"
+msgstr ""
+
 msgid "Indicates required"
 msgstr ""
 
@@ -75,9 +78,6 @@ msgstr ""
 msgid "Create Event"
 msgstr ""
 
-msgid "Status: "
-msgstr ""
-
 msgid "Close"
 msgstr ""
 
@@ -85,6 +85,9 @@ msgid "Search"
 msgstr ""
 
 msgid "Last updated: "
+msgstr ""
+
+msgid "Status: "
 msgstr ""
 
 msgid "Dashboard"
@@ -100,6 +103,9 @@ msgid "Page Not Found"
 msgstr ""
 
 msgid "Create Event form cannot be loaded"
+msgstr ""
+
+msgid "Disease Outbreak saved successfully"
 msgstr ""
 
 msgid "Incident Action Plan"
