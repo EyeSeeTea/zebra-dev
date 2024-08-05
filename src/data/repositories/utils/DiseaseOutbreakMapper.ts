@@ -74,23 +74,34 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
             ),
             laboratoryConfirmation: {
                 date: new Date(getValueFromMap("laboratoryConfirmationDate", trackedEntity)),
-                na: getValueFromMap("laboratoryConfirmationNA", trackedEntity) === "true",
+                na:
+                    getValueFromMap("laboratoryConfirmationNA", trackedEntity) === "true"
+                        ? false
+                        : true,
             },
             appropriateCaseManagement: {
                 date: new Date(getValueFromMap("appropriateCaseManagementDate", trackedEntity)),
-                na: getValueFromMap("appropriateCaseManagementNA", trackedEntity) === "true",
+                na:
+                    getValueFromMap("appropriateCaseManagementNA", trackedEntity) === "true"
+                        ? false
+                        : true,
             },
             initiatePublicHealthCounterMeasures: {
                 date: new Date(
-                    getValueFromMap("initiatePublicHealthCounterMeasuresNA", trackedEntity)
+                    getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity)
                 ),
                 na:
-                    getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity) ===
-                    "true",
+                    getValueFromMap("initiatePublicHealthCounterMeasuresNA", trackedEntity) ===
+                    "true"
+                        ? false
+                        : true,
             },
             initiateRiskCommunication: {
                 date: new Date(getValueFromMap("initiateRiskCommunicationDate", trackedEntity)),
-                na: getValueFromMap("initiateRiskCommunicationNA", trackedEntity) === "true",
+                na:
+                    getValueFromMap("initiateRiskCommunicationNA", trackedEntity) === "true"
+                        ? false
+                        : true,
             },
             establishCoordination: new Date(
                 getValueFromMap("establishCoordination", trackedEntity)
@@ -165,7 +176,7 @@ function getValueFromDiseaseOutbreak(
 ): string {
     switch (key) {
         case "RTSL_ZEB_TEA_EVENT_id":
-            return diseaseOutbreak.eventId.toString();
+            return diseaseOutbreak.eventId?.toString() || "";
         case "RTSL_ZEB_TEA_EVENT_NAME":
             return diseaseOutbreak.name;
         case "RTSL_ZEB_TEA_HAZARD_TYPE":
@@ -213,7 +224,7 @@ function getValueFromDiseaseOutbreak(
         case "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION":
             return diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.na ? "true" : "";
         case "RTSL_ZEB_TEA_SPECIFY_DATE1":
-            return diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date.toISOString();
+            return diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date?.toISOString();
         case "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT":
             return diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.na ? "true" : "";
         case "RTSL_ZEB_TEA_SPECIFY_DATE2":

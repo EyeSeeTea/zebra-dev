@@ -6,6 +6,7 @@ import { OrgUnit } from "../OrgUnit";
 import { Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
+import { ValidationError, ValidationErrorKey } from "../ValidationError";
 
 export type HazardType =
     | "Biological:Human"
@@ -38,7 +39,7 @@ type EarlyResponseActions = {
 };
 
 export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
-    eventId: number;
+    eventId: Maybe<number>;
     created: Date;
     lastUpdated: Date;
     createdByName: Maybe<string>;
@@ -52,12 +53,12 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     emerged: DateWithNarrative;
     detected: DateWithNarrative;
     notified: DateWithNarrative;
-    earlyResponseActions: EarlyResponseActions; //TO DO : mandatory field
+    earlyResponseActions: EarlyResponseActions;
     incidentManagerName: string;
     notes: Maybe<string>;
 };
 
-type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
+export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     createdBy: Maybe<TeamMember>;
     mainSyndrome: NamedRef;
     suspectedDisease: NamedRef;
@@ -76,7 +77,45 @@ type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
  **/
 
 export class DiseaseOutbreakEvent extends Struct<DiseaseOutbreakEventAttrs>() {
-    static validateEventName() {
-        //TO DO : Ensure event name is unique on event creation.
+    //TODO: Add required validations, this is an example:
+    static validate(data: DiseaseOutbreakEventBaseAttrs): ValidationError[] {
+        const validationErrors: ValidationError[] = [
+            {
+                property: "detected_date" as const,
+                errors: DiseaseOutbreakEvent.validateDateDetectedBeforeEmerged(data),
+                value: data.id,
+            },
+            {
+                property: "notified_date" as const,
+                errors: DiseaseOutbreakEvent.validateDateNotifiedBeforeEmerged(data),
+                value: data.id,
+            },
+        ];
+
+        const filteredValidationErrorsWithErrors = validationErrors.filter(
+            v => v.errors.length > 0
+        );
+
+        return filteredValidationErrorsWithErrors.length ? validationErrors : [];
+    }
+
+    static validateDateDetectedBeforeEmerged(
+        data: DiseaseOutbreakEventBaseAttrs
+    ): ValidationErrorKey[] {
+        return data.detected.date &&
+            data.emerged.date &&
+            data.detected.date.getTime() < data.emerged.date.getTime()
+            ? ["detected_before_emerged"]
+            : [];
+    }
+
+    static validateDateNotifiedBeforeEmerged(
+        data: DiseaseOutbreakEventBaseAttrs
+    ): ValidationErrorKey[] {
+        return data.notified.date &&
+            data.emerged.date &&
+            data.notified.date.getTime() < data.emerged.date.getTime()
+            ? ["notified_before_emerged"]
+            : [];
     }
 }
