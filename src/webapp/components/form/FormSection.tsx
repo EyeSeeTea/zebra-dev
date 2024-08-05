@@ -17,6 +17,7 @@ type FormSectionProps = {
     subsections?: FormSectionState[];
     fields: FormFieldState[];
     onUpdateField: (updatedField: FormFieldState) => void;
+    errorLabels?: Record<string, string>;
 };
 
 export const FormSection: React.FC<FormSectionProps> = React.memo(
@@ -30,6 +31,7 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
         subsections,
         fields,
         onUpdateField,
+        errorLabels,
     }) => {
         return (
             <FormSectionContainer>
@@ -61,6 +63,7 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
                                         field={field}
                                         disabled={field.disabled}
                                         onChange={onUpdateField}
+                                        errorLabels={errorLabels}
                                     />
                                 </FieldContainer>
                             );
@@ -84,6 +87,7 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
                                                 field={field}
                                                 disabled={field.disabled}
                                                 onChange={onUpdateField}
+                                                errorLabels={errorLabels}
                                             />
                                         </FieldContainer>
                                     );

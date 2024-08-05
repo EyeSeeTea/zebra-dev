@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 
+import i18n from "../../../utils/i18n";
 import { TextInput } from "../text-input/TextInput";
 import { UserSelector } from "../user-selector/UserSelector";
 import { MultipleSelector } from "../selector/MultipleSelector";
@@ -14,10 +15,11 @@ export type FieldWidgetProps = {
     onChange: (updatedField: FormFieldState) => void;
     field: FormFieldState;
     disabled?: boolean;
+    errorLabels?: Record<string, string>;
 };
 
 export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.Element => {
-    const { field, onChange, disabled = false } = props;
+    const { field, onChange, disabled = false, errorLabels } = props;
 
     const handleChange = useCallback(
         (newValue: FormFieldState["value"]) => {
@@ -31,7 +33,15 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
         label: field.label,
         onChange: handleChange,
         helperText: field.helperText,
-        errorText: field.errors ? field.errors.join("\n") : "",
+        errorText: field.errors
+            ? field.errors
+                  .map(error =>
+                      errorLabels && errorLabels[error]
+                          ? errorLabels[error]
+                          : i18n.t("There is an error in this field")
+                  )
+                  .join("\n")
+            : "",
         error: field.errors && field.errors.length > 0,
         required: field.required && field.showIsRequired,
         disabled: disabled,

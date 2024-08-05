@@ -8,13 +8,14 @@ import { Layout } from "../layout/Layout";
 
 export type FormProps = {
     formState: FormState;
-    onFormChange: (newFormState: FormState, updatedField: FormFieldState) => void;
+    errorLabels?: Record<string, string>;
+    onFormChange: (updatedField: FormFieldState) => void;
     onSave: () => void;
     onCancel?: () => void;
 };
 
 export const Form: React.FC<FormProps> = React.memo(props => {
-    const { formState, onFormChange, onSave, onCancel } = props;
+    const { formState, onFormChange, onSave, onCancel, errorLabels } = props;
 
     const { formLocalState, handleUpdateFormField } = useForm(formState, onFormChange);
 
@@ -44,6 +45,7 @@ export const Form: React.FC<FormProps> = React.memo(props => {
                             fields={section.fields}
                             onUpdateField={handleUpdateFormField}
                             onClickInfo={section.onClickInfo}
+                            errorLabels={errorLabels}
                         />
                     );
                 })}
