@@ -15,14 +15,40 @@ type D2User = SelectedPick<
         phoneNumber: true;
     }
 >;
+
 export class TeamMemberD2Repository implements TeamMemberRepository {
     constructor(private api: D2Api) {}
+
+    getAll(): FutureData<TeamMember[]> {
+        return apiToFuture(
+            this.api.metadata.get({
+                users: {
+                    fields: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        phoneNumber: true,
+                        username: true,
+                    },
+                },
+            })
+        ).map(response => {
+            if (!response.users) throw new Error("Team Members not found");
+            return response.users.map(this.mapUserToTeamMember);
+        });
+    }
 
     get(id: Id): FutureData<TeamMember> {
         return apiToFuture(
             this.api.metadata.get({
                 users: {
-                    fields: { id: true, name: true, email: true, phoneNumber: true },
+                    fields: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        phoneNumber: true,
+                        username: true,
+                    },
                     filter: { username: { eq: id } },
                 },
             })
@@ -32,9 +58,11 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
         });
     }
 
-    mapUserToTeamMember(user: D2User): TeamMember {
+    // TODO: Fix this type: Property 'username' does not exist on type 'D2User'
+    mapUserToTeamMember(user: any): TeamMember {
         return new TeamMember({
             id: user.id,
+            username: user.username,
             name: user.name,
             email: user.email,
             phone: user.phoneNumber,

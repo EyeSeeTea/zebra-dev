@@ -11,6 +11,7 @@ export type TeamRole = NamedRef & {
 };
 
 interface TeamMemberAttrs extends NamedRef {
+    username: string;
     phone: Maybe<PhoneNumber>;
     email: Maybe<Email>;
     status: Maybe<IncidentManagerStatus>;
