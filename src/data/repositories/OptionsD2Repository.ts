@@ -1,5 +1,5 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
-import { Code, Id, NamedRef } from "../../domain/entities/Ref";
+import { Code, NamedRef } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
 import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
 import { Future } from "../../domain/entities/generic/Future";
