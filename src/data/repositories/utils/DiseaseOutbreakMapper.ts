@@ -39,10 +39,10 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : new Date(),
         createdByName: undefined,
         hazardType: getValueFromMap("hazardType", trackedEntity) as HazardType,
-        mainSyndromeId: getValueFromMap("mainSyndrome", trackedEntity),
-        suspectedDiseaseId: getValueFromMap("suspectedDisease", trackedEntity),
+        mainSyndromeCode: getValueFromMap("mainSyndrome", trackedEntity),
+        suspectedDiseaseCode: getValueFromMap("suspectedDisease", trackedEntity),
 
-        notificationSourceId: getValueFromMap("notificationSource", trackedEntity),
+        notificationSourceCode: getValueFromMap("notificationSource", trackedEntity),
 
         areasAffectedProvinceIds: [getValueFromMap("areasAffectedProvinces", trackedEntity)].filter(
             ou => ou !== ""
@@ -82,10 +82,10 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
             },
             initiatePublicHealthCounterMeasures: {
                 date: new Date(
-                    getValueFromMap("initiatePublicHealthCounterMeasuresNA", trackedEntity)
+                    getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity)
                 ),
                 na:
-                    getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity) ===
+                    getValueFromMap("initiatePublicHealthCounterMeasuresNA", trackedEntity) ===
                     "true",
             },
             initiateRiskCommunication: {
@@ -183,11 +183,11 @@ function getValueFromDiseaseOutbreak(
             }
             break;
         case "RTSL_ZEB_TEA_MAIN_SYNDROME":
-            return diseaseOutbreak.mainSyndromeId;
+            return diseaseOutbreak.mainSyndromeCode;
         case "RTSL_ZEB_TEA_SUSPECTED_DISEASE":
-            return diseaseOutbreak.suspectedDiseaseId;
+            return diseaseOutbreak.suspectedDiseaseCode;
         case "RTSL_ZEB_TEA_NOTIFICATION_SOURCE":
-            return diseaseOutbreak.notificationSourceId;
+            return diseaseOutbreak.notificationSourceCode;
         case "RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES":
             return diseaseOutbreak.areasAffectedProvinceIds[0] ?? ""; //TO DO : Handle multiple provinces once metadata change is done
         case "RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS":
@@ -213,21 +213,33 @@ function getValueFromDiseaseOutbreak(
         case "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION":
             return diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.na ? "true" : "";
         case "RTSL_ZEB_TEA_SPECIFY_DATE1":
-            return diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date.toISOString();
+            return (
+                diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date?.toISOString() ??
+                ""
+            );
         case "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT":
             return diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.na ? "true" : "";
         case "RTSL_ZEB_TEA_SPECIFY_DATE2":
-            return diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.toISOString();
+            return (
+                diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.toISOString() ??
+                ""
+            );
         case "RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH":
             return diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.na
                 ? "true"
                 : "";
         case "RTSL_ZEB_TEA_SPECIFY_DATE3":
-            return diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.toISOString();
+            return (
+                diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.toISOString() ??
+                ""
+            );
         case "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION":
             return diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.na ? "true" : "";
         case "RTSL_ZEB_TEA_SPECIFY_DATE4":
-            return diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.toISOString();
+            return (
+                diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.toISOString() ??
+                ""
+            );
         case "RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM":
             return diseaseOutbreak.earlyResponseActions.establishCoordination.toISOString();
         case "RTSL_ZEB_TEA_RESPONSE_NARRATIVE":

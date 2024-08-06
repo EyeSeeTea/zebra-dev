@@ -18,18 +18,18 @@ export class GetDiseaseOutbreakByIdUseCase {
     public execute(id: Id): FutureData<DiseaseOutbreakEvent> {
         return this.diseaseOutbreakRepository.get(id).flatMap(diseaseOutbreakEventBase => {
             const {
-                mainSyndromeId,
-                suspectedDiseaseId,
-                notificationSourceId,
+                mainSyndromeCode,
+                suspectedDiseaseCode,
+                notificationSourceCode,
                 incidentManagerName,
                 areasAffectedDistrictIds,
                 areasAffectedProvinceIds,
             } = diseaseOutbreakEventBase;
 
             return Future.joinObj({
-                mainSyndrome: this.optionsRepository.get(mainSyndromeId),
-                suspectedDisease: this.optionsRepository.get(suspectedDiseaseId),
-                notificationSource: this.optionsRepository.get(notificationSourceId),
+                mainSyndrome: this.optionsRepository.get(mainSyndromeCode),
+                suspectedDisease: this.optionsRepository.get(suspectedDiseaseCode),
+                notificationSource: this.optionsRepository.get(notificationSourceCode),
                 incidentManager: incidentManagerName
                     ? this.teamMemberRepository.get(incidentManagerName)
                     : Future.success(undefined),

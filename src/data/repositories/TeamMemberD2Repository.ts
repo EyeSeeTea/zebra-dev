@@ -22,7 +22,13 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
         return apiToFuture(
             this.api.metadata.get({
                 users: {
-                    fields: { id: true, name: true, email: true, phoneNumber: true },
+                    fields: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        phoneNumber: true,
+                        username: true,
+                    },
                     filter: { username: { eq: id } },
                 },
             })
