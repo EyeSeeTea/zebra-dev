@@ -5,6 +5,7 @@ import {
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
+    DiseaseOutbreakCode,
     DiseaseOutbreakCodes,
     getValueFromDiseaseOutbreak,
     isHazardType,
@@ -123,6 +124,9 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs,
     attributesMetadata: D2TrackedEntityAttribute[]
 ): D2TrackerTrackedEntity {
+    const attributeValues: Record<DiseaseOutbreakCode, string> =
+        getValueFromDiseaseOutbreak(diseaseOutbreak);
+
     const attributes: Attribute[] = attributesMetadata.map(attribute => {
         if (!isStringInDiseaseOutbreakCodes(attribute.trackedEntityAttribute.code)) {
             throw new Error("Attribute code not found in DiseaseOutbreakCodes");
@@ -130,10 +134,11 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
         const typedCode: KeyCode = attribute.trackedEntityAttribute.code;
         const populatedAttribute = {
             attribute: attribute.trackedEntityAttribute.id,
-            value: getValueFromDiseaseOutbreak(typedCode, diseaseOutbreak),
+            value: attributeValues[typedCode],
         };
         return populatedAttribute;
     });
+
     const enrollment: D2TrackerEnrollment = {
         orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
         program: RTSL_ZEBRA_PROGRAM_ID,

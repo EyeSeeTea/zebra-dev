@@ -40,6 +40,8 @@ export const DiseaseOutbreakCodes = {
     notes: "RTSL_ZEB_TEA_NOTES",
 } as const;
 
+export type DiseaseOutbreakCode = GetValue<typeof DiseaseOutbreakCodes>;
+
 export type KeyCode = (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes];
 
 export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
@@ -57,94 +59,79 @@ export function isHazardType(hazardType: string): hazardType is HazardType {
 }
 
 export function getValueFromDiseaseOutbreak(
-    key: KeyCode,
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs
-): string {
-    switch (key) {
-        case "RTSL_ZEB_TEA_EVENT_id":
-            return diseaseOutbreak.eventId.toString();
-        case "RTSL_ZEB_TEA_EVENT_NAME":
-            return diseaseOutbreak.name;
-        case "RTSL_ZEB_TEA_HAZARD_TYPE":
-            switch (diseaseOutbreak.hazardType) {
-                case "Biological:Animal":
-                    return "BIOLOGICAL_ANIMAL";
-                case "Biological:Human":
-                    return "BIOLOGICAL_HUMAN";
-                case "Chemical":
-                    return "CHEMICAL";
-                case "Environmental":
-                    return "ENVIRONMENTAL";
-                case "Unknown":
-                    return "UNKNOWN";
-            }
-            break;
-        case "RTSL_ZEB_TEA_MAIN_SYNDROME":
-            return diseaseOutbreak.mainSyndromeCode;
-        case "RTSL_ZEB_TEA_SUSPECTED_DISEASE":
-            return diseaseOutbreak.suspectedDiseaseCode;
-        case "RTSL_ZEB_TEA_NOTIFICATION_SOURCE":
-            return diseaseOutbreak.notificationSourceCode;
-        case "RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES":
-            return getOUTextFromList(diseaseOutbreak.areasAffectedProvinceIds);
-        case "RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS":
-            return getOUTextFromList(diseaseOutbreak.areasAffectedDistrictIds);
-        case "RTSL_ZEB_TEA_INCIDENT_STATUS":
-            return diseaseOutbreak.incidentStatus;
-        case "RTSL_ZEB_TEA_DATE_EMERGED":
-            return diseaseOutbreak.emerged.date.toISOString();
-        case "RTSL_ZEB_TEA_DATE_EMERGED_NARRATIVE":
-            return diseaseOutbreak.emerged.narrative;
-        case "RTSL_ZEB_TEA_DATE_DETECTED":
-            return diseaseOutbreak.detected.date.toISOString();
-        case "RTSL_ZEB_TEA_DATE_DETECTED_NARRATIVE":
-            return diseaseOutbreak.detected.narrative;
-        case "RTSL_ZEB_TEA_DATE_NOTIFIED":
-            return diseaseOutbreak.notified.date.toISOString();
-        case "RTSL_ZEB_TEA_DATE_NOTIFIED_NARRATIVE":
-            return diseaseOutbreak.notified.narrative;
-        case "RTSL_ZEB_TEA_INITIATE_INVESTIGATION":
-            return diseaseOutbreak.earlyResponseActions.initiateInvestigation.toISOString();
-        case "RTSL_ZEB_TEA_CONDUCT_EPIDEMIOLOGICAL_ANALYSIS":
-            return diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis.toISOString();
-        case "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION":
-            return diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.na ? "true" : "";
-        case "RTSL_ZEB_TEA_SPECIFY_DATE1":
-            return (
-                diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date?.toISOString() ??
-                ""
-            );
-        case "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT":
-            return diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.na ? "true" : "";
-        case "RTSL_ZEB_TEA_SPECIFY_DATE2":
-            return (
-                diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.toISOString() ??
-                ""
-            );
-        case "RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH":
-            return diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.na
-                ? "true"
-                : "";
-        case "RTSL_ZEB_TEA_SPECIFY_DATE3":
-            return (
-                diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.toISOString() ??
-                ""
-            );
-        case "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION":
-            return diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.na ? "true" : "";
-        case "RTSL_ZEB_TEA_SPECIFY_DATE4":
-            return (
-                diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.toISOString() ??
-                ""
-            );
-        case "RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM":
-            return diseaseOutbreak.earlyResponseActions.establishCoordination.toISOString();
-        case "RTSL_ZEB_TEA_RESPONSE_NARRATIVE":
-            return diseaseOutbreak.earlyResponseActions.responseNarrative;
-        case "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER":
-            return diseaseOutbreak.incidentManagerName;
-        case "RTSL_ZEB_TEA_NOTES":
-            return diseaseOutbreak.notes ?? "";
+): Record<DiseaseOutbreakCode, string> {
+    return {
+        RTSL_ZEB_TEA_EVENT_id: diseaseOutbreak.eventId.toString(),
+        RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
+        RTSL_ZEB_TEA_HAZARD_TYPE: getHazardTypeCode(diseaseOutbreak.hazardType),
+        RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode,
+        RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode,
+        RTSL_ZEB_TEA_NOTIFICATION_SOURCE: diseaseOutbreak.notificationSourceCode,
+        RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES: getOUTextFromList(
+            diseaseOutbreak.areasAffectedProvinceIds
+        ),
+        RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS: getOUTextFromList(
+            diseaseOutbreak.areasAffectedDistrictIds
+        ),
+        RTSL_ZEB_TEA_INCIDENT_STATUS: diseaseOutbreak.incidentStatus,
+        RTSL_ZEB_TEA_DATE_EMERGED: diseaseOutbreak.emerged.date.toISOString(),
+        RTSL_ZEB_TEA_DATE_EMERGED_NARRATIVE: diseaseOutbreak.emerged.narrative,
+        RTSL_ZEB_TEA_DATE_DETECTED: diseaseOutbreak.detected.date.toISOString(),
+        RTSL_ZEB_TEA_DATE_DETECTED_NARRATIVE: diseaseOutbreak.detected.narrative,
+        RTSL_ZEB_TEA_DATE_NOTIFIED: diseaseOutbreak.notified.date.toISOString(),
+        RTSL_ZEB_TEA_DATE_NOTIFIED_NARRATIVE: diseaseOutbreak.notified.narrative,
+        RTSL_ZEB_TEA_INITIATE_INVESTIGATION:
+            diseaseOutbreak.earlyResponseActions.initiateInvestigation.toISOString(),
+        RTSL_ZEB_TEA_CONDUCT_EPIDEMIOLOGICAL_ANALYSIS:
+            diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis.toISOString(),
+        RTSL_ZEB_TEA_LABORATORY_CONFIRMATION: diseaseOutbreak.earlyResponseActions
+            .laboratoryConfirmation.na
+            ? "true"
+            : "",
+        RTSL_ZEB_TEA_SPECIFY_DATE1:
+            diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date?.toISOString() ?? "",
+        RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT: diseaseOutbreak.earlyResponseActions
+            .appropriateCaseManagement.na
+            ? "true"
+            : "",
+        RTSL_ZEB_TEA_SPECIFY_DATE2:
+            diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.toISOString() ??
+            "",
+        RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH: diseaseOutbreak.earlyResponseActions
+            .initiatePublicHealthCounterMeasures.na
+            ? "true"
+            : "",
+        RTSL_ZEB_TEA_SPECIFY_DATE3:
+            diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.toISOString() ??
+            "",
+        RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION: diseaseOutbreak.earlyResponseActions
+            .initiateRiskCommunication.na
+            ? "true"
+            : "",
+        RTSL_ZEB_TEA_SPECIFY_DATE4:
+            diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.toISOString() ??
+            "",
+        RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM:
+            diseaseOutbreak.earlyResponseActions.establishCoordination.toISOString(),
+        RTSL_ZEB_TEA_RESPONSE_NARRATIVE: diseaseOutbreak.earlyResponseActions.responseNarrative,
+        RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
+        RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
+    };
+}
+
+function getHazardTypeCode(hazardType: HazardType): string {
+    switch (hazardType) {
+        case "Biological:Animal":
+            return "BIOLOGICAL_ANIMAL";
+        case "Biological:Human":
+            return "BIOLOGICAL_HUMAN";
+        case "Chemical":
+            return "CHEMICAL";
+        case "Environmental":
+            return "ENVIRONMENTAL";
+        case "Unknown":
+            return "UNKNOWN";
     }
 }
 
