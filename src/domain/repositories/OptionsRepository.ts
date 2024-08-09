@@ -1,6 +1,6 @@
 import { FutureData } from "../../data/api-futures";
-import { Id, NamedRef } from "../entities/Ref";
+import { Id, Option } from "../entities/Ref";
 
 export interface OptionsRepository {
-    get(id: Id): FutureData<NamedRef>;
+    get(id: Id): FutureData<Option>;
 }

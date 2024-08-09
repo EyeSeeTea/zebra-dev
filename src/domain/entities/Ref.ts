@@ -13,10 +13,7 @@ export interface CodedNamedRef extends NamedRef {
     code: string;
 }
 
-export type Option = {
-    key: string;
-    values: CodedNamedRef[];
-};
+export type Option = NamedRef;
 
 export type ConfigLabel = {
     key: string;

@@ -1,4 +1,4 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { D2Api } from "../../types/d2-api";
 import { DiseaseOutbreakEventRepository } from "../../domain/repositories/DiseaseOutbreakEventRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -10,6 +10,7 @@ import {
 import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { getProgramTEAsMetadata } from "./utils/MetadataHelper";
+import { assertOrError } from "./utils/AssertOrError";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -22,11 +23,16 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 trackedEntity: id,
                 fields: { attributes: true, trackedEntity: true },
             })
-        ).map(trackedEntity => {
-            if (!trackedEntity.instances[0]) throw new Error("Tracked entity not found");
-            return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity.instances[0]);
-        });
+        )
+            .flatMap(
+                (response): FutureData<D2TrackerTrackedEntity> =>
+                    assertOrError(response.instances[0], "Tracked entity")
+            )
+            .map(trackedEntity => {
+                return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+            });
     }
+
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
         return apiToFuture(
             this.api.tracker.trackedEntities.get({
@@ -40,8 +46,9 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
             });
         });
     }
+
     save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<void> {
-        return apiToFuture(getProgramTEAsMetadata(this.api, RTSL_ZEBRA_PROGRAM_ID)).flatMap(
+        return getProgramTEAsMetadata(this.api, RTSL_ZEBRA_PROGRAM_ID).flatMap(
             teasMetadataResponse => {
                 const teasMetadata =
                     teasMetadataResponse.objects[0]?.programTrackedEntityAttributes;
@@ -64,6 +71,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
             }
         );
     }
+
     getConfigStrings(): FutureData<ConfigLabel[]> {
         throw new Error("Method not implemented.");
     }

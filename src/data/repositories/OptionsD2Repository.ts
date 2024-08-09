@@ -1,25 +1,25 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
-import { Code, NamedRef } from "../../domain/entities/Ref";
+import { D2Api } from "../../types/d2-api";
+import { Code, Option } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
 import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
-import { Future } from "../../domain/entities/generic/Future";
+import { assertOrError } from "./utils/AssertOrError";
 
 export class OptionsD2Repository implements OptionsRepository {
     constructor(private api: D2Api) {}
 
-    get(code: Code): FutureData<NamedRef> {
-        if (!code) return Future.success({ id: "", name: "" });
+    get(code: Code): FutureData<Option> {
         return apiToFuture(
             this.api.metadata.get({
                 options: { fields: { code: true, name: true }, filter: { code: { eq: code } } },
             })
-        ).map(response => {
-            if (!response.options[0]) throw new Error("Option not found");
-            const option: NamedRef = {
-                id: response.options[0].code,
-                name: response.options[0].name,
-            };
-            return option;
-        });
+        )
+            .flatMap(response => assertOrError(response.options[0], "Option"))
+            .map(d2Option => {
+                const option: Option = {
+                    id: d2Option.code,
+                    name: d2Option.name,
+                };
+                return option;
+            });
     }
 }
