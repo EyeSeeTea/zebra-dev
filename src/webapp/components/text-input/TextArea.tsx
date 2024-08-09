@@ -1,6 +1,7 @@
-import React, { useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { FormHelperText, TextareaAutosize } from "@material-ui/core";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type TextAreaProps = {
     id: string;
@@ -26,12 +27,14 @@ export const TextArea: React.FC<TextAreaProps> = React.memo(
         error = false,
         required = false,
     }) => {
-        const handleChange = useCallback(
-            (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-                onChange(event.target.value);
-            },
-            [onChange]
-        );
+        const [textFieldValue, setTextFieldValue] = useState(value || "");
+        const debouncedTextFieldValue = useDebounce(textFieldValue);
+
+        useEffect(() => {
+            if (debouncedTextFieldValue !== value) {
+                onChange(debouncedTextFieldValue);
+            }
+        }, [debouncedTextFieldValue, onChange, value]);
 
         return (
             <Container>
@@ -44,8 +47,8 @@ export const TextArea: React.FC<TextAreaProps> = React.memo(
                 <StyledTextareaAutosize
                     id={id}
                     aria-label={label || `${id}-label`}
-                    value={value}
-                    onChange={handleChange}
+                    value={textFieldValue}
+                    onChange={event => setTextFieldValue(event.target.value)}
                     minRows={3}
                     disabled={disabled}
                     $hasError={error}

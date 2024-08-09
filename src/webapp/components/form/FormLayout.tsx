@@ -13,10 +13,20 @@ type FormLayoutProps = {
     children: React.ReactNode;
     onSave: () => void;
     onCancel?: () => void;
+    disableSave?: boolean;
 };
 
 export const FormLayout: React.FC<FormLayoutProps> = React.memo(
-    ({ title, subtitle, saveLabel, cancelLabel, children, onSave, onCancel }) => {
+    ({
+        title,
+        subtitle,
+        saveLabel,
+        cancelLabel,
+        children,
+        onSave,
+        onCancel,
+        disableSave = false,
+    }) => {
         return (
             <StyledFormLayout>
                 <Header>
@@ -34,12 +44,14 @@ export const FormLayout: React.FC<FormLayoutProps> = React.memo(
                     <Separator margin="12px" />
 
                     <ButtonsFooter>
-                        <Button onClick={onSave}>{saveLabel || i18n.t("Save")}</Button>
                         {onCancel && (
                             <Button onClick={onCancel} variant="outlined" color="secondary">
                                 {cancelLabel || i18n.t("Cancel")}
                             </Button>
                         )}
+                        <Button onClick={onSave} disabled={disableSave}>
+                            {saveLabel || i18n.t("Save")}
+                        </Button>
                     </ButtonsFooter>
                 </Footer>
             </StyledFormLayout>
@@ -65,7 +77,7 @@ const Footer = styled.div``;
 const ButtonsFooter = styled.div`
     margin-block-start: 48px;
     display: flex;
-    gap: 48px;
+    justify-content: space-between;
 `;
 
 const TitleContainer = styled.div`

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-07-10T13:58:01.688Z\n"
-"PO-Revision-Date: 2024-07-10T13:58:01.688Z\n"
+"POT-Creation-Date: 2024-08-05T08:04:28.112Z\n"
+"PO-Revision-Date: 2024-08-05T08:04:28.112Z\n"
 
 msgid "Low"
 msgstr ""
@@ -66,10 +66,10 @@ msgstr ""
 msgid "Indicates required"
 msgstr ""
 
-msgid "Save"
+msgid "Cancel"
 msgstr ""
 
-msgid "Cancel"
+msgid "Save"
 msgstr ""
 
 msgid "Create Event"
@@ -90,6 +90,9 @@ msgstr ""
 msgid "% Target Met"
 msgstr ""
 
+msgid "Status: "
+msgstr ""
+
 msgid "Dashboard"
 msgstr ""
 
@@ -97,6 +100,12 @@ msgid "Respond, alert, watch"
 msgstr ""
 
 msgid "Event Tracker"
+msgstr ""
+
+msgid "Page Not Found"
+msgstr ""
+
+msgid "Create Event form cannot be loaded"
 msgstr ""
 
 msgid "Incident Action Plan"
