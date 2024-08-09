@@ -4,6 +4,7 @@ import { IconSearch24 } from "@dhis2/ui";
 import styled from "styled-components";
 
 import i18n from "../../../utils/i18n";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type SearchInputProps = {
     value: string;
@@ -17,25 +18,13 @@ const INPUT_PROPS = { "aria-label": "search" };
 export const SearchInput: React.FC<SearchInputProps> = React.memo(
     ({ value, onChange, placeholder = "", disabled = false }) => {
         const [stateValue, updateStateValue] = useState(value);
+        const debouncedValue = useDebounce(stateValue);
 
-        useEffect(() => updateStateValue(value), [value]);
-
-        const onChangeDebounced = React.useMemo(
-            () =>
-                debounce((value: string) => {
-                    if (onChange) onChange(value);
-                }, 400),
-            [onChange]
-        );
-
-        const handleChange = useCallback(
-            (event: React.ChangeEvent<HTMLInputElement>) => {
-                const value = event.target.value;
-                onChangeDebounced(value);
-                updateStateValue(value);
-            },
-            [onChangeDebounced, updateStateValue]
-        );
+        useEffect(() => {
+            if (debouncedValue !== value) {
+                onChange(debouncedValue);
+            }
+        }, [debouncedValue, onChange, value]);
 
         const handleKeydown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
             event.stopPropagation();
@@ -48,7 +37,7 @@ export const SearchInput: React.FC<SearchInputProps> = React.memo(
                 </IconContainer>
 
                 <StyledTextField
-                    onChange={handleChange}
+                    onChange={event => updateStateValue(event.target.value)}
                     placeholder={placeholder || i18n.t("Search")}
                     value={stateValue}
                     role="searchbox"
@@ -61,19 +50,6 @@ export const SearchInput: React.FC<SearchInputProps> = React.memo(
         );
     }
 );
-
-function debounce<F extends (...args: any[]) => any>(func: F, delay: number) {
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-
-    const debounced = (...args: Parameters<F>): void => {
-        if (timeout !== null) {
-            clearTimeout(timeout);
-        }
-        timeout = setTimeout(() => func(...args), delay);
-    };
-
-    return debounced;
-}
 
 const Container = styled.div`
     display: flex;

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-07-01T02:04:44.570Z\n"
-"PO-Revision-Date: 2024-07-01T02:04:44.570Z\n"
+"POT-Creation-Date: 2024-08-05T08:04:28.112Z\n"
+"PO-Revision-Date: 2024-08-05T08:04:28.112Z\n"
 
 msgid "Low"
 msgstr ""
@@ -32,10 +32,14 @@ msgstr ""
 msgid "Within a province with more than one district affected"
 msgstr ""
 
-msgid "More than one province affected with high threat of spread locally and internationally"
+msgid ""
+"More than one province affected with high threat of spread locally and "
+"internationally"
 msgstr ""
 
-msgid "Available within the district with support from provincial and national level"
+msgid ""
+"Available within the district with support from provincial and national "
+"level"
 msgstr ""
 
 msgid "Available within the province with minimal support from national level"
@@ -62,10 +66,10 @@ msgstr ""
 msgid "Indicates required"
 msgstr ""
 
-msgid "Save"
+msgid "Cancel"
 msgstr ""
 
-msgid "Cancel"
+msgid "Save"
 msgstr ""
 
 msgid "Create Event"
@@ -80,6 +84,15 @@ msgstr ""
 msgid "Last updated: "
 msgstr ""
 
+msgid "Median"
+msgstr ""
+
+msgid "% Target Met"
+msgstr ""
+
+msgid "Status: "
+msgstr ""
+
 msgid "Dashboard"
 msgstr ""
 
@@ -87,6 +100,12 @@ msgid "Respond, alert, watch"
 msgstr ""
 
 msgid "Event Tracker"
+msgstr ""
+
+msgid "Page Not Found"
+msgstr ""
+
+msgid "Create Event form cannot be loaded"
 msgstr ""
 
 msgid "Incident Action Plan"

@@ -8,7 +8,7 @@ type RadioButtonsGroupProps<Value extends string = string> = {
     id: string;
     selected: string;
     label?: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (value: string) => void;
     options: Option<Value>[];
     gap?: string;
     helperText?: string;
@@ -31,6 +31,13 @@ export function RadioButtonsGroup<Value extends string>({
     disabled = false,
     required = false,
 }: RadioButtonsGroupProps<Value>): JSX.Element {
+    const handleChange = React.useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            onChange(event.target.value);
+        },
+        [onChange]
+    );
+
     return (
         <Container>
             {label && (
@@ -43,7 +50,7 @@ export function RadioButtonsGroup<Value extends string>({
                 aria-label={id}
                 name={id}
                 value={selected}
-                onChange={onChange}
+                onChange={handleChange}
                 gap={gap}
             >
                 {options.map(option => (

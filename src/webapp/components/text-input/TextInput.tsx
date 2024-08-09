@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TextField, InputLabel } from "@material-ui/core";
 import styled from "styled-components";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type TextInputProps = {
     id: string;
     label?: string;
     value: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (newValue: string) => void;
     helperText?: string;
     errorText?: string;
     required?: boolean;
@@ -26,6 +27,15 @@ export const TextInput: React.FC<TextInputProps> = React.memo(
         disabled = false,
         error = false,
     }) => {
+        const [textFieldValue, setTextFieldValue] = useState<string>(value || "");
+        const debouncedTextFieldValue = useDebounce(textFieldValue);
+
+        useEffect(() => {
+            if (debouncedTextFieldValue !== value) {
+                onChange(debouncedTextFieldValue);
+            }
+        }, [debouncedTextFieldValue, onChange, value]);
+
         return (
             <Container>
                 {label && (
@@ -36,8 +46,8 @@ export const TextInput: React.FC<TextInputProps> = React.memo(
 
                 <StyledTextField
                     id={id}
-                    value={value}
-                    onChange={onChange}
+                    value={textFieldValue}
+                    onChange={event => setTextFieldValue(event.target.value)}
                     helperText={error && !!errorText ? errorText : helperText}
                     error={error}
                     disabled={disabled}
