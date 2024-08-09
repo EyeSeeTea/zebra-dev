@@ -1,4 +1,5 @@
 export const RTSL_ZEBRA_PROGRAM_ID = "qkOTdxkte8V";
+export const RTSL_ZEBRA_ALERTS_PROGRAM_ID = "MQtbs8UkBxy";
 export const RTSL_ZEBRA_ORG_UNIT_ID = "PS5JpkoHHio";
 export const RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID = "lIzNjLOUAKA";
 
@@ -8,6 +9,8 @@ export const DiseaseOutbreakCodes = {
     hazardType: "RTSL_ZEB_TEA_HAZARD_TYPE",
     mainSyndrome: "RTSL_ZEB_TEA_MAIN_SYNDROME",
     suspectedDisease: "RTSL_ZEB_TEA_SUSPECTED_DISEASE",
+    nationalSuspectedDisease: "RTSL_ZEB_TEA_DISEASE",
+    nationalEventId: "RTSL_ZEB_TEA_NATIONAL_EVENT_id",
     notificationSource: "RTSL_ZEB_TEA_NOTIFICATION_SOURCE",
     areasAffectedProvinces: "RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES",
     areasAffectedDistricts: "RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS",

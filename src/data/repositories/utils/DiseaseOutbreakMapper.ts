@@ -15,7 +15,7 @@ import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2TrackedEntityAttributeSchema } from "@eyeseetea/d2-api/2.36";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 
-type D2TrackedEntityAttribute = {
+export type D2TrackedEntityAttribute = {
     trackedEntityAttribute: SelectedPick<
         D2TrackedEntityAttributeSchema,
         {
@@ -163,19 +163,20 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
     return trackedEntity;
 }
 
-function getValueFromMap(
+export function getValueFromMap(
     key: keyof typeof DiseaseOutbreakCodes,
     trackedEntity: D2TrackerTrackedEntity
 ): string {
     return trackedEntity.attributes?.find(a => a.code === DiseaseOutbreakCodes[key])?.value ?? "";
 }
 
-function getValueFromDiseaseOutbreak(
+export function getValueFromDiseaseOutbreak(
     key: (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs
 ): string {
     switch (key) {
         case "RTSL_ZEB_TEA_EVENT_id":
+        case "RTSL_ZEB_TEA_NATIONAL_EVENT_id":
             return diseaseOutbreak.eventId?.toString() || "";
         case "RTSL_ZEB_TEA_EVENT_NAME":
             return diseaseOutbreak.name;
@@ -195,6 +196,7 @@ function getValueFromDiseaseOutbreak(
             break;
         case "RTSL_ZEB_TEA_MAIN_SYNDROME":
             return diseaseOutbreak.mainSyndromeId;
+        case "RTSL_ZEB_TEA_DISEASE":
         case "RTSL_ZEB_TEA_SUSPECTED_DISEASE":
             return diseaseOutbreak.suspectedDiseaseId;
         case "RTSL_ZEB_TEA_NOTIFICATION_SOURCE":

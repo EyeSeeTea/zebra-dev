@@ -28,7 +28,7 @@ export const Form: React.FC<FormProps> = React.memo(props => {
                 onCancel={onCancel}
                 saveLabel={formLocalState.saveButtonLabel}
                 cancelLabel={formLocalState.cancelButtonLabel}
-                disableSave={!formLocalState.isValid}
+                // disableSave={!formLocalState.isValid}
             >
                 {formLocalState.sections.map(section => {
                     if (!section.isVisible) return null;

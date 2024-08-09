@@ -131,7 +131,21 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
         //         });
         //     }
         // );
-    }, [currentUser.username, diseaseOutbreakEventWithOptions, formState]);
+
+        compositionRoot.diseaseOutbreakEvent.mapOutbreakToDistrict.execute().run(
+            data => {
+                console.debug({ data });
+            },
+            err => {
+                console.error({ err });
+            }
+        );
+    }, [
+        compositionRoot.diseaseOutbreakEvent.mapOutbreakToDistrict,
+        currentUser.username,
+        diseaseOutbreakEventWithOptions,
+        formState,
+    ]);
 
     const onCancelForm = useCallback(() => {
         goTo(RouteName.DASHBOARD);
