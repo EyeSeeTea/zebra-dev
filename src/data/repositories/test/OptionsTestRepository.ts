@@ -1,10 +1,10 @@
 import { Future } from "../../../domain/entities/generic/Future";
-import { CodedNamedRef, Id, NamedRef } from "../../../domain/entities/Ref";
+import { CodedNamedRef, Id, Option } from "../../../domain/entities/Ref";
 import { OptionsRepository } from "../../../domain/repositories/OptionsRepository";
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
-    get(id: Id): FutureData<NamedRef> {
+    get(id: Id): FutureData<Option> {
         return Future.success({ id: id, name: "Test Option" });
     }
 

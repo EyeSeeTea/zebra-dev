@@ -1,4 +1,5 @@
 export type Id = string;
+export type Code = string;
 
 export interface Ref {
     id: Id;
@@ -12,10 +13,7 @@ export interface CodedNamedRef extends NamedRef {
     code: string;
 }
 
-export type Option = {
-    key: string;
-    values: CodedNamedRef[];
-};
+export type Option = NamedRef;
 
 export type ConfigLabel = {
     key: string;

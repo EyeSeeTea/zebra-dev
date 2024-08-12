@@ -1,4 +1,5 @@
-import { D2Api, D2OrganisationUnitSchema, SelectedPick } from "@eyeseetea/d2-api/2.36";
+import { D2OrganisationUnitSchema, SelectedPick } from "@eyeseetea/d2-api/2.36";
+import { D2Api } from "../../types/d2-api";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { Id } from "../../domain/entities/Ref";
 import { OrgUnitRepository } from "../../domain/repositories/OrgUnitRepository";
@@ -51,7 +52,15 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
                 },
             })
         ).map(response => {
-            const orgUnits: OrgUnit[] = this.mapD2OrgUnitsToOrgUnits(response.organisationUnits);
+            const orgUnits: OrgUnit[] = response.organisationUnits.map((ou): OrgUnit => {
+                return {
+                    id: ou.id,
+                    name: ou.name,
+                    code: ou.code,
+                    level: ou.level === 2 ? "Province" : "District",
+                };
+            });
+
             return orgUnits;
         });
     }

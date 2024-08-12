@@ -14,9 +14,9 @@ import { Option } from "../../../../components/utils/option";
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
     hazardType: "hazardType",
-    mainSyndromeId: "mainSyndromeId",
-    suspectedDiseaseId: "suspectedDiseaseId",
-    notificationSourceId: "notificationSourceId",
+    mainSyndromeCode: "mainSyndromeCode",
+    suspectedDiseaseCode: "suspectedDiseaseCode",
+    notificationSourceCode: "notificationSourceCode",
     areasAffectedProvinceIds: "areasAffectedProvinceIds",
     areasAffectedDistrictIds: "areasAffectedDistrictIds",
     incidentStatus: "incidentStatus",
@@ -133,7 +133,7 @@ export function mapEntityToInitialFormState(
                 fields: [
                     {
                         id: getFieldIdFromIdsDictionary(
-                            "mainSyndromeId",
+                            "mainSyndromeCode",
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select a syndrome",
@@ -142,7 +142,7 @@ export function mapEntityToInitialFormState(
                         type: "select",
                         multiple: false,
                         options: mainSyndromesOptions,
-                        value: diseaseOutbreakEvent?.mainSyndromeId || "",
+                        value: diseaseOutbreakEvent?.mainSyndromeCode || "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -157,7 +157,7 @@ export function mapEntityToInitialFormState(
                 fields: [
                     {
                         id: getFieldIdFromIdsDictionary(
-                            "suspectedDiseaseId",
+                            "suspectedDiseaseCode",
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select a disease",
@@ -166,7 +166,7 @@ export function mapEntityToInitialFormState(
                         type: "select",
                         multiple: false,
                         options: suspectedDiseasesOptions,
-                        value: diseaseOutbreakEvent?.suspectedDiseaseId || "",
+                        value: diseaseOutbreakEvent?.suspectedDiseaseCode || "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -181,7 +181,7 @@ export function mapEntityToInitialFormState(
                 fields: [
                     {
                         id: getFieldIdFromIdsDictionary(
-                            "notificationSourceId",
+                            "notificationSourceCode",
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select source",
@@ -190,7 +190,7 @@ export function mapEntityToInitialFormState(
                         type: "select",
                         multiple: false,
                         options: notificationSourcesOptions,
-                        value: diseaseOutbreakEvent?.notificationSourceId || "",
+                        value: diseaseOutbreakEvent?.notificationSourceCode || "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -709,12 +709,12 @@ export function mapFormStateToEntityData(
     const diseaseOutbreakEventEditableData = {
         name: getFieldValueById(diseaseOutbreakEventFieldIds.name, allFields) || "",
         hazardType: getFieldValueById(diseaseOutbreakEventFieldIds.hazardType, allFields) || "",
-        mainSyndromeId:
-            getFieldValueById(diseaseOutbreakEventFieldIds.mainSyndromeId, allFields) || "",
-        suspectedDiseaseId:
-            getFieldValueById(diseaseOutbreakEventFieldIds.suspectedDiseaseId, allFields) || "",
-        notificationSourceId:
-            getFieldValueById(diseaseOutbreakEventFieldIds.notificationSourceId, allFields) || "",
+        mainSyndromeCode:
+            getFieldValueById(diseaseOutbreakEventFieldIds.mainSyndromeCode, allFields) || "",
+        suspectedDiseaseCode:
+            getFieldValueById(diseaseOutbreakEventFieldIds.suspectedDiseaseCode, allFields) || "",
+        notificationSourceCode:
+            getFieldValueById(diseaseOutbreakEventFieldIds.notificationSourceCode, allFields) || "",
         areasAffectedProvinceIds:
             getFieldValueById(diseaseOutbreakEventFieldIds.areasAffectedProvinceIds, allFields) ||
             [],

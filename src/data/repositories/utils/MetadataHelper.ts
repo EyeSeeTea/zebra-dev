@@ -1,21 +1,22 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { D2Api } from "../../../types/d2-api";
+import { apiToFuture } from "../../api-futures";
 
 export function getProgramTEAsMetadata(api: D2Api, programId: string) {
-    const teasMetadataResponse = api.models.programs.get({
-        fields: {
-            id: true,
-            programTrackedEntityAttributes: {
-                trackedEntityAttribute: {
-                    id: true,
-                    valueType: true,
-                    code: true,
+    return apiToFuture(
+        api.models.programs.get({
+            fields: {
+                id: true,
+                programTrackedEntityAttributes: {
+                    trackedEntityAttribute: {
+                        id: true,
+                        valueType: true,
+                        code: true,
+                    },
                 },
             },
-        },
-        filter: {
-            id: { eq: programId },
-        },
-    });
-
-    return teasMetadataResponse;
+            filter: {
+                id: { eq: programId },
+            },
+        })
+    );
 }

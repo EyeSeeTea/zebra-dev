@@ -1,9 +1,10 @@
-import { D2Api, D2UserSchema } from "@eyeseetea/d2-api/2.36";
+import { D2Api, D2UserSchema } from "../../types/d2-api";
 import { TeamMember } from "../../domain/entities/incident-management-team/TeamMember";
 import { Id } from "../../domain/entities/Ref";
 import { TeamMemberRepository } from "../../domain/repositories/TeamMemberRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import { SelectedPick } from "@eyeseetea/d2-api/api";
+import { assertOrError } from "./utils/AssertOrError";
 
 type D2User = SelectedPick<
     D2UserSchema,
@@ -52,10 +53,11 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
                     filter: { username: { eq: id } },
                 },
             })
-        ).map(response => {
-            if (!response.users[0]) throw new Error("Team Member not found");
-            return this.mapUserToTeamMember(response.users[0]);
-        });
+        )
+            .flatMap(response => assertOrError(response.users[0], "Team member"))
+            .map(D2User => {
+                return this.mapUserToTeamMember(D2User);
+            });
     }
 
     // TODO: Fix this type: Property 'username' does not exist on type 'D2User'

@@ -23,7 +23,7 @@ type DateWithNarrative = {
 };
 
 type DateWithNA = {
-    date: Date;
+    date: Maybe<Date>;
     na: Maybe<boolean>;
 };
 
@@ -44,9 +44,9 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     lastUpdated: Date;
     createdByName: Maybe<string>;
     hazardType: HazardType;
-    mainSyndromeId: Id;
-    suspectedDiseaseId: Id;
-    notificationSourceId: Id;
+    mainSyndromeCode: Id;
+    suspectedDiseaseCode: Id;
+    notificationSourceCode: Id;
     areasAffectedProvinceIds: Id[];
     areasAffectedDistrictIds: Id[];
     incidentStatus: IncidentStatusType;

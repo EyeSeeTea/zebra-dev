@@ -1,7 +1,10 @@
-import { D2Api, D2OptionSetSchema, SelectedPick } from "@eyeseetea/d2-api/2.36";
-import { CodedNamedRef, Id, NamedRef } from "../../domain/entities/Ref";
+import { D2OptionSetSchema, SelectedPick } from "@eyeseetea/d2-api/2.36";
+import { CodedNamedRef } from "../../domain/entities/Ref";
+import { D2Api } from "../../types/d2-api";
+import { Code, Option } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
 import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
+import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
 
 type D2OptionSet = SelectedPick<
@@ -17,20 +20,20 @@ type D2OptionSet = SelectedPick<
 export class OptionsD2Repository implements OptionsRepository {
     constructor(private api: D2Api) {}
 
-    get(id: Id): FutureData<NamedRef> {
-        if (!id) return Future.success({ id: "", name: "" });
+    get(code: Code): FutureData<Option> {
         return apiToFuture(
             this.api.metadata.get({
-                options: { fields: { id: true, name: true }, filter: { code: { eq: id } } },
+                options: { fields: { code: true, name: true }, filter: { code: { eq: code } } },
             })
-        ).map(response => {
-            if (!response.options[0]) throw new Error("Option not found");
-            const option: NamedRef = {
-                id: response.options[0].id,
-                name: response.options[0].name,
-            };
-            return option;
-        });
+        )
+            .flatMap(response => assertOrError(response.options[0], "Option"))
+            .map(d2Option => {
+                const option: Option = {
+                    id: d2Option.code,
+                    name: d2Option.name,
+                };
+                return option;
+            });
     }
 
     getAllHazardTypes(): FutureData<CodedNamedRef[]> {
