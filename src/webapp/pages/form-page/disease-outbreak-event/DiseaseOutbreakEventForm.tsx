@@ -7,6 +7,7 @@ import { Form } from "../../../components/form/Form";
 import { Id } from "../../../../domain/entities/Ref";
 import { Layout } from "../../../components/layout/Layout";
 import { Loader } from "../../../components/loader/Loader";
+import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 
 type DiseaseOutbreakEventFormProps = {
     diseaseOutbreakEventId?: Id;
@@ -17,9 +18,18 @@ export const DiseaseOutbreakEventForm: React.FC<DiseaseOutbreakEventFormProps> =
     props => {
         const { diseaseOutbreakEventId } = props;
 
+        const { goTo } = useRoutes();
         const snackbar = useSnackbar();
-        const { formLabels, globalMessage, formState, handleFormChange, onSaveForm, onCancelForm } =
-            useDiseaseOutbreakEventForm(diseaseOutbreakEventId);
+        const {
+            formLabels,
+            globalMessage,
+            formState,
+            isSaved,
+            isLoading,
+            handleFormChange,
+            onSaveForm,
+            onCancelForm,
+        } = useDiseaseOutbreakEventForm(diseaseOutbreakEventId);
 
         useEffect(() => {
             if (!globalMessage) return;
@@ -27,7 +37,13 @@ export const DiseaseOutbreakEventForm: React.FC<DiseaseOutbreakEventFormProps> =
             snackbar[globalMessage.type](globalMessage.text);
         }, [globalMessage, snackbar]);
 
-        return formState.kind === "loading" ? (
+        useEffect(() => {
+            if (isSaved) {
+                goTo(RouteName.DASHBOARD);
+            }
+        }, [goTo, isSaved]);
+
+        return formState.kind === "loading" || isLoading ? (
             <Layout hideSideBarOptions>
                 <Loader />
             </Layout>

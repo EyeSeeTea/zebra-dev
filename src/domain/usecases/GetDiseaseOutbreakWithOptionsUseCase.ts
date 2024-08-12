@@ -10,17 +10,21 @@ import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 
 export class GetDiseaseOutbreakWithOptionsUseCase {
     constructor(
-        private diseaseOutbreakRepository: DiseaseOutbreakEventRepository,
-        private optionsRepository: OptionsRepository,
-        private teamMemberRepository: TeamMemberRepository,
-        private orgUnitRepository: OrgUnitRepository
+        private options: {
+            diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
+            optionsRepository: OptionsRepository;
+            teamMemberRepository: TeamMemberRepository;
+            orgUnitRepository: OrgUnitRepository;
+        }
     ) {}
 
     public execute(id?: Id): FutureData<DiseaseOutbreakEventWithOptions> {
         if (id) {
-            return this.diseaseOutbreakRepository.get(id).flatMap(diseaseOutbreakEventBase => {
-                return this.getDiseaseOutbreakEventWithOptions(diseaseOutbreakEventBase);
-            });
+            return this.options.diseaseOutbreakEventRepository
+                .get(id)
+                .flatMap(diseaseOutbreakEventBase => {
+                    return this.getDiseaseOutbreakEventWithOptions(diseaseOutbreakEventBase);
+                });
         } else {
             return this.getDiseaseOutbreakEventWithOptions();
         }
@@ -30,13 +34,13 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
         diseaseOutbreakEventBase?: DiseaseOutbreakEventBaseAttrs
     ): FutureData<DiseaseOutbreakEventWithOptions> {
         return Future.joinObj({
-            hazardTypes: this.optionsRepository.getAllHazardTypes(),
-            mainSyndromes: this.optionsRepository.getAllMainSyndromes(),
-            suspectedDiseases: this.optionsRepository.getAllSuspectedDiseases(),
-            notificationSources: this.optionsRepository.getAllNotificationSources(),
-            organisationUnits: this.orgUnitRepository.getAll(),
-            incidentStatus: this.optionsRepository.getAllIncidentStatus(),
-            teamMembers: this.teamMemberRepository.getAll(),
+            hazardTypes: this.options.optionsRepository.getAllHazardTypes(),
+            mainSyndromes: this.options.optionsRepository.getAllMainSyndromes(),
+            suspectedDiseases: this.options.optionsRepository.getAllSuspectedDiseases(),
+            notificationSources: this.options.optionsRepository.getAllNotificationSources(),
+            organisationUnits: this.options.orgUnitRepository.getAll(),
+            incidentStatus: this.options.optionsRepository.getAllIncidentStatus(),
+            teamMembers: this.options.teamMemberRepository.getAll(),
         }).flatMap(
             ({
                 hazardTypes,
@@ -58,7 +62,7 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                         notificationSources,
                         incidentStatus,
                     },
-                    // TODO: Get labels form Datastore
+                    // TODO: Get labels form Datastore used in mapEntityToInitialFormState to create initial form state
                     labels: {
                         errors: {
                             field_is_required: "This field is required",

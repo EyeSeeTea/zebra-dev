@@ -97,11 +97,35 @@ export function getAllFieldsFromSections(formSections: FormSectionState[]): Form
     );
 }
 
-export function getFieldValueById(
+export function getStringFieldValue(id: string, allFields: FormFieldState[]): string {
+    return (
+        getFieldValueById<FormTextFieldState | FormOptionsFieldState | FormAvatarFieldState>(
+            id,
+            allFields
+        ) || ""
+    );
+}
+
+export function getDateFieldValue(id: string, allFields: FormFieldState[]): Date | null {
+    return getFieldValueById<FormDateFieldState>(id, allFields) || null;
+}
+
+export function getBooleanFieldValue(id: string, allFields: FormFieldState[]): boolean {
+    return !!getFieldValueById<FormBooleanFieldState>(id, allFields);
+}
+
+export function getMultipleOptionsFieldValue(id: string, allFields: FormFieldState[]): string[] {
+    return getFieldValueById<FormMultipleOptionsFieldState>(id, allFields) || [];
+}
+
+export function getFieldValueById<F extends FormFieldState>(
     id: string,
     fields: FormFieldState[]
-): FormFieldState["value"] | undefined {
-    return fields.find(field => field.id === id)?.value;
+): F["value"] | undefined {
+    const field = fields.find(field => field.id === id);
+    if (field) {
+        return getFieldValue<F>(field);
+    }
 }
 
 export function getFieldIdFromIdsDictionary<T extends Record<string, string>>(
@@ -111,7 +135,7 @@ export function getFieldIdFromIdsDictionary<T extends Record<string, string>>(
     return fieldIdsDictionary[key] as string;
 }
 
-function getEmptyValueForFieldType(field: FormFieldState): FormFieldState["value"] {
+function getEmptyValueForField<F extends FormFieldState>(field: FormFieldState): F["value"] {
     switch (field.type) {
         case "text":
             return "";
@@ -126,6 +150,10 @@ function getEmptyValueForFieldType(field: FormFieldState): FormFieldState["value
         case "user":
             return undefined;
     }
+}
+
+function getFieldValue<F extends FormFieldState>(field: FormFieldState): F["value"] {
+    return field.value;
 }
 
 // UPDATES:
@@ -182,11 +210,14 @@ function applyEffectNotApplicableFieldUpdatedInSection(
                     f => f.notApplicableFieldId === field.id
                 );
 
+                // TODO fix this: return value type
+                const fieldValue = (
+                    notApplicableField?.value ? getEmptyValueForField(field) : getFieldValue(field)
+                ) as any;
+
                 return {
                     ...field,
-                    value: notApplicableField?.value
-                        ? (getEmptyValueForFieldType(field) as any) // TODO fix this: return value type
-                        : field.value,
+                    value: fieldValue,
                     disabled: !!notApplicableField?.value,
                 };
             }

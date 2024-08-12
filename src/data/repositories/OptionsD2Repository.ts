@@ -1,21 +1,9 @@
-import { D2OptionSetSchema, SelectedPick } from "@eyeseetea/d2-api/2.36";
-import { CodedNamedRef } from "../../domain/entities/Ref";
-import { D2Api } from "../../types/d2-api";
+import { D2Api, MetadataPick } from "../../types/d2-api";
 import { Code, Option } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
 import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
 import { assertOrError } from "./utils/AssertOrError";
-import { Future } from "../../domain/entities/generic/Future";
-
-type D2OptionSet = SelectedPick<
-    D2OptionSetSchema,
-    {
-        id: true;
-        name: true;
-        code: true;
-        options: { id: true; name: true; code: true };
-    }
->;
+import { getHazardTypeByCode } from "./consts/DiseaseOutbreakConstants";
 
 export class OptionsD2Repository implements OptionsRepository {
     constructor(private api: D2Api) {}
@@ -36,111 +24,57 @@ export class OptionsD2Repository implements OptionsRepository {
             });
     }
 
-    getAllHazardTypes(): FutureData<CodedNamedRef[]> {
-        return apiToFuture(
-            this.api.metadata.get({
-                optionSets: {
-                    fields: {
-                        id: true,
-                        name: true,
-                        code: true,
-                        options: { id: true, name: true, code: true },
-                    },
-                    filter: { code: { eq: "RTSL_ZEB_OS_HAZARD_TYPE" } },
-                },
-            })
-        ).flatMap(response => {
-            if (!response.optionSets[0]) throw new Error("Hazard Types options not found");
-
-            return Future.success(this.mapD2OptionSetToCodedNamedRefs(response.optionSets[0]));
+    getAllHazardTypes(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_HAZARD_TYPE").map(hazardTypes => {
+            return hazardTypes.map(hazardType => ({
+                id: getHazardTypeByCode(hazardType.id),
+                name: hazardType.name,
+            }));
         });
     }
 
-    getAllMainSyndromes(): FutureData<CodedNamedRef[]> {
-        return apiToFuture(
-            this.api.metadata.get({
-                optionSets: {
-                    fields: {
-                        id: true,
-                        name: true,
-                        code: true,
-                        options: { id: true, name: true, code: true },
-                    },
-                    filter: { code: { eq: "RTSL_ZEB_OS_SYNDROME" } },
-                },
-            })
-        ).flatMap(response => {
-            if (!response.optionSets[0]) throw new Error("Main Syndromes options not found");
-            return Future.success(this.mapD2OptionSetToCodedNamedRefs(response.optionSets[0]));
-        });
+    getAllMainSyndromes(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_SYNDROME");
     }
 
-    getAllSuspectedDiseases(): FutureData<CodedNamedRef[]> {
-        return apiToFuture(
-            this.api.metadata.get({
-                optionSets: {
-                    fields: {
-                        id: true,
-                        name: true,
-                        code: true,
-                        options: { id: true, name: true, code: true },
-                    },
-                    filter: { code: { eq: "RTSL_ZEB_OS_DISEASE" } },
-                },
-            })
-        ).flatMap(response => {
-            if (!response.optionSets[0]) throw new Error("Suspected Diseases options not found");
-
-            return Future.success(this.mapD2OptionSetToCodedNamedRefs(response.optionSets[0]));
-        });
+    getAllSuspectedDiseases(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_DISEASE");
     }
 
-    getAllNotificationSources(): FutureData<CodedNamedRef[]> {
-        return apiToFuture(
-            this.api.metadata.get({
-                optionSets: {
-                    fields: {
-                        id: true,
-                        name: true,
-                        code: true,
-                        options: { id: true, name: true, code: true },
-                    },
-                    filter: { code: { eq: "RTSL_ZEB_OS_SOURCE" } },
-                },
-            })
-        ).flatMap(response => {
-            if (!response.optionSets[0]) throw new Error("Notification Sources options not found");
-            return Future.success(this.mapD2OptionSetToCodedNamedRefs(response.optionSets[0]));
-        });
+    getAllNotificationSources(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_SOURCE");
     }
 
-    getAllIncidentStatus(): FutureData<CodedNamedRef[]> {
-        return apiToFuture(
-            this.api.metadata.get({
-                optionSets: {
-                    fields: {
-                        id: true,
-                        name: true,
-                        code: true,
-                        options: { id: true, name: true, code: true },
-                    },
-                    filter: { code: { eq: "RTSL_ZEB_OS_INCIDENT_STATUS" } },
-                },
-            })
-        ).flatMap(response => {
-            if (!response.optionSets[0]) throw new Error("Incident Status options not found");
-
-            return Future.success(this.mapD2OptionSetToCodedNamedRefs(response.optionSets[0]));
-        });
+    getAllIncidentStatus(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_INCIDENT_STATUS");
     }
 
-    private mapD2OptionSetToCodedNamedRefs(optionSet: D2OptionSet): CodedNamedRef[] {
-        return optionSet.options.map(option => {
-            return {
-                id: option.id,
+    private getOptionSetByCode(code: string): FutureData<Option[]> {
+        return apiToFuture(
+            this.api.metadata.get({
+                optionSets: { fields: optionSetsFields, filter: { code: { eq: code } } },
+            })
+        )
+            .flatMap(response => assertOrError(response.optionSets[0], `OptionSet ${code}`))
+            .map(d2Option => this.mapD2OptionSetToOptions(d2Option));
+    }
+
+    private mapD2OptionSetToOptions(optionSet: D2OptionSet): Option[] {
+        return optionSet.options.map(
+            (option): Option => ({
+                id: option.code,
                 name: option.name,
-                code: option.code,
-            };
-        });
+            })
+        );
     }
 }
+
+const optionSetsFields = {
+    name: true,
+    code: true,
+    options: { id: true, name: true, code: true },
+};
+
+type D2OptionSet = MetadataPick<{
+    optionSets: { fields: typeof optionSetsFields };
+}>["optionSets"][number];

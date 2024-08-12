@@ -1,21 +1,9 @@
-import { D2Api, D2UserSchema } from "../../types/d2-api";
+import { D2Api, MetadataPick } from "../../types/d2-api";
 import { TeamMember } from "../../domain/entities/incident-management-team/TeamMember";
 import { Id } from "../../domain/entities/Ref";
 import { TeamMemberRepository } from "../../domain/repositories/TeamMemberRepository";
 import { apiToFuture, FutureData } from "../api-futures";
-import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { assertOrError } from "./utils/AssertOrError";
-
-type D2User = SelectedPick<
-    D2UserSchema,
-    {
-        id: true;
-        name: true;
-        username: true;
-        email: true;
-        phoneNumber: true;
-    }
->;
 
 export class TeamMemberD2Repository implements TeamMemberRepository {
     constructor(private api: D2Api) {}
@@ -24,13 +12,7 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
         return apiToFuture(
             this.api.metadata.get({
                 users: {
-                    fields: {
-                        id: true,
-                        name: true,
-                        email: true,
-                        phoneNumber: true,
-                        username: true,
-                    },
+                    fields: d2UserFields,
                 },
             })
         ).map(response => {
@@ -43,13 +25,7 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
         return apiToFuture(
             this.api.metadata.get({
                 users: {
-                    fields: {
-                        id: true,
-                        name: true,
-                        email: true,
-                        phoneNumber: true,
-                        username: true,
-                    },
+                    fields: d2UserFields,
                     filter: { username: { eq: id } },
                 },
             })
@@ -74,3 +50,15 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
         });
     }
 }
+
+const d2UserFields = {
+    id: true,
+    name: true,
+    email: true,
+    phoneNumber: true,
+    username: true,
+};
+
+type _D2User = MetadataPick<{
+    users: { fields: typeof d2UserFields };
+}>["users"][number];

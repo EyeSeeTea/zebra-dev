@@ -1,15 +1,22 @@
-import { DiseaseOutbreakEventBaseAttrs } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DiseaseOutbreakEventBaseAttrs,
+    IncidentStatusType,
+} from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import {
     FormFieldState,
     FormState,
     getAllFieldsFromSections,
-    getFieldValueById,
+    getDateFieldValue,
+    getMultipleOptionsFieldValue,
+    getBooleanFieldValue,
+    getStringFieldValue,
 } from "../../../../components/form/FormState";
-import { CodedNamedRef } from "../../../../../domain/entities/Ref";
+import { Option } from "../../../../../domain/entities/Ref";
 import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormState";
 import { UserOption } from "../../../../components/user-selector/UserSelector";
-import { Option } from "../../../../components/utils/option";
+import { Option as PresentationOption } from "../../../../components/utils/option";
+import { isHazardType } from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -67,19 +74,21 @@ export function mapEntityToInitialFormState(
         alt: tm.photo ? `Photo of ${tm.name}` : undefined,
     }));
 
-    const provinceOptions: Option[] = organisationUnits
+    const provinceOptions: PresentationOption[] = organisationUnits
         .filter(ou => ou.level === "Province")
         .map(ou => ({ value: ou.id, label: ou.name }));
 
-    const districtOptions: Option[] = organisationUnits
+    const districtOptions: PresentationOption[] = organisationUnits
         .filter(ou => ou.level === "District")
         .map(ou => ({ value: ou.id, label: ou.name }));
 
-    const hazardTypesOptions: Option[] = mapToPresentationOptions(hazardTypes);
-    const mainSyndromesOptions: Option[] = mapToPresentationOptions(mainSyndromes);
-    const suspectedDiseasesOptions: Option[] = mapToPresentationOptions(suspectedDiseases);
-    const notificationSourcesOptions: Option[] = mapToPresentationOptions(notificationSources);
-    const incidentStatusOptions: Option[] = mapToPresentationOptions(incidentStatus);
+    const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
+    const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
+    const suspectedDiseasesOptions: PresentationOption[] =
+        mapToPresentationOptions(suspectedDiseases);
+    const notificationSourcesOptions: PresentationOption[] =
+        mapToPresentationOptions(notificationSources);
+    const incidentStatusOptions: PresentationOption[] = mapToPresentationOptions(incidentStatus);
 
     return {
         id: diseaseOutbreakEvent?.id || "",
@@ -689,11 +698,13 @@ export function mapEntityToInitialFormState(
     };
 }
 
-function mapToPresentationOptions(options: CodedNamedRef[]): Option[] {
-    return options.map(option => ({
-        value: option.code,
-        label: option.name,
-    }));
+function mapToPresentationOptions(options: Option[]): PresentationOption[] {
+    return options.map(
+        (option): PresentationOption => ({
+            value: option.id,
+            label: option.name,
+        })
+    );
 }
 
 export function mapFormStateToEntityData(
@@ -705,117 +716,129 @@ export function mapFormStateToEntityData(
 
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
-    // TODO fix this: return value types
+    const hazardType = getStringFieldValue(diseaseOutbreakEventFieldIds.hazardType, allFields);
+
     const diseaseOutbreakEventEditableData = {
-        name: getFieldValueById(diseaseOutbreakEventFieldIds.name, allFields) || "",
-        hazardType: getFieldValueById(diseaseOutbreakEventFieldIds.hazardType, allFields) || "",
-        mainSyndromeCode:
-            getFieldValueById(diseaseOutbreakEventFieldIds.mainSyndromeCode, allFields) || "",
-        suspectedDiseaseCode:
-            getFieldValueById(diseaseOutbreakEventFieldIds.suspectedDiseaseCode, allFields) || "",
-        notificationSourceCode:
-            getFieldValueById(diseaseOutbreakEventFieldIds.notificationSourceCode, allFields) || "",
-        areasAffectedProvinceIds:
-            getFieldValueById(diseaseOutbreakEventFieldIds.areasAffectedProvinceIds, allFields) ||
-            [],
-        areasAffectedDistrictIds:
-            getFieldValueById(diseaseOutbreakEventFieldIds.areasAffectedDistrictIds, allFields) ||
-            [],
-        incidentStatus:
-            getFieldValueById(diseaseOutbreakEventFieldIds.incidentStatus, allFields) || "",
+        name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
+        hazardType: isHazardType(hazardType) ? hazardType : "Unknown",
+        mainSyndromeCode: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.mainSyndromeCode,
+            allFields
+        ),
+        suspectedDiseaseCode: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.suspectedDiseaseCode,
+            allFields
+        ),
+        notificationSourceCode: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.notificationSourceCode,
+            allFields
+        ),
+        areasAffectedProvinceIds: getMultipleOptionsFieldValue(
+            diseaseOutbreakEventFieldIds.areasAffectedProvinceIds,
+            allFields
+        ),
+        areasAffectedDistrictIds: getMultipleOptionsFieldValue(
+            diseaseOutbreakEventFieldIds.areasAffectedDistrictIds,
+            allFields
+        ),
+        incidentStatus: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.incidentStatus,
+            allFields
+        ) as IncidentStatusType,
         emerged: {
-            date: getFieldValueById(diseaseOutbreakEventFieldIds.emergedDate, allFields) || null,
-            narrative:
-                getFieldValueById(diseaseOutbreakEventFieldIds.emergedNarrative, allFields) || "",
+            date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.emergedNarrative,
+                allFields
+            ),
         },
         detected: {
-            date: getFieldValueById(diseaseOutbreakEventFieldIds.detectedDate, allFields) || null,
-            narrative:
-                getFieldValueById(diseaseOutbreakEventFieldIds.detectedNarrative, allFields) || "",
+            date: getDateFieldValue(diseaseOutbreakEventFieldIds.detectedDate, allFields) as Date,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.detectedNarrative,
+                allFields
+            ),
         },
         notified: {
-            date: getFieldValueById(diseaseOutbreakEventFieldIds.notifiedDate, allFields) || null,
-            narrative:
-                getFieldValueById(diseaseOutbreakEventFieldIds.notifiedNarrative, allFields) || "",
+            date: getDateFieldValue(diseaseOutbreakEventFieldIds.notifiedDate, allFields) as Date,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.notifiedNarrative,
+                allFields
+            ),
         },
         earlyResponseActions: {
-            initiateInvestigation:
-                getFieldValueById(diseaseOutbreakEventFieldIds.initiateInvestigation, allFields) ||
-                null,
-            conductEpidemiologicalAnalysis:
-                getFieldValueById(
-                    diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
-                    allFields
-                ) || null,
+            initiateInvestigation: getDateFieldValue(
+                diseaseOutbreakEventFieldIds.initiateInvestigation,
+                allFields
+            ) as Date,
+            conductEpidemiologicalAnalysis: getDateFieldValue(
+                diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
+                allFields
+            ) as Date,
             laboratoryConfirmation: {
-                laboratoryConfirmationDate:
-                    getFieldValueById(
-                        diseaseOutbreakEventFieldIds.laboratoryConfirmationDate,
-                        allFields
-                    ) || null,
-                laboratoryConfirmationNA:
-                    getFieldValueById(
-                        diseaseOutbreakEventFieldIds.laboratoryConfirmationNA,
-                        allFields
-                    ) || true,
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.laboratoryConfirmationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.laboratoryConfirmationNA,
+                    allFields
+                ),
             },
             appropriateCaseManagement: {
-                appropriateCaseManagementDate:
-                    getFieldValueById(
-                        diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
-                        allFields
-                    ) || null,
-                appropriateCaseManagementNA:
-                    getFieldValueById(
-                        diseaseOutbreakEventFieldIds.appropriateCaseManagementNA,
-                        allFields
-                    ) || true,
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.appropriateCaseManagementNA,
+                    allFields
+                ),
             },
             initiatePublicHealthCounterMeasures: {
-                initiatePublicHealthCounterMeasuresDate:
-                    getFieldValueById(
-                        diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresDate,
-                        allFields
-                    ) || null,
-                initiatePublicHealthCounterMeasuresNA:
-                    getFieldValueById(
-                        diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresNA,
-                        allFields
-                    ) || true,
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresNA,
+                    allFields
+                ),
             },
             initiateRiskCommunication: {
-                initiateRiskCommunicationDate:
-                    getFieldValueById(
-                        diseaseOutbreakEventFieldIds.initiateRiskCommunicationDate,
-                        allFields
-                    ) || null,
-                initiateRiskCommunicationNA:
-                    getFieldValueById(
-                        diseaseOutbreakEventFieldIds.initiateRiskCommunicationNA,
-                        allFields
-                    ) || true,
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationNA,
+                    allFields
+                ),
             },
-            establishCoordination:
-                getFieldValueById(diseaseOutbreakEventFieldIds.establishCoordination, allFields) ||
-                null,
-            responseNarrative:
-                getFieldValueById(diseaseOutbreakEventFieldIds.responseNarrative, allFields) || "",
+            establishCoordination: getDateFieldValue(
+                diseaseOutbreakEventFieldIds.establishCoordination,
+                allFields
+            ) as Date,
+            responseNarrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.responseNarrative,
+                allFields
+            ),
         },
-        incidentManagerName:
-            getFieldValueById(diseaseOutbreakEventFieldIds.incidentManagerName, allFields) ||
-            undefined,
-        notes: getFieldValueById(diseaseOutbreakEventFieldIds.notes, allFields) || "",
+        incidentManagerName: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.incidentManagerName,
+            allFields
+        ),
+        notes: getStringFieldValue(diseaseOutbreakEventFieldIds.notes, allFields),
     };
 
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
+        eventId: diseaseOutbreakEvent?.eventId,
         created: diseaseOutbreakEvent?.created || new Date(),
         lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
         ...diseaseOutbreakEventEditableData,
-    } as unknown as DiseaseOutbreakEventBaseAttrs; // TODO fix this type
-
-    return {
-        ...diseaseOutbreakEventBase,
     };
+
+    return diseaseOutbreakEventBase;
 }

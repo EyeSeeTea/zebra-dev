@@ -44,6 +44,8 @@ type State = {
     formLabels: Maybe<DiseaseOutbreakEventLables>;
     globalMessage: Maybe<GlobalMessage>;
     formState: DiseaseOutbreakEventFormState;
+    isLoading: boolean;
+    isSaved: boolean;
     handleFormChange: (updatedField: FormFieldState) => void;
     onSaveForm: () => void;
     onCancelForm: () => void;
@@ -59,6 +61,8 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
     const [diseaseOutbreakEventWithOptions, setDiseaseOutbreakEventWithOptions] =
         useState<DiseaseOutbreakEventWithOptions>();
     const [formLabels, setFormLabels] = useState<DiseaseOutbreakEventLables>();
+    const [isSaved, setIsSaved] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         compositionRoot.diseaseOutbreakEvent.getWithOptions.execute(diseaseOutbreakEventId).run(
@@ -107,31 +111,46 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
     );
 
     const onSaveForm = useCallback(() => {
-        if (formState.kind !== "loaded" || !diseaseOutbreakEventWithOptions) return;
+        if (
+            formState.kind !== "loaded" ||
+            !diseaseOutbreakEventWithOptions ||
+            !formState.data.isValid
+        )
+            return;
+
+        setIsLoading(true);
+        setIsSaved(false);
 
         const diseaseOutbreakEventData = mapFormStateToEntityData(
             formState.data,
             currentUser.username,
             diseaseOutbreakEventWithOptions
         );
-        console.debug("Event saved:", diseaseOutbreakEventData);
 
-        // TODO: Integrate with save use case
-        // compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
-        //     () => {
-        //         setGlobalMessage({
-        //             text: i18n.t(`Disease Outbreak saved successfully`),
-        //             type: "success",
-        //         });
-        //     },
-        //     err => {
-        //         setGlobalMessage({
-        //             text: i18n.t(`Error saving disease outbreak: ${err.message}`),
-        //             type: "success",
-        //         });
-        //     }
-        // );
-    }, [currentUser.username, diseaseOutbreakEventWithOptions, formState]);
+        compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
+            () => {
+                setGlobalMessage({
+                    text: i18n.t(`Disease Outbreak saved successfully`),
+                    type: "success",
+                });
+                setIsLoading(false);
+                setIsSaved(true);
+            },
+            err => {
+                setGlobalMessage({
+                    text: i18n.t(`Error saving disease outbreak: ${err.message}`),
+                    type: "error",
+                });
+                setIsLoading(false);
+                setIsSaved(false);
+            }
+        );
+    }, [
+        compositionRoot.diseaseOutbreakEvent.save,
+        currentUser.username,
+        diseaseOutbreakEventWithOptions,
+        formState,
+    ]);
 
     const onCancelForm = useCallback(() => {
         goTo(RouteName.DASHBOARD);
@@ -141,6 +160,8 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
         formLabels,
         globalMessage,
         formState,
+        isLoading,
+        isSaved,
         handleFormChange,
         onSaveForm,
         onCancelForm,
