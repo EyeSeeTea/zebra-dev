@@ -5,7 +5,6 @@ import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
-import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 
 export class GetDiseaseOutbreakWithOptionsUseCase {
@@ -14,7 +13,6 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             optionsRepository: OptionsRepository;
             teamMemberRepository: TeamMemberRepository;
-            orgUnitRepository: OrgUnitRepository;
         }
     ) {}
 
@@ -38,7 +36,6 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
             mainSyndromes: this.options.optionsRepository.getAllMainSyndromes(),
             suspectedDiseases: this.options.optionsRepository.getAllSuspectedDiseases(),
             notificationSources: this.options.optionsRepository.getAllNotificationSources(),
-            organisationUnits: this.options.orgUnitRepository.getAll(),
             incidentStatus: this.options.optionsRepository.getAllIncidentStatus(),
             teamMembers: this.options.teamMemberRepository.getAll(),
         }).flatMap(
@@ -47,7 +44,6 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                 mainSyndromes,
                 suspectedDiseases,
                 notificationSources,
-                organisationUnits,
                 incidentStatus,
                 teamMembers,
             }) => {
@@ -55,7 +51,6 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                     diseaseOutbreakEvent: diseaseOutbreakEventBase,
                     options: {
                         teamMembers,
-                        organisationUnits,
                         hazardTypes,
                         mainSyndromes,
                         suspectedDiseases,

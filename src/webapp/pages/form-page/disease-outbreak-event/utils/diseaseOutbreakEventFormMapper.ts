@@ -55,7 +55,6 @@ export function mapEntityToInitialFormState(
     const { diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
         teamMembers,
-        organisationUnits,
         hazardTypes,
         mainSyndromes,
         suspectedDiseases,
@@ -73,14 +72,6 @@ export function mapEntityToInitialFormState(
         src: tm.photo?.toString(),
         alt: tm.photo ? `Photo of ${tm.name}` : undefined,
     }));
-
-    const provinceOptions: PresentationOption[] = organisationUnits
-        .filter(ou => ou.level === "Province")
-        .map(ou => ({ value: ou.id, label: ou.name }));
-
-    const districtOptions: PresentationOption[] = organisationUnits
-        .filter(ou => ou.level === "District")
-        .map(ou => ({ value: ou.id, label: ou.name }));
 
     const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
     const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
@@ -201,46 +192,6 @@ export function mapEntityToInitialFormState(
                         options: notificationSourcesOptions,
                         value: diseaseOutbreakEvent?.notificationSourceCode || "",
                         width: "300px",
-                        required: true,
-                        showIsRequired: false,
-                    },
-                ],
-            },
-            {
-                title: "Areas Affected",
-                id: "areasAffected_section",
-                isVisible: true,
-                required: true,
-                fields: [
-                    {
-                        id: getFieldIdFromIdsDictionary(
-                            "areasAffectedProvinceIds",
-                            diseaseOutbreakEventFieldIds
-                        ),
-                        label: "Provinces",
-                        isVisible: true,
-                        errors: [],
-                        type: "select",
-                        multiple: true,
-                        options: provinceOptions,
-                        value: diseaseOutbreakEvent?.areasAffectedProvinceIds || [],
-                        width: "400px",
-                        required: true,
-                        showIsRequired: false,
-                    },
-                    {
-                        id: getFieldIdFromIdsDictionary(
-                            "areasAffectedDistrictIds",
-                            diseaseOutbreakEventFieldIds
-                        ),
-                        label: "Districts",
-                        isVisible: true,
-                        errors: [],
-                        type: "select",
-                        multiple: true,
-                        options: districtOptions,
-                        value: diseaseOutbreakEvent?.areasAffectedDistrictIds || [],
-                        width: "400px",
                         required: true,
                         showIsRequired: false,
                     },

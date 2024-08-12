@@ -1,6 +1,5 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { TeamMember } from "../incident-management-team/TeamMember";
-import { OrgUnit } from "../OrgUnit";
 import { Option } from "../Ref";
 import { DiseaseOutbreakEventBaseAttrs } from "./DiseaseOutbreakEvent";
 
@@ -9,7 +8,6 @@ export type DiseaseOutbreakEventOptions = {
     mainSyndromes: Option[];
     suspectedDiseases: Option[];
     notificationSources: Option[];
-    organisationUnits: OrgUnit[];
     incidentStatus: Option[];
     teamMembers: TeamMember[];
 };
