@@ -1,27 +1,25 @@
 import { FutureData } from "../../data/api-futures";
 import { DistrictEventRepository } from "../repositories/DistrictEventRepository";
+import _ from "../entities/generic/Collection";
 
-const diseaseType = "Flu";
-const trackedEntityId = "SKI8VNFH4IC";
-
-export class MapOutbreakToDistrictUseCase {
-    constructor(private diseaseOutbreakRepository: DistrictEventRepository) {}
+export class MapNationalOutbreakToDistrictUseCase {
+    constructor(private districtEventRepository: DistrictEventRepository) {}
 
     // _teiId: Id, _diseaseType: string, _hazardType, _eventType
     public execute(): FutureData<void> {
-        return this.diseaseOutbreakRepository.get().flatMap(events => {
-            const filteredDiseaseOutbreakEvents = events.filter(
-                diseaseOutbreakEvent => diseaseOutbreakEvent.suspectedDiseaseId === diseaseType
-            );
+        const diseaseType = "Flu";
+        const trackedEntityId = "SKI8VNFH4IC";
 
-            const districtLevelOutbreakEvents = filteredDiseaseOutbreakEvents.map(
-                diseaseOutbreakEvent => ({
-                    ...diseaseOutbreakEvent,
+        return this.districtEventRepository.get().flatMap(events => {
+            const districtLevelOutbreakEvents = _(events)
+                .filter(event => event.suspectedDiseaseId === diseaseType)
+                .map(event => ({
+                    ...event,
                     eventId: trackedEntityId,
-                })
-            );
+                }))
+                .value();
 
-            return this.diseaseOutbreakRepository.save(districtLevelOutbreakEvents);
+            return this.districtEventRepository.save(districtLevelOutbreakEvents);
         });
     }
 }

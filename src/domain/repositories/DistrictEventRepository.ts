@@ -1,7 +1,7 @@
 import { FutureData } from "../../data/api-futures";
-import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DistrictEvent } from "../entities/disease-outbreak-event/DistrictEvent";
 
 export interface DistrictEventRepository {
-    get(): FutureData<DiseaseOutbreakEventBaseAttrs[]>;
-    save(diseaseOutbreaks: DiseaseOutbreakEventBaseAttrs[]): FutureData<void>;
+    get(): FutureData<DistrictEvent[]>;
+    save(diseaseOutbreaks: DistrictEvent[]): FutureData<void>;
 }

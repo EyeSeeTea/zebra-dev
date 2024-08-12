@@ -20,8 +20,9 @@ import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepos
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
 import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
 import { GetDiseaseOutbreakWithOptionsUseCase } from "./domain/usecases/GetDiseaseOutbreakWithOptionsUseCase";
-import { MapOutbreakToDistrictUseCase } from "./domain/usecases/MapOutbreakToDistrictUseCase";
+import { MapNationalOutbreakToDistrictUseCase } from "./domain/usecases/MapOutbreakToDistrictUseCase";
 import { DistrictEventRepository } from "./domain/repositories/DistrictEventRepository";
+import { DistrictEventTestRepository } from "./data/repositories/test/DistrictEventTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -54,7 +55,7 @@ function getCompositionRoot(repositories: Repositories) {
             ),
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
             save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
-            mapOutbreakToDistrict: new MapOutbreakToDistrictUseCase(
+            mapOutbreakToDistrict: new MapNationalOutbreakToDistrictUseCase(
                 repositories.districtEventRepository
             ),
         },
@@ -78,8 +79,7 @@ export function getTestCompositionRoot() {
     const repositories: Repositories = {
         usersRepository: new UserTestRepository(),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventTestRepository(),
-        // @ts-ignore
-        districtEventRepository: new DistrictEventD2Repository(),
+        districtEventRepository: new DistrictEventTestRepository(),
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),

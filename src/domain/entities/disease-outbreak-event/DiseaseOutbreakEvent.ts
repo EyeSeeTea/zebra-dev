@@ -39,7 +39,7 @@ type EarlyResponseActions = {
 };
 
 export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
-    eventId: Maybe<number | string>;
+    eventId: Maybe<number>;
     created: Date;
     lastUpdated: Date;
     createdByName: Maybe<string>;

@@ -170,13 +170,12 @@ export function getValueFromMap(
     return trackedEntity.attributes?.find(a => a.code === DiseaseOutbreakCodes[key])?.value ?? "";
 }
 
-export function getValueFromDiseaseOutbreak(
+function getValueFromDiseaseOutbreak(
     key: (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs
 ): string {
     switch (key) {
         case "RTSL_ZEB_TEA_EVENT_id":
-        case "RTSL_ZEB_TEA_NATIONAL_EVENT_id":
             return diseaseOutbreak.eventId?.toString() || "";
         case "RTSL_ZEB_TEA_EVENT_NAME":
             return diseaseOutbreak.name;
@@ -196,7 +195,6 @@ export function getValueFromDiseaseOutbreak(
             break;
         case "RTSL_ZEB_TEA_MAIN_SYNDROME":
             return diseaseOutbreak.mainSyndromeId;
-        case "RTSL_ZEB_TEA_DISEASE":
         case "RTSL_ZEB_TEA_SUSPECTED_DISEASE":
             return diseaseOutbreak.suspectedDiseaseId;
         case "RTSL_ZEB_TEA_NOTIFICATION_SOURCE":
@@ -249,5 +247,7 @@ export function getValueFromDiseaseOutbreak(
             return diseaseOutbreak.incidentManagerName;
         case "RTSL_ZEB_TEA_NOTES":
             return diseaseOutbreak.notes ?? "";
+        default:
+            return "";
     }
 }

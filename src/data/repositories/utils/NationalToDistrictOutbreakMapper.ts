@@ -1,11 +1,28 @@
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { DiseaseOutbreakCodes, RTSL_ZEBRA_ORG_UNIT_ID } from "../consts/DiseaseOutbreakConstants";
-import { DiseaseOutbreakEventBaseAttrs } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Attribute } from "@eyeseetea/d2-api/api/trackedEntityInstances";
-import { D2TrackedEntityAttribute, getValueFromDiseaseOutbreak } from "./DiseaseOutbreakMapper";
+import { D2TrackedEntityAttribute, getValueFromMap } from "./DiseaseOutbreakMapper";
+import { DistrictEvent } from "../../../domain/entities/disease-outbreak-event/DistrictEvent";
+import { HazardType } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
-export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
-    diseaseOutbreak: DiseaseOutbreakEventBaseAttrs,
+export function mapTrackedEntityAttributesToDistrictOutbreak(
+    trackedEntity: D2TrackerTrackedEntity
+): DistrictEvent {
+    if (!trackedEntity.trackedEntity) throw new Error("Tracked entity not found");
+
+    const diseaseOutbreak: DistrictEvent = {
+        id: trackedEntity.trackedEntity,
+        eventId: getValueFromMap("eventId", trackedEntity),
+        name: getValueFromMap("name", trackedEntity),
+        hazardType: getValueFromMap("hazardType", trackedEntity) as HazardType,
+        suspectedDiseaseId: getValueFromMap("nationalSuspectedDisease", trackedEntity),
+    };
+
+    return diseaseOutbreak;
+}
+
+export function mapDistrictOutbreakEventToTrackedEntities(
+    diseaseOutbreak: DistrictEvent,
     attributesMetadata: D2TrackedEntityAttribute[],
     tetsMetadata: D2TrackerTrackedEntity[]
 ): D2TrackerTrackedEntity {
@@ -14,9 +31,9 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
         .map(attribute => {
             const populatedAttribute = {
                 attribute: attribute.trackedEntityAttribute.id,
-                value: getValueFromDiseaseOutbreak(
+                value: getValueFromDistrictOutbreak(
                     attribute.trackedEntityAttribute
-                        .code as (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes], //TO DO :  Can we avoid?
+                        .code as (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
                     diseaseOutbreak
                 ),
             };
@@ -35,4 +52,36 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
     };
 
     return trackedEntity;
+}
+
+function getValueFromDistrictOutbreak(
+    key: (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
+    districtEvent: DistrictEvent
+): string {
+    switch (key) {
+        case "RTSL_ZEB_TEA_EVENT_id":
+        case "RTSL_ZEB_TEA_NATIONAL_EVENT_id":
+            return districtEvent.eventId?.toString() || "";
+        case "RTSL_ZEB_TEA_EVENT_NAME":
+            return districtEvent.name;
+        case "RTSL_ZEB_TEA_HAZARD_TYPE":
+            switch (districtEvent.hazardType) {
+                case "Biological:Animal":
+                    return "BIOLOGICAL_ANIMAL";
+                case "Biological:Human":
+                    return "BIOLOGICAL_HUMAN";
+                case "Chemical":
+                    return "CHEMICAL";
+                case "Environmental":
+                    return "ENVIRONMENTAL";
+                case "Unknown":
+                    return "UNKNOWN";
+            }
+            break;
+        case "RTSL_ZEB_TEA_DISEASE":
+        case "RTSL_ZEB_TEA_SUSPECTED_DISEASE":
+            return districtEvent.suspectedDiseaseId;
+        default:
+            return "";
+    }
 }
