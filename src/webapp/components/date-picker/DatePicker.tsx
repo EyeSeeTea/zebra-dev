@@ -92,6 +92,7 @@ const Label = styled(InputLabel)`
 `;
 
 const StyledDatePicker = styled(DatePickerMUI)<{ error?: boolean; disabled?: boolean }>`
+    height: 40px;
     & .MuiInputBase-root {
         border-radius: 3px;
         background-color: ${props =>

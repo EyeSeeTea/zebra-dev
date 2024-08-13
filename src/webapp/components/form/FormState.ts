@@ -42,6 +42,7 @@ type FormFieldStateBase<T> = {
     hasNotApplicable?: boolean;
     notApplicableFieldId?: string;
     width?: string;
+    maxWidth?: string;
     value: T;
     type: FieldType;
 };
