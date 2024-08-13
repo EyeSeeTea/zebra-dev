@@ -88,28 +88,28 @@ export function getValueFromDiseaseOutbreak(
             diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis.toISOString(),
         RTSL_ZEB_TEA_LABORATORY_CONFIRMATION: diseaseOutbreak.earlyResponseActions
             .laboratoryConfirmation.na
-            ? ""
-            : "true",
+            ? "true"
+            : "",
         RTSL_ZEB_TEA_SPECIFY_DATE1:
             diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date?.toISOString() ?? "",
         RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT: diseaseOutbreak.earlyResponseActions
             .appropriateCaseManagement.na
-            ? ""
-            : "true",
+            ? "true"
+            : "",
         RTSL_ZEB_TEA_SPECIFY_DATE2:
             diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.toISOString() ??
             "",
         RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH: diseaseOutbreak.earlyResponseActions
             .initiatePublicHealthCounterMeasures.na
-            ? ""
-            : "true",
+            ? "true"
+            : "",
         RTSL_ZEB_TEA_SPECIFY_DATE3:
             diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.toISOString() ??
             "",
         RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION: diseaseOutbreak.earlyResponseActions
             .initiateRiskCommunication.na
-            ? ""
-            : "true",
+            ? "true"
+            : "",
         RTSL_ZEB_TEA_SPECIFY_DATE4:
             diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.toISOString() ??
             "",
