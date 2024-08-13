@@ -408,6 +408,9 @@ export function mapEntityToInitialFormState(
                                 hasNotApplicable: true,
                                 required: true,
                                 showIsRequired: false,
+                                disabled:
+                                    diseaseOutbreakEvent?.earlyResponseActions
+                                        .laboratoryConfirmation.na,
                             },
                             {
                                 id: getFieldIdFromIdsDictionary(
@@ -421,7 +424,7 @@ export function mapEntityToInitialFormState(
                                 value:
                                     diseaseOutbreakEvent?.earlyResponseActions
                                         .laboratoryConfirmation.na || false,
-                                width: "100px",
+                                width: "65px",
                                 notApplicableFieldId: getFieldIdFromIdsDictionary(
                                     "laboratoryConfirmationDate",
                                     diseaseOutbreakEventFieldIds
@@ -451,6 +454,9 @@ export function mapEntityToInitialFormState(
                                 hasNotApplicable: true,
                                 required: true,
                                 showIsRequired: false,
+                                disabled:
+                                    diseaseOutbreakEvent?.earlyResponseActions
+                                        .appropriateCaseManagement.na,
                             },
                             {
                                 id: getFieldIdFromIdsDictionary(
@@ -464,7 +470,7 @@ export function mapEntityToInitialFormState(
                                 value:
                                     diseaseOutbreakEvent?.earlyResponseActions
                                         .appropriateCaseManagement.na || false,
-                                width: "100px",
+                                width: "65px",
                                 notApplicableFieldId: getFieldIdFromIdsDictionary(
                                     "appropriateCaseManagementDate",
                                     diseaseOutbreakEventFieldIds
@@ -494,6 +500,9 @@ export function mapEntityToInitialFormState(
                                 hasNotApplicable: true,
                                 required: true,
                                 showIsRequired: false,
+                                disabled:
+                                    diseaseOutbreakEvent?.earlyResponseActions
+                                        .initiatePublicHealthCounterMeasures.na,
                             },
                             {
                                 label: "N/A",
@@ -507,7 +516,7 @@ export function mapEntityToInitialFormState(
                                 value:
                                     diseaseOutbreakEvent?.earlyResponseActions
                                         .initiatePublicHealthCounterMeasures.na || false,
-                                width: "100px",
+                                width: "65px",
                                 notApplicableFieldId: getFieldIdFromIdsDictionary(
                                     "initiatePublicHealthCounterMeasuresDate",
                                     diseaseOutbreakEventFieldIds
@@ -537,6 +546,9 @@ export function mapEntityToInitialFormState(
                                 hasNotApplicable: true,
                                 required: true,
                                 showIsRequired: false,
+                                disabled:
+                                    diseaseOutbreakEvent?.earlyResponseActions
+                                        .initiateRiskCommunication.na,
                             },
                             {
                                 id: getFieldIdFromIdsDictionary(
@@ -550,7 +562,7 @@ export function mapEntityToInitialFormState(
                                 value:
                                     diseaseOutbreakEvent?.earlyResponseActions
                                         .initiateRiskCommunication.na || false,
-                                width: "100px",
+                                width: "65px",
                                 notApplicableFieldId: getFieldIdFromIdsDictionary(
                                     "initiateRiskCommunicationDate",
                                     diseaseOutbreakEventFieldIds

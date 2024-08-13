@@ -168,6 +168,7 @@ const FieldsContainer = styled.div`
     display: flex;
     width: 40%;
     align-items: flex-end;
+    gap: 20px;
     @media (max-width: 700px) {
         width: 100%;
         flex-wrap: wrap;
