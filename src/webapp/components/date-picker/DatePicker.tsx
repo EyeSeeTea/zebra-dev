@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { InputLabel } from "@material-ui/core";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -30,6 +30,17 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
         error = false,
         required = false,
     }) => {
+        const handleDateChange = useCallback(
+            (date: Date | null) => {
+                onChange(
+                    date
+                        ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+                        : null
+                );
+            },
+            [onChange]
+        );
+
         return (
             <Container>
                 {label && (
@@ -41,7 +52,7 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <StyledDatePicker
                         value={value}
-                        onChange={onChange}
+                        onChange={handleDateChange}
                         format="dd/MM/yyyy"
                         slots={{ openPickerIcon: IconCalendar24 }}
                         error={error}
@@ -81,6 +92,7 @@ const Label = styled(InputLabel)`
 `;
 
 const StyledDatePicker = styled(DatePickerMUI)<{ error?: boolean; disabled?: boolean }>`
+    height: 40px;
     & .MuiInputBase-root {
         border-radius: 3px;
         background-color: ${props =>

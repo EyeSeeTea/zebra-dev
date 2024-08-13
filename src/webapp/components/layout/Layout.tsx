@@ -55,9 +55,23 @@ const Container = styled.div`
 `;
 
 const OpenMenuContainer = styled.div`
-    width: 100%;
-    background-color: ${props => props.theme.palette.background.default};
+    position: absolute;
+    top: 0px;
+
+    .MuiButton-root {
+        background-color: ${props => props.theme.palette.header.color};
+        height: 48px;
+        width: 55px;
+        border-radius: 0;
+        min-width: 55px;
+    }
+
+    .MuiSvgIcon-root {
+        font-size: 25px;
+    }
+
     .MuiButton-startIcon {
         margin: 0;
+        background-color: ${props => props.theme.palette.header.color};
     }
 `;

@@ -72,6 +72,7 @@ export const Checkbox: React.FC<CheckboxProps> = React.memo(
 const Container = styled.div`
     display: flex;
     flex-direction: column;
+    height: 40px;
 `;
 
 const CheckboxWrapper = styled.div`

@@ -1,16 +1,14 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { TeamMember } from "../incident-management-team/TeamMember";
-import { OrgUnit } from "../OrgUnit";
-import { CodedNamedRef } from "../Ref";
+import { Option } from "../Ref";
 import { DiseaseOutbreakEventBaseAttrs } from "./DiseaseOutbreakEvent";
 
 export type DiseaseOutbreakEventOptions = {
-    hazardTypes: CodedNamedRef[];
-    mainSyndromes: CodedNamedRef[];
-    suspectedDiseases: CodedNamedRef[];
-    notificationSources: CodedNamedRef[];
-    organisationUnits: OrgUnit[];
-    incidentStatus: CodedNamedRef[];
+    hazardTypes: Option[];
+    mainSyndromes: Option[];
+    suspectedDiseases: Option[];
+    notificationSources: Option[];
+    incidentStatus: Option[];
     teamMembers: TeamMember[];
 };
 

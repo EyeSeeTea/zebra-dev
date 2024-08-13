@@ -15,7 +15,7 @@ export function mapTrackedEntityAttributesToDistrictOutbreak(
         eventId: getValueFromMap("eventId", trackedEntity),
         name: getValueFromMap("name", trackedEntity),
         hazardType: getValueFromMap("hazardType", trackedEntity) as HazardType,
-        suspectedDiseaseId: getValueFromMap("nationalSuspectedDisease", trackedEntity),
+        suspectedDiseaseCode: getValueFromMap("suspectedDisease", trackedEntity),
     };
 
     return diseaseOutbreak;
@@ -31,11 +31,12 @@ export function mapDistrictOutbreakEventToTrackedEntities(
         .map(attribute => {
             const populatedAttribute = {
                 attribute: attribute.trackedEntityAttribute.id,
-                value: getValueFromDistrictOutbreak(
-                    attribute.trackedEntityAttribute
-                        .code as (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
-                    diseaseOutbreak
-                ),
+                value:
+                    getValueFromDistrictOutbreak(
+                        attribute.trackedEntityAttribute
+                            .code as (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
+                        diseaseOutbreak
+                    ) ?? "",
             };
             return populatedAttribute;
         });
@@ -57,10 +58,9 @@ export function mapDistrictOutbreakEventToTrackedEntities(
 function getValueFromDistrictOutbreak(
     key: (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
     districtEvent: DistrictEvent
-): string {
+): string | undefined {
     switch (key) {
         case "RTSL_ZEB_TEA_EVENT_id":
-        case "RTSL_ZEB_TEA_NATIONAL_EVENT_id":
             return districtEvent.eventId?.toString() || "";
         case "RTSL_ZEB_TEA_EVENT_NAME":
             return districtEvent.name;
@@ -78,10 +78,7 @@ function getValueFromDistrictOutbreak(
                     return "UNKNOWN";
             }
             break;
-        case "RTSL_ZEB_TEA_DISEASE":
         case "RTSL_ZEB_TEA_SUSPECTED_DISEASE":
-            return districtEvent.suspectedDiseaseId;
-        default:
-            return "";
+            return districtEvent.suspectedDiseaseCode;
     }
 }

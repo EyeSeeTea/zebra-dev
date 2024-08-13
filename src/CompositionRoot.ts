@@ -41,18 +41,8 @@ function getCompositionRoot(repositories: Repositories) {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
         },
         diseaseOutbreakEvent: {
-            get: new GetDiseaseOutbreakByIdUseCase(
-                repositories.diseaseOutbreakEventRepository,
-                repositories.optionsRepository,
-                repositories.teamMemberRepository,
-                repositories.orgUnitRepository
-            ),
-            getWithOptions: new GetDiseaseOutbreakWithOptionsUseCase(
-                repositories.diseaseOutbreakEventRepository,
-                repositories.optionsRepository,
-                repositories.teamMemberRepository,
-                repositories.orgUnitRepository
-            ),
+            get: new GetDiseaseOutbreakByIdUseCase(repositories),
+            getWithOptions: new GetDiseaseOutbreakWithOptionsUseCase(repositories),
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
             save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
             mapOutbreakToDistrict: new MapNationalOutbreakToDistrictUseCase(

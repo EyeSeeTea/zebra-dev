@@ -9,6 +9,8 @@ type HeaderBarProps = {
 export const HeaderBar: React.FC<HeaderBarProps> = React.memo(({ name }) => {
     return (
         <Container>
+            <ButtonMenuContainer />
+
             <FlagBar color="red" />
 
             <FlagBar color="black" />
@@ -24,6 +26,13 @@ export const HeaderBar: React.FC<HeaderBarProps> = React.memo(({ name }) => {
 
 const Container = styled.div`
     display: flex;
+`;
+
+const ButtonMenuContainer = styled.div`
+    background-color: ${props => props.theme.palette.header.color};
+    @media (max-width: 959px) {
+        width: 55px;
+    }
 `;
 
 const FlagBar = styled.div<{ color: string }>`
@@ -48,7 +57,10 @@ const AppName = styled.span`
 const StyledHeaderBar = styled(D2HeaderBar)`
     &.app-header {
         background-color: ${props => props.theme.palette.header.color};
-        width: 100%;
+        width: calc(100% - 176px);
         border: none;
+        @media (max-width: 959px) {
+            width: calc(100% - 231px);
+        }
     }
 `;

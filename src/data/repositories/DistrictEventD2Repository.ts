@@ -31,7 +31,7 @@ export class DistrictEventD2Repository implements DistrictEventRepository {
     }
 
     save(diseaseOutbreaks: DistrictEvent[]): FutureData<void> {
-        return apiToFuture(getProgramTEAsMetadata(this.api, RTSL_ZEBRA_ALERTS_PROGRAM_ID)).flatMap(
+        return getProgramTEAsMetadata(this.api, RTSL_ZEBRA_ALERTS_PROGRAM_ID).flatMap(
             teasMetadataResponse => {
                 const teasMetadata =
                     teasMetadataResponse.objects[0]?.programTrackedEntityAttributes;

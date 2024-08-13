@@ -12,7 +12,7 @@ export class MapNationalOutbreakToDistrictUseCase {
 
         return this.districtEventRepository.get().flatMap(events => {
             const districtLevelOutbreakEvents = _(events)
-                .filter(event => event.suspectedDiseaseId === diseaseType)
+                .filter(event => event.suspectedDiseaseCode === diseaseType)
                 .map(event => ({
                     ...event,
                     eventId: trackedEntityId,

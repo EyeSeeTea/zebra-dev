@@ -11,7 +11,7 @@ export class DistrictEventTestRepository implements DistrictEventRepository {
                 eventId: "SKI8VNFH4IC",
                 name: "Disease Outbreak 1",
                 hazardType: "Biological:Animal",
-                suspectedDiseaseId: "1",
+                suspectedDiseaseCode: "1",
             },
         ]);
     }

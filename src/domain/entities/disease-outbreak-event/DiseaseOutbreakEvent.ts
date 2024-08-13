@@ -6,11 +6,12 @@ import { OrgUnit } from "../OrgUnit";
 import { Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
-import { ValidationError, ValidationErrorKey } from "../ValidationError";
+import { ValidationError } from "../ValidationError";
 
 export type HazardType =
     | "Biological:Human"
     | "Biological:Animal"
+    | "Biological:HumanAndAnimal"
     | "Chemical"
     | "Environmental"
     | "Unknown";
@@ -23,7 +24,7 @@ type DateWithNarrative = {
 };
 
 type DateWithNA = {
-    date: Date;
+    date: Maybe<Date>;
     na: Maybe<boolean>;
 };
 
@@ -44,9 +45,9 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     lastUpdated: Date;
     createdByName: Maybe<string>;
     hazardType: HazardType;
-    mainSyndromeId: Id;
-    suspectedDiseaseId: Id;
-    notificationSourceId: Id;
+    mainSyndromeCode: Id;
+    suspectedDiseaseCode: Id;
+    notificationSourceCode: Id;
     areasAffectedProvinceIds: Id[];
     areasAffectedDistrictIds: Id[];
     incidentStatus: IncidentStatusType;
@@ -77,45 +78,8 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
  **/
 
 export class DiseaseOutbreakEvent extends Struct<DiseaseOutbreakEventAttrs>() {
-    //TODO: Add required validations, this is an example:
-    static validate(data: DiseaseOutbreakEventBaseAttrs): ValidationError[] {
-        const validationErrors: ValidationError[] = [
-            {
-                property: "detected_date" as const,
-                errors: DiseaseOutbreakEvent.validateDateDetectedBeforeEmerged(data),
-                value: data.id,
-            },
-            {
-                property: "notified_date" as const,
-                errors: DiseaseOutbreakEvent.validateDateNotifiedBeforeEmerged(data),
-                value: data.id,
-            },
-        ];
-
-        const filteredValidationErrorsWithErrors = validationErrors.filter(
-            v => v.errors.length > 0
-        );
-
-        return filteredValidationErrorsWithErrors.length ? validationErrors : [];
-    }
-
-    static validateDateDetectedBeforeEmerged(
-        data: DiseaseOutbreakEventBaseAttrs
-    ): ValidationErrorKey[] {
-        return data.detected.date &&
-            data.emerged.date &&
-            data.detected.date.getTime() < data.emerged.date.getTime()
-            ? ["detected_before_emerged"]
-            : [];
-    }
-
-    static validateDateNotifiedBeforeEmerged(
-        data: DiseaseOutbreakEventBaseAttrs
-    ): ValidationErrorKey[] {
-        return data.notified.date &&
-            data.emerged.date &&
-            data.notified.date.getTime() < data.emerged.date.getTime()
-            ? ["notified_before_emerged"]
-            : [];
+    //TODO: Add required validations if exists:
+    static validate(_data: DiseaseOutbreakEventBaseAttrs): ValidationError[] {
+        return [];
     }
 }
