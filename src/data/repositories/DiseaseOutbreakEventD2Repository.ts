@@ -24,10 +24,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 fields: { attributes: true, trackedEntity: true },
             })
         )
-            .flatMap(
-                (response): FutureData<D2TrackerTrackedEntity> =>
-                    assertOrError(response.instances[0], "Tracked entity")
-            )
+            .flatMap(response => assertOrError(response.instances[0], "Tracked entity"))
             .map(trackedEntity => {
                 return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
             });

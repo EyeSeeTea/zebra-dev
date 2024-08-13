@@ -7,12 +7,15 @@ import { Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 
-export type HazardType =
-    | "Biological:Human"
-    | "Biological:Animal"
-    | "Chemical"
-    | "Environmental"
-    | "Unknown";
+export const hazardTypes = [
+    "Biological:Human",
+    "Biological:Animal",
+    "Chemical",
+    "Environmental",
+    "Unknown",
+] as const;
+
+export type HazardType = (typeof hazardTypes)[number];
 
 export type IncidentStatusType = "Watch" | "Alert" | "Respond" | "Closed" | "Discarded";
 

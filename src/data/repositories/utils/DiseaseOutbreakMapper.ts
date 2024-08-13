@@ -1,14 +1,13 @@
 import {
     DiseaseOutbreakEventBaseAttrs,
-    HazardType,
     IncidentStatusType,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     DiseaseOutbreakCode,
-    DiseaseOutbreakCodes,
+    diseaseOutbreakCodes,
+    getHazardTypeValue,
     getValueFromDiseaseOutbreak,
-    isHazardType,
     isStringInDiseaseOutbreakCodes,
     KeyCode,
     RTSL_ZEBRA_ORG_UNIT_ID,
@@ -31,14 +30,6 @@ type D2TrackedEntityAttribute = {
         }
     >;
 };
-
-function getHazardTypeValue(hazardType: string): HazardType {
-    if (isHazardType(hazardType)) {
-        return hazardType;
-    } else {
-        return "Unknown";
-    }
-}
 
 export function mapTrackedEntityAttributesToDiseaseOutbreak(
     trackedEntity: D2TrackerTrackedEntity
@@ -174,8 +165,8 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
 }
 
 function getValueFromMap(
-    key: keyof typeof DiseaseOutbreakCodes,
+    key: keyof typeof diseaseOutbreakCodes,
     trackedEntity: D2TrackerTrackedEntity
 ): string {
-    return trackedEntity.attributes?.find(a => a.code === DiseaseOutbreakCodes[key])?.value ?? "";
+    return trackedEntity.attributes?.find(a => a.code === diseaseOutbreakCodes[key])?.value ?? "";
 }
