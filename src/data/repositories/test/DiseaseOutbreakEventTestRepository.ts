@@ -104,8 +104,8 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             },
         ]);
     }
-    save(_diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void> {
-        return Future.success(undefined);
+    save(_diseaseOutbreak: DiseaseOutbreakEvent): FutureData<Id> {
+        return Future.success("");
     }
     delete(_id: Id): FutureData<void> {
         throw new Error("Method not implemented.");
