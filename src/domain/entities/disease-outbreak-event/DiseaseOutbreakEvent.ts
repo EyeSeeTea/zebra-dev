@@ -45,6 +45,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     created: Date;
     lastUpdated: Date;
     createdByName: Maybe<string>;
+    dataSourceCode: Id;
     hazardType: HazardType;
     mainSyndromeCode: Id;
     suspectedDiseaseCode: Id;
@@ -62,6 +63,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
 
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     createdBy: Maybe<TeamMember>;
+    dataSource: NamedRef;
     mainSyndrome: NamedRef;
     suspectedDisease: NamedRef;
     notificationSource: NamedRef;

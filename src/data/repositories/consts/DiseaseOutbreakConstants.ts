@@ -19,6 +19,7 @@ export const hazardTypeCodeMap: Record<HazardType, string> = {
 
 export const diseaseOutbreakCodes = {
     name: "RTSL_ZEB_TEA_EVENT_NAME",
+    dataSource: "RTSL_ZEB_TEA_DATA_SOURCE",
     hazardType: "RTSL_ZEB_TEA_HAZARD_TYPE",
     mainSyndrome: "RTSL_ZEB_TEA_MAIN_SYNDROME",
     suspectedDisease: "RTSL_ZEB_TEA_SUSPECTED_DISEASE",
@@ -68,6 +69,7 @@ export function getValueFromDiseaseOutbreak(
 ): Record<DiseaseOutbreakCode, string> {
     return {
         RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
+        RTSL_ZEB_TEA_DATA_SOURCE: diseaseOutbreak.dataSourceCode,
         RTSL_ZEB_TEA_HAZARD_TYPE: hazardTypeCodeMap[diseaseOutbreak.hazardType],
         RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode,
         RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode,

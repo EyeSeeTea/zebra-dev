@@ -20,6 +20,7 @@ import { getHazardTypeValue } from "../../../../../data/repositories/consts/Dise
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
+    dataSourceCode: "dataSourceCode",
     hazardType: "hazardType",
     mainSyndromeCode: "mainSyndromeCode",
     suspectedDiseaseCode: "suspectedDiseaseCode",
@@ -54,6 +55,7 @@ export function mapEntityToInitialFormState(
 ): FormState {
     const { diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
+        dataSources,
         teamMembers,
         hazardTypes,
         mainSyndromes,
@@ -73,6 +75,7 @@ export function mapEntityToInitialFormState(
         alt: tm.photo ? `Photo of ${tm.name}` : undefined,
     }));
 
+    const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
     const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
     const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
     const suspectedDiseasesOptions: PresentationOption[] =
@@ -101,6 +104,30 @@ export function mapEntityToInitialFormState(
                         type: "text",
                         value: diseaseOutbreakEvent?.name || "",
                         multiline: false,
+                        required: true,
+                        showIsRequired: false,
+                    },
+                ],
+            },
+            {
+                title: "Data Source",
+                id: "dataSource_section",
+                isVisible: true,
+                required: true,
+                fields: [
+                    {
+                        id: getFieldIdFromIdsDictionary(
+                            "dataSourceCode",
+                            diseaseOutbreakEventFieldIds
+                        ),
+                        placeholder: "Select a data source",
+                        isVisible: true,
+                        errors: [],
+                        type: "select",
+                        multiple: false,
+                        options: dataSourcesOptions,
+                        value: diseaseOutbreakEvent?.dataSourceCode || "",
+                        width: "300px",
                         required: true,
                         showIsRequired: false,
                     },
@@ -683,6 +710,7 @@ export function mapFormStateToEntityData(
 
     const diseaseOutbreakEventEditableData = {
         name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
+        dataSourceCode: getStringFieldValue(diseaseOutbreakEventFieldIds.dataSourceCode, allFields),
         hazardType: getHazardTypeValue(hazardType),
         mainSyndromeCode: getStringFieldValue(
             diseaseOutbreakEventFieldIds.mainSyndromeCode,

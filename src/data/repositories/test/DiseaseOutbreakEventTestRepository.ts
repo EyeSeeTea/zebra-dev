@@ -12,6 +12,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
         return Future.success({
             id: id,
             name: "Disease Outbreak 1",
+            dataSourceCode: "EBS",
             created: new Date(),
             lastUpdated: new Date(),
             createdByName: "createdByName",
@@ -44,6 +45,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             {
                 id: "1",
                 name: "Disease Outbreak 1",
+                dataSourceCode: "EBS",
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName",
@@ -73,6 +75,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             {
                 id: "2",
                 name: "Disease Outbreak 2",
+                dataSourceCode: "EBS",
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName2",

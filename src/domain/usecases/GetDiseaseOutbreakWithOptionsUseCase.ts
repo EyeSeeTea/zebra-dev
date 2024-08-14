@@ -32,6 +32,7 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
         diseaseOutbreakEventBase?: DiseaseOutbreakEventBaseAttrs
     ): FutureData<DiseaseOutbreakEventWithOptions> {
         return Future.joinObj({
+            dataSources: this.options.optionsRepository.getAllDataSources(),
             hazardTypes: this.options.optionsRepository.getAllHazardTypes(),
             mainSyndromes: this.options.optionsRepository.getAllMainSyndromes(),
             suspectedDiseases: this.options.optionsRepository.getAllSuspectedDiseases(),
@@ -40,6 +41,7 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
             teamMembers: this.options.teamMemberRepository.getAll(),
         }).flatMap(
             ({
+                dataSources,
                 hazardTypes,
                 mainSyndromes,
                 suspectedDiseases,
@@ -50,6 +52,7 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                 const diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions = {
                     diseaseOutbreakEvent: diseaseOutbreakEventBase,
                     options: {
+                        dataSources,
                         teamMembers,
                         hazardTypes,
                         mainSyndromes,

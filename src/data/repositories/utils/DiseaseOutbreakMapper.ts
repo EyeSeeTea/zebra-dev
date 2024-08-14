@@ -39,6 +39,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
         name: getValueFromMap("name", trackedEntity),
+        dataSourceCode: getValueFromMap("dataSource", trackedEntity),
         created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : new Date(),
         lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : new Date(),
         createdByName: undefined,
