@@ -4,6 +4,7 @@ import { Option } from "../Ref";
 import { DiseaseOutbreakEventBaseAttrs } from "./DiseaseOutbreakEvent";
 
 export type DiseaseOutbreakEventOptions = {
+    dataSources: Option[];
     hazardTypes: Option[];
     mainSyndromes: Option[];
     suspectedDiseases: Option[];

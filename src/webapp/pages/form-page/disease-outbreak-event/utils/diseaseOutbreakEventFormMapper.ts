@@ -16,10 +16,11 @@ import { Option } from "../../../../../domain/entities/Ref";
 import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormState";
 import { UserOption } from "../../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../../components/utils/option";
-import { isHazardType } from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
+import { getHazardTypeValue } from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
+    dataSourceCode: "dataSourceCode",
     hazardType: "hazardType",
     mainSyndromeCode: "mainSyndromeCode",
     suspectedDiseaseCode: "suspectedDiseaseCode",
@@ -54,6 +55,7 @@ export function mapEntityToInitialFormState(
 ): FormState {
     const { diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
+        dataSources,
         teamMembers,
         hazardTypes,
         mainSyndromes,
@@ -73,6 +75,7 @@ export function mapEntityToInitialFormState(
         alt: tm.photo ? `Photo of ${tm.name}` : undefined,
     }));
 
+    const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
     const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
     const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
     const suspectedDiseasesOptions: PresentationOption[] =
@@ -101,6 +104,30 @@ export function mapEntityToInitialFormState(
                         type: "text",
                         value: diseaseOutbreakEvent?.name || "",
                         multiline: false,
+                        required: true,
+                        showIsRequired: false,
+                    },
+                ],
+            },
+            {
+                title: "Data Source",
+                id: "dataSource_section",
+                isVisible: true,
+                required: true,
+                fields: [
+                    {
+                        id: getFieldIdFromIdsDictionary(
+                            "dataSourceCode",
+                            diseaseOutbreakEventFieldIds
+                        ),
+                        placeholder: "Select a data source",
+                        isVisible: true,
+                        errors: [],
+                        type: "select",
+                        multiple: false,
+                        options: dataSourcesOptions,
+                        value: diseaseOutbreakEvent?.dataSourceCode || "",
+                        width: "300px",
                         required: true,
                         showIsRequired: false,
                     },
@@ -408,6 +435,9 @@ export function mapEntityToInitialFormState(
                                 hasNotApplicable: true,
                                 required: true,
                                 showIsRequired: false,
+                                disabled:
+                                    diseaseOutbreakEvent?.earlyResponseActions
+                                        .laboratoryConfirmation.na,
                             },
                             {
                                 id: getFieldIdFromIdsDictionary(
@@ -421,7 +451,7 @@ export function mapEntityToInitialFormState(
                                 value:
                                     diseaseOutbreakEvent?.earlyResponseActions
                                         .laboratoryConfirmation.na || false,
-                                width: "100px",
+                                width: "65px",
                                 notApplicableFieldId: getFieldIdFromIdsDictionary(
                                     "laboratoryConfirmationDate",
                                     diseaseOutbreakEventFieldIds
@@ -451,6 +481,9 @@ export function mapEntityToInitialFormState(
                                 hasNotApplicable: true,
                                 required: true,
                                 showIsRequired: false,
+                                disabled:
+                                    diseaseOutbreakEvent?.earlyResponseActions
+                                        .appropriateCaseManagement.na,
                             },
                             {
                                 id: getFieldIdFromIdsDictionary(
@@ -464,7 +497,7 @@ export function mapEntityToInitialFormState(
                                 value:
                                     diseaseOutbreakEvent?.earlyResponseActions
                                         .appropriateCaseManagement.na || false,
-                                width: "100px",
+                                width: "65px",
                                 notApplicableFieldId: getFieldIdFromIdsDictionary(
                                     "appropriateCaseManagementDate",
                                     diseaseOutbreakEventFieldIds
@@ -494,6 +527,9 @@ export function mapEntityToInitialFormState(
                                 hasNotApplicable: true,
                                 required: true,
                                 showIsRequired: false,
+                                disabled:
+                                    diseaseOutbreakEvent?.earlyResponseActions
+                                        .initiatePublicHealthCounterMeasures.na,
                             },
                             {
                                 label: "N/A",
@@ -507,7 +543,7 @@ export function mapEntityToInitialFormState(
                                 value:
                                     diseaseOutbreakEvent?.earlyResponseActions
                                         .initiatePublicHealthCounterMeasures.na || false,
-                                width: "100px",
+                                width: "65px",
                                 notApplicableFieldId: getFieldIdFromIdsDictionary(
                                     "initiatePublicHealthCounterMeasuresDate",
                                     diseaseOutbreakEventFieldIds
@@ -537,6 +573,9 @@ export function mapEntityToInitialFormState(
                                 hasNotApplicable: true,
                                 required: true,
                                 showIsRequired: false,
+                                disabled:
+                                    diseaseOutbreakEvent?.earlyResponseActions
+                                        .initiateRiskCommunication.na,
                             },
                             {
                                 id: getFieldIdFromIdsDictionary(
@@ -550,7 +589,7 @@ export function mapEntityToInitialFormState(
                                 value:
                                     diseaseOutbreakEvent?.earlyResponseActions
                                         .initiateRiskCommunication.na || false,
-                                width: "100px",
+                                width: "65px",
                                 notApplicableFieldId: getFieldIdFromIdsDictionary(
                                     "initiateRiskCommunicationDate",
                                     diseaseOutbreakEventFieldIds
@@ -671,7 +710,8 @@ export function mapFormStateToEntityData(
 
     const diseaseOutbreakEventEditableData = {
         name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
-        hazardType: isHazardType(hazardType) ? hazardType : "Unknown",
+        dataSourceCode: getStringFieldValue(diseaseOutbreakEventFieldIds.dataSourceCode, allFields),
+        hazardType: getHazardTypeValue(hazardType),
         mainSyndromeCode: getStringFieldValue(
             diseaseOutbreakEventFieldIds.mainSyndromeCode,
             allFields
@@ -784,7 +824,6 @@ export function mapFormStateToEntityData(
 
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
-        eventId: diseaseOutbreakEvent?.eventId,
         created: diseaseOutbreakEvent?.created || new Date(),
         lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,

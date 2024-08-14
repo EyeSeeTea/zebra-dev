@@ -24,6 +24,10 @@ export class OptionsD2Repository implements OptionsRepository {
             });
     }
 
+    getAllDataSources(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_DATA_SOURCE");
+    }
+
     getAllHazardTypes(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_HAZARD_TYPE").map(hazardTypes => {
             return hazardTypes.map(hazardType => ({

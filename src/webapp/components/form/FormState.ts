@@ -211,7 +211,7 @@ function applyEffectNotApplicableFieldUpdatedInSection(
                     f => f.notApplicableFieldId === field.id
                 );
 
-                // TODO fix this: return value type
+                // TODO: FIXME TypeScript error returning the corresponding fieldValue type
                 const fieldValue = (
                     notApplicableField?.value ? getEmptyValueForField(field) : getFieldValue(field)
                 ) as any;

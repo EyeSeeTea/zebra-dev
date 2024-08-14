@@ -3,6 +3,7 @@ import { Id, Option } from "../entities/Ref";
 
 export interface OptionsRepository {
     get(id: Id): FutureData<Option>;
+    getAllDataSources(): FutureData<Option[]>;
     getAllHazardTypes(): FutureData<Option[]>;
     getAllMainSyndromes(): FutureData<Option[]>;
     getAllSuspectedDiseases(): FutureData<Option[]>;

@@ -1,14 +1,13 @@
 import {
     DiseaseOutbreakEventBaseAttrs,
-    HazardType,
     IncidentStatusType,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     DiseaseOutbreakCode,
-    DiseaseOutbreakCodes,
+    diseaseOutbreakCodes,
+    getHazardTypeValue,
     getValueFromDiseaseOutbreak,
-    isHazardType,
     isStringInDiseaseOutbreakCodes,
     KeyCode,
     RTSL_ZEBRA_ORG_UNIT_ID,
@@ -32,14 +31,6 @@ export type D2TrackedEntityAttribute = {
     >;
 };
 
-function getHazardTypeValue(hazardType: string): HazardType {
-    if (isHazardType(hazardType)) {
-        return hazardType;
-    } else {
-        return "Unknown";
-    }
-}
-
 export function mapTrackedEntityAttributesToDiseaseOutbreak(
     trackedEntity: D2TrackerTrackedEntity
 ): DiseaseOutbreakEventBaseAttrs {
@@ -47,8 +38,8 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
-        eventId: parseInt(getValueFromMap("eventId", trackedEntity)),
         name: getValueFromMap("name", trackedEntity),
+        dataSourceCode: getValueFromMap("dataSource", trackedEntity),
         created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : new Date(),
         lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : new Date(),
         createdByName: undefined,
@@ -85,27 +76,23 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
             ),
             laboratoryConfirmation: {
                 date: new Date(getValueFromMap("laboratoryConfirmationDate", trackedEntity)),
-                na: !(getValueFromMap("laboratoryConfirmationNA", trackedEntity) === "true"),
+                na: getValueFromMap("laboratoryConfirmationNA", trackedEntity) === "true",
             },
             appropriateCaseManagement: {
                 date: new Date(getValueFromMap("appropriateCaseManagementDate", trackedEntity)),
-                na: !(getValueFromMap("appropriateCaseManagementNA", trackedEntity) === "true"),
+                na: getValueFromMap("appropriateCaseManagementNA", trackedEntity) === "true",
             },
             initiatePublicHealthCounterMeasures: {
                 date: new Date(
                     getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity)
                 ),
-                na: !(
+                na:
                     getValueFromMap("initiatePublicHealthCounterMeasuresNA", trackedEntity) ===
-                    "true"
-                ),
+                    "true",
             },
             initiateRiskCommunication: {
                 date: new Date(getValueFromMap("initiateRiskCommunicationDate", trackedEntity)),
-                na:
-                    getValueFromMap("initiateRiskCommunicationNA", trackedEntity) === "true"
-                        ? false
-                        : true,
+                na: getValueFromMap("initiateRiskCommunicationNA", trackedEntity) === "true",
             },
             establishCoordination: new Date(
                 getValueFromMap("establishCoordination", trackedEntity)
@@ -123,52 +110,6 @@ function getMultipleOUFromText(text: string): string[] {
     return [text].filter(ou => ou !== "");
 }
 
-function getValueOfCodeIfSpecifyDateIsTrue(
-    attributeValues: Record<DiseaseOutbreakCode, string>,
-    code: DiseaseOutbreakCode,
-    specifyDateCode: DiseaseOutbreakCode
-): string | undefined {
-    return attributeValues[specifyDateCode] === "true" ? attributeValues[code] : undefined;
-}
-
-function getValueByDiseaseOutbreakCode(
-    attributeValues: Record<DiseaseOutbreakCode, string>,
-    code: DiseaseOutbreakCode
-): string | undefined {
-    switch (code) {
-        case "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION":
-        case "RTSL_ZEB_TEA_SPECIFY_DATE1":
-            return getValueOfCodeIfSpecifyDateIsTrue(
-                attributeValues,
-                code,
-                "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION"
-            );
-        case "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT":
-        case "RTSL_ZEB_TEA_SPECIFY_DATE2":
-            return getValueOfCodeIfSpecifyDateIsTrue(
-                attributeValues,
-                code,
-                "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT"
-            );
-        case "RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH":
-        case "RTSL_ZEB_TEA_SPECIFY_DATE3":
-            return getValueOfCodeIfSpecifyDateIsTrue(
-                attributeValues,
-                code,
-                "RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH"
-            );
-        case "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION":
-        case "RTSL_ZEB_TEA_SPECIFY_DATE4":
-            return getValueOfCodeIfSpecifyDateIsTrue(
-                attributeValues,
-                code,
-                "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION"
-            );
-        default:
-            return attributeValues[code];
-    }
-}
-
 export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs,
     attributesMetadata: D2TrackedEntityAttribute[]
@@ -176,33 +117,17 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
     const attributeValues: Record<DiseaseOutbreakCode, string> =
         getValueFromDiseaseOutbreak(diseaseOutbreak);
 
-    const attributeValuesCleaned = (Object.keys(attributeValues) as DiseaseOutbreakCode[]).reduce(
-        (acc: Record<DiseaseOutbreakCode, string>, code: DiseaseOutbreakCode) => {
-            const value = getValueByDiseaseOutbreakCode(attributeValues, code);
-            return value
-                ? { ...acc, [code]: getValueByDiseaseOutbreakCode(attributeValues, code) }
-                : acc;
-        },
-        {} as Record<DiseaseOutbreakCode, string>
-    );
-
-    const attributes: Attribute[] = _(
-        attributesMetadata.map((attribute): Attribute | null => {
-            if (!isStringInDiseaseOutbreakCodes(attribute.trackedEntityAttribute.code)) {
-                throw new Error("Attribute code not found in DiseaseOutbreakCodes");
-            }
-            const typedCode: KeyCode = attribute.trackedEntityAttribute.code;
-
-            return attributeValuesCleaned[typedCode]
-                ? {
-                      attribute: attribute.trackedEntityAttribute.id,
-                      value: attributeValuesCleaned[typedCode],
-                  }
-                : null;
-        })
-    )
-        .compact()
-        .value();
+    const attributes: Attribute[] = attributesMetadata.map(attribute => {
+        if (!isStringInDiseaseOutbreakCodes(attribute.trackedEntityAttribute.code)) {
+            throw new Error("Attribute code not found in DiseaseOutbreakCodes");
+        }
+        const typedCode: KeyCode = attribute.trackedEntityAttribute.code;
+        const populatedAttribute = {
+            attribute: attribute.trackedEntityAttribute.id,
+            value: attributeValues[typedCode],
+        };
+        return populatedAttribute;
+    });
 
     const enrollment: D2TrackerEnrollment = {
         orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
@@ -239,8 +164,8 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
 }
 
 export function getValueFromMap(
-    key: keyof typeof DiseaseOutbreakCodes,
+    key: keyof typeof diseaseOutbreakCodes,
     trackedEntity: D2TrackerTrackedEntity
 ): string {
-    return trackedEntity.attributes?.find(a => a.code === DiseaseOutbreakCodes[key])?.value ?? "";
+    return trackedEntity.attributes?.find(a => a.code === diseaseOutbreakCodes[key])?.value ?? "";
 }

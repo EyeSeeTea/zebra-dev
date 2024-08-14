@@ -8,13 +8,15 @@ import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
 
-export type HazardType =
-    | "Biological:Human"
-    | "Biological:Animal"
-    | "Biological:HumanAndAnimal"
-    | "Chemical"
-    | "Environmental"
-    | "Unknown";
+export const hazardTypes = [
+    "Biological:Human",
+    "Biological:Animal",
+    "Chemical",
+    "Environmental",
+    "Unknown",
+] as const;
+
+export type HazardType = (typeof hazardTypes)[number];
 
 export type IncidentStatusType = "Watch" | "Alert" | "Respond" | "Closed" | "Discarded";
 
@@ -40,10 +42,10 @@ type EarlyResponseActions = {
 };
 
 export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
-    eventId: Maybe<number>;
     created: Date;
     lastUpdated: Date;
     createdByName: Maybe<string>;
+    dataSourceCode: Id;
     hazardType: HazardType;
     mainSyndromeCode: Id;
     suspectedDiseaseCode: Id;
@@ -61,6 +63,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
 
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     createdBy: Maybe<TeamMember>;
+    dataSource: NamedRef;
     mainSyndrome: NamedRef;
     suspectedDisease: NamedRef;
     notificationSource: NamedRef;

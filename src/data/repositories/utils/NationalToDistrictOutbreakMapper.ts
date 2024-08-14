@@ -1,5 +1,5 @@
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
-import { DiseaseOutbreakCodes, RTSL_ZEBRA_ORG_UNIT_ID } from "../consts/DiseaseOutbreakConstants";
+import { diseaseOutbreakCodes, RTSL_ZEBRA_ORG_UNIT_ID } from "../consts/DiseaseOutbreakConstants";
 import { Attribute } from "@eyeseetea/d2-api/api/trackedEntityInstances";
 import { D2TrackedEntityAttribute, getValueFromMap } from "./DiseaseOutbreakMapper";
 import { DistrictEvent } from "../../../domain/entities/disease-outbreak-event/DistrictEvent";
@@ -12,7 +12,6 @@ export function mapTrackedEntityAttributesToDistrictOutbreak(
 
     const diseaseOutbreak: DistrictEvent = {
         id: trackedEntity.trackedEntity,
-        eventId: getValueFromMap("eventId", trackedEntity),
         name: getValueFromMap("name", trackedEntity),
         hazardType: getValueFromMap("hazardType", trackedEntity) as HazardType,
         suspectedDiseaseCode: getValueFromMap("suspectedDisease", trackedEntity),
@@ -27,14 +26,14 @@ export function mapDistrictOutbreakEventToTrackedEntities(
     tetsMetadata: D2TrackerTrackedEntity[]
 ): D2TrackerTrackedEntity {
     const attributes: Attribute[] = attributesMetadata
-        .filter(attribute => attribute.trackedEntityAttribute.code === DiseaseOutbreakCodes.eventId)
+        // .filter(attribute => attribute.trackedEntityAttribute.code === diseaseOutbreakCodes.eventId)
         .map(attribute => {
             const populatedAttribute = {
                 attribute: attribute.trackedEntityAttribute.id,
                 value:
                     getValueFromDistrictOutbreak(
                         attribute.trackedEntityAttribute
-                            .code as (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
+                            .code as (typeof diseaseOutbreakCodes)[keyof typeof diseaseOutbreakCodes],
                         diseaseOutbreak
                     ) ?? "",
             };
@@ -56,12 +55,10 @@ export function mapDistrictOutbreakEventToTrackedEntities(
 }
 
 function getValueFromDistrictOutbreak(
-    key: (typeof DiseaseOutbreakCodes)[keyof typeof DiseaseOutbreakCodes],
+    key: (typeof diseaseOutbreakCodes)[keyof typeof diseaseOutbreakCodes],
     districtEvent: DistrictEvent
 ): string | undefined {
     switch (key) {
-        case "RTSL_ZEB_TEA_EVENT_id":
-            return districtEvent.eventId?.toString() || "";
         case "RTSL_ZEB_TEA_EVENT_NAME":
             return districtEvent.name;
         case "RTSL_ZEB_TEA_HAZARD_TYPE":

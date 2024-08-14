@@ -11,8 +11,8 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs> {
         return Future.success({
             id: id,
-            eventId: 11,
             name: "Disease Outbreak 1",
+            dataSourceCode: "EBS",
             created: new Date(),
             lastUpdated: new Date(),
             createdByName: "createdByName",
@@ -44,8 +44,8 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
         return Future.success([
             {
                 id: "1",
-                eventId: 11,
                 name: "Disease Outbreak 1",
+                dataSourceCode: "EBS",
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName",
@@ -74,8 +74,8 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             },
             {
                 id: "2",
-                eventId: 22,
                 name: "Disease Outbreak 2",
+                dataSourceCode: "EBS",
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName2",
@@ -104,8 +104,8 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             },
         ]);
     }
-    save(_diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void> {
-        return Future.success(undefined);
+    save(_diseaseOutbreak: DiseaseOutbreakEvent): FutureData<Id> {
+        return Future.success("");
     }
     delete(_id: Id): FutureData<void> {
         throw new Error("Method not implemented.");

@@ -36,7 +36,7 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
             });
     }
 
-    // TODO: Fix this type: Property 'username' does not exist on type 'D2User'
+    // TODO: FIXME Property using next version of d2-api ('username' does not exist on type 'D2User')
     mapUserToTeamMember(user: any): TeamMember {
         return new TeamMember({
             id: user.id,

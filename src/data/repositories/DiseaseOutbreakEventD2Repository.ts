@@ -11,6 +11,7 @@ import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseO
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { getProgramTEAsMetadata } from "./utils/MetadataHelper";
 import { assertOrError } from "./utils/AssertOrError";
+import { Future } from "../../domain/entities/generic/Future";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -24,10 +25,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 fields: { attributes: true, trackedEntity: true },
             })
         )
-            .flatMap(
-                (response): FutureData<D2TrackerTrackedEntity> =>
-                    assertOrError(response.instances[0], "Tracked entity")
-            )
+            .flatMap(response => assertOrError(response.instances[0], "Tracked entity"))
             .map(trackedEntity => {
                 return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
             });
@@ -47,14 +45,16 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         });
     }
 
-    save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<void> {
+    save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<Id> {
         return getProgramTEAsMetadata(this.api, RTSL_ZEBRA_PROGRAM_ID).flatMap(
             teasMetadataResponse => {
                 const teasMetadata =
                     teasMetadataResponse.objects[0]?.programTrackedEntityAttributes;
 
                 if (!teasMetadata)
-                    throw new Error("Program Tracked Entity Attributes metadata not found");
+                    return Future.error(
+                        new Error(`Program Tracked Entity Attributes metadata not found`)
+                    );
 
                 const trackedEntity: D2TrackerTrackedEntity =
                     mapDiseaseOutbreakEventToTrackedEntityAttributes(diseaseOutbreak, teasMetadata);
@@ -64,9 +64,16 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                         { importStrategy: "CREATE_AND_UPDATE" },
                         { trackedEntities: [trackedEntity] }
                     )
-                ).map(saveResponse => {
-                    if (saveResponse.status === "ERROR")
-                        throw new Error("Error saving disease ooutbreak event");
+                ).flatMap(saveResponse => {
+                    const diseaseOutbreakId =
+                        saveResponse.bundleReport.typeReportMap.TRACKED_ENTITY.objectReports[0]
+                            ?.uid;
+
+                    if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
+                        return Future.error(new Error(`Error saving disease ooutbreak event`));
+                    } else {
+                        return Future.success(diseaseOutbreakId);
+                    }
                 });
             }
         );
