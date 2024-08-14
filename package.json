@@ -17,7 +17,7 @@
         "@dhis2/ui": "6.12.0",
         "@emotion/react": "11.11.4",
         "@emotion/styled": "11.11.5",
-        "@eyeseetea/d2-api": "1.14.0",
+        "@eyeseetea/d2-api": "1.16.0-beta.9",
         "@eyeseetea/d2-ui-components": "v2.9.0-beta.2",
         "@eyeseetea/feedback-component": "0.0.3",
         "@material-ui/core": "4.12.4",

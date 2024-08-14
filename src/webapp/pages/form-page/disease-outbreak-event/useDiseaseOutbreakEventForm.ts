@@ -6,8 +6,9 @@ import { useAppContext } from "../../../contexts/app-context";
 import { Id } from "../../../../domain/entities/Ref";
 import { FormFieldState, FormState } from "../../../components/form/FormState";
 import { FormType } from "../FormPage";
-import { DiseaseOutbreakEvent } from "../../../../domain/entities/DiseaseOutbreakEvent";
+
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
+import { DiseaseOutbreakEvent } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
     text: string;
@@ -311,7 +312,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                             },
                         ],
                         value:
-                            diseaseOutbreakEvent?.areasAffected.provinces.map(
+                            diseaseOutbreakEvent?.areasAffectedProvinces.map(
                                 province => province.id
                             ) || [],
                         width: "400px",
@@ -334,7 +335,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                             },
                         ],
                         value:
-                            diseaseOutbreakEvent?.areasAffected.districts.map(
+                            diseaseOutbreakEvent?.areasAffectedDistricts.map(
                                 district => district.id
                             ) || [],
                         width: "400px",
@@ -634,7 +635,9 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                                 isVisible: true,
                                 errors: [],
                                 type: "text",
-                                value: diseaseOutbreakEvent?.responseNarrative || "",
+                                value:
+                                    diseaseOutbreakEvent?.earlyResponseActions.responseNarrative ||
+                                    "",
                                 multiline: true,
                             },
                         ],
@@ -673,7 +676,7 @@ function mapDataToState(diseaseOutbreakEvent?: DiseaseOutbreakEvent): FormState 
                                 src: "url 2",
                             },
                         ],
-                        value: diseaseOutbreakEvent?.incidentManager.id,
+                        value: diseaseOutbreakEvent?.incidentManager?.id,
                     },
                 ],
             },
