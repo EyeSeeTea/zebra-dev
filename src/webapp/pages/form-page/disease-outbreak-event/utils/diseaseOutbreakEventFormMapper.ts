@@ -16,7 +16,7 @@ import { Option } from "../../../../../domain/entities/Ref";
 import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormState";
 import { UserOption } from "../../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../../components/utils/option";
-import { isHazardType } from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
+import { getHazardTypeValue } from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -683,7 +683,7 @@ export function mapFormStateToEntityData(
 
     const diseaseOutbreakEventEditableData = {
         name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
-        hazardType: isHazardType(hazardType) ? hazardType : "Unknown",
+        hazardType: getHazardTypeValue(hazardType),
         mainSyndromeCode: getStringFieldValue(
             diseaseOutbreakEventFieldIds.mainSyndromeCode,
             allFields
@@ -796,7 +796,6 @@ export function mapFormStateToEntityData(
 
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
-        eventId: diseaseOutbreakEvent?.eventId,
         created: diseaseOutbreakEvent?.created || new Date(),
         lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,

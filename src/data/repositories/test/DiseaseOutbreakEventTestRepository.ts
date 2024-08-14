@@ -11,7 +11,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs> {
         return Future.success({
             id: id,
-            eventId: 11,
             name: "Disease Outbreak 1",
             created: new Date(),
             lastUpdated: new Date(),
@@ -44,7 +43,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
         return Future.success([
             {
                 id: "1",
-                eventId: 11,
                 name: "Disease Outbreak 1",
                 created: new Date(),
                 lastUpdated: new Date(),
@@ -74,7 +72,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             },
             {
                 id: "2",
-                eventId: 22,
                 name: "Disease Outbreak 2",
                 created: new Date(),
                 lastUpdated: new Date(),
