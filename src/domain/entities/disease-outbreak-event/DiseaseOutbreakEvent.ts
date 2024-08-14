@@ -8,13 +8,15 @@ import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
 
-export type HazardType =
-    | "Biological:Human"
-    | "Biological:Animal"
-    | "Biological:HumanAndAnimal"
-    | "Chemical"
-    | "Environmental"
-    | "Unknown";
+export const hazardTypes = [
+    "Biological:Human",
+    "Biological:Animal",
+    "Chemical",
+    "Environmental",
+    "Unknown",
+] as const;
+
+export type HazardType = (typeof hazardTypes)[number];
 
 export type IncidentStatusType = "Watch" | "Alert" | "Respond" | "Closed" | "Discarded";
 
