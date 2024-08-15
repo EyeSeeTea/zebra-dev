@@ -59,9 +59,7 @@ export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
 }
 
 export function getHazardTypeValue(hazardType: string): HazardType {
-    const hazardTypeString = Object.keys(hazardTypeCodeMap).find(
-        key => hazardTypeCodeMap[key as HazardType] === hazardType
-    );
+    const hazardTypeString = Object.keys(hazardTypeCodeMap).find(key => key === hazardType);
     return hazardTypeString ? (hazardTypeString as HazardType) : "Unknown";
 }
 
