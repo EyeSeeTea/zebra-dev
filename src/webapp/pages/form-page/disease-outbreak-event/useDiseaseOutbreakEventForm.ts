@@ -128,13 +128,24 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
         );
 
         compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
-            () => {
-                setGlobalMessage({
-                    text: i18n.t(`Disease Outbreak saved successfully`),
-                    type: "success",
-                });
-                setIsLoading(false);
+            diseaseOutbreakEventId => {
                 setIsSaved(true);
+
+                compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlert
+                    .execute(diseaseOutbreakEventId, diseaseOutbreakEventData)
+                    .run(
+                        () => {
+                            setGlobalMessage({
+                                text: i18n.t(`Disease Outbreak saved successfully`),
+                                type: "success",
+                            });
+                            setIsLoading(false);
+                        },
+                        err => {
+                            console.error({ err });
+                            setIsLoading(false);
+                        }
+                    );
             },
             err => {
                 setGlobalMessage({
@@ -145,17 +156,8 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                 setIsSaved(false);
             }
         );
-
-        compositionRoot.diseaseOutbreakEvent.mapOutbreakToDistrict.execute().run(
-            data => {
-                console.debug({ data });
-            },
-            err => {
-                console.error({ err });
-            }
-        );
     }, [
-        compositionRoot.diseaseOutbreakEvent.mapOutbreakToDistrict,
+        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlert,
         compositionRoot.diseaseOutbreakEvent.save,
         currentUser.username,
         diseaseOutbreakEventWithOptions,
