@@ -1,6 +1,7 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { TeamMember } from "../incident-management-team/TeamMember";
 import { Option } from "../Ref";
+import { Rule } from "../Rule";
 import { DiseaseOutbreakEventBaseAttrs } from "./DiseaseOutbreakEvent";
 
 export type DiseaseOutbreakEventOptions = {
@@ -21,4 +22,5 @@ export type DiseaseOutbreakEventWithOptions = {
     diseaseOutbreakEvent: Maybe<DiseaseOutbreakEventBaseAttrs>;
     options: DiseaseOutbreakEventOptions;
     labels: DiseaseOutbreakEventLables;
+    rules: Rule[];
 };

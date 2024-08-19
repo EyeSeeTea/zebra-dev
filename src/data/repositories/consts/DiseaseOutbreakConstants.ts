@@ -12,6 +12,7 @@ export const RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID = "lIzNjLOUAKA";
 export const hazardTypeCodeMap: Record<HazardType, string> = {
     "Biological:Human": "BIOLOGICAL_HUMAN",
     "Biological:Animal": "BIOLOGICAL_ANIMAL",
+    "Biological:HumanAndAnimal": "BIOLOGICAL_HUM_ANM",
     Chemical: "CHEMICAL",
     Environmental: "ENVIRONMENTAL",
     Unknown: "UNKNOWN",
@@ -69,10 +70,12 @@ export function getValueFromDiseaseOutbreak(
 ): Record<DiseaseOutbreakCode, string> {
     return {
         RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
-        RTSL_ZEB_TEA_DATA_SOURCE: diseaseOutbreak.dataSourceCode,
-        RTSL_ZEB_TEA_HAZARD_TYPE: hazardTypeCodeMap[diseaseOutbreak.hazardType],
-        RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode,
-        RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode,
+        RTSL_ZEB_TEA_DATA_SOURCE: diseaseOutbreak.dataSource,
+        RTSL_ZEB_TEA_HAZARD_TYPE: diseaseOutbreak.hazardType
+            ? hazardTypeCodeMap[diseaseOutbreak.hazardType]
+            : "",
+        RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode ?? "",
+        RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode ?? "",
         RTSL_ZEB_TEA_NOTIFICATION_SOURCE: diseaseOutbreak.notificationSourceCode,
         RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES: getOUTextFromList(
             diseaseOutbreak.areasAffectedProvinceIds
@@ -134,6 +137,8 @@ export function getHazardTypeByCode(hazardTypeCode: string): HazardType {
             return "Biological:Animal";
         case "BIOLOGICAL_HUMAN":
             return "Biological:Human";
+        case "BIOLOGICAL_HUM_ANM":
+            return "Biological:HumanAndAnimal";
         case "CHEMICAL":
             return "Chemical";
         case "ENVIRONMENTAL":

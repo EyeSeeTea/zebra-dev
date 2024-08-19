@@ -9,6 +9,7 @@ import {
     updateFormStateWithFieldErrors,
     validateForm,
 } from "../../../../components/form/FormState";
+import { applyRulesInFormState } from "./applyRulesInFormState";
 import { mapFormStateToEntityData } from "./diseaseOutbreakEventFormMapper";
 
 export function updateDiseaseOutbreakEventFormState(
@@ -18,16 +19,19 @@ export function updateDiseaseOutbreakEventFormState(
     currentUserUsername: string
 ): FormState {
     const updatedForm = updateFormStateAndApplySideEffects(prevFormState, updatedField);
+    const updatedFormWithRulesApplied = diseaseOutbreakEventWithOptions.rules.length
+        ? applyRulesInFormState(updatedForm, updatedField, diseaseOutbreakEventWithOptions.rules)
+        : updatedForm;
 
     const fieldValidationErrors = validateDiseaseOutbreakEventFormState(
-        updatedForm,
+        updatedFormWithRulesApplied,
         updatedField,
         diseaseOutbreakEventWithOptions,
         currentUserUsername
     );
 
     const updatedFormStateWithErrors = updateFormStateWithFieldErrors(
-        updatedForm,
+        updatedFormWithRulesApplied,
         updatedField,
         fieldValidationErrors
     );

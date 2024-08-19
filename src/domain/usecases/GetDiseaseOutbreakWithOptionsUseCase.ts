@@ -60,13 +60,28 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                         notificationSources,
                         incidentStatus,
                     },
-                    // TODO: Get labels form Datastore used in mapEntityToInitialFormState to create initial form state
+                    // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
                     labels: {
                         errors: {
                             field_is_required: "This field is required",
                             field_is_required_na: "This field is required when not applicable",
                         },
                     },
+                    // TODO: Get rules from Datastore used in applyRulesInFormState
+                    rules: [
+                        {
+                            type: "toggleSectionsVisibilityByFieldValue",
+                            fieldId: "dataSource",
+                            fieldValue: "EBS",
+                            sectionIds: ["hazardType_section"],
+                        },
+                        {
+                            type: "toggleSectionsVisibilityByFieldValue",
+                            fieldId: "dataSource",
+                            fieldValue: "IBS",
+                            sectionIds: ["mainSyndrome_section", "suspectedDisease_section"],
+                        },
+                    ],
                 };
                 return Future.success(diseaseOutbreakEventWithOptions);
             }

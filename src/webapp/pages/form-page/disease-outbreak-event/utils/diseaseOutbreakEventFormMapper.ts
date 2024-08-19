@@ -1,5 +1,7 @@
 import {
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
+    HazardType,
     IncidentStatusType,
 } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
@@ -16,11 +18,10 @@ import { Option } from "../../../../../domain/entities/Ref";
 import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormState";
 import { UserOption } from "../../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../../components/utils/option";
-import { getHazardTypeValue } from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
-    dataSourceCode: "dataSourceCode",
+    dataSource: "dataSource",
     hazardType: "hazardType",
     mainSyndromeCode: "mainSyndromeCode",
     suspectedDiseaseCode: "suspectedDiseaseCode",
@@ -116,17 +117,14 @@ export function mapEntityToInitialFormState(
                 required: true,
                 fields: [
                     {
-                        id: getFieldIdFromIdsDictionary(
-                            "dataSourceCode",
-                            diseaseOutbreakEventFieldIds
-                        ),
+                        id: getFieldIdFromIdsDictionary("dataSource", diseaseOutbreakEventFieldIds),
                         placeholder: "Select a data source",
                         isVisible: true,
                         errors: [],
                         type: "select",
                         multiple: false,
                         options: dataSourcesOptions,
-                        value: diseaseOutbreakEvent?.dataSourceCode || "",
+                        value: diseaseOutbreakEvent?.dataSource || "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -136,17 +134,20 @@ export function mapEntityToInitialFormState(
             {
                 title: "Hazard Type",
                 id: "hazardType_section",
-                isVisible: true,
+                isVisible: diseaseOutbreakEvent?.dataSource === "EBS",
                 required: true,
                 fields: [
                     {
                         id: getFieldIdFromIdsDictionary("hazardType", diseaseOutbreakEventFieldIds),
-                        isVisible: true,
+                        isVisible: diseaseOutbreakEvent?.dataSource === "EBS",
                         errors: [],
                         type: "radio",
                         multiple: false,
                         options: hazardTypesOptions,
-                        value: diseaseOutbreakEvent?.hazardType || "",
+                        value:
+                            diseaseOutbreakEvent?.dataSource === "EBS"
+                                ? diseaseOutbreakEvent?.hazardType || ""
+                                : "",
                         required: true,
                         showIsRequired: false,
                     },
@@ -155,7 +156,7 @@ export function mapEntityToInitialFormState(
             {
                 title: "Main Syndrome",
                 id: "mainSyndrome_section",
-                isVisible: true,
+                isVisible: diseaseOutbreakEvent?.dataSource === "IBS",
                 required: true,
                 fields: [
                     {
@@ -164,12 +165,15 @@ export function mapEntityToInitialFormState(
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select a syndrome",
-                        isVisible: true,
+                        isVisible: diseaseOutbreakEvent?.dataSource === "IBS",
                         errors: [],
                         type: "select",
                         multiple: false,
                         options: mainSyndromesOptions,
-                        value: diseaseOutbreakEvent?.mainSyndromeCode || "",
+                        value:
+                            diseaseOutbreakEvent?.dataSource === "IBS"
+                                ? diseaseOutbreakEvent?.mainSyndromeCode || ""
+                                : "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -179,7 +183,7 @@ export function mapEntityToInitialFormState(
             {
                 title: "Suspected Disease",
                 id: "suspectedDisease_section",
-                isVisible: true,
+                isVisible: !(diseaseOutbreakEvent?.dataSource === "EBS"),
                 required: true,
                 fields: [
                     {
@@ -188,12 +192,15 @@ export function mapEntityToInitialFormState(
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select a disease",
-                        isVisible: true,
+                        isVisible: !(diseaseOutbreakEvent?.dataSource === "EBS"),
                         errors: [],
                         type: "select",
                         multiple: false,
                         options: suspectedDiseasesOptions,
-                        value: diseaseOutbreakEvent?.suspectedDiseaseCode || "",
+                        value:
+                            diseaseOutbreakEvent?.dataSource === "EBS"
+                                ? ""
+                                : diseaseOutbreakEvent?.suspectedDiseaseCode || "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -706,12 +713,16 @@ export function mapFormStateToEntityData(
 
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
-    const hazardType = getStringFieldValue(diseaseOutbreakEventFieldIds.hazardType, allFields);
-
     const diseaseOutbreakEventEditableData = {
         name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
-        dataSourceCode: getStringFieldValue(diseaseOutbreakEventFieldIds.dataSourceCode, allFields),
-        hazardType: getHazardTypeValue(hazardType),
+        dataSource: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.dataSource,
+            allFields
+        ) as DataSource,
+        hazardType: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.hazardType,
+            allFields
+        ) as HazardType,
         mainSyndromeCode: getStringFieldValue(
             diseaseOutbreakEventFieldIds.mainSyndromeCode,
             allFields
