@@ -20,7 +20,7 @@ import { D2TrackedEntityAttributeSchema } from "../../../types/d2-api";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 import { getCurrentTimeString } from "./DateTimeHelper";
 
-export type D2TrackedEntityAttribute = {
+type D2TrackedEntityAttribute = {
     trackedEntityAttribute: SelectedPick<
         D2TrackedEntityAttributeSchema,
         {

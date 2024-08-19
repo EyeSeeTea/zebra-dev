@@ -7,6 +7,12 @@ import {
 } from "./consts/DiseaseOutbreakConstants";
 import { AlertOptions, AlertRepository } from "../../domain/repositories/AlertRepository";
 import { Id } from "../../domain/entities/Ref";
+import _ from "../../domain/entities/generic/Collection";
+import { Future } from "../../domain/entities/generic/Future";
+import {
+    D2TrackerTrackedEntity,
+    TrackedEntitiesGetResponse,
+} from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
@@ -15,7 +21,7 @@ export class AlertD2Repository implements AlertRepository {
         const { eventId, filter } = alertOptions;
 
         return this.getTrackedEntitiesByTEACode(filter).flatMap(response => {
-            const trackedEntitiesToPost = response.instances.map(trackedEntity => ({
+            const trackedEntitiesToPost = response.map(trackedEntity => ({
                 ...trackedEntity,
                 attributes: [
                     {
@@ -24,6 +30,8 @@ export class AlertD2Repository implements AlertRepository {
                     },
                 ],
             }));
+
+            if (trackedEntitiesToPost.length === 0) return Future.success(undefined);
 
             return apiToFuture(
                 this.api.tracker.post(
@@ -37,20 +45,48 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
+    private async getTrackedEntitiesByTEACodeAsync(filter: { id: Id; value: string }) {
+        const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
+
+        const pageSize = 250;
+        let page = 1;
+        let result: TrackedEntitiesGetResponse;
+
+        try {
+            do {
+                result = await this.api.tracker.trackedEntities
+                    .get({
+                        program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                        ouMode: "DESCENDANTS",
+                        totalPages: true,
+                        page: page,
+                        pageSize: pageSize,
+                        fields: {
+                            attributes: true,
+                            orgUnit: true,
+                            trackedEntity: true,
+                            trackedEntityType: true,
+                        },
+                        filter: `${filter.id}:eq:${filter.value}`,
+                    })
+                    .getData();
+
+                if (!result.total) {
+                    throw new Error("No tracked entities found");
+                }
+
+                d2TrackerTrackedEntities.push(...result.instances);
+
+                page++;
+            } while (result.page < Math.ceil((result.total as number) / pageSize));
+            return d2TrackerTrackedEntities;
+        } catch {
+            return [];
+        }
+    }
+
     private getTrackedEntitiesByTEACode(filter: { id: Id; value: string }) {
-        return apiToFuture(
-            this.api.tracker.trackedEntities.get({
-                program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                ouMode: "DESCENDANTS",
-                fields: {
-                    attributes: true,
-                    orgUnit: true,
-                    trackedEntity: true,
-                    trackedEntityType: true,
-                },
-                filter: `${filter.id}:eq:${filter.value}`,
-            })
-        );
+        return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(filter));
     }
 }
