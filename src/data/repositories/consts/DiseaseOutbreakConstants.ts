@@ -132,21 +132,11 @@ export function getValueFromDiseaseOutbreak(
 }
 
 export function getHazardTypeByCode(hazardTypeCode: string): HazardType {
-    switch (hazardTypeCode) {
-        case "BIOLOGICAL_ANIMAL":
-            return "Biological:Animal";
-        case "BIOLOGICAL_HUMAN":
-            return "Biological:Human";
-        case "BIOLOGICAL_HUM_ANM":
-            return "Biological:HumanAndAnimal";
-        case "CHEMICAL":
-            return "Chemical";
-        case "ENVIRONMENTAL":
-            return "Environmental";
-        case "UNKNOWN":
-        default:
-            return "Unknown";
-    }
+    return (
+        (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
+            key => hazardTypeCodeMap[key] === hazardTypeCode
+        ) || "Unknown"
+    );
 }
 
 function getOUTextFromList(OUs: string[]): string {
