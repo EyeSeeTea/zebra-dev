@@ -1,15 +1,15 @@
 import { DiseaseOutbreakEvent } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { ValidationError } from "../../../../../domain/entities/ValidationError";
+import { FormFieldState } from "../../../../components/form/FormFieldsState";
 import {
-    FormFieldState,
     FormState,
     isValidForm,
     updateFormStateAndApplySideEffects,
     updateFormStateWithFieldErrors,
     validateForm,
 } from "../../../../components/form/FormState";
-import { mapFormStateToEntityData } from "./diseaseOutbreakEventFormMapper";
+import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
 
 export function updateDiseaseOutbreakEventFormState(
     prevFormState: FormState,

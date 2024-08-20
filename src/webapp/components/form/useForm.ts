@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { updateFormState, FormState, FormFieldState } from "./FormState";
+import { updateFormState, FormState } from "./FormState";
+import { FormFieldState } from "./FormFieldsState";
 
 type State = {
     formLocalState: FormState;

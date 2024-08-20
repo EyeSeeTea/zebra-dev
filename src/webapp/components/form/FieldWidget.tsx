@@ -9,7 +9,7 @@ import { RadioButtonsGroup } from "../radio-buttons-group/RadioButtonsGroup";
 import { TextArea } from "../text-input/TextArea";
 import { DatePicker } from "../date-picker/DatePicker";
 import { Checkbox } from "../checkbox/Checkbox";
-import { FormFieldState, updateFieldState } from "./FormState";
+import { FormFieldState, updateFieldState } from "./FormFieldsState";
 
 export type FieldWidgetProps = {
     onChange: (updatedField: FormFieldState) => void;

@@ -1,5 +1,5 @@
 import { ValidationErrorKey } from "../../../domain/entities/ValidationError";
-import { FieldType } from "./FormState";
+import { FieldType } from "./FormFieldsState";
 
 export function validateFieldRequired(value: any, fieldType: FieldType): ValidationErrorKey[] {
     if (fieldType === "date") {
