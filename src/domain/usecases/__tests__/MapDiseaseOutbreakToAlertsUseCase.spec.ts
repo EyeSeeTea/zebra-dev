@@ -6,7 +6,7 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
 
         compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
             .execute("", {
-                dataSourceCode: "EBS",
+                dataSource: "EBS",
                 hazardType: "Biological:Human",
                 suspectedDiseaseCode: "",
                 incidentStatus: "Watch",
@@ -22,7 +22,7 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
 
         compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
             .execute("123", {
-                dataSourceCode: "EBS",
+                dataSource: "EBS",
                 hazardType: "Biological:Human",
                 suspectedDiseaseCode: "",
                 incidentStatus: "Watch",

@@ -1,4 +1,5 @@
 import { FutureData } from "../../data/api-futures";
+import { Maybe } from "../../utils/ts-utils";
 import { IncidentStatusType } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id } from "../entities/Ref";
 
@@ -8,6 +9,6 @@ export interface AlertRepository {
 
 export type AlertOptions = {
     eventId: Id;
-    filter: { id: Id; value: string };
+    filter: { id: Id; value: Maybe<string> };
     incidentStatus: IncidentStatusType;
 };

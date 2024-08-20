@@ -14,6 +14,7 @@ import {
     D2TrackerTrackedEntity,
     TrackedEntitiesGetResponse,
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
+import { Maybe } from "../../utils/ts-utils";
 
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
@@ -52,7 +53,7 @@ export class AlertD2Repository implements AlertRepository {
 
     private async getTrackedEntitiesByTEACodeAsync(filter: {
         id: Id;
-        value: string;
+        value: Maybe<string>;
     }): Promise<D2TrackerTrackedEntity[]> {
         const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
@@ -92,7 +93,7 @@ export class AlertD2Repository implements AlertRepository {
 
     private getTrackedEntitiesByTEACode(filter: {
         id: Id;
-        value: string;
+        value: Maybe<string>;
     }): FutureData<D2TrackerTrackedEntity[]> {
         return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(filter));
     }

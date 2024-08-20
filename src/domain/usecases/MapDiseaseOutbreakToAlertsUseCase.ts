@@ -12,7 +12,7 @@ import {
 
 type DiseaseOutbreakEventData = Pick<
     DiseaseOutbreakEventBaseAttrs,
-    "dataSourceCode" | "hazardType" | "incidentStatus" | "suspectedDiseaseCode"
+    "dataSource" | "hazardType" | "incidentStatus" | "suspectedDiseaseCode"
 >;
 
 const incidentDataSourceCode = "IBS";
@@ -24,15 +24,15 @@ export class MapDiseaseOutbreakToAlertsUseCase {
         diseaseOutbreakEventId: Id,
         diseaseOutbreakEventData: DiseaseOutbreakEventData
     ): FutureData<void> {
-        const { dataSourceCode, hazardType, incidentStatus, suspectedDiseaseCode } =
+        const { dataSource, hazardType, incidentStatus, suspectedDiseaseCode } =
             diseaseOutbreakEventData;
-        const hazardTypeCode = hazardTypeCodeMap[hazardType];
+        const hazardTypeCode = hazardType ? hazardTypeCodeMap[hazardType] : undefined;
 
         if (!diseaseOutbreakEventId)
             return Future.error(new Error("Disease Outbreak Event Id is required"));
 
         const filter =
-            dataSourceCode === incidentDataSourceCode
+            dataSource === incidentDataSourceCode
                 ? { id: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID, value: suspectedDiseaseCode }
                 : { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: hazardTypeCode };
 
