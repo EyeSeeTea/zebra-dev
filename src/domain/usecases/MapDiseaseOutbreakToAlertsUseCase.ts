@@ -10,6 +10,11 @@ import {
     RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
 } from "../../data/repositories/consts/DiseaseOutbreakConstants";
 
+type DiseaseOutbreakEventData = Pick<
+    DiseaseOutbreakEventBaseAttrs,
+    "dataSourceCode" | "hazardType" | "incidentStatus" | "suspectedDiseaseCode"
+>;
+
 const incidentDataSourceCode = "IBS";
 
 export class MapDiseaseOutbreakToAlertsUseCase {
@@ -17,7 +22,7 @@ export class MapDiseaseOutbreakToAlertsUseCase {
 
     public execute(
         diseaseOutbreakEventId: Id,
-        diseaseOutbreakEventData: DiseaseOutbreakEventBaseAttrs
+        diseaseOutbreakEventData: DiseaseOutbreakEventData
     ): FutureData<void> {
         const { dataSourceCode, hazardType, suspectedDiseaseCode } = diseaseOutbreakEventData;
         const hazardTypeCode = hazardTypeCodeMap[hazardType];
