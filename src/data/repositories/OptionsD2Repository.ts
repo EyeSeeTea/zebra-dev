@@ -34,7 +34,7 @@ export class OptionsD2Repository implements OptionsRepository {
     }
 
     getAllMainSyndromes(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_SYNDROME");
+        return this.getOptionSetByCode("AGENTS");
     }
 
     getAllSuspectedDiseases(): FutureData<Option[]> {
