@@ -22,7 +22,6 @@ export class GetDiseaseOutbreakByIdUseCase {
             .get(id)
             .flatMap(diseaseOutbreakEventBase => {
                 const {
-                    dataSourceCode,
                     mainSyndromeCode,
                     suspectedDiseaseCode,
                     notificationSourceCode,
@@ -30,11 +29,13 @@ export class GetDiseaseOutbreakByIdUseCase {
                     areasAffectedDistrictIds,
                     areasAffectedProvinceIds,
                 } = diseaseOutbreakEventBase;
-                // add dataSource
                 return Future.joinObj({
-                    dataSource: this.options.optionsRepository.get(dataSourceCode),
-                    mainSyndrome: this.options.optionsRepository.get(mainSyndromeCode),
-                    suspectedDisease: this.options.optionsRepository.get(suspectedDiseaseCode),
+                    mainSyndrome: mainSyndromeCode
+                        ? this.options.optionsRepository.get(mainSyndromeCode)
+                        : Future.success(undefined),
+                    suspectedDisease: suspectedDiseaseCode
+                        ? this.options.optionsRepository.get(suspectedDiseaseCode)
+                        : Future.success(undefined),
                     notificationSource: this.options.optionsRepository.get(notificationSourceCode),
                     incidentManager: incidentManagerName
                         ? this.options.teamMemberRepository.get(incidentManagerName)
@@ -45,7 +46,6 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.orgUnitRepository.get(areasAffectedDistrictIds),
                 }).flatMap(
                     ({
-                        dataSource,
                         mainSyndrome,
                         suspectedDisease,
                         notificationSource,
@@ -57,7 +57,6 @@ export class GetDiseaseOutbreakByIdUseCase {
                             {
                                 ...diseaseOutbreakEventBase,
                                 createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
-                                dataSource: dataSource,
                                 mainSyndrome: mainSyndrome,
                                 suspectedDisease: suspectedDisease,
                                 notificationSource: notificationSource,

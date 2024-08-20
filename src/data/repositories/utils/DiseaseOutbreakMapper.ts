@@ -1,4 +1,5 @@
 import {
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
     IncidentStatusType,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -39,7 +40,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
         name: getValueFromMap("name", trackedEntity),
-        dataSourceCode: getValueFromMap("dataSource", trackedEntity),
+        dataSource: getValueFromMap("dataSource", trackedEntity) as DataSource,
         created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : new Date(),
         lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : new Date(),
         createdByName: undefined,

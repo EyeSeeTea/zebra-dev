@@ -3,7 +3,7 @@ import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
 import { IncidentManagementTeam } from "../incident-management-team/IncidentManagementTeam";
 import { TeamMember } from "../incident-management-team/TeamMember";
 import { OrgUnit } from "../OrgUnit";
-import { Id, NamedRef } from "../Ref";
+import { Code, Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
@@ -11,6 +11,7 @@ import { ValidationError } from "../ValidationError";
 export const hazardTypes = [
     "Biological:Human",
     "Biological:Animal",
+    "Biological:HumanAndAnimal",
     "Chemical",
     "Environmental",
     "Unknown",
@@ -19,6 +20,8 @@ export const hazardTypes = [
 export type HazardType = (typeof hazardTypes)[number];
 
 export type IncidentStatusType = "Watch" | "Alert" | "Respond" | "Closed" | "Discarded";
+
+export type DataSource = "IBS" | "EBS";
 
 type DateWithNarrative = {
     date: Date;
@@ -45,11 +48,11 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     created: Date;
     lastUpdated: Date;
     createdByName: Maybe<string>;
-    dataSourceCode: Id;
-    hazardType: HazardType;
-    mainSyndromeCode: Id;
-    suspectedDiseaseCode: Id;
-    notificationSourceCode: Id;
+    dataSource: DataSource;
+    hazardType: Maybe<HazardType>;
+    mainSyndromeCode: Maybe<Code>;
+    suspectedDiseaseCode: Maybe<Code>;
+    notificationSourceCode: Code;
     areasAffectedProvinceIds: Id[];
     areasAffectedDistrictIds: Id[];
     incidentStatus: IncidentStatusType;
@@ -63,9 +66,8 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
 
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     createdBy: Maybe<TeamMember>;
-    dataSource: NamedRef;
-    mainSyndrome: NamedRef;
-    suspectedDisease: NamedRef;
+    mainSyndrome: Maybe<NamedRef>;
+    suspectedDisease: Maybe<NamedRef>;
     notificationSource: NamedRef;
     areasAffectedProvinces: OrgUnit[];
     areasAffectedDistricts: OrgUnit[];

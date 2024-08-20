@@ -18,6 +18,7 @@ export const RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID = "IpGLuK0W5y2";
 export const hazardTypeCodeMap: Record<HazardType, string> = {
     "Biological:Human": "BIOLOGICAL_HUMAN",
     "Biological:Animal": "BIOLOGICAL_ANIMAL",
+    "Biological:HumanAndAnimal": "BIOLOGICAL_HUM_ANM",
     Chemical: "CHEMICAL",
     Environmental: "ENVIRONMENTAL",
     Unknown: "UNKNOWN",
@@ -73,10 +74,12 @@ export function getValueFromDiseaseOutbreak(
 ): Record<DiseaseOutbreakCode, string> {
     return {
         RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
-        RTSL_ZEB_TEA_DATA_SOURCE: diseaseOutbreak.dataSourceCode,
-        RTSL_ZEB_TEA_HAZARD_TYPE: hazardTypeCodeMap[diseaseOutbreak.hazardType],
-        RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode,
-        RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode,
+        RTSL_ZEB_TEA_DATA_SOURCE: diseaseOutbreak.dataSource,
+        RTSL_ZEB_TEA_HAZARD_TYPE: diseaseOutbreak.hazardType
+            ? hazardTypeCodeMap[diseaseOutbreak.hazardType]
+            : "",
+        RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode ?? "",
+        RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode ?? "",
         RTSL_ZEB_TEA_NOTIFICATION_SOURCE: diseaseOutbreak.notificationSourceCode,
         RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES: getOUTextFromList(
             diseaseOutbreak.areasAffectedProvinceIds
@@ -133,19 +136,11 @@ export function getValueFromDiseaseOutbreak(
 }
 
 export function getHazardTypeByCode(hazardTypeCode: string): HazardType {
-    switch (hazardTypeCode) {
-        case "BIOLOGICAL_ANIMAL":
-            return "Biological:Animal";
-        case "BIOLOGICAL_HUMAN":
-            return "Biological:Human";
-        case "CHEMICAL":
-            return "Chemical";
-        case "ENVIRONMENTAL":
-            return "Environmental";
-        case "UNKNOWN":
-        default:
-            return "Unknown";
-    }
+    return (
+        (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
+            key => hazardTypeCodeMap[key] === hazardTypeCode
+        ) || "Unknown"
+    );
 }
 
 function getOUTextFromList(OUs: string[]): string {

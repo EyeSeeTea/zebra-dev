@@ -4,17 +4,16 @@ import { Maybe } from "../../../../utils/ts-utils";
 import i18n from "../../../../utils/i18n";
 import { useAppContext } from "../../../contexts/app-context";
 import { Id } from "../../../../domain/entities/Ref";
-import { FormFieldState, FormState } from "../../../components/form/FormState";
+import { FormState } from "../../../components/form/FormState";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import {
     DiseaseOutbreakEventLables,
     DiseaseOutbreakEventWithOptions,
 } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
-import {
-    mapEntityToInitialFormState,
-    mapFormStateToEntityData,
-} from "./utils/diseaseOutbreakEventFormMapper";
+import { mapFormStateToEntityData } from "./utils/mapFormStateToEntityData";
 import { updateDiseaseOutbreakEventFormState } from "./utils/updateDiseaseOutbreakEventFormState";
+import { mapEntityToInitialFormState } from "./utils/mapEntityToInitialFormState";
+import { FormFieldState } from "../../../components/form/FormFieldsState";
 
 export type GlobalMessage = {
     text: string;

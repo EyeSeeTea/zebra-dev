@@ -1,26 +1,13 @@
-import {
-    DiseaseOutbreakEventBaseAttrs,
-    IncidentStatusType,
-} from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
-import {
-    FormFieldState,
-    FormState,
-    getAllFieldsFromSections,
-    getDateFieldValue,
-    getMultipleOptionsFieldValue,
-    getBooleanFieldValue,
-    getStringFieldValue,
-} from "../../../../components/form/FormState";
 import { Option } from "../../../../../domain/entities/Ref";
-import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormState";
+import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormFieldsState";
+import { FormState } from "../../../../components/form/FormState";
 import { UserOption } from "../../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../../components/utils/option";
-import { getHazardTypeValue } from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
-    dataSourceCode: "dataSourceCode",
+    dataSource: "dataSource",
     hazardType: "hazardType",
     mainSyndromeCode: "mainSyndromeCode",
     suspectedDiseaseCode: "suspectedDiseaseCode",
@@ -50,6 +37,7 @@ export const diseaseOutbreakEventFieldIds = {
     notes: "notes",
 } as const;
 
+// TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapEntityToInitialFormState(
     diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions
 ): FormState {
@@ -116,17 +104,14 @@ export function mapEntityToInitialFormState(
                 required: true,
                 fields: [
                     {
-                        id: getFieldIdFromIdsDictionary(
-                            "dataSourceCode",
-                            diseaseOutbreakEventFieldIds
-                        ),
+                        id: getFieldIdFromIdsDictionary("dataSource", diseaseOutbreakEventFieldIds),
                         placeholder: "Select a data source",
                         isVisible: true,
                         errors: [],
                         type: "select",
                         multiple: false,
                         options: dataSourcesOptions,
-                        value: diseaseOutbreakEvent?.dataSourceCode || "",
+                        value: diseaseOutbreakEvent?.dataSource || "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -136,17 +121,20 @@ export function mapEntityToInitialFormState(
             {
                 title: "Hazard Type",
                 id: "hazardType_section",
-                isVisible: true,
+                isVisible: diseaseOutbreakEvent?.dataSource === "EBS",
                 required: true,
                 fields: [
                     {
                         id: getFieldIdFromIdsDictionary("hazardType", diseaseOutbreakEventFieldIds),
-                        isVisible: true,
+                        isVisible: diseaseOutbreakEvent?.dataSource === "EBS",
                         errors: [],
                         type: "radio",
                         multiple: false,
                         options: hazardTypesOptions,
-                        value: diseaseOutbreakEvent?.hazardType || "",
+                        value:
+                            diseaseOutbreakEvent?.dataSource === "EBS"
+                                ? diseaseOutbreakEvent?.hazardType || ""
+                                : "",
                         required: true,
                         showIsRequired: false,
                     },
@@ -155,7 +143,7 @@ export function mapEntityToInitialFormState(
             {
                 title: "Main Syndrome",
                 id: "mainSyndrome_section",
-                isVisible: true,
+                isVisible: diseaseOutbreakEvent?.dataSource === "IBS",
                 required: true,
                 fields: [
                     {
@@ -164,12 +152,15 @@ export function mapEntityToInitialFormState(
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select a syndrome",
-                        isVisible: true,
+                        isVisible: diseaseOutbreakEvent?.dataSource === "IBS",
                         errors: [],
                         type: "select",
                         multiple: false,
                         options: mainSyndromesOptions,
-                        value: diseaseOutbreakEvent?.mainSyndromeCode || "",
+                        value:
+                            diseaseOutbreakEvent?.dataSource === "IBS"
+                                ? diseaseOutbreakEvent?.mainSyndromeCode || ""
+                                : "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -179,7 +170,7 @@ export function mapEntityToInitialFormState(
             {
                 title: "Suspected Disease",
                 id: "suspectedDisease_section",
-                isVisible: true,
+                isVisible: !(diseaseOutbreakEvent?.dataSource === "EBS"),
                 required: true,
                 fields: [
                     {
@@ -188,12 +179,15 @@ export function mapEntityToInitialFormState(
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select a disease",
-                        isVisible: true,
+                        isVisible: !(diseaseOutbreakEvent?.dataSource === "EBS"),
                         errors: [],
                         type: "select",
                         multiple: false,
                         options: suspectedDiseasesOptions,
-                        value: diseaseOutbreakEvent?.suspectedDiseaseCode || "",
+                        value:
+                            diseaseOutbreakEvent?.dataSource === "EBS"
+                                ? ""
+                                : diseaseOutbreakEvent?.suspectedDiseaseCode || "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -695,140 +689,4 @@ function mapToPresentationOptions(options: Option[]): PresentationOption[] {
             label: option.name,
         })
     );
-}
-
-export function mapFormStateToEntityData(
-    formState: FormState,
-    currentUserName: string,
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions
-): DiseaseOutbreakEventBaseAttrs {
-    const { diseaseOutbreakEvent } = diseaseOutbreakEventWithOptions;
-
-    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
-
-    const hazardType = getStringFieldValue(diseaseOutbreakEventFieldIds.hazardType, allFields);
-
-    const diseaseOutbreakEventEditableData = {
-        name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
-        dataSourceCode: getStringFieldValue(diseaseOutbreakEventFieldIds.dataSourceCode, allFields),
-        hazardType: getHazardTypeValue(hazardType),
-        mainSyndromeCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.mainSyndromeCode,
-            allFields
-        ),
-        suspectedDiseaseCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.suspectedDiseaseCode,
-            allFields
-        ),
-        notificationSourceCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.notificationSourceCode,
-            allFields
-        ),
-        areasAffectedProvinceIds: getMultipleOptionsFieldValue(
-            diseaseOutbreakEventFieldIds.areasAffectedProvinceIds,
-            allFields
-        ),
-        areasAffectedDistrictIds: getMultipleOptionsFieldValue(
-            diseaseOutbreakEventFieldIds.areasAffectedDistrictIds,
-            allFields
-        ),
-        incidentStatus: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentStatus,
-            allFields
-        ) as IncidentStatusType,
-        emerged: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.emergedNarrative,
-                allFields
-            ),
-        },
-        detected: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.detectedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.detectedNarrative,
-                allFields
-            ),
-        },
-        notified: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.notifiedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.notifiedNarrative,
-                allFields
-            ),
-        },
-        earlyResponseActions: {
-            initiateInvestigation: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.initiateInvestigation,
-                allFields
-            ) as Date,
-            conductEpidemiologicalAnalysis: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
-                allFields
-            ) as Date,
-            laboratoryConfirmation: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationNA,
-                    allFields
-                ),
-            },
-            appropriateCaseManagement: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.appropriateCaseManagementNA,
-                    allFields
-                ),
-            },
-            initiatePublicHealthCounterMeasures: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresNA,
-                    allFields
-                ),
-            },
-            initiateRiskCommunication: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationNA,
-                    allFields
-                ),
-            },
-            establishCoordination: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.establishCoordination,
-                allFields
-            ) as Date,
-            responseNarrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.responseNarrative,
-                allFields
-            ),
-        },
-        incidentManagerName: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentManagerName,
-            allFields
-        ),
-        notes: getStringFieldValue(diseaseOutbreakEventFieldIds.notes, allFields),
-    };
-
-    const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
-        id: diseaseOutbreakEvent?.id || "",
-        created: diseaseOutbreakEvent?.created || new Date(),
-        lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
-        createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
-        ...diseaseOutbreakEventEditableData,
-    };
-
-    return diseaseOutbreakEventBase;
 }
