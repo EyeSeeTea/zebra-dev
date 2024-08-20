@@ -10,7 +10,9 @@ import {
     RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
 } from "../../data/repositories/consts/DiseaseOutbreakConstants";
 
-export class MapDiseaseOutbreakToAlertUseCase {
+const incidentDataSourceCode = "IBS";
+
+export class MapDiseaseOutbreakToAlertsUseCase {
     constructor(private alertRepository: AlertRepository) {}
 
     public execute(
@@ -24,7 +26,7 @@ export class MapDiseaseOutbreakToAlertUseCase {
             return Future.error(new Error("Disease Outbreak Event Id is required"));
 
         const filter =
-            dataSourceCode === "IBS"
+            dataSourceCode === incidentDataSourceCode
                 ? { id: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID, value: suspectedDiseaseCode }
                 : { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: hazardTypeCode };
 

@@ -20,7 +20,7 @@ import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepos
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
 import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
 import { GetDiseaseOutbreakWithOptionsUseCase } from "./domain/usecases/GetDiseaseOutbreakWithOptionsUseCase";
-import { MapDiseaseOutbreakToAlertUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
+import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
 
@@ -45,7 +45,7 @@ function getCompositionRoot(repositories: Repositories) {
             getWithOptions: new GetDiseaseOutbreakWithOptionsUseCase(repositories),
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
             save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
-            mapDiseaseOutbreakEventToAlert: new MapDiseaseOutbreakToAlertUseCase(
+            mapDiseaseOutbreakEventToAlerts: new MapDiseaseOutbreakToAlertsUseCase(
                 repositories.alertRepository
             ),
         },

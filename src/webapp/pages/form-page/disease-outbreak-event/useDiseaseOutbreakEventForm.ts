@@ -131,7 +131,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
             diseaseOutbreakEventId => {
                 setIsSaved(true);
 
-                compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlert
+                compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
                     .execute(diseaseOutbreakEventId, diseaseOutbreakEventData)
                     .run(
                         () => {
@@ -157,13 +157,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                 setIsSaved(false);
             }
         );
-    }, [
-        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlert,
-        compositionRoot.diseaseOutbreakEvent.save,
-        currentUser.username,
-        diseaseOutbreakEventWithOptions,
-        formState,
-    ]);
+    }, [compositionRoot, currentUser.username, diseaseOutbreakEventWithOptions, formState]);
 
     const onCancelForm = useCallback(() => {
         goTo(RouteName.DASHBOARD);

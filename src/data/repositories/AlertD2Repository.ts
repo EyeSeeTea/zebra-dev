@@ -1,7 +1,7 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
-    RTSL_ZEBRA_ALERTS_EVENT_ID_TEA_ID,
+    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
 } from "./consts/DiseaseOutbreakConstants";
@@ -21,22 +21,22 @@ export class AlertD2Repository implements AlertRepository {
         const { eventId, filter } = alertOptions;
 
         return this.getTrackedEntitiesByTEACode(filter).flatMap(response => {
-            const trackedEntitiesToPost = response.map(trackedEntity => ({
+            const alertsToMap = response.map(trackedEntity => ({
                 ...trackedEntity,
                 attributes: [
                     {
-                        attribute: RTSL_ZEBRA_ALERTS_EVENT_ID_TEA_ID,
+                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
                         value: eventId,
                     },
                 ],
             }));
 
-            if (trackedEntitiesToPost.length === 0) return Future.success(undefined);
+            if (alertsToMap.length === 0) return Future.success(undefined);
 
             return apiToFuture(
                 this.api.tracker.post(
                     { importStrategy: "UPDATE" },
-                    { trackedEntities: trackedEntitiesToPost }
+                    { trackedEntities: alertsToMap }
                 )
             ).map(saveResponse => {
                 if (saveResponse.status === "ERROR")
@@ -45,7 +45,10 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    private async getTrackedEntitiesByTEACodeAsync(filter: { id: Id; value: string }) {
+    private async getTrackedEntitiesByTEACodeAsync(filter: {
+        id: Id;
+        value: string;
+    }): Promise<D2TrackerTrackedEntity[]> {
         const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
         const pageSize = 250;
@@ -72,10 +75,6 @@ export class AlertD2Repository implements AlertRepository {
                     })
                     .getData();
 
-                if (!result.total) {
-                    throw new Error("No tracked entities found");
-                }
-
                 d2TrackerTrackedEntities.push(...result.instances);
 
                 page++;
@@ -86,7 +85,10 @@ export class AlertD2Repository implements AlertRepository {
         }
     }
 
-    private getTrackedEntitiesByTEACode(filter: { id: Id; value: string }) {
+    private getTrackedEntitiesByTEACode(filter: {
+        id: Id;
+        value: string;
+    }): FutureData<D2TrackerTrackedEntity[]> {
         return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(filter));
     }
 }
