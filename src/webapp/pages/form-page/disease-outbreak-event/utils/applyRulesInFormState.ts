@@ -23,8 +23,6 @@ export function applyRulesInFormState(
                         toggleSectionVisibilityByFieldValue(section, updatedField.value, rule)
                     ),
                 };
-            default:
-                return formState;
         }
     }, currentFormState);
 
