@@ -2,6 +2,7 @@ import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+    RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
 } from "./consts/DiseaseOutbreakConstants";
@@ -17,8 +18,8 @@ import {
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
 
-    updateEventIdInAlerts(alertOptions: AlertOptions): FutureData<void> {
-        const { eventId, filter } = alertOptions;
+    updateAlerts(alertOptions: AlertOptions): FutureData<void> {
+        const { eventId, filter, incidentStatus } = alertOptions;
 
         return this.getTrackedEntitiesByTEACode(filter).flatMap(response => {
             const alertsToMap = response.map(trackedEntity => ({
@@ -27,6 +28,10 @@ export class AlertD2Repository implements AlertRepository {
                     {
                         attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
                         value: eventId,
+                    },
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
+                        value: incidentStatus,
                     },
                 ],
             }));

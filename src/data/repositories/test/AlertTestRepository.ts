@@ -3,7 +3,7 @@ import { AlertOptions, AlertRepository } from "../../../domain/repositories/Aler
 import { FutureData } from "../../api-futures";
 
 export class AlertTestRepository implements AlertRepository {
-    updateEventIdInAlerts(_alertOptions: AlertOptions): FutureData<void> {
+    updateAlerts(_alertOptions: AlertOptions): FutureData<void> {
         return Future.success(undefined);
     }
 }

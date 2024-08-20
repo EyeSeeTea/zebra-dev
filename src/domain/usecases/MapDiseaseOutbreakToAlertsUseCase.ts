@@ -24,7 +24,8 @@ export class MapDiseaseOutbreakToAlertsUseCase {
         diseaseOutbreakEventId: Id,
         diseaseOutbreakEventData: DiseaseOutbreakEventData
     ): FutureData<void> {
-        const { dataSourceCode, hazardType, suspectedDiseaseCode } = diseaseOutbreakEventData;
+        const { dataSourceCode, hazardType, incidentStatus, suspectedDiseaseCode } =
+            diseaseOutbreakEventData;
         const hazardTypeCode = hazardTypeCodeMap[hazardType];
 
         if (!diseaseOutbreakEventId)
@@ -35,9 +36,10 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                 ? { id: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID, value: suspectedDiseaseCode }
                 : { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: hazardTypeCode };
 
-        return this.alertRepository.updateEventIdInAlerts({
+        return this.alertRepository.updateAlerts({
             eventId: diseaseOutbreakEventId,
             filter: filter,
+            incidentStatus: incidentStatus,
         });
     }
 }
