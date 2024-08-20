@@ -6,6 +6,7 @@ import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-even
 import { Future } from "../entities/generic/Future";
 import {
     hazardTypeCodeMap,
+    incidentStatusTypeMap,
     RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
     RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
 } from "../../data/repositories/consts/DiseaseOutbreakConstants";
@@ -26,7 +27,9 @@ export class MapDiseaseOutbreakToAlertsUseCase {
     ): FutureData<void> {
         const { dataSource, hazardType, incidentStatus, suspectedDiseaseCode } =
             diseaseOutbreakEventData;
+
         const hazardTypeCode = hazardType ? hazardTypeCodeMap[hazardType] : undefined;
+        const incidentStatusTypeCode = incidentStatusTypeMap[incidentStatus];
 
         if (!diseaseOutbreakEventId)
             return Future.error(new Error("Disease Outbreak Event Id is required"));
@@ -39,7 +42,7 @@ export class MapDiseaseOutbreakToAlertsUseCase {
         return this.alertRepository.updateAlerts({
             eventId: diseaseOutbreakEventId,
             filter: filter,
-            incidentStatus: incidentStatus,
+            incidentStatus: incidentStatusTypeCode,
         });
     }
 }
