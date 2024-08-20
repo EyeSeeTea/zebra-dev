@@ -1,6 +1,6 @@
 import { getReactComponent } from "../../../../utils/tests";
 import { FormProps, Form } from "../Form";
-import { FormFieldState } from "../FormState";
+import { FormFieldState } from "../FormFieldsState";
 
 describe("Given Form component", () => {
     describe("when render form and its layout", () => {

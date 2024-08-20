@@ -1,10 +1,11 @@
 import React from "react";
 
 import { useForm } from "./useForm";
-import { FormState, FormFieldState } from "./FormState";
+import { FormState } from "./FormState";
 import { FormLayout } from "./FormLayout";
 import { FormSection } from "./FormSection";
 import { Layout } from "../layout/Layout";
+import { FormFieldState } from "./FormFieldsState";
 
 export type FormProps = {
     formState: FormState;

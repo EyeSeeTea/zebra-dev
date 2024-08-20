@@ -1,10 +1,7 @@
 import { Rule } from "../../../../../domain/entities/Rule";
-import {
-    FormFieldState,
-    FormSectionState,
-    FormState,
-    getEmptyValueForField,
-} from "../../../../components/form/FormState";
+import { FormFieldState, getEmptyValueForField } from "../../../../components/form/FormFieldsState";
+import { FormSectionState } from "../../../../components/form/FormSectionsState";
+import { FormState } from "../../../../components/form/FormState";
 
 export function applyRulesInFormState(
     currentFormState: FormState,
