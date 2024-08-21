@@ -1,5 +1,8 @@
 import { Rule } from "../../../../../domain/entities/Rule";
-import { FormFieldState, setEmptyValueInField } from "../../../../components/form/FormFieldsState";
+import {
+    FormFieldState,
+    getFieldWithEmptyValue,
+} from "../../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../../components/form/FormSectionsState";
 import { FormState } from "../../../../components/form/FormState";
 
@@ -74,7 +77,7 @@ function toggleSectionVisibilityByFieldValue(
 
 function hideFieldsAndSetToEmpty(fields: FormFieldState[]): FormFieldState[] {
     return fields.map(field => {
-        const fieldWithEmptyValue = setEmptyValueInField(field);
+        const fieldWithEmptyValue = getFieldWithEmptyValue(field);
 
         return {
             ...fieldWithEmptyValue,
