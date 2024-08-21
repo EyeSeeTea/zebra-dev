@@ -54,9 +54,12 @@ export class AlertD2Repository implements AlertRepository {
                     { importStrategy: "UPDATE" },
                     { trackedEntities: alertsToMap }
                 )
-            ).map(saveResponse => {
+            ).flatMap(saveResponse => {
                 if (saveResponse.status === "ERROR")
-                    throw new Error("Error mapping disease outbreak event id to alert");
+                    return Future.error(
+                        new Error("Error mapping disease outbreak event id to alert")
+                    );
+                else return Future.success(undefined);
             });
         });
     }
