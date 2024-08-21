@@ -1,5 +1,8 @@
 import { Rule } from "../../../../../domain/entities/Rule";
-import { FormFieldState, getEmptyValueForField } from "../../../../components/form/FormFieldsState";
+import {
+    FormFieldState,
+    getFieldWithEmptyValue,
+} from "../../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../../components/form/FormSectionsState";
 import { FormState } from "../../../../components/form/FormState";
 
@@ -74,11 +77,11 @@ function toggleSectionVisibilityByFieldValue(
 
 function hideFieldsAndSetToEmpty(fields: FormFieldState[]): FormFieldState[] {
     return fields.map(field => {
-        // TODO: FIXME TypeScript error returning the corresponding fieldValue type
+        const fieldWithEmptyValue = getFieldWithEmptyValue(field);
+
         return {
-            ...field,
+            ...fieldWithEmptyValue,
             isVisible: false,
-            value: getEmptyValueForField(field) as any,
         };
     });
 }

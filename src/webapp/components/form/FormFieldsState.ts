@@ -103,10 +103,7 @@ export function getFieldValueById<F extends FormFieldState>(
     id: string,
     fields: FormFieldState[]
 ): F["value"] | undefined {
-    const field = fields.find(field => field.id === id);
-    if (field) {
-        return getFieldValue<F>(field);
-    }
+    return fields.find(field => field.id === id)?.value;
 }
 
 export function getFieldIdFromIdsDictionary<T extends Record<string, string>>(
@@ -116,25 +113,25 @@ export function getFieldIdFromIdsDictionary<T extends Record<string, string>>(
     return fieldIdsDictionary[key] as string;
 }
 
-export function getEmptyValueForField<F extends FormFieldState>(field: FormFieldState): F["value"] {
+export function getFieldWithEmptyValue(field: FormFieldState): FormFieldState {
     switch (field.type) {
         case "text":
-            return "";
+            return { ...field, value: "" };
         case "boolean":
-            return false;
+            return { ...field, value: false };
         case "select":
-            return field.multiple ? [] : "";
+            if (field.multiple) {
+                return { ...field, value: [] };
+            } else {
+                return { ...field, value: "" };
+            }
         case "radio":
-            return "";
+            return { ...field, value: "" };
         case "date":
-            return null;
+            return { ...field, value: null };
         case "user":
-            return undefined;
+            return { ...field, value: undefined };
     }
-}
-
-export function getFieldValue<F extends FormFieldState>(field: FormFieldState): F["value"] {
-    return field.value;
 }
 
 export function isFieldInSection(section: FormSectionState, field: FormFieldState): boolean {
