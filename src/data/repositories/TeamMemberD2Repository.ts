@@ -17,7 +17,7 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
             })
         ).map(response => {
             if (!response.users) throw new Error("Team Members not found");
-            return response.users.map(this.mapUserToTeamMember);
+            return response.users.map(d2User => this.mapUserToTeamMember(d2User));
         });
     }
 
@@ -37,16 +37,23 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
     }
 
     // TODO: FIXME Property using next version of d2-api ('username' does not exist on type 'D2User')
-    mapUserToTeamMember(user: any): TeamMember {
+    private mapUserToTeamMember(user: any): TeamMember {
+        const photoUrlString = user?.avatar?.id
+            ? `${this.api.baseUrl}/api/fileResources/${user?.avatar?.id}/data`
+            : undefined;
+
         return new TeamMember({
             id: user.id,
             username: user.username,
             name: user.name,
             email: user.email,
             phone: user.phoneNumber,
-            status: "Available",
-            role: { id: "1", name: "Incident Manager" },
-            photo: undefined, //TO DO : where will the photo URL be saved
+            status: "Available", // TODO: Get status when defined
+            role: { id: "1", name: "Incident Manager" }, // TODO: Get role when defined
+            photo:
+                photoUrlString && TeamMember.isValidPhotoUrl(photoUrlString)
+                    ? new URL(photoUrlString)
+                    : undefined,
         });
     }
 }
@@ -57,6 +64,7 @@ const d2UserFields = {
     email: true,
     phoneNumber: true,
     username: true,
+    avatar: true,
 };
 
 type _D2User = MetadataPick<{
