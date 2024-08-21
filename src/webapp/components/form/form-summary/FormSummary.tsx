@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import { Id } from "../../../../domain/entities/Ref";
@@ -14,6 +14,8 @@ export type FormSummaryProps = {
     id: Id;
 };
 
+const ROW_COUNT = 3;
+
 export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
     const { id } = props;
     const { formSummary } = useFormSummary(id);
@@ -24,13 +26,24 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
             variant="outlined"
             color="secondary"
             onClick={() => {
-                goTo(RouteName.EDIT_FORM, { formType: "disease-outbreak-event", id });
+                goTo(RouteName.EDIT_FORM, { formType: "disease-outbreak-event", id }); //TO DO : Change to dynamic formType when available
             }}
             startIcon={<EditOutlined />}
         >
             {i18n.t("Edit Details")}
         </Button>
     );
+
+    const getSummaryColumn = useCallback((index: number, label: string, value: string) => {
+        return (
+            <Typography key={index}>
+                <Box fontWeight="bold" display="inline">
+                    {i18n.t(label)}:
+                </Box>{" "}
+                {i18n.t(value)}
+            </Typography>
+        );
+    }, []);
 
     return formSummary ? (
         <>
@@ -43,28 +56,24 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
                 <SummaryContainer>
                     <SummaryColumn>
                         {formSummary.summary.map((labelWithValue, index) =>
-                            index < 3 ? (
-                                <Typography key={index}>
-                                    <Box fontWeight="bold" display="inline">
-                                        {labelWithValue.label}:
-                                    </Box>{" "}
-                                    {labelWithValue.value}
-                                </Typography>
-                            ) : null
+                            index < ROW_COUNT
+                                ? getSummaryColumn(
+                                      index,
+                                      labelWithValue.label,
+                                      labelWithValue.value
+                                  )
+                                : null
                         )}
                     </SummaryColumn>
                     <SummaryColumn>
                         {formSummary.summary.map((labelWithValue, index) =>
-                            index < 3 ? null : (
-                                <SummaryColumn key={index}>
-                                    <Typography>
-                                        <Box fontWeight="bold" display="inline">
-                                            {labelWithValue.label}:
-                                        </Box>{" "}
-                                        {labelWithValue.value}
-                                    </Typography>
-                                </SummaryColumn>
-                            )
+                            index < ROW_COUNT
+                                ? null
+                                : getSummaryColumn(
+                                      index,
+                                      labelWithValue.label,
+                                      labelWithValue.value
+                                  )
                         )}
                     </SummaryColumn>
                     <SummaryColumn>
