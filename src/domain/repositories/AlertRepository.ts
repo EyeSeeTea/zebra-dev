@@ -10,5 +10,5 @@ export interface AlertRepository {
 export type AlertOptions = {
     eventId: Id;
     filter: { id: Id; value: Maybe<string> };
-    incidentStatus: Maybe<IncidentStatusType>;
+    incidentStatus: IncidentStatusType;
 };

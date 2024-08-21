@@ -22,45 +22,33 @@ export class AlertD2Repository implements AlertRepository {
     updateAlerts(alertOptions: AlertOptions): FutureData<void> {
         const { eventId, filter, incidentStatus } = alertOptions;
 
-        return this.getTEAOptions(RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID).flatMap(
-            response => {
-                const options = response.objects[0]?.optionSet.options ?? [];
-                const incidentStatusCode = options.find(
-                    option => option.name === incidentStatus
-                )?.code;
+        return this.getTrackedEntitiesByTEACode(filter).flatMap(response => {
+            const alertsToMap = response.map(trackedEntity => ({
+                ...trackedEntity,
+                attributes: [
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                        value: eventId,
+                    },
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
+                        value: incidentStatus,
+                    },
+                ],
+            }));
 
-                if (!incidentStatusCode) throw new Error("Incident status code not found");
+            if (alertsToMap.length === 0) return Future.success(undefined);
 
-                return this.getTrackedEntitiesByTEACode(filter).flatMap(response => {
-                    const alertsToMap = response.map(trackedEntity => ({
-                        ...trackedEntity,
-                        attributes: [
-                            {
-                                attribute:
-                                    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                                value: eventId,
-                            },
-                            {
-                                attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
-                                value: incidentStatusCode,
-                            },
-                        ],
-                    }));
-
-                    if (alertsToMap.length === 0) return Future.success(undefined);
-
-                    return apiToFuture(
-                        this.api.tracker.post(
-                            { importStrategy: "UPDATE" },
-                            { trackedEntities: alertsToMap }
-                        )
-                    ).map(saveResponse => {
-                        if (saveResponse.status === "ERROR")
-                            throw new Error("Error mapping disease outbreak event id to alert");
-                    });
-                });
-            }
-        );
+            return apiToFuture(
+                this.api.tracker.post(
+                    { importStrategy: "UPDATE" },
+                    { trackedEntities: alertsToMap }
+                )
+            ).map(saveResponse => {
+                if (saveResponse.status === "ERROR")
+                    throw new Error("Error mapping disease outbreak event id to alert");
+            });
+        });
     }
 
     private async getTrackedEntitiesByTEACodeAsync(filter: {
@@ -108,25 +96,5 @@ export class AlertD2Repository implements AlertRepository {
         value: Maybe<string>;
     }): FutureData<D2TrackerTrackedEntity[]> {
         return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(filter));
-    }
-
-    private getTEAOptions(trackedEntityAttributeId: Id) {
-        return apiToFuture(
-            this.api.models.trackedEntityAttributes.get({
-                fields: {
-                    optionSet: {
-                        options: {
-                            code: true,
-                            name: true,
-                        },
-                    },
-                },
-                filter: {
-                    id: {
-                        eq: trackedEntityAttributeId,
-                    },
-                },
-            })
-        );
     }
 }

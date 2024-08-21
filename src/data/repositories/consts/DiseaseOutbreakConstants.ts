@@ -1,7 +1,6 @@
 import {
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
-    IncidentStatusType,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { GetValue, Maybe } from "../../../utils/ts-utils";
 import { getDateAsIsoString } from "../utils/DateTimeHelper";
@@ -14,7 +13,7 @@ export const RTSL_ZEBRA_ALERTS_PROGRAM_ID = "MQtbs8UkBxy";
 export const RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID = "Pq1drzz2HJk";
 export const RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID = "agsVaIpit4S";
 export const RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID = "ydsfY6zyvt7";
-export const RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID = "KeUbzfFQYCX";
+export const RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID = "DzGqKzjhIsz";
 
 export const hazardTypeCodeMap: Record<HazardType, string> = {
     "Biological:Human": "BIOLOGICAL_HUMAN",
@@ -23,14 +22,6 @@ export const hazardTypeCodeMap: Record<HazardType, string> = {
     Chemical: "CHEMICAL",
     Environmental: "ENVIRONMENTAL",
     Unknown: "UNKNOWN",
-};
-
-export const incidentStatusTypeMap: Record<string, IncidentStatusType> = {
-    WATCH: "Watch",
-    ALERT: "Alert",
-    RESPOND: "Respond",
-    CLOSED: "Closed",
-    DISCARDED: "Discarded",
 };
 
 export const diseaseOutbreakCodes = {
