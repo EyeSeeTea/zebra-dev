@@ -1,8 +1,9 @@
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
+import { TeamMember } from "../../../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../../../../domain/entities/Ref";
 import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormFieldsState";
 import { FormState } from "../../../../components/form/FormState";
-import { UserOption } from "../../../../components/user-selector/UserSelector";
+import { User } from "../../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../../components/utils/option";
 
 export const diseaseOutbreakEventFieldIds = {
@@ -37,6 +38,19 @@ export const diseaseOutbreakEventFieldIds = {
     notes: "notes",
 } as const;
 
+export function mapTeamMemberToUser(teamMember: TeamMember): User {
+    return {
+        value: teamMember.username,
+        label: teamMember.name,
+        workPosition: teamMember.role?.name || "",
+        phone: teamMember.phone || "",
+        email: teamMember.email || "",
+        status: teamMember.status || "",
+        src: teamMember.photo?.toString(),
+        alt: teamMember.photo ? `Photo of ${teamMember.name}` : undefined,
+    };
+}
+
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapEntityToInitialFormState(
     diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions
@@ -52,16 +66,7 @@ export function mapEntityToInitialFormState(
         incidentStatus,
     } = options;
 
-    const teamMemberOptions: UserOption[] = teamMembers.map(tm => ({
-        value: tm.username,
-        label: tm.name,
-        workPosition: tm.role?.name || "",
-        phone: tm.phone || "",
-        email: tm.email || "",
-        status: tm.status || "",
-        src: tm.photo?.toString(),
-        alt: tm.photo ? `Photo of ${tm.name}` : undefined,
-    }));
+    const teamMemberOptions: User[] = teamMembers.map(tm => mapTeamMemberToUser(tm));
 
     const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
     const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
