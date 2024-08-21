@@ -2,9 +2,8 @@ import { ValidationError } from "../../../domain/entities/ValidationError";
 import {
     FormFieldState,
     getAllFieldsFromSections,
-    getEmptyValueForField,
-    getFieldValue,
     isFieldInSection,
+    setEmptyValueInField,
     updateFields,
     validateField,
 } from "./FormFieldsState";
@@ -60,14 +59,12 @@ function applyEffectNotApplicableFieldUpdatedInSection(
                     f => f.notApplicableFieldId === field.id
                 );
 
-                // TODO: FIXME TypeScript error returning the corresponding fieldValue type
-                const fieldValue = (
-                    notApplicableField?.value ? getEmptyValueForField(field) : getFieldValue(field)
-                ) as any;
+                const fieldWithMaybeEmptyValue = notApplicableField?.value
+                    ? setEmptyValueInField(field)
+                    : field;
 
                 return {
-                    ...field,
-                    value: fieldValue,
+                    ...fieldWithMaybeEmptyValue,
                     disabled: !!notApplicableField?.value,
                 };
             }
