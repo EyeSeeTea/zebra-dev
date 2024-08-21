@@ -98,14 +98,14 @@ export function mapEntityToInitialFormState(
                 ],
             },
             {
-                title: "Data Source",
+                title: "Event Source",
                 id: "dataSource_section",
                 isVisible: true,
                 required: true,
                 fields: [
                     {
                         id: getFieldIdFromIdsDictionary("dataSource", diseaseOutbreakEventFieldIds),
-                        placeholder: "Select a data source",
+                        placeholder: "Select an event source",
                         isVisible: true,
                         errors: [],
                         type: "select",
