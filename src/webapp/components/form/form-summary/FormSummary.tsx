@@ -50,7 +50,7 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
             <Section
                 title={formSummary.subTitle}
                 hasSeparator={true}
-                headerButtom={editButton}
+                headerButton={editButton}
                 titleVariant="secondary"
             >
                 <SummaryContainer>
@@ -98,6 +98,7 @@ const SummaryContainer = styled.div`
 
 const SummaryColumn = styled.div`
     flex: 1;
-    padding-right: 1rem;
+    padding-right: 2rem;
     color: ${props => props.theme.palette.text.hint};
+    min-width: fit-content;
 `;

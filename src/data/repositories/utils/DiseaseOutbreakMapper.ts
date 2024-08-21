@@ -76,23 +76,31 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
                 getValueFromMap("conductEpidemiologicalAnalysis", trackedEntity)
             ),
             laboratoryConfirmation: {
-                date: new Date(getValueFromMap("laboratoryConfirmationDate", trackedEntity)),
+                date: getValueFromMap("laboratoryConfirmationDate", trackedEntity)
+                    ? new Date(getValueFromMap("laboratoryConfirmationDate", trackedEntity))
+                    : undefined,
                 na: getValueFromMap("laboratoryConfirmationNA", trackedEntity) === "true",
             },
             appropriateCaseManagement: {
-                date: new Date(getValueFromMap("appropriateCaseManagementDate", trackedEntity)),
+                date: getValueFromMap("appropriateCaseManagementDate", trackedEntity)
+                    ? new Date(getValueFromMap("appropriateCaseManagementDate", trackedEntity))
+                    : undefined,
                 na: getValueFromMap("appropriateCaseManagementNA", trackedEntity) === "true",
             },
             initiatePublicHealthCounterMeasures: {
-                date: new Date(
-                    getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity)
-                ),
+                date: getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity)
+                    ? new Date(
+                          getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity)
+                      )
+                    : undefined,
                 na:
                     getValueFromMap("initiatePublicHealthCounterMeasuresNA", trackedEntity) ===
                     "true",
             },
             initiateRiskCommunication: {
-                date: new Date(getValueFromMap("initiateRiskCommunicationDate", trackedEntity)),
+                date: getValueFromMap("initiateRiskCommunicationDate", trackedEntity)
+                    ? new Date(getValueFromMap("initiateRiskCommunicationDate", trackedEntity))
+                    : undefined,
                 na: getValueFromMap("initiateRiskCommunicationNA", trackedEntity) === "true",
             },
             establishCoordination: new Date(
@@ -130,38 +138,51 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
         return populatedAttribute;
     });
 
-    const enrollment: D2TrackerEnrollment = {
-        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-        program: RTSL_ZEBRA_PROGRAM_ID,
-        enrollment: "",
-        trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
-        notes: [],
-        relationships: [],
-        attributes: attributes,
-        events: [],
-        enrolledAt: diseaseOutbreak.created.toISOString(),
-        occurredAt: diseaseOutbreak.lastUpdated.toISOString(),
-        createdAt: getCurrentTimeString(),
-        createdAtClient: getCurrentTimeString(),
-        updatedAt: getCurrentTimeString(),
-        updatedAtClient: getCurrentTimeString(),
-        status: "ACTIVE",
-        orgUnitName: "",
-        followUp: false,
-        deleted: false,
-        storedBy: "",
-    };
-    const trackedEntity: D2TrackerTrackedEntity = {
-        trackedEntity: diseaseOutbreak.id,
-        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-        trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
-        createdAt: diseaseOutbreak.created.toISOString(),
-        updatedAt: diseaseOutbreak.lastUpdated.toISOString(),
-        attributes: attributes,
-        enrollments: [enrollment],
-    };
+    const isExistingTEI = diseaseOutbreak.id !== "";
 
-    return trackedEntity;
+    if (isExistingTEI) {
+        const trackedEntity: D2TrackerTrackedEntity = {
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+            trackedEntity: diseaseOutbreak.id,
+            attributes: attributes,
+        };
+
+        return trackedEntity;
+    } else {
+        const enrollment: D2TrackerEnrollment = {
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            program: RTSL_ZEBRA_PROGRAM_ID,
+            enrollment: "",
+            trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+            notes: [],
+            relationships: [],
+            attributes: attributes,
+            events: [],
+            enrolledAt: getCurrentTimeString(),
+            occurredAt: getCurrentTimeString(),
+            createdAt: getCurrentTimeString(),
+            createdAtClient: getCurrentTimeString(),
+            updatedAt: getCurrentTimeString(),
+            updatedAtClient: getCurrentTimeString(),
+            status: "ACTIVE",
+            orgUnitName: "",
+            followUp: false,
+            deleted: false,
+            storedBy: "",
+        };
+        const trackedEntity: D2TrackerTrackedEntity = {
+            trackedEntity: diseaseOutbreak.id,
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+            attributes: attributes,
+            createdAt: getCurrentTimeString(),
+            updatedAt: getCurrentTimeString(),
+            enrollments: [enrollment],
+        };
+
+        return trackedEntity;
+    }
 }
 
 function getValueFromMap(

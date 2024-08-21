@@ -5,5 +5,10 @@ export function getCurrentTimeString(): string {
 }
 
 export function getDateAsIsoString(date: Maybe<Date>): string {
-    return date ? date.toISOString() : "";
+    try {
+        return date ? date.toISOString() : "";
+    } catch (e) {
+        console.debug(e);
+        return "";
+    }
 }
