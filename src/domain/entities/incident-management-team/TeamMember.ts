@@ -24,4 +24,12 @@ export class TeamMember extends Struct<TeamMemberAttrs>() {
         //TO DO : any validations for phone number?
         //TO DO : any validations for email?
     }
+
+    static isValidPhotoUrl(urlString: string): boolean {
+        try {
+            return Boolean(new URL(urlString));
+        } catch (e) {
+            return false;
+        }
+    }
 }
