@@ -113,7 +113,7 @@ export function getFieldIdFromIdsDictionary<T extends Record<string, string>>(
     return fieldIdsDictionary[key] as string;
 }
 
-export function setEmptyValueInField(field: FormFieldState): FormFieldState {
+export function getFieldWithEmptyValue(field: FormFieldState): FormFieldState {
     switch (field.type) {
         case "text":
             return { ...field, value: "" };

@@ -3,7 +3,7 @@ import {
     FormFieldState,
     getAllFieldsFromSections,
     isFieldInSection,
-    setEmptyValueInField,
+    getFieldWithEmptyValue,
     updateFields,
     validateField,
 } from "./FormFieldsState";
@@ -60,7 +60,7 @@ function applyEffectNotApplicableFieldUpdatedInSection(
                 );
 
                 const fieldWithMaybeEmptyValue = notApplicableField?.value
-                    ? setEmptyValueInField(field)
+                    ? getFieldWithEmptyValue(field)
                     : field;
 
                 return {
