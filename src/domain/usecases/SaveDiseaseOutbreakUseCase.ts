@@ -11,7 +11,6 @@ export class SaveDiseaseOutbreakUseCase {
         return this.diseaseOutbreakRepository
             .save(diseaseOutbreakEventBaseAttrs)
             .flatMap(diseaseOutbreakEventId => {
-                console.debug(diseaseOutbreakEventId);
                 return Future.success(diseaseOutbreakEventId);
             });
     }
