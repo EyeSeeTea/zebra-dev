@@ -23,7 +23,7 @@ export const DashboardPage: React.FC = React.memo(() => {
 
     const goToEvent = (id: Maybe<Id>) => {
         if (!id) return;
-        goTo(RouteName.EDIT_FORM, { formType: "disease-outbreak-event", id }); //TO DO : Change to dynamic formType when available
+        goTo(RouteName.EVENT_TRACKER, { id: id }); //TO DO : Change to dynamic formType when available
     };
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>

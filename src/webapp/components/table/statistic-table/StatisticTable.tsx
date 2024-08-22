@@ -97,7 +97,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                         </TableHead>
                         <TableBody>
                             {filteredRows.map((row, rowIndex) => (
-                                <TableRow key={rowIndex} onClick={() => goToEvent(row.id)}>
+                                <TableRow key={rowIndex}>
                                     {columns.map((column, columnIndex) =>
                                         calculateColumns.includes(column.value) ? (
                                             <ColoredCell
@@ -110,6 +110,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                             />
                                         ) : (
                                             <StyledTableCell
+                                                onClick={() => goToEvent(row.id)}
                                                 key={`${rowIndex}-${column.value}`}
                                                 boldUnderline={columnIndex === 0}
                                             >

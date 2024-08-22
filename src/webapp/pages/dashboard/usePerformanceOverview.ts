@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 
 import { FilterType, TableColumn } from "../../components/table/statistic-table/StatisticTable";
+import { Id } from "../../../domain/entities/Ref";
 
 type State = {
     columns: TableColumn[];
@@ -13,6 +14,7 @@ type State = {
 };
 
 type PerformanceOverviewData = {
+    id: Id;
     event: string;
     location: string;
     cases: string;
@@ -93,6 +95,7 @@ export function usePerformanceOverview(): State {
         const getRandom = (max: number) => Math.floor(Math.random() * max).toString();
 
         return {
+            id: diseaseOutbreakEvent.id,
             event: diseaseOutbreakEvent.name,
             location: "TBD",
             cases: "TBD",
