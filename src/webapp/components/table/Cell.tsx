@@ -41,6 +41,7 @@ export const Cell: React.FC<CellProps> = React.memo(
                             options={column.options}
                             selected={selectorValue}
                             onChange={handleChange}
+                            disableSearch
                         />
                     </StyledTableCell>
                 );

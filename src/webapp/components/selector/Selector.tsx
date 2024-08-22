@@ -4,6 +4,7 @@ import { Select, InputLabel, MenuItem, FormHelperText } from "@material-ui/core"
 import { IconChevronDown24 } from "@dhis2/ui";
 import { getLabelFromValue } from "./utils/selectorHelper";
 import { Option } from "../utils/option";
+import { SearchInput } from "../search-input/SearchInput";
 
 type SelectorProps<Value extends string = string> = {
     id: string;
@@ -17,6 +18,7 @@ type SelectorProps<Value extends string = string> = {
     errorText?: string;
     error?: boolean;
     required?: boolean;
+    disableSearch?: boolean;
 };
 
 export function Selector<Value extends string>({
@@ -31,18 +33,33 @@ export function Selector<Value extends string>({
     errorText = "",
     error = false,
     required = false,
+    disableSearch = false,
 }: SelectorProps<Value>): JSX.Element {
-    const handleChange = useCallback(
+    const [searchTerm, setSearchTerm] = React.useState<string>("");
+
+    const filteredOptions = React.useMemo(
+        () =>
+            options.filter(option => option.label.toLowerCase().includes(searchTerm.toLowerCase())),
+        [searchTerm, options]
+    );
+
+    const handleSearchChange = useCallback((text: string) => {
+        setSearchTerm(text ?? "");
+    }, []);
+
+    const handleSelectChange = useCallback(
         (
             event: React.ChangeEvent<{
                 value: unknown;
-            }>,
-            _child: React.ReactNode
+            }>
         ) => {
             const value = event.target.value as Value;
-            onChange(value);
+            if (value && filteredOptions.find(option => option.value === value)) {
+                setSearchTerm("");
+                onChange(value);
+            }
         },
-        [onChange]
+        [filteredOptions, onChange]
     );
 
     return (
@@ -57,7 +74,9 @@ export function Selector<Value extends string>({
                 labelId={label || `${id}-label`}
                 id={id}
                 value={selected}
-                onChange={handleChange}
+                onChange={handleSelectChange}
+                onClose={() => setSearchTerm("")}
+                onOpen={() => setSearchTerm("")}
                 disabled={disabled}
                 variant="outlined"
                 IconComponent={IconChevronDown24}
@@ -67,7 +86,16 @@ export function Selector<Value extends string>({
                 }
                 displayEmpty
             >
-                {options.map(option => (
+                {!disableSearch && (
+                    <SearchContainer
+                        onClickCapture={e => {
+                            e.stopPropagation();
+                        }}
+                    >
+                        <SearchInput value={searchTerm} onChange={handleSearchChange} />
+                    </SearchContainer>
+                )}
+                {filteredOptions.map(option => (
                     <MenuItem key={option.value} value={option.value} disabled={option.disabled}>
                         {option.label}
                     </MenuItem>
@@ -85,6 +113,17 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
+`;
+
+const SearchContainer = styled.div`
+    display: flex;
+    width: auto;
+    padding-inline: 16px;
+    padding-block-start: 10px;
+    padding-block-end: 12px;
+    > div {
+        width: calc(100% - 10px);
+    }
 `;
 
 const Label = styled(InputLabel)`
