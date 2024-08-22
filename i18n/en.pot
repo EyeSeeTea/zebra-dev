@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-08-21T13:25:06.876Z\n"
-"PO-Revision-Date: 2024-08-21T13:25:06.876Z\n"
+"POT-Creation-Date: 2024-08-21T19:49:06.995Z\n"
+"PO-Revision-Date: 2024-08-21T19:49:06.995Z\n"
 
 msgid "Low"
 msgstr ""
@@ -106,6 +106,9 @@ msgid "Respond, alert, watch"
 msgstr ""
 
 msgid "Event Tracker"
+msgstr ""
+
+msgid "Add new Assessment"
 msgstr ""
 
 msgid "Page Not Found"

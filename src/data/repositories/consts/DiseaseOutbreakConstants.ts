@@ -9,6 +9,12 @@ export const RTSL_ZEBRA_PROGRAM_ID = "qkOTdxkte8V";
 export const RTSL_ZEBRA_ORG_UNIT_ID = "PS5JpkoHHio";
 export const RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID = "lIzNjLOUAKA";
 
+export const RTSL_ZEBRA_ALERTS_PROGRAM_ID = "MQtbs8UkBxy";
+export const RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID = "Pq1drzz2HJk";
+export const RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID = "agsVaIpit4S";
+export const RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID = "ydsfY6zyvt7";
+export const RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID = "DzGqKzjhIsz";
+
 export const hazardTypeCodeMap: Record<HazardType, string> = {
     "Biological:Human": "BIOLOGICAL_HUMAN",
     "Biological:Animal": "BIOLOGICAL_ANIMAL",
@@ -59,9 +65,7 @@ export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
 }
 
 export function getHazardTypeValue(hazardType: string): HazardType {
-    const hazardTypeString = Object.keys(hazardTypeCodeMap).find(
-        key => hazardTypeCodeMap[key as HazardType] === hazardType
-    );
+    const hazardTypeString = Object.keys(hazardTypeCodeMap).find(key => key === hazardType);
     return hazardTypeString ? (hazardTypeString as HazardType) : "Unknown";
 }
 
