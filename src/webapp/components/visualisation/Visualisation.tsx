@@ -26,8 +26,9 @@ export const Visualisation: React.FC<VisualisationProps> = React.memo(props => {
 const VisualisationContainer = styled.div`
     width: 100%;
     height: 25rem;
-    border: 0.1rem solid black;
-    background: ${props => props.theme.palette.primary.contrastText};
+    border: 0.1rem solid ${props => props.theme.palette.divider};
+    background: ${props => props.theme.palette.background.paper};
+    color: ${props => props.theme.palette.text.disabled};
     display: flex;
     justify-content: center;
     align-items: center;

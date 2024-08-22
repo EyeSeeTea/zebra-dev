@@ -53,7 +53,8 @@ export function mapTeamMemberToUser(teamMember: TeamMember): User {
 
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapEntityToInitialFormState(
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions,
+    editMode: boolean
 ): FormState {
     const { diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
@@ -120,6 +121,7 @@ export function mapEntityToInitialFormState(
                         width: "300px",
                         required: true,
                         showIsRequired: false,
+                        disabled: editMode,
                     },
                 ],
             },
@@ -142,6 +144,7 @@ export function mapEntityToInitialFormState(
                                 : "",
                         required: true,
                         showIsRequired: false,
+                        disabled: editMode,
                     },
                 ],
             },
@@ -196,6 +199,7 @@ export function mapEntityToInitialFormState(
                         width: "300px",
                         required: true,
                         showIsRequired: false,
+                        disabled: editMode,
                     },
                 ],
             },

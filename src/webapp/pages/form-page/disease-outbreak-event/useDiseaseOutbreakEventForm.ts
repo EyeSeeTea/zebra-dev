@@ -70,7 +70,10 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                 setFormLabels(diseaseOutbreakEventWithOptionsData.labels);
                 setFormState({
                     kind: "loaded",
-                    data: mapEntityToInitialFormState(diseaseOutbreakEventWithOptionsData),
+                    data: mapEntityToInitialFormState(
+                        diseaseOutbreakEventWithOptionsData,
+                        !!diseaseOutbreakEventId
+                    ),
                 });
             },
             error => {
