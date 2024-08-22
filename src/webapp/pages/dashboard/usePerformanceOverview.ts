@@ -43,7 +43,9 @@ export function usePerformanceOverview(): State {
         setIsLoading(true);
         compositionRoot.diseaseOutbreakEvent.getAll.execute().run(
             diseaseOutbreakEvent => {
-                setDataPerformanceOverview(diseaseOutbreakEvent.map(mapEntityToTableData));
+                setDataPerformanceOverview(
+                    diseaseOutbreakEvent.map((data, i) => mapEntityToTableData(data, !i))
+                );
                 setIsLoading(false);
             },
             error => {
@@ -87,34 +89,33 @@ export function usePerformanceOverview(): State {
         notify1d: 1,
         respond7d: 7,
     };
-    const mapEntityToTableData = (diseaseOutbreakEvent: any) => {
+    const mapEntityToTableData = (diseaseOutbreakEvent: any, blank = false) => {
+        const getRandom = (max: number) => Math.floor(Math.random() * max).toString();
+
         return {
             event: diseaseOutbreakEvent.name,
-            location: diseaseOutbreakEvent.location,
-            cases: Math.floor(Math.random() * 100).toString(),
-            deaths: Math.floor(Math.random() * 100).toString(),
-            duration: "4d",
-            manager: "Paul Zulu",
-            detect7d: "2",
-            notify1d: "1",
-            era1: "1",
-            era2: "",
-            era3: "",
-            era4: "",
-            era5: "",
-            era6: "",
-            era7: "",
-            eri: "",
-            respond7d: "",
+            location: "TBD",
+            cases: "TBD",
+            deaths: "TBD",
+            duration: "TBD",
+            manager: diseaseOutbreakEvent.createdByName || "TBD",
+            detect7d: getRandom(12),
+            notify1d: getRandom(7),
+            era1: getRandom(14),
+            era2: blank ? "" : getRandom(14),
+            era3: blank ? "" : getRandom(14),
+            era4: blank ? "" : getRandom(14),
+            era5: blank ? "" : getRandom(14),
+            era6: blank ? "" : getRandom(14),
+            era7: blank ? "" : getRandom(14),
+            eri: blank ? "" : getRandom(14),
+            respond7d: getRandom(14),
         };
     };
 
     const filters: FilterType[] = [
         { value: "event", label: "Event", type: "multiselector" },
-        // { value: "name", label: "Name", type: "multiselector" },
-        // { value: "disease", label: "Disease", type: "multiselector" },
         { value: "location", label: "Location", type: "multiselector" },
-        // { value: "dateRange", label: "Date range", type: "datepicker" },
     ];
 
     return {
