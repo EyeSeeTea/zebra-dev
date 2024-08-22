@@ -73,7 +73,7 @@ export function mapEntityToInitialFormState(
     return {
         id: diseaseOutbreakEvent?.id || "",
         title: "Create Event",
-        saveButtonLabel: "Save & continue",
+        saveButtonLabel: "Save & Continue",
         isValid: false,
         sections: [
             {
@@ -240,7 +240,6 @@ export function mapEntityToInitialFormState(
                         value: diseaseOutbreakEvent?.emerged.narrative || "",
                         multiline: false,
                         maxWidth: "600px",
-                        required: true,
                         showIsRequired: false,
                     },
                 ],
@@ -277,7 +276,6 @@ export function mapEntityToInitialFormState(
                         value: diseaseOutbreakEvent?.detected.narrative || "",
                         multiline: false,
                         maxWidth: "600px",
-                        required: true,
                         showIsRequired: false,
                     },
                 ],
@@ -314,7 +312,6 @@ export function mapEntityToInitialFormState(
                         value: diseaseOutbreakEvent?.notified.narrative || "",
                         multiline: false,
                         maxWidth: "600px",
-                        required: true,
                         showIsRequired: false,
                     },
                 ],
@@ -587,7 +584,6 @@ export function mapEntityToInitialFormState(
                         title: "8. Response narrative",
                         id: "8. Response narrative",
                         isVisible: true,
-                        required: true,
                         fields: [
                             {
                                 id: getFieldIdFromIdsDictionary(
@@ -601,7 +597,6 @@ export function mapEntityToInitialFormState(
                                     diseaseOutbreakEvent?.earlyResponseActions.responseNarrative ||
                                     "",
                                 multiline: true,
-                                required: true,
                                 showIsRequired: false,
                             },
                         ],
