@@ -44,7 +44,6 @@ type State = {
     globalMessage: Maybe<GlobalMessage>;
     formState: DiseaseOutbreakEventFormState;
     isLoading: boolean;
-    isSaved: boolean;
     handleFormChange: (updatedField: FormFieldState) => void;
     onSaveForm: () => void;
     onCancelForm: () => void;
@@ -60,7 +59,6 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
     const [diseaseOutbreakEventWithOptions, setDiseaseOutbreakEventWithOptions] =
         useState<DiseaseOutbreakEventWithOptions>();
     const [formLabels, setFormLabels] = useState<DiseaseOutbreakEventLables>();
-    const [isSaved, setIsSaved] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
@@ -121,7 +119,6 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
             return;
 
         setIsLoading(true);
-        setIsSaved(false);
 
         const diseaseOutbreakEventData = mapFormStateToEntityData(
             formState.data,
@@ -131,13 +128,12 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
 
         compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
             diseaseOutbreakEventId => {
-                setIsSaved(true);
-
                 compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
                     .execute(diseaseOutbreakEventId, diseaseOutbreakEventData)
                     .run(
                         () => {
                             setIsLoading(false);
+                            goTo(RouteName.EVENT_TRACKER, { id: diseaseOutbreakEventId });
                         },
                         err => {
                             console.error({ err });
@@ -156,10 +152,16 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                     type: "error",
                 });
                 setIsLoading(false);
-                setIsSaved(false);
             }
         );
-    }, [compositionRoot, currentUser.username, diseaseOutbreakEventWithOptions, formState]);
+    }, [
+        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
+        compositionRoot.diseaseOutbreakEvent.save,
+        currentUser.username,
+        diseaseOutbreakEventWithOptions,
+        formState,
+        goTo,
+    ]);
 
     const onCancelForm = useCallback(() => {
         goTo(RouteName.DASHBOARD);
@@ -170,7 +172,6 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
         globalMessage,
         formState,
         isLoading,
-        isSaved,
         handleFormChange,
         onSaveForm,
         onCancelForm,
