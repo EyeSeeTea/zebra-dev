@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import { Id } from "../../../../domain/entities/Ref";
@@ -9,6 +9,7 @@ import { UserCard } from "../../user-selector/UserCard";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import { EditOutlined } from "@material-ui/icons";
 import { Loader } from "../../loader/Loader";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
 export type FormSummaryProps = {
     id: Id;
@@ -18,8 +19,16 @@ const ROW_COUNT = 3;
 
 export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
     const { id } = props;
-    const { formSummary } = useFormSummary(id);
+    const { formSummary, summaryError } = useFormSummary(id);
     const { goTo } = useRoutes();
+    const snackbar = useSnackbar();
+
+    useEffect(() => {
+        if (!summaryError) return;
+
+        snackbar.error(summaryError);
+        goTo(RouteName.DASHBOARD);
+    }, [summaryError, snackbar, goTo]);
 
     const editButton = (
         <Button

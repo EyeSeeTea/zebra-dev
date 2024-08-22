@@ -5,13 +5,37 @@ import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
 import { assertOrError } from "./utils/AssertOrError";
 import { getHazardTypeByCode } from "./consts/DiseaseOutbreakConstants";
 
+const MAIN_SYNDROME_OPTION_SET_CODE = "AGENTS";
+const SUSPECTED_DISEASE_OPTION_SET_CODE = "RTSL_ZEB_OS_DISEASE";
+const NOTIFICATION_SOURCE_OPTION_SET_CODE = "RTSL_ZEB_OS_SOURCE";
+
 export class OptionsD2Repository implements OptionsRepository {
     constructor(private api: D2Api) {}
 
-    get(code: Code): FutureData<Option> {
+    getMainSyndrome(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, MAIN_SYNDROME_OPTION_SET_CODE);
+    }
+
+    getSuspectedDisease(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, SUSPECTED_DISEASE_OPTION_SET_CODE);
+    }
+
+    getNotificationSource(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, NOTIFICATION_SOURCE_OPTION_SET_CODE);
+    }
+
+    private get(optionCode: Code, optionSetCode: Code): FutureData<Option> {
         return apiToFuture(
             this.api.metadata.get({
-                options: { fields: { code: true, name: true }, filter: { code: { eq: code } } },
+                options: {
+                    fields: { code: true, name: true, optionSet: { id: true, code: true } },
+                    filter: {
+                        code: { eq: optionCode },
+                        "optionSet.code": {
+                            eq: optionSetCode,
+                        },
+                    },
+                },
             })
         )
             .flatMap(response => assertOrError(response.options[0], "Option"))
@@ -38,15 +62,15 @@ export class OptionsD2Repository implements OptionsRepository {
     }
 
     getAllMainSyndromes(): FutureData<Option[]> {
-        return this.getOptionSetByCode("AGENTS");
+        return this.getOptionSetByCode(MAIN_SYNDROME_OPTION_SET_CODE);
     }
 
     getAllSuspectedDiseases(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_DISEASE");
+        return this.getOptionSetByCode(SUSPECTED_DISEASE_OPTION_SET_CODE);
     }
 
     getAllNotificationSources(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_SOURCE");
+        return this.getOptionSetByCode(NOTIFICATION_SOURCE_OPTION_SET_CODE);
     }
 
     getAllIncidentStatus(): FutureData<Option[]> {

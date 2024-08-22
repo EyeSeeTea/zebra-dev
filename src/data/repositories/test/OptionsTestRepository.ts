@@ -1,11 +1,21 @@
 import { Future } from "../../../domain/entities/generic/Future";
-import { Id, Option } from "../../../domain/entities/Ref";
+import { Code, Id, Option } from "../../../domain/entities/Ref";
 import { OptionsRepository } from "../../../domain/repositories/OptionsRepository";
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
-    get(id: Id): FutureData<Option> {
-        return Future.success({ id: id, name: "Test Option" });
+    getMainSyndrome(_optionCode: Code): FutureData<Option> {
+        return Future.success({ id: "1", name: "Test Main Syndrome", code: "MainSyndromeCode" });
+    }
+    getSuspectedDisease(_optionCode: Code): FutureData<Option> {
+        return Future.success({ id: "1", name: "Test Disease", code: "DiseaseCode" });
+    }
+    getNotificationSource(_optionCode: Code): FutureData<Option> {
+        return Future.success({
+            id: "1",
+            name: "Test Notification Source",
+            code: "TestNotificationSource",
+        });
     }
 
     getAllDataSources(): FutureData<Option[]> {

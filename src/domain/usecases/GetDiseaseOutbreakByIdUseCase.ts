@@ -31,12 +31,15 @@ export class GetDiseaseOutbreakByIdUseCase {
                 } = diseaseOutbreakEventBase;
                 return Future.joinObj({
                     mainSyndrome: mainSyndromeCode
-                        ? this.options.optionsRepository.get(mainSyndromeCode)
+                        ? this.options.optionsRepository.getMainSyndrome(mainSyndromeCode)
                         : Future.success(undefined),
                     suspectedDisease: suspectedDiseaseCode
-                        ? this.options.optionsRepository.get(suspectedDiseaseCode)
+                        ? this.options.optionsRepository.getSuspectedDisease(suspectedDiseaseCode)
                         : Future.success(undefined),
-                    notificationSource: this.options.optionsRepository.get(notificationSourceCode),
+                    notificationSource:
+                        this.options.optionsRepository.getNotificationSource(
+                            notificationSourceCode
+                        ),
                     incidentManager: incidentManagerName
                         ? this.options.teamMemberRepository.get(incidentManagerName)
                         : Future.success(undefined),
