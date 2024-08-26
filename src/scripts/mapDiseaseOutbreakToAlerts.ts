@@ -7,7 +7,6 @@ import {
     TrackedEntitiesGetResponse,
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
-    diseaseOutbreakCodes,
     RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
     RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
@@ -21,8 +20,10 @@ import { D2Api } from "@eyeseetea/d2-api/2.36";
 import _ from "../domain/entities/generic/Collection";
 import { Maybe } from "../utils/ts-utils";
 
-const RTSL_SUSPECTED_DISEASE_TEA_ID = "jLvbkuvPdZ6";
-const RTSL_HAZARD_TYPE_TEA_ID = "Dzrw3Tf0ukB";
+const RTSL_ZEBRA_SUSPECTED_DISEASE_TEA_ID = "jLvbkuvPdZ6";
+const RTSL_ZEBRA_HAZARD_TYPE_TEA_ID = "Dzrw3Tf0ukB";
+const RTSL_ZEBRA_INCIDENT_STATUS_TEA_ID = "cDLJoNCWHHs";
+
 // Get all TEIs for Zebra Alerts Program which do not have a National Disease Outbreak event Id.
 // For each of these, get the disease/hazard type.
 // Fetch TEI for Zebra RTSL program with above disease/hazard type (Ideally it should return only 1 TEI, because only 1 National Event per disease/hazard type is allowed) - do error handling if TEIs.length > 1
@@ -81,53 +82,49 @@ function main() {
                 });
 
                 // 2. For each of these, get the disease/hazard type
-                const teiWithDiseaseHazardType = _(teisWithNoEventId)
-                    .map(tei => {
+                const alertDiseaseHazardType = _(teisWithNoEventId)
+                    .map(trackedEntity => {
                         const diseaseAttr = getTEIAttributeById(
-                            tei,
+                            trackedEntity,
                             RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
                         );
                         const hazardAttr = getTEIAttributeById(
-                            tei,
+                            trackedEntity,
                             RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID
                         );
 
-                        return {
-                            ...tei,
-                            diseaseHazardType: diseaseAttr
-                                ? {
-                                      attribute: diseaseAttr.attribute,
-                                      value: diseaseAttr.value,
-                                      type: "DISEASE",
-                                  }
-                                : {
-                                      attribute: hazardAttr?.attribute,
-                                      value: hazardAttr?.value,
-                                      type: "HAZARD",
-                                  },
-                        };
+                        return diseaseAttr
+                            ? {
+                                  attribute: diseaseAttr.attribute,
+                                  value: diseaseAttr.value,
+                                  type: "DISEASE",
+                              }
+                            : {
+                                  attribute: hazardAttr?.attribute,
+                                  value: hazardAttr?.value,
+                                  type: "HAZARD",
+                              };
                     })
-                    .map(tei => tei.diseaseHazardType)
                     .uniqBy(item => `${item.attribute}-${item.value}`)
                     .value();
 
                 // 3. Fetch TEIs for Zebra RTSL program with above disease/hazard type
                 // (Ideally it should return only 1 TEI, because only 1 National Event per disease/hazard type is allowed) - do error handling if TEIs.length > 1
-                const filter = teiWithDiseaseHazardType.map(diseaseHazardType =>
+                const alertFilters = alertDiseaseHazardType.map(diseaseHazardType =>
                     diseaseHazardType.type === "DISEASE"
                         ? {
-                              id: RTSL_SUSPECTED_DISEASE_TEA_ID,
+                              id: RTSL_ZEBRA_SUSPECTED_DISEASE_TEA_ID,
                               value: diseaseHazardType.value,
                               type: "DISEASE",
                           }
                         : {
-                              id: RTSL_HAZARD_TYPE_TEA_ID,
+                              id: RTSL_ZEBRA_HAZARD_TYPE_TEA_ID,
                               value: diseaseHazardType.value,
                               type: "HAZARD",
                           }
                 );
 
-                return filter.map(async filterItem => {
+                return alertFilters.map(async filterItem => {
                     const nationalTEIs = await getTrackedEntities(
                         api,
                         RTSL_ZEBRA_PROGRAM_ID,
@@ -143,7 +140,7 @@ function main() {
                     }
 
                     if (nationalTEIs.length !== 0) {
-                        const tes = teisWithNoEventId.filter(tei =>
+                        const diseaseOrHazardTypeMatchedTeis = teisWithNoEventId.filter(tei =>
                             tei.attributes?.find(attribute => {
                                 if (filterItem.type === "DISEASE") {
                                     return (
@@ -162,12 +159,10 @@ function main() {
 
                         const nationalEventId = nationalTEIs[0]?.trackedEntity ?? "";
                         const incidentStatus =
-                            getTEIAttributeById(
-                                nationalTEIs[0],
-                                diseaseOutbreakCodes.incidentStatus
-                            )?.value ?? "";
+                            getTEIAttributeById(nationalTEIs[0], RTSL_ZEBRA_INCIDENT_STATUS_TEA_ID)
+                                ?.value ?? "";
 
-                        const teisToMap = tes.map(tei => ({
+                        const teisToMap = diseaseOrHazardTypeMatchedTeis.map(tei => ({
                             ...tei,
                             attributes: [
                                 {
@@ -185,9 +180,13 @@ function main() {
                         await api.tracker
                             .post({ importStrategy: "UPDATE" }, { trackedEntities: teisToMap })
                             .getData()
-                            .then(response =>
-                                console.debug(`Updated ${response.stats.updated} TEIs`)
-                            );
+                            .then(response => {
+                                if (response.status === "ERROR")
+                                    console.error(
+                                        "Error mapping disease outbreak event id to alert"
+                                    );
+                                console.debug(`Updated ${response.stats.updated} TEIs`);
+                            });
                     }
                 });
             } catch (error) {
