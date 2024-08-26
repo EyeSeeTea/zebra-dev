@@ -24,11 +24,6 @@ const RTSL_ZEBRA_SUSPECTED_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TYPE_TEA_ID = "Dzrw3Tf0ukB";
 const RTSL_ZEBRA_INCIDENT_STATUS_TEA_ID = "cDLJoNCWHHs";
 
-// Get all TEIs for Zebra Alerts Program which do not have a National Disease Outbreak event Id.
-// For each of these, get the disease/hazard type.
-// Fetch TEI for Zebra RTSL program with above disease/hazard type (Ideally it should return only 1 TEI, because only 1 National Event per disease/hazard type is allowed) - do error handling if TEIs.length > 1
-// Update Zebra Alerts TEI with above National TEI id and incident status.
-
 function main() {
     const cmd = command({
         name: path.basename(__filename),
@@ -82,7 +77,7 @@ function main() {
                 });
 
                 // 2. For each of these, get the disease/hazard type
-                const alertDiseaseHazardType = _(teisWithNoEventId)
+                const alertsWithDiseaseOrHazardType = _(teisWithNoEventId)
                     .map(trackedEntity => {
                         const diseaseAttr = getTEIAttributeById(
                             trackedEntity,
@@ -110,18 +105,10 @@ function main() {
 
                 // 3. Fetch TEIs for Zebra RTSL program with above disease/hazard type
                 // (Ideally it should return only 1 TEI, because only 1 National Event per disease/hazard type is allowed) - do error handling if TEIs.length > 1
-                const alertFilters = alertDiseaseHazardType.map(diseaseHazardType =>
+                const alertFilters = alertsWithDiseaseOrHazardType.map(diseaseHazardType =>
                     diseaseHazardType.type === "DISEASE"
-                        ? {
-                              id: RTSL_ZEBRA_SUSPECTED_DISEASE_TEA_ID,
-                              value: diseaseHazardType.value,
-                              type: "DISEASE",
-                          }
-                        : {
-                              id: RTSL_ZEBRA_HAZARD_TYPE_TEA_ID,
-                              value: diseaseHazardType.value,
-                              type: "HAZARD",
-                          }
+                        ? { ...diseaseHazardType, id: RTSL_ZEBRA_SUSPECTED_DISEASE_TEA_ID }
+                        : { ...diseaseHazardType, id: RTSL_ZEBRA_HAZARD_TYPE_TEA_ID }
                 );
 
                 return alertFilters.map(async filterItem => {
@@ -130,7 +117,7 @@ function main() {
                         RTSL_ZEBRA_PROGRAM_ID,
                         RTSL_ZEBRA_ORG_UNIT_ID,
                         "SELECTED",
-                        `${filterItem.id}:IN:${filterItem.value}`
+                        `${filterItem.id}:eq:${filterItem.value}`
                     );
 
                     if (nationalTEIs.length > 1) {
@@ -139,6 +126,7 @@ function main() {
                         );
                     }
 
+                    // 4. Update Zebra Alerts TEI with above National TEI id and incident status.
                     if (nationalTEIs.length !== 0) {
                         const diseaseOrHazardTypeMatchedTeis = teisWithNoEventId.filter(tei =>
                             tei.attributes?.find(attribute => {
@@ -157,18 +145,18 @@ function main() {
                             })
                         );
 
-                        const nationalEventId = nationalTEIs[0]?.trackedEntity ?? "";
+                        const eventId = nationalTEIs[0]?.trackedEntity ?? "";
                         const incidentStatus =
                             getTEIAttributeById(nationalTEIs[0], RTSL_ZEBRA_INCIDENT_STATUS_TEA_ID)
                                 ?.value ?? "";
 
-                        const teisToMap = diseaseOrHazardTypeMatchedTeis.map(tei => ({
-                            ...tei,
+                        const alertsToMap = diseaseOrHazardTypeMatchedTeis.map(trackedEntity => ({
+                            ...trackedEntity,
                             attributes: [
                                 {
                                     attribute:
                                         RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                                    value: nationalEventId,
+                                    value: eventId,
                                 },
                                 {
                                     attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
@@ -177,8 +165,12 @@ function main() {
                             ],
                         }));
 
-                        await api.tracker
-                            .post({ importStrategy: "UPDATE" }, { trackedEntities: teisToMap })
+                        console.debug(
+                            `Updating ${alertsToMap.length} TEIs with event id ${eventId}`
+                        );
+
+                        return await api.tracker
+                            .post({ importStrategy: "UPDATE" }, { trackedEntities: alertsToMap })
                             .getData()
                             .then(response => {
                                 if (response.status === "ERROR")
