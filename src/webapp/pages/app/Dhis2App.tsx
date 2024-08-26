@@ -3,7 +3,6 @@ import i18n from "@dhis2/d2-i18n";
 import { Provider } from "@dhis2/app-runtime";
 import { D2Api } from "../../../types/d2-api";
 import App from "./App";
-import { CompositionRoot, getWebappCompositionRoot } from "../../../CompositionRoot";
 
 export function Dhis2App(_props: {}) {
     const [compositionRootRes, setCompositionRootRes] = React.useState<CompositionRootResult>({
@@ -29,12 +28,12 @@ export function Dhis2App(_props: {}) {
             );
         }
         case "loaded": {
-            const { baseUrl, compositionRoot } = compositionRootRes.data;
+            const { baseUrl, api } = compositionRootRes.data;
             const config = { baseUrl, apiVersion: 30 };
 
             return (
                 <Provider config={config}>
-                    <App compositionRoot={compositionRoot} />
+                    <App api={api} />
                 </Provider>
             );
         }
@@ -42,7 +41,7 @@ export function Dhis2App(_props: {}) {
 }
 
 type Data = {
-    compositionRoot: CompositionRoot;
+    api: D2Api;
     baseUrl: string;
 };
 
@@ -54,13 +53,12 @@ async function getData(): Promise<CompositionRootResult> {
     const api = auth
         ? new D2Api({ baseUrl: baseUrl, auth: { username, password } })
         : new D2Api({ baseUrl: baseUrl });
-    const compositionRoot = getWebappCompositionRoot(api);
 
     const userSettings = await api.get<{ keyUiLocale: string }>("/userSettings").getData();
     configI18n(userSettings);
 
     try {
-        return { type: "loaded", data: { baseUrl, compositionRoot } };
+        return { type: "loaded", data: { baseUrl, api } };
     } catch (err) {
         return { type: "error", error: { baseUrl, error: err as Error } };
     }

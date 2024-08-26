@@ -7,7 +7,6 @@ import { ThemeProvider } from "styled-components";
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 
 import { appConfig } from "../../../app-config";
-import { CompositionRoot } from "../../../CompositionRoot";
 import { AppContext, AppContextState } from "../../contexts/app-context";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
@@ -15,29 +14,35 @@ import { Router } from "../Router";
 import Share from "../../components/share/Share";
 import { HeaderBar } from "../../components/layout/header-bar/HeaderBar";
 import "./App.css";
+import { useDataEngine } from "@dhis2/app-runtime";
+import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { getWebappCompositionRoot } from "../../../CompositionRoot";
 
 export interface AppProps {
-    compositionRoot: CompositionRoot;
+    api: D2Api;
 }
 
 function App(props: AppProps) {
-    const { compositionRoot } = props;
+    const { api } = props;
     const [showShareButton, setShowShareButton] = useState(false);
     const [loading, setLoading] = useState(true);
     const [appContext, setAppContext] = useState<AppContextState | null>(null);
+    const dataEngine = useDataEngine();
 
     useEffect(() => {
         async function setup() {
+            const webappCompositionRoot = getWebappCompositionRoot(api, dataEngine);
+
             const isShareButtonVisible = appConfig.appearance.showShareButton;
-            const currentUser = await compositionRoot.users.getCurrent.execute().toPromise();
+            const currentUser = await webappCompositionRoot.users.getCurrent.execute().toPromise();
             if (!currentUser) throw new Error("User not logged in");
 
-            setAppContext({ currentUser, compositionRoot });
+            setAppContext({ currentUser, compositionRoot: webappCompositionRoot });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
         }
         setup();
-    }, [compositionRoot]);
+    }, [api, dataEngine]);
 
     if (loading) return null;
 

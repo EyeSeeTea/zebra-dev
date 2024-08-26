@@ -44,7 +44,7 @@ function getCompositionRoot(repositories: Repositories) {
     };
 }
 
-export function getWebappCompositionRoot(api: D2Api) {
+export function getWebappCompositionRoot(api: D2Api, dataEngine?: unknown) {
     const repositories: Repositories = {
         usersRepository: new UserD2Repository(api),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(api),

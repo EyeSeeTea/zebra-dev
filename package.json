@@ -10,11 +10,12 @@
         "url": "git+https://github.com/eyeseetea/zebra-dev.git"
     },
     "dependencies": {
-        "@dhis2/app-runtime": "2.8.0",
+        "@dhis2/analytics": "26.0.7",
+        "@dhis2/app-runtime": "3.9.4",
         "@dhis2/d2-i18n": "1.1.0",
         "@dhis2/d2-i18n-extract": "1.0.8",
         "@dhis2/d2-i18n-generate": "1.2.0",
-        "@dhis2/ui": "6.12.0",
+        "@dhis2/ui": "^9.11.3",
         "@emotion/react": "11.11.4",
         "@emotion/styled": "11.11.5",
         "@eyeseetea/d2-api": "1.16.0-beta.9",
