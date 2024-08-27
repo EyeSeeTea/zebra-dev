@@ -11,19 +11,21 @@ export const DashboardPage: React.FC = React.memo(() => {
         columns,
         dataPerformanceOverview,
         filters,
+        order,
+        setOrder,
         columnRules,
         editRiskAssessmentColumns,
-        isLoading,
     } = usePerformanceOverview();
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>Respond, alert, watch content</Section>
             <Section title={i18n.t("Performance overview")}>
-                {isLoading ? <div>Loading...</div> : null}
                 <StatisticTable
                     columns={columns}
                     rows={dataPerformanceOverview}
                     filters={filters}
+                    order={order}
+                    setOrder={setOrder}
                     columnRules={columnRules}
                     editRiskAssessmentColumns={editRiskAssessmentColumns}
                 />

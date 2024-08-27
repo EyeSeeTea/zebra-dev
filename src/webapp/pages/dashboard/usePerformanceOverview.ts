@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
+import _ from "../../../domain/entities/generic/Collection";
 
 import { FilterType, TableColumn } from "../../components/table/statistic-table/StatisticTable";
+import { DiseaseOutbreakEventBaseAttrs } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type State = {
     columns: TableColumn[];
@@ -9,6 +11,8 @@ type State = {
     columnRules: { [key: string]: number };
     editRiskAssessmentColumns: string[];
     filters: FilterType[];
+    order?: Order;
+    setOrder: (order: Order) => void;
     isLoading: boolean;
 };
 
@@ -30,7 +34,10 @@ type PerformanceOverviewData = {
     era7: string;
     eri: string;
     respond7d: string;
+    creationDate: Date;
 };
+
+export type Order = { name: string; direction: "asc" | "desc" };
 export function usePerformanceOverview(): State {
     const { compositionRoot } = useAppContext();
 
@@ -38,6 +45,21 @@ export function usePerformanceOverview(): State {
         PerformanceOverviewData[]
     >([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [order, setOrder] = useState<Order>();
+
+    useEffect(() => {
+        setDataPerformanceOverview(
+            _(dataPerformanceOverview)
+                .orderBy([
+                    [
+                        (obj: PerformanceOverviewData) =>
+                            obj[(order?.name as keyof PerformanceOverviewData) || "creationDate"],
+                        order?.direction || "asc",
+                    ],
+                ])
+                .value()
+        );
+    }, [dataPerformanceOverview, order]);
 
     useEffect(() => {
         setIsLoading(true);
@@ -89,7 +111,10 @@ export function usePerformanceOverview(): State {
         notify1d: 1,
         respond7d: 7,
     };
-    const mapEntityToTableData = (diseaseOutbreakEvent: any, blank = false) => {
+    const mapEntityToTableData = (
+        diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs,
+        blank = false
+    ): PerformanceOverviewData => {
         const getRandom = (max: number) => Math.floor(Math.random() * max).toString();
 
         return {
@@ -110,6 +135,7 @@ export function usePerformanceOverview(): State {
             era7: blank ? "" : getRandom(14),
             eri: blank ? "" : getRandom(14),
             respond7d: getRandom(14),
+            creationDate: diseaseOutbreakEvent.created || new Date(),
         };
     };
 
@@ -121,6 +147,8 @@ export function usePerformanceOverview(): State {
     return {
         dataPerformanceOverview,
         filters,
+        order,
+        setOrder,
         columnRules,
         editRiskAssessmentColumns,
         columns,
