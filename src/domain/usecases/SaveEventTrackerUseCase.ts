@@ -1,6 +1,5 @@
 import { FutureData } from "../../data/api-futures";
 import { EventTracker } from "../entities/event-tracker/EventTracker";
-import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { EventTrackerRepository } from "../repositories/EventTrackerRepository";
 
 export class SaveEventTrackerUseCase {

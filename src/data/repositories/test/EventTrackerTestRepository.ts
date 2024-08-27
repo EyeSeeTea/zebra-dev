@@ -1,7 +1,7 @@
 import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { EventTracker } from "../../../domain/entities/event-tracker/EventTracker";
 import { Future } from "../../../domain/entities/generic/Future";
-import { Id, ConfigLabel } from "../../../domain/entities/Ref";
+import { Id } from "../../../domain/entities/Ref";
 import { EventTrackerRepository } from "../../../domain/repositories/EventTrackerRepository";
 import { FutureData } from "../../api-futures";
 
@@ -106,9 +106,6 @@ export class EventTrackerTestRepository implements EventTrackerRepository {
         return Future.success(undefined);
     }
     delete(_id: Id): FutureData<void> {
-        throw new Error("Method not implemented.");
-    }
-    getConfigStrings(): FutureData<ConfigLabel[]> {
         throw new Error("Method not implemented.");
     }
 }
