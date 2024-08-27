@@ -72,6 +72,9 @@ export function mapEntityToInitialFormState(
         mapToPresentationOptions(notificationSources);
     const incidentStatusOptions: PresentationOption[] = mapToPresentationOptions(incidentStatus);
 
+    const isEBSDataSource = diseaseOutbreakEvent?.dataSource === "EBS";
+    const isIBSDataSource = diseaseOutbreakEvent?.dataSource === "IBS";
+
     return {
         id: diseaseOutbreakEvent?.id || "",
         title: "Create Event",
@@ -121,20 +124,17 @@ export function mapEntityToInitialFormState(
             {
                 title: "Hazard Type",
                 id: "hazardType_section",
-                isVisible: diseaseOutbreakEvent?.dataSource === "EBS",
+                isVisible: isEBSDataSource,
                 required: true,
                 fields: [
                     {
                         id: getFieldIdFromIdsDictionary("hazardType", diseaseOutbreakEventFieldIds),
-                        isVisible: diseaseOutbreakEvent?.dataSource === "EBS",
+                        isVisible: isEBSDataSource,
                         errors: [],
                         type: "radio",
                         multiple: false,
                         options: hazardTypesOptions,
-                        value:
-                            diseaseOutbreakEvent?.dataSource === "EBS"
-                                ? diseaseOutbreakEvent?.hazardType || ""
-                                : "",
+                        value: isEBSDataSource ? diseaseOutbreakEvent?.hazardType || "" : "",
                         required: true,
                         showIsRequired: false,
                     },
@@ -143,7 +143,7 @@ export function mapEntityToInitialFormState(
             {
                 title: "Main Syndrome",
                 id: "mainSyndrome_section",
-                isVisible: diseaseOutbreakEvent?.dataSource === "IBS",
+                isVisible: isIBSDataSource,
                 required: true,
                 fields: [
                     {
@@ -152,15 +152,12 @@ export function mapEntityToInitialFormState(
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select a syndrome",
-                        isVisible: diseaseOutbreakEvent?.dataSource === "IBS",
+                        isVisible: isIBSDataSource,
                         errors: [],
                         type: "select",
                         multiple: false,
                         options: mainSyndromesOptions,
-                        value:
-                            diseaseOutbreakEvent?.dataSource === "IBS"
-                                ? diseaseOutbreakEvent?.mainSyndromeCode || ""
-                                : "",
+                        value: isIBSDataSource ? diseaseOutbreakEvent?.mainSyndromeCode || "" : "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
@@ -170,7 +167,7 @@ export function mapEntityToInitialFormState(
             {
                 title: "Suspected Disease",
                 id: "suspectedDisease_section",
-                isVisible: !(diseaseOutbreakEvent?.dataSource === "EBS"),
+                isVisible: !isEBSDataSource,
                 required: true,
                 fields: [
                     {
@@ -179,15 +176,14 @@ export function mapEntityToInitialFormState(
                             diseaseOutbreakEventFieldIds
                         ),
                         placeholder: "Select a disease",
-                        isVisible: !(diseaseOutbreakEvent?.dataSource === "EBS"),
+                        isVisible: !isEBSDataSource,
                         errors: [],
                         type: "select",
                         multiple: false,
                         options: suspectedDiseasesOptions,
-                        value:
-                            diseaseOutbreakEvent?.dataSource === "EBS"
-                                ? ""
-                                : diseaseOutbreakEvent?.suspectedDiseaseCode || "",
+                        value: isEBSDataSource
+                            ? ""
+                            : diseaseOutbreakEvent?.suspectedDiseaseCode || "",
                         width: "300px",
                         required: true,
                         showIsRequired: false,
