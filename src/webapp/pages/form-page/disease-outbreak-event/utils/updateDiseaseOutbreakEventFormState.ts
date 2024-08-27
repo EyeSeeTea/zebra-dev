@@ -20,15 +20,13 @@ export function updateDiseaseOutbreakEventFormState(
 ): FormState {
     const updatedForm = updateFormStateAndApplySideEffects(prevFormState, updatedField);
 
-    const updatedFormWithRulesApplied =
+    const hasUpdatedFieldAnyRule =
         diseaseOutbreakEventWithOptions.rules.filter(rule => rule.fieldId === updatedField.id)
-            .length > 0
-            ? applyRulesInFormState(
-                  updatedForm,
-                  updatedField,
-                  diseaseOutbreakEventWithOptions.rules
-              )
-            : updatedForm;
+            .length > 0;
+
+    const updatedFormWithRulesApplied = hasUpdatedFieldAnyRule
+        ? applyRulesInFormState(updatedForm, updatedField, diseaseOutbreakEventWithOptions.rules)
+        : updatedForm;
 
     const fieldValidationErrors = validateDiseaseOutbreakEventFormState(
         updatedFormWithRulesApplied,

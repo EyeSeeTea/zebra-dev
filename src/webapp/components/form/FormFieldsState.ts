@@ -195,3 +195,16 @@ export function validateField(
           }
         : undefined;
 }
+
+// RULES:
+
+export function hideFieldsAndSetToEmpty(fields: FormFieldState[]): FormFieldState[] {
+    return fields.map(field => {
+        const fieldWithEmptyValue = getFieldWithEmptyValue(field);
+
+        return {
+            ...fieldWithEmptyValue,
+            isVisible: false,
+        };
+    });
+}

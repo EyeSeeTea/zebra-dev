@@ -1,3 +1,4 @@
+import { Rule } from "../../../domain/entities/Rule";
 import { ValidationError } from "../../../domain/entities/ValidationError";
 import {
     FormFieldState,
@@ -6,6 +7,7 @@ import {
     getFieldWithEmptyValue,
     updateFields,
     validateField,
+    hideFieldsAndSetToEmpty,
 } from "./FormFieldsState";
 import { FormState } from "./FormState";
 
@@ -151,4 +153,49 @@ function validateSection(
         }
         return [];
     });
+}
+
+// RULES:
+
+export function toggleSectionVisibilityByFieldValue(
+    section: FormSectionState,
+    fieldValue: FormFieldState["value"],
+    rule: Rule
+): FormSectionState {
+    if (rule.sectionIds.includes(section.id)) {
+        const subsections = section.subsections?.map(subsection => {
+            return toggleSectionVisibilityByFieldValue(subsection, fieldValue, rule);
+        });
+        return section.subsections
+            ? {
+                  ...section,
+                  subsections: subsections,
+                  isVisible: fieldValue === rule.fieldValue,
+                  fields:
+                      fieldValue === rule.fieldValue
+                          ? section.fields.map(field => ({
+                                ...field,
+                                isVisible: true,
+                            }))
+                          : hideFieldsAndSetToEmpty(section.fields),
+              }
+            : {
+                  ...section,
+                  isVisible: fieldValue === rule.fieldValue,
+                  fields:
+                      fieldValue === rule.fieldValue
+                          ? section.fields.map(field => ({
+                                ...field,
+                                isVisible: true,
+                            }))
+                          : hideFieldsAndSetToEmpty(section.fields),
+              };
+    } else {
+        return {
+            ...section,
+            subsections: section.subsections?.map(subsection =>
+                toggleSectionVisibilityByFieldValue(subsection, fieldValue, rule)
+            ),
+        };
+    }
 }
