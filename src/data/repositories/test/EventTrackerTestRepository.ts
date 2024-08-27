@@ -105,7 +105,4 @@ export class EventTrackerTestRepository implements EventTrackerRepository {
     save(_diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void> {
         return Future.success(undefined);
     }
-    delete(_id: Id): FutureData<void> {
-        throw new Error("Method not implemented.");
-    }
 }

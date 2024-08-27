@@ -18,7 +18,7 @@ export class GetDiseaseOutbreakByIdUseCase {
     ) {}
 
     public execute(id: Id): FutureData<DiseaseOutbreakEvent> {
-        return this.options.eventTrackerRepository.get(id).flatMap(diseaseOutbreakEventBase => {
+        return this.options.eventTrackerRepository.get(id).flatMap(eventTracker => {
             const {
                 mainSyndromeCode,
                 suspectedDiseaseCode,
@@ -26,7 +26,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                 incidentManagerName,
                 areasAffectedDistrictIds,
                 areasAffectedProvinceIds,
-            } = diseaseOutbreakEventBase;
+            } = eventTracker;
 
             return Future.joinObj({
                 mainSyndrome: this.options.optionsRepository.get(mainSyndromeCode),
@@ -49,7 +49,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                     areasAffectedDistricts,
                 }) => {
                     const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent({
-                        ...diseaseOutbreakEventBase,
+                        ...eventTracker,
                         createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
                         mainSyndrome: mainSyndrome,
                         suspectedDisease: suspectedDisease,
