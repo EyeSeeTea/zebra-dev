@@ -24,11 +24,11 @@ export class OptionsD2Repository implements OptionsRepository {
             });
     }
 
-    getAllDataSources(): FutureData<Option[]> {
+    getDataSources(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_DATA_SOURCE");
     }
 
-    getAllHazardTypes(): FutureData<Option[]> {
+    getHazardTypes(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_HAZARD_TYPE").map(hazardTypes => {
             return hazardTypes.map(hazardType => ({
                 id: getHazardTypeByCode(hazardType.id),
@@ -37,19 +37,19 @@ export class OptionsD2Repository implements OptionsRepository {
         });
     }
 
-    getAllMainSyndromes(): FutureData<Option[]> {
+    getMainSyndromes(): FutureData<Option[]> {
         return this.getOptionSetByCode("AGENTS");
     }
 
-    getAllSuspectedDiseases(): FutureData<Option[]> {
+    getSuspectedDiseases(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_DISEASE");
     }
 
-    getAllNotificationSources(): FutureData<Option[]> {
+    getNotificationSources(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_SOURCE");
     }
 
-    getAllIncidentStatus(): FutureData<Option[]> {
+    getIncidentStatus(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_INCIDENT_STATUS");
     }
 

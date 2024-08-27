@@ -8,34 +8,34 @@ export class OptionsTestRepository implements OptionsRepository {
         return Future.success({ id: id, name: "Test Option" });
     }
 
-    getAllDataSources(): FutureData<Option[]> {
+    getDataSources(): FutureData<Option[]> {
         return Future.success([
             { id: "EBS", name: "EBS", code: "EBS" },
             { id: "IBS", name: "IBS", code: "IBS" },
         ]);
     }
 
-    getAllHazardTypes(): FutureData<Option[]> {
+    getHazardTypes(): FutureData<Option[]> {
         return Future.success([{ id: "1", name: "Test Hazard Type", code: "HazardTypeCode" }]);
     }
 
-    getAllMainSyndromes(): FutureData<Option[]> {
+    getMainSyndromes(): FutureData<Option[]> {
         return Future.success([{ id: "1", name: "Test Main Syndrome", code: "MainSyndromeCode" }]);
     }
 
-    getAllSuspectedDiseases(): FutureData<Option[]> {
+    getSuspectedDiseases(): FutureData<Option[]> {
         return Future.success([
             { id: "1", name: "Test Suspected Disease", code: "SuspectedDiseaseCode" },
         ]);
     }
 
-    getAllNotificationSources(): FutureData<Option[]> {
+    getNotificationSources(): FutureData<Option[]> {
         return Future.success([
             { id: "1", name: "Test Notification Source", code: "NotificationSourceCode" },
         ]);
     }
 
-    getAllIncidentStatus(): FutureData<Option[]> {
+    getIncidentStatus(): FutureData<Option[]> {
         return Future.success([
             { id: "1", name: "Test Incident Status", code: "IncidentStatusCode" },
         ]);
