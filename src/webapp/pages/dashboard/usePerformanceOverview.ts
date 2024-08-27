@@ -48,18 +48,26 @@ export function usePerformanceOverview(): State {
     const [order, setOrder] = useState<Order>();
 
     useEffect(() => {
-        setDataPerformanceOverview(
-            _(dataPerformanceOverview)
-                .orderBy([
-                    [
-                        (obj: PerformanceOverviewData) =>
-                            obj[(order?.name as keyof PerformanceOverviewData) || "creationDate"],
-                        order?.direction || "asc",
-                    ],
-                ])
-                .value()
-        );
-    }, [dataPerformanceOverview, order]);
+        if (dataPerformanceOverview) {
+            setDataPerformanceOverview(
+                _(dataPerformanceOverview)
+                    .orderBy([
+                        [
+                            (dataPerformanceOverviewdata: PerformanceOverviewData) => {
+                                const value =
+                                    dataPerformanceOverviewdata[
+                                        (order?.name as keyof PerformanceOverviewData) ||
+                                            "creationDate"
+                                    ];
+                                return Number.isNaN(Number(value)) ? value : Number(value);
+                            },
+                            order?.direction || "asc",
+                        ],
+                    ])
+                    .value()
+            );
+        }
+    }, [order]);
 
     useEffect(() => {
         setIsLoading(true);
