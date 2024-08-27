@@ -101,7 +101,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                         ) : (
                                             <StyledTableCell
                                                 key={`${rowIndex}-${column.value}`}
-                                                boldUnderline={columnIndex === 0}
+                                                $boldUnderline={columnIndex === 0}
                                             >
                                                 {row[column.value] || ""}
                                             </StyledTableCell>
@@ -160,9 +160,9 @@ const HeadTableCell = styled(TableCell)<{ $dark?: boolean }>`
     font-weight: 600;
 `;
 
-const StyledTableCell = styled(TableCell)<{ boldUnderline?: boolean }>`
-    text-decoration: ${props => (props.boldUnderline ? "underline" : "none")};
-    font-weight: ${props => (props.boldUnderline ? "600" : "initial")};
+const StyledTableCell = styled(TableCell)<{ $boldUnderline?: boolean }>`
+    text-decoration: ${props => (props.$boldUnderline ? "underline" : "none")};
+    font-weight: ${props => (props.$boldUnderline ? "600" : "initial")};
 `;
 
 const Container = styled.div`
