@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import i18n from "../../../../utils/i18n";
 import {
@@ -8,6 +8,7 @@ import {
     TableHead,
     TableRow,
     TableContainer,
+    TableSortLabel,
 } from "@material-ui/core";
 import { SearchInput } from "../../search-input/SearchInput";
 import { MultipleSelector } from "../../selector/MultipleSelector";
@@ -16,6 +17,7 @@ import { useTableCell } from "./useTableCell";
 import { useStatisticCalculations } from "./useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
+import { Order } from "../../../pages/dashboard/usePerformanceOverview";
 
 export type TableColumn = {
     value: string;
@@ -43,10 +45,20 @@ export type StatisticTableProps = {
         [key: TableColumn["value"]]: string;
     }[];
     filters: FilterType[];
+    order?: Order;
+    setOrder?: (order: Order) => void;
 };
 
 export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
-    ({ rows, columns, columnRules, editRiskAssessmentColumns, filters: filtersConfig }) => {
+    ({
+        rows,
+        columns,
+        columnRules,
+        editRiskAssessmentColumns,
+        filters: filtersConfig,
+        order,
+        setOrder,
+    }) => {
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
         const { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions } =
@@ -55,6 +67,21 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         const { calculateMedian, calculatePercentTargetMet } = useStatisticCalculations(
             filteredRows,
             columnRules
+        );
+
+        const onOrderBy = useCallback(
+            (value: string) =>
+                setOrder &&
+                setOrder({
+                    name: value,
+                    direction:
+                        order?.name === value
+                            ? order?.direction === "asc"
+                                ? "desc"
+                                : "asc"
+                            : "asc",
+                }),
+            [order, setOrder]
         );
 
         return (
@@ -79,8 +106,22 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                         <TableHead>
                             <TableRow>
                                 {columns.map(({ value, label, dark = false }) => (
-                                    <HeadTableCell key={value} $dark={dark}>
-                                        {label}
+                                    <HeadTableCell
+                                        key={value}
+                                        $dark={dark}
+                                        sortDirection={
+                                            order?.name === value ? order.direction : false
+                                        }
+                                    >
+                                        <TableSortLabel
+                                            active={order?.name === value}
+                                            direction={
+                                                order?.name === value ? order?.direction : "asc"
+                                            }
+                                            onClick={() => onOrderBy(value)}
+                                        >
+                                            {label}
+                                        </TableSortLabel>
                                     </HeadTableCell>
                                 ))}
                             </TableRow>
