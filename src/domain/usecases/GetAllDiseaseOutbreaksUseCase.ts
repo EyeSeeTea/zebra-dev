@@ -1,11 +1,11 @@
 import { FutureData } from "../../data/api-futures";
-import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
+import { EventTracker } from "../entities/event-tracker/EventTracker";
+import { EventTrackerRepository } from "../repositories/EventTrackerRepository";
 
-export class GetAllDiseaseOutbreaksUseCase {
-    constructor(private diseaseOutbreakRepository: DiseaseOutbreakEventRepository) {}
+export class GetAllEventTrackersUseCase {
+    constructor(private eventTrackerRepository: EventTrackerRepository) {}
 
-    public execute(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
-        return this.diseaseOutbreakRepository.getAll();
+    public execute(): FutureData<EventTracker[]> {
+        return this.eventTrackerRepository.getAll();
     }
 }

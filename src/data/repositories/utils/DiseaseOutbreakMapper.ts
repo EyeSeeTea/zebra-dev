@@ -1,7 +1,7 @@
 import {
-    DiseaseOutbreakEventBaseAttrs,
+    EventTracker,
     IncidentStatusType,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+} from "../../../domain/entities/event-tracker/EventTracker";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     DiseaseOutbreakCode,
@@ -33,10 +33,10 @@ type D2TrackedEntityAttribute = {
 
 export function mapTrackedEntityAttributesToDiseaseOutbreak(
     trackedEntity: D2TrackerTrackedEntity
-): DiseaseOutbreakEventBaseAttrs {
+): EventTracker {
     if (!trackedEntity.trackedEntity) throw new Error("Tracked entity not found");
 
-    const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
+    const diseaseOutbreak: EventTracker = {
         id: trackedEntity.trackedEntity,
         eventId: parseInt(getValueFromMap("eventId", trackedEntity)),
         name: getValueFromMap("name", trackedEntity),
@@ -112,7 +112,7 @@ function getMultipleOUFromText(text: string): string[] {
 }
 
 export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
-    diseaseOutbreak: DiseaseOutbreakEventBaseAttrs,
+    diseaseOutbreak: EventTracker,
     attributesMetadata: D2TrackedEntityAttribute[]
 ): D2TrackerTrackedEntity {
     const attributeValues: Record<DiseaseOutbreakCode, string> =

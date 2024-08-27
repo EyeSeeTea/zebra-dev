@@ -2,10 +2,10 @@ import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-
 import { EventTracker } from "../../../domain/entities/event-tracker/EventTracker";
 import { Future } from "../../../domain/entities/generic/Future";
 import { Id, ConfigLabel } from "../../../domain/entities/Ref";
-import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/DiseaseOutbreakEventRepository";
+import { EventTrackerRepository } from "../../../domain/repositories/EventTrackerRepository";
 import { FutureData } from "../../api-futures";
 
-export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventRepository {
+export class EventTrackerTestRepository implements EventTrackerRepository {
     get(id: Id): FutureData<EventTracker> {
         return Future.success({
             id: id,

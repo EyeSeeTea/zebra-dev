@@ -1,9 +1,4 @@
-import { getAvatarUtilityClass } from "@mui/material";
-import {
-    DiseaseOutbreakEventBaseAttrs,
-    HazardType,
-    hazardTypes,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { EventTracker, HazardType } from "../../../domain/entities/event-tracker/EventTracker";
 import { GetValue, Maybe } from "../../../utils/ts-utils";
 import { getDateAsIsoString } from "../utils/DateTimeHelper";
 
@@ -67,7 +62,7 @@ export function getHazardTypeValue(hazardType: string): HazardType {
 }
 
 export function getValueFromDiseaseOutbreak(
-    diseaseOutbreak: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreak: EventTracker
 ): Record<DiseaseOutbreakCode, string> {
     return {
         RTSL_ZEB_TEA_EVENT_id: diseaseOutbreak.eventId.toString(),

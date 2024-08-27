@@ -1,13 +1,14 @@
 import { FutureData } from "../../data/api-futures";
-import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { EventTracker } from "../entities/event-tracker/EventTracker";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
+import { EventTrackerRepository } from "../repositories/EventTrackerRepository";
 
-export class SaveDiseaseOutbreakUseCase {
-    constructor(private diseaseOutbreakRepository: DiseaseOutbreakEventRepository) {}
+export class SaveEventTrackerUseCase {
+    constructor(private eventTrackerRepository: EventTrackerRepository) {}
 
     public execute(): FutureData<void> {
         //To DO : remove hardcoding
-        const diseaseOutbreakbase: DiseaseOutbreakEventBaseAttrs = {
+        const diseaseOutbreakbase: EventTracker = {
             id: "",
             eventId: 11,
             name: "Save Outbreak",
@@ -37,6 +38,6 @@ export class SaveDiseaseOutbreakUseCase {
             incidentManagerName: "test",
             notes: "notes notes notes",
         };
-        return this.diseaseOutbreakRepository.save(diseaseOutbreakbase);
+        return this.eventTrackerRepository.save(diseaseOutbreakbase);
     }
 }

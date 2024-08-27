@@ -16,14 +16,18 @@ import { OrgUnitD2Repository } from "./data/repositories/OrgUnitD2Repository";
 import { OptionsTestRepository } from "./data/repositories/test/OptionsTestRepository";
 import { TeamMemberTestRepository } from "./data/repositories/test/TeamMemberTestRepository";
 import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepository";
-import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
-import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
+import { GetAllEventTrackersUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
+import { SaveEventTrackerUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
+import { EventTrackerRepository } from "./domain/repositories/EventTrackerRepository";
+import { EventTrackerD2Repository } from "./data/repositories/EventTrackerD2Repository";
+import { EventTrackerTestRepository } from "./data/repositories/test/EventTrackerTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
 type Repositories = {
     usersRepository: UserRepository;
     diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
+    eventTrackerRepository: EventTrackerRepository;
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
@@ -36,8 +40,8 @@ function getCompositionRoot(repositories: Repositories) {
         },
         diseaseOutbreakEvent: {
             get: new GetDiseaseOutbreakByIdUseCase(repositories),
-            getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
-            save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
+            getAll: new GetAllEventTrackersUseCase(repositories.eventTrackerRepository),
+            save: new SaveEventTrackerUseCase(repositories.eventTrackerRepository),
         },
     };
 }
@@ -45,7 +49,8 @@ function getCompositionRoot(repositories: Repositories) {
 export function getWebappCompositionRoot(api: D2Api) {
     const repositories: Repositories = {
         usersRepository: new UserD2Repository(api),
-        diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(api),
+        diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(),
+        eventTrackerRepository: new EventTrackerD2Repository(api),
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
@@ -58,6 +63,7 @@ export function getTestCompositionRoot() {
     const repositories: Repositories = {
         usersRepository: new UserTestRepository(),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventTestRepository(),
+        eventTrackerRepository: new EventTrackerTestRepository(),
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
