@@ -1,25 +1,29 @@
 import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import i18n from "@eyeseetea/d2-ui-components/locales";
-import { Id } from "../../../../domain/entities/Ref";
 import { Section } from "../../section/Section";
 import { Box, Button, Typography } from "@material-ui/core";
-import { useFormSummary } from "./useFormSummary";
 import { UserCard } from "../../user-selector/UserCard";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import { EditOutlined } from "@material-ui/icons";
 import { Loader } from "../../loader/Loader";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import { FormSummaryData } from "../../../pages/event-tracker/useDiseaseOutbreakEvent";
+import { Maybe } from "../../../../utils/ts-utils";
+import { FormType } from "../../../pages/form-page/FormPage";
+import { Id } from "../../../../domain/entities/Ref";
 
 export type FormSummaryProps = {
     id: Id;
+    formType: FormType;
+    formSummary: Maybe<FormSummaryData>;
+    summaryError: Maybe<string>;
 };
 
 const ROW_COUNT = 3;
 
 export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
-    const { id } = props;
-    const { formSummary, summaryError } = useFormSummary(id);
+    const { id, formType, formSummary, summaryError } = props;
     const { goTo } = useRoutes();
     const snackbar = useSnackbar();
 
@@ -35,7 +39,7 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
             variant="outlined"
             color="secondary"
             onClick={() => {
-                goTo(RouteName.EDIT_FORM, { formType: "disease-outbreak-event", id }); //TO DO : Change to dynamic formType when available
+                goTo(RouteName.EDIT_FORM, { formType: formType, id: id }); //TO DO : Change to dynamic formType when available
             }}
             startIcon={<EditOutlined />}
         >

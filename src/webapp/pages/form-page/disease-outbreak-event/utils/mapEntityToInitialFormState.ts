@@ -1,4 +1,4 @@
-import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
+import { DiseaseOutbreakEventFormData } from "../../../../../domain/entities/ConfigurableForm";
 import { TeamMember } from "../../../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../../../../domain/entities/Ref";
 import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormFieldsState";
@@ -52,11 +52,11 @@ export function mapTeamMemberToUser(teamMember: TeamMember): User {
 }
 
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
-export function mapEntityToInitialFormState(
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions,
+export function mapDiseaseOutbreakEventToInitialFormState(
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
     editMode: boolean
 ): FormState {
-    const { diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
+    const { entity: diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
         dataSources,
         teamMembers,

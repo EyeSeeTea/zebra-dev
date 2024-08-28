@@ -4,7 +4,6 @@ import {
     HazardType,
     IncidentStatusType,
 } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { FormState } from "../../../../components/form/FormState";
 import { diseaseOutbreakEventFieldIds } from "./mapEntityToInitialFormState";
 import {
@@ -15,14 +14,14 @@ import {
     getMultipleOptionsFieldValue,
     getStringFieldValue,
 } from "../../../../components/form/FormFieldsState";
+import { DiseaseOutbreakEventFormData } from "../../../../../domain/entities/ConfigurableForm";
 
 export function mapFormStateToEntityData(
     formState: FormState,
     currentUserName: string,
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions
+    configurableDiseaseOutbreakEventForm: DiseaseOutbreakEventFormData
 ): DiseaseOutbreakEventBaseAttrs {
-    const { diseaseOutbreakEvent } = diseaseOutbreakEventWithOptions;
-
+    const diseaseOutbreakEvent = configurableDiseaseOutbreakEventForm.entity;
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
     const diseaseOutbreakEventEditableData = {

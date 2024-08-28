@@ -6,99 +6,111 @@ import { useAppContext } from "../../../contexts/app-context";
 import { Id } from "../../../../domain/entities/Ref";
 import { FormState } from "../../../components/form/FormState";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
-import {
-    DiseaseOutbreakEventLables,
-    DiseaseOutbreakEventWithOptions,
-} from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { mapFormStateToEntityData } from "./utils/mapFormStateToEntityData";
-import { updateDiseaseOutbreakEventFormState } from "./utils/updateDiseaseOutbreakEventFormState";
-import { mapEntityToInitialFormState } from "./utils/mapEntityToInitialFormState";
+import { updateAndValidateFormState } from "./utils/updateDiseaseOutbreakEventFormState";
+import { mapDiseaseOutbreakEventToInitialFormState } from "./utils/mapEntityToInitialFormState";
 import { FormFieldState } from "../../../components/form/FormFieldsState";
+import { FormType } from "../FormPage";
+import { ConfigurableForm, FormLables } from "../../../../domain/entities/ConfigurableForm";
 
 export type GlobalMessage = {
     text: string;
     type: "warning" | "success" | "error";
 };
 
-export type DiseaseOutbreakEventFormStateLoaded = {
+export type FormStateLoaded = {
     kind: "loaded";
     data: FormState;
 };
 
-export type DiseaseOutbreakEventFormStateLoading = {
+export type FormStateLoading = {
     kind: "loading";
 };
 
-export type DiseaseOutbreakEventFormStateError = {
+export type FormStateError = {
     kind: "error";
     message: string;
 };
 
-export type DiseaseOutbreakEventFormState =
-    | DiseaseOutbreakEventFormStateLoaded
-    | DiseaseOutbreakEventFormStateLoading
-    | DiseaseOutbreakEventFormStateError;
+export type FormLoadState = FormStateLoaded | FormStateLoading | FormStateError;
 
 type State = {
-    formLabels: Maybe<DiseaseOutbreakEventLables>;
+    formLabels: Maybe<FormLables>;
     globalMessage: Maybe<GlobalMessage>;
-    formState: DiseaseOutbreakEventFormState;
+    formState: FormLoadState;
     isLoading: boolean;
     handleFormChange: (updatedField: FormFieldState) => void;
     onSaveForm: () => void;
     onCancelForm: () => void;
 };
 
-// TODO: Thinking for the future about making this more generic
-export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State {
+export function useForm(formType: FormType, id?: Id): State {
     const { compositionRoot, currentUser } = useAppContext();
     const { goTo } = useRoutes();
 
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
-    const [formState, setFormState] = useState<DiseaseOutbreakEventFormState>({ kind: "loading" });
-    const [diseaseOutbreakEventWithOptions, setDiseaseOutbreakEventWithOptions] =
-        useState<DiseaseOutbreakEventWithOptions>();
-    const [formLabels, setFormLabels] = useState<DiseaseOutbreakEventLables>();
+    const [formState, setFormState] = useState<FormLoadState>({ kind: "loading" });
+    const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
+    const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        compositionRoot.diseaseOutbreakEvent.getWithOptions.execute(diseaseOutbreakEventId).run(
-            diseaseOutbreakEventWithOptionsData => {
-                setDiseaseOutbreakEventWithOptions(diseaseOutbreakEventWithOptionsData);
-                setFormLabels(diseaseOutbreakEventWithOptionsData.labels);
-                setFormState({
-                    kind: "loaded",
-                    data: mapEntityToInitialFormState(
-                        diseaseOutbreakEventWithOptionsData,
-                        !!diseaseOutbreakEventId
-                    ),
-                });
-            },
-            error => {
-                setFormState({
-                    kind: "error",
-                    message: i18n.t(`Create Event form cannot be loaded`),
-                });
-                setGlobalMessage({
-                    text: i18n.t(
-                        `An error occurred while loading Create Event form: ${error.message}`
-                    ),
-                    type: "error",
-                });
-            }
-        );
-    }, [compositionRoot.diseaseOutbreakEvent.getWithOptions, diseaseOutbreakEventId]);
+        //SNEHA TO DO : cases based on form type
+
+        switch (formType) {
+            case "disease-outbreak-event":
+                compositionRoot.diseaseOutbreakEvent.getWithOptions.execute(id).run(
+                    diseaseOutbreakEventWithOptionsData => {
+                        if (
+                            diseaseOutbreakEventWithOptionsData.data.type ===
+                            "disease-outbreak-event"
+                        ) {
+                            setConfigurableForm(diseaseOutbreakEventWithOptionsData);
+                            setFormLabels(diseaseOutbreakEventWithOptionsData.labels);
+                            setFormState({
+                                kind: "loaded",
+                                data: mapDiseaseOutbreakEventToInitialFormState(
+                                    diseaseOutbreakEventWithOptionsData.data,
+                                    !!id
+                                ),
+                            });
+                        } else {
+                            setFormState({
+                                kind: "error",
+                                message: i18n.t(`Create Event form cannot be loaded`),
+                            });
+                            setGlobalMessage({
+                                text: i18n.t(`An error occurred while loading Create Event form:}`),
+                                type: "error",
+                            });
+                        }
+                    },
+                    error => {
+                        setFormState({
+                            kind: "error",
+                            message: i18n.t(`Create Event form cannot be loaded`),
+                        });
+                        setGlobalMessage({
+                            text: i18n.t(
+                                `An error occurred while loading Create Event form: ${error.message}`
+                            ),
+                            type: "error",
+                        });
+                    }
+                );
+        }
+    }, [compositionRoot.diseaseOutbreakEvent.getWithOptions, formType, id]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {
             setFormState(prevState => {
-                if (prevState.kind === "loaded" && diseaseOutbreakEventWithOptions) {
+                if (prevState.kind === "loaded" && configurableForm) {
                     return {
                         kind: "loaded",
-                        data: updateDiseaseOutbreakEventFormState(
+                        data: updateAndValidateFormState(
                             prevState.data,
                             updatedField,
-                            diseaseOutbreakEventWithOptions,
+                            configurableForm,
                             currentUser.username
                         ),
                     };
@@ -107,58 +119,57 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                 }
             });
         },
-        [currentUser.username, diseaseOutbreakEventWithOptions]
+        [currentUser.username, configurableForm]
     );
 
     const onSaveForm = useCallback(() => {
-        if (
-            formState.kind !== "loaded" ||
-            !diseaseOutbreakEventWithOptions ||
-            !formState.data.isValid
-        )
-            return;
+        if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
 
         setIsLoading(true);
 
-        const diseaseOutbreakEventData = mapFormStateToEntityData(
-            formState.data,
-            currentUser.username,
-            diseaseOutbreakEventWithOptions
-        );
+        switch (configurableForm.data.type) {
+            case "disease-outbreak-event": {
+                const diseaseOutbreakEventData = mapFormStateToEntityData(
+                    formState.data,
+                    currentUser.username,
+                    configurableForm.data
+                );
 
-        compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
-            diseaseOutbreakEventId => {
-                compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
-                    .execute(diseaseOutbreakEventId, diseaseOutbreakEventData)
-                    .run(
-                        () => {
-                            setIsLoading(false);
-                            goTo(RouteName.EVENT_TRACKER, { id: diseaseOutbreakEventId });
-                        },
-                        err => {
-                            console.error({ err });
-                            setIsLoading(false);
-                        }
-                    );
+                compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
+                    diseaseOutbreakEventId => {
+                        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
+                            .execute(diseaseOutbreakEventId, diseaseOutbreakEventData)
+                            .run(
+                                () => {
+                                    setIsLoading(false);
+                                    goTo(RouteName.EVENT_TRACKER, { id: diseaseOutbreakEventId });
+                                },
+                                err => {
+                                    console.error({ err });
+                                    setIsLoading(false);
+                                }
+                            );
 
-                setGlobalMessage({
-                    text: i18n.t(`Disease Outbreak saved successfully`),
-                    type: "success",
-                });
-            },
-            err => {
-                setGlobalMessage({
-                    text: i18n.t(`Error saving disease outbreak: ${err.message}`),
-                    type: "error",
-                });
-                setIsLoading(false);
+                        setGlobalMessage({
+                            text: i18n.t(`Disease Outbreak saved successfully`),
+                            type: "success",
+                        });
+                    },
+                    err => {
+                        setGlobalMessage({
+                            text: i18n.t(`Error saving disease outbreak: ${err.message}`),
+                            type: "error",
+                        });
+                        setIsLoading(false);
+                    }
+                );
             }
-        );
+        }
     }, [
         compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
         compositionRoot.diseaseOutbreakEvent.save,
         currentUser.username,
-        diseaseOutbreakEventWithOptions,
+        configurableForm,
         formState,
         goTo,
     ]);

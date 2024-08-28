@@ -6,9 +6,11 @@ import { FormSummary } from "../../components/form/form-summary/FormSummary";
 import { Visualisation } from "../../components/visualisation/Visualisation";
 import { Section } from "../../components/section/Section";
 import { Box, Button } from "@material-ui/core";
-import { AddCircleOutline } from "@material-ui/icons";
+import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
 import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
+import { useDiseaseOutbreakEvent } from "./useDiseaseOutbreakEvent";
+import { RouteName, useRoutes } from "../../hooks/useRoutes";
 
 // TODO: Add every section here
 export type VisualizationTypes =
@@ -37,11 +39,18 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { id } = useParams<{
         id: string;
     }>();
+    const { goTo } = useRoutes();
+    const { formSummary, summaryError, riskAssessmentRows } = useDiseaseOutbreakEvent(id);
 
     const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
     return (
         <Layout title={i18n.t("Event Tracker")}>
-            <FormSummary id={id} />
+            <FormSummary
+                id={id}
+                formType="disease-outbreak-event"
+                formSummary={formSummary}
+                summaryError={summaryError}
+            />
             <Visualisation
                 type="EVENT_TRACKER_AREAS_AFFECTED_MAP"
                 title="Districts Affected"
@@ -51,14 +60,38 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 title="Risk Assessment"
                 hasSeparator={true}
                 headerButton={
-                    <Button variant="outlined" color="secondary" startIcon={<AddCircleOutline />}>
-                        {i18n.t("Add new Assessment")}
-                    </Button>
+                    riskAssessmentRows.length === 0 ? (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<EditOutlined />}
+                            onClick={() => {
+                                goTo(RouteName.CREATE_FORM, {
+                                    formType: "risk-assessment",
+                                });
+                            }}
+                        >
+                            {i18n.t("Create Risk Assessment")}
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            startIcon={<AddCircleOutline />}
+                            onClick={() => {
+                                goTo(RouteName.CREATE_FORM, {
+                                    formType: "risk-assessment",
+                                });
+                            }}
+                        >
+                            {i18n.t("Add new Assessment")}
+                        </Button>
+                    )
                 }
                 titleVariant="secondary"
                 lastUpdated={lastUpdated}
             >
-                <BasicTable columns={riskAssessmentColumns} rows={[{ grade: "Coming soon!" }]} />
+                <BasicTable columns={riskAssessmentColumns} rows={riskAssessmentRows} />
                 <Box sx={{ m: 5 }} />
             </Section>
             <Visualisation

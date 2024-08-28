@@ -66,7 +66,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                                 areasAffectedProvinces: areasAffectedProvinces,
                                 areasAffectedDistricts: areasAffectedDistricts,
                                 incidentManager: incidentManager,
-                                riskAssessments: undefined, //TO DO : FIXME populate once riskAssessment repo is implemented
+                                riskAssessment: undefined, //TO DO : FIXME populate once riskAssessment repo is implemented
                                 incidentActionPlan: undefined, //TO DO : FIXME populate once incidentActionPlan repo is implemented
                                 incidentManagementTeam: undefined, //TO DO : FIXME populate once incidentManagementTeam repo is implemented
                             }
