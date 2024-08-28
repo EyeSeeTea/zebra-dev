@@ -32,13 +32,13 @@ export function applyEffectNotApplicableFieldUpdatedInSections(
     sectionsState: FormSectionState[]
 ): FormSectionState[] {
     return sectionsState.map(section => {
-        if (section?.subsections) {
+        if (section.subsections?.length) {
             const maybeAppliedEffect = hasSectionAFieldWithNotApplicable(section)
                 ? applyEffectNotApplicableFieldUpdatedInSection(section)
                 : section;
             return {
                 ...maybeAppliedEffect,
-                subsections: applyEffectNotApplicableFieldUpdatedInSections(section?.subsections),
+                subsections: applyEffectNotApplicableFieldUpdatedInSections(section.subsections),
             };
         } else {
             return hasSectionAFieldWithNotApplicable(section)
@@ -67,8 +67,9 @@ function applyEffectNotApplicableFieldUpdatedInSection(
                     ...fieldWithMaybeEmptyValue,
                     disabled: !!notApplicableField?.value,
                 };
+            } else {
+                return field;
             }
-            return field;
         }),
     };
 }
@@ -79,14 +80,14 @@ export function updateSections(
     fieldValidationErrors?: ValidationError[]
 ): FormSectionState[] {
     return formSectionsState.map(section => {
-        if (section?.subsections) {
+        if (section.subsections?.length) {
             const maybeUpdatedSection = isFieldInSection(section, updatedField)
                 ? updateSectionState(section, updatedField, fieldValidationErrors)
                 : section;
             return {
                 ...maybeUpdatedSection,
                 subsections: updateSections(
-                    section?.subsections,
+                    section.subsections,
                     updatedField,
                     fieldValidationErrors
                 ),
@@ -122,13 +123,13 @@ export function validateSections(
     newState: FormState
 ): ValidationError[] {
     return sections.flatMap(section => {
-        if (section?.subsections) {
+        if (section.subsections?.length) {
             const maybeValidatedSection = isFieldInSection(section, updatedField)
                 ? validateSection(section, updatedField, newState)
                 : [];
             return [
                 ...maybeValidatedSection,
-                ...validateSections(section?.subsections, updatedField, newState),
+                ...validateSections(section.subsections, updatedField, newState),
             ];
         } else {
             return isFieldInSection(section, updatedField)
@@ -148,7 +149,8 @@ function validateSection(
     return section.fields.flatMap(field => {
         if (field.id === updatedField.id) {
             return validateField(updatedField, allFields) || [];
+        } else {
+            return [];
         }
-        return [];
     });
 }
