@@ -3,7 +3,7 @@ import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 
 import { FilterType, TableColumn } from "../../components/table/statistic-table/StatisticTable";
-import { DiseaseOutbreakEventBaseAttrs } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { ProgramIndicatorBaseAttrs } from "../../../data/repositories/AnalyticsD2Repository";
 
 type State = {
     columns: TableColumn[];
@@ -18,7 +18,7 @@ type State = {
 
 type PerformanceOverviewData = {
     event: string;
-    location: string;
+    province: string;
     cases: string;
     deaths: string;
     duration: string;
@@ -71,13 +71,14 @@ export function usePerformanceOverview(): State {
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.diseaseOutbreakEvent.getAll.execute().run(
-            diseaseOutbreakEvent => {
+        compositionRoot.analytics.getProgramIndicators.execute().run(
+            programIndicators => {
+                // console.log({ programIndicators });
                 setDataPerformanceOverview(
-                    diseaseOutbreakEvent.map((data, i) => mapEntityToTableData(data, !i))
+                    programIndicators.map((data: ProgramIndicatorBaseAttrs) =>
+                        mapEntityToTableData(data)
+                    )
                 );
-                console.log({ diseaseOutbreakEvent });
-
                 setIsLoading(false);
             },
             error => {
@@ -85,11 +86,11 @@ export function usePerformanceOverview(): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.diseaseOutbreakEvent.getAll]);
+    }, [compositionRoot.analytics.getProgramIndicators]);
 
     const columns: TableColumn[] = [
         { label: "Event", value: "event" },
-        { label: "Location", value: "location" },
+        { label: "Province", value: "province" },
         { label: "Cases", value: "cases" },
         { label: "Deaths", value: "deaths" },
         { label: "Duration", value: "duration" },
@@ -122,36 +123,20 @@ export function usePerformanceOverview(): State {
         respond7d: 7,
     };
     const mapEntityToTableData = (
-        diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs,
-        blank = false
+        programIndicator: ProgramIndicatorBaseAttrs
     ): PerformanceOverviewData => {
-        const getRandom = (max: number) => Math.floor(Math.random() * max).toString();
-
         return {
-            event: diseaseOutbreakEvent.name,
-            location: "TBD",
+            ...programIndicator,
             cases: "TBD",
             deaths: "TBD",
             duration: "TBD",
-            manager: diseaseOutbreakEvent.createdByName || "TBD",
-            detect7d: getRandom(12),
-            notify1d: getRandom(7),
-            era1: getRandom(14),
-            era2: blank ? "" : getRandom(14),
-            era3: blank ? "" : getRandom(14),
-            era4: blank ? "" : getRandom(14),
-            era5: blank ? "" : getRandom(14),
-            era6: blank ? "" : getRandom(14),
-            era7: blank ? "" : getRandom(14),
-            eri: blank ? "" : getRandom(14),
-            respond7d: getRandom(14),
-            creationDate: diseaseOutbreakEvent.created || new Date(),
+            eri: "-1",
         };
     };
 
     const filters: FilterType[] = [
         { value: "event", label: "Event", type: "multiselector" },
-        { value: "location", label: "Location", type: "multiselector" },
+        { value: "province", label: "Province", type: "multiselector" },
     ];
 
     return {

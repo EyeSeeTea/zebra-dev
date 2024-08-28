@@ -19,6 +19,10 @@ import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepos
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
 import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
 import { GetDiseaseOutbreakWithOptionsUseCase } from "./domain/usecases/GetDiseaseOutbreakWithOptionsUseCase";
+import { AnalyticsRepository } from "./domain/repositories/AnalyticsRepository";
+import { GetAllProgramIndicatorsUseCase } from "./domain/usecases/GetAllProgramIndicatorsUseCase";
+import { AnalyticsD2Repository } from "./data/repositories/AnalyticsD2Repository";
+import { ProgramIndicatorsTestRepository } from "./data/repositories/test/ProgramIndicatorsTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -28,6 +32,7 @@ type Repositories = {
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
+    analytics: AnalyticsRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -41,6 +46,9 @@ function getCompositionRoot(repositories: Repositories) {
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
             save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
         },
+        analytics: {
+            getProgramIndicators: new GetAllProgramIndicatorsUseCase(repositories),
+        },
     };
 }
 
@@ -51,6 +59,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
+        analytics: new AnalyticsD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -63,6 +72,7 @@ export function getTestCompositionRoot() {
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
+        analytics: new ProgramIndicatorsTestRepository(),
     };
 
     return getCompositionRoot(repositories);
