@@ -1,6 +1,8 @@
 import {
+    DataSource,
     DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
+    IncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../domain/entities/generic/Future";
 import { Id, ConfigLabel } from "../../../domain/entities/Ref";
@@ -12,7 +14,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
         return Future.success({
             id: id,
             name: "Disease Outbreak 1",
-            dataSource: "EBS",
+            dataSource: DataSource.EBS,
             created: new Date(),
             lastUpdated: new Date(),
             createdByName: "createdByName",
@@ -22,7 +24,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             notificationSourceCode: "1",
             areasAffectedDistrictIds: [],
             areasAffectedProvinceIds: [],
-            incidentStatus: "Watch",
+            incidentStatus: IncidentStatus.WATCH,
             emerged: { date: new Date(), narrative: "emerged" },
             detected: { date: new Date(), narrative: "detected" },
             notified: { date: new Date(), narrative: "notified" },
@@ -45,7 +47,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             {
                 id: "1",
                 name: "Disease Outbreak 1",
-                dataSource: "EBS",
+                dataSource: DataSource.EBS,
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName",
@@ -55,7 +57,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 notificationSourceCode: "1",
                 areasAffectedDistrictIds: [],
                 areasAffectedProvinceIds: [],
-                incidentStatus: "Watch",
+                incidentStatus: IncidentStatus.WATCH,
                 emerged: { date: new Date(), narrative: "emerged" },
                 detected: { date: new Date(), narrative: "detected" },
                 notified: { date: new Date(), narrative: "notified" },
@@ -75,7 +77,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             {
                 id: "2",
                 name: "Disease Outbreak 2",
-                dataSource: "IBS",
+                dataSource: DataSource.IBS,
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName2",
@@ -85,7 +87,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 notificationSourceCode: "2",
                 areasAffectedDistrictIds: [],
                 areasAffectedProvinceIds: [],
-                incidentStatus: "Watch",
+                incidentStatus: IncidentStatus.WATCH,
                 emerged: { date: new Date(), narrative: "emerged" },
                 detected: { date: new Date(), narrative: "detected" },
                 notified: { date: new Date(), narrative: "notified" },

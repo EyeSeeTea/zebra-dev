@@ -19,9 +19,18 @@ export const hazardTypes = [
 
 export type HazardType = (typeof hazardTypes)[number];
 
-export type IncidentStatusType = "Watch" | "Alert" | "Respond" | "Closed" | "Discarded";
+export enum IncidentStatus {
+    WATCH = "WATCH",
+    ALERT = "ALERT",
+    RESPOND = "RESPOND",
+    CLOSED = "CLOSED",
+    DISCARDED = "DISCARDED",
+}
 
-export type DataSource = "IBS" | "EBS";
+export enum DataSource {
+    IBS = "IBS",
+    EBS = "EBS",
+}
 
 type DateWithNarrative = {
     date: Date;
@@ -55,7 +64,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     notificationSourceCode: Code;
     areasAffectedProvinceIds: Id[];
     areasAffectedDistrictIds: Id[];
-    incidentStatus: IncidentStatusType;
+    incidentStatus: IncidentStatus;
     emerged: DateWithNarrative;
     detected: DateWithNarrative;
     notified: DateWithNarrative;

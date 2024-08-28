@@ -1,6 +1,8 @@
 import {
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
+    IncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { GetValue, Maybe } from "../../../utils/ts-utils";
 import { getDateAsIsoString } from "../utils/DateTimeHelper";
@@ -58,11 +60,32 @@ export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
     return (Object.values(diseaseOutbreakCodes) as string[]).includes(code);
 }
 
-export function getHazardTypeValue(hazardType: string): HazardType {
-    const hazardTypeString = Object.keys(hazardTypeCodeMap).find(
-        key => hazardTypeCodeMap[key as HazardType] === hazardType
-    );
-    return hazardTypeString ? (hazardTypeString as HazardType) : "Unknown";
+export function mapValueToDataSource(value: string): DataSource | undefined {
+    switch (value) {
+        case "IBS":
+            return DataSource.IBS;
+        case "EBS":
+            return DataSource.EBS;
+        default:
+            return undefined;
+    }
+}
+
+export function mapValueToIncidentStatus(value: string): IncidentStatus | undefined {
+    switch (value) {
+        case "WATCH":
+            return IncidentStatus.WATCH;
+        case "ALERT":
+            return IncidentStatus.ALERT;
+        case "RESPOND":
+            return IncidentStatus.RESPOND;
+        case "CLOSED":
+            return IncidentStatus.CLOSED;
+        case "DISCARDED":
+            return IncidentStatus.DISCARDED;
+        default:
+            return undefined;
+    }
 }
 
 export function getValueFromDiseaseOutbreak(
@@ -131,11 +154,15 @@ export function getValueFromDiseaseOutbreak(
     };
 }
 
-export function getHazardTypeByCode(hazardTypeCode: string): HazardType {
-    return (
-        (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
-            key => hazardTypeCodeMap[key] === hazardTypeCode
-        ) || "Unknown"
+export function getHazardTypeByCode(hazardTypeCode: string): HazardType | undefined {
+    return (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
+        key => hazardTypeCodeMap[key] === hazardTypeCode
+    );
+}
+
+export function getHazardTypeFromString(hazardTypeString: string): HazardType | undefined {
+    return (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
+        hazardType => hazardType === hazardTypeString
     );
 }
 
