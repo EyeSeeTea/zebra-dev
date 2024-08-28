@@ -101,6 +101,9 @@ export function mapEntityToInitialFormState(
     const isEBSDataSource = diseaseOutbreakEvent?.dataSource === "EBS";
     const isIBSDataSource = diseaseOutbreakEvent?.dataSource === "IBS";
 
+    const fromIdsDictionary = (key: keyof typeof diseaseOutbreakEventFieldIds) =>
+        getFieldIdFromIdsDictionary(key, diseaseOutbreakEventFieldIds);
+
     const responseActionSubsections: Record<ResponseActionsSubsectionKeys, FormSectionState> = {
         initiateInvestigation: {
             title: "1. Initiate investigation or deploy an investigation/response.",
@@ -109,10 +112,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "initiateInvestigation",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("initiateInvestigation"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
@@ -131,10 +131,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "conductEpidemiologicalAnalysis",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("conductEpidemiologicalAnalysis"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
@@ -155,10 +152,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "laboratoryConfirmationDate",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("laboratoryConfirmationDate"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
@@ -173,10 +167,7 @@ export function mapEntityToInitialFormState(
                     disabled: diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.na,
                 },
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "laboratoryConfirmationNA",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("laboratoryConfirmationNA"),
                     label: "N/A",
                     isVisible: true,
                     errors: [],
@@ -185,10 +176,7 @@ export function mapEntityToInitialFormState(
                         diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.na ||
                         false,
                     width: "65px",
-                    notApplicableFieldId: getFieldIdFromIdsDictionary(
-                        "laboratoryConfirmationDate",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    notApplicableFieldId: fromIdsDictionary("laboratoryConfirmationDate"),
                 },
             ],
         },
@@ -199,10 +187,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "appropriateCaseManagementDate",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("appropriateCaseManagementDate"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
@@ -218,10 +203,7 @@ export function mapEntityToInitialFormState(
                         diseaseOutbreakEvent?.earlyResponseActions.appropriateCaseManagement.na,
                 },
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "appropriateCaseManagementNA",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("appropriateCaseManagementNA"),
                     label: "N/A",
                     isVisible: true,
                     errors: [],
@@ -230,10 +212,7 @@ export function mapEntityToInitialFormState(
                         diseaseOutbreakEvent?.earlyResponseActions.appropriateCaseManagement.na ||
                         false,
                     width: "65px",
-                    notApplicableFieldId: getFieldIdFromIdsDictionary(
-                        "appropriateCaseManagementDate",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    notApplicableFieldId: fromIdsDictionary("appropriateCaseManagementDate"),
                 },
             ],
         },
@@ -244,10 +223,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "initiatePublicHealthCounterMeasuresDate",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("initiatePublicHealthCounterMeasuresDate"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
@@ -265,10 +241,7 @@ export function mapEntityToInitialFormState(
                 },
                 {
                     label: "N/A",
-                    id: getFieldIdFromIdsDictionary(
-                        "initiatePublicHealthCounterMeasuresNA",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("initiatePublicHealthCounterMeasuresNA"),
                     isVisible: true,
                     errors: [],
                     type: "boolean",
@@ -276,9 +249,8 @@ export function mapEntityToInitialFormState(
                         diseaseOutbreakEvent?.earlyResponseActions
                             .initiatePublicHealthCounterMeasures.na || false,
                     width: "65px",
-                    notApplicableFieldId: getFieldIdFromIdsDictionary(
-                        "initiatePublicHealthCounterMeasuresDate",
-                        diseaseOutbreakEventFieldIds
+                    notApplicableFieldId: fromIdsDictionary(
+                        "initiatePublicHealthCounterMeasuresDate"
                     ),
                 },
             ],
@@ -290,10 +262,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "initiateRiskCommunicationDate",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("initiateRiskCommunicationDate"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
@@ -309,10 +278,7 @@ export function mapEntityToInitialFormState(
                         diseaseOutbreakEvent?.earlyResponseActions.initiateRiskCommunication.na,
                 },
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "initiateRiskCommunicationNA",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("initiateRiskCommunicationNA"),
                     label: "N/A",
                     isVisible: true,
                     errors: [],
@@ -321,10 +287,7 @@ export function mapEntityToInitialFormState(
                         diseaseOutbreakEvent?.earlyResponseActions.initiateRiskCommunication.na ||
                         false,
                     width: "65px",
-                    notApplicableFieldId: getFieldIdFromIdsDictionary(
-                        "initiateRiskCommunicationDate",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    notApplicableFieldId: fromIdsDictionary("initiateRiskCommunicationDate"),
                 },
             ],
         },
@@ -335,10 +298,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "establishCoordination",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("establishCoordination"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
@@ -356,10 +316,7 @@ export function mapEntityToInitialFormState(
             isVisible: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "responseNarrative",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("responseNarrative"),
                     isVisible: true,
                     errors: [],
                     type: "text",
@@ -379,7 +336,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary("name", diseaseOutbreakEventFieldIds),
+                    id: fromIdsDictionary("name"),
                     isVisible: true,
                     helperText: "Be specific. Include disease, date, and region",
                     errors: [],
@@ -398,7 +355,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary("dataSource", diseaseOutbreakEventFieldIds),
+                    id: fromIdsDictionary("dataSource"),
                     placeholder: "Select an event source",
                     isVisible: true,
                     errors: [],
@@ -419,7 +376,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary("hazardType", diseaseOutbreakEventFieldIds),
+                    id: fromIdsDictionary("hazardType"),
                     isVisible: isEBSDataSource,
                     errors: [],
                     type: "radio",
@@ -438,10 +395,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "mainSyndromeCode",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("mainSyndromeCode"),
                     placeholder: "Select a syndrome",
                     isVisible: isIBSDataSource,
                     errors: [],
@@ -462,10 +416,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "suspectedDiseaseCode",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("suspectedDiseaseCode"),
                     placeholder: "Select a disease",
                     isVisible: !isEBSDataSource,
                     errors: [],
@@ -486,10 +437,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "notificationSourceCode",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("notificationSourceCode"),
                     placeholder: "Select source",
                     isVisible: true,
                     errors: [],
@@ -510,7 +458,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary("incidentStatus", diseaseOutbreakEventFieldIds),
+                    id: fromIdsDictionary("incidentStatus"),
                     isVisible: true,
                     errors: [],
                     type: "radio",
@@ -529,7 +477,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary("emergedDate", diseaseOutbreakEventFieldIds),
+                    id: fromIdsDictionary("emergedDate"),
                     isVisible: true,
                     errors: [],
                     type: "date",
@@ -539,10 +487,7 @@ export function mapEntityToInitialFormState(
                     showIsRequired: false,
                 },
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "emergedNarrative",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("emergedNarrative"),
                     isVisible: true,
                     label: "Narrative",
                     helperText: "Provide concise details",
@@ -562,7 +507,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary("detectedDate", diseaseOutbreakEventFieldIds),
+                    id: fromIdsDictionary("detectedDate"),
                     isVisible: true,
                     errors: [],
                     type: "date",
@@ -572,10 +517,7 @@ export function mapEntityToInitialFormState(
                     showIsRequired: false,
                 },
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "detectedNarrative",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("detectedNarrative"),
                     isVisible: true,
                     label: "Narrative",
                     helperText: "Provide concise details",
@@ -595,7 +537,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary("notifiedDate", diseaseOutbreakEventFieldIds),
+                    id: fromIdsDictionary("notifiedDate"),
                     isVisible: true,
                     errors: [],
                     type: "date",
@@ -605,10 +547,7 @@ export function mapEntityToInitialFormState(
                     showIsRequired: false,
                 },
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "notifiedNarrative",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("notifiedNarrative"),
                     isVisible: true,
                     label: "Narrative",
                     helperText: "Provide concise details",
@@ -646,10 +585,7 @@ export function mapEntityToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary(
-                        "incidentManagerName",
-                        diseaseOutbreakEventFieldIds
-                    ),
+                    id: fromIdsDictionary("incidentManagerName"),
                     placeholder: "Select a manager",
                     isVisible: true,
                     errors: [],
@@ -668,7 +604,7 @@ export function mapEntityToInitialFormState(
             required: false,
             fields: [
                 {
-                    id: getFieldIdFromIdsDictionary("notes", diseaseOutbreakEventFieldIds),
+                    id: fromIdsDictionary("notes"),
                     isVisible: true,
                     errors: [],
                     type: "text",
@@ -686,6 +622,7 @@ export function mapEntityToInitialFormState(
         isValid: false,
         sections: [
             mainSections.name,
+            mainSections.dataSource,
             mainSections.hazardType,
             mainSections.mainSyndrome,
             mainSections.suspectedDisease,
