@@ -7,7 +7,7 @@ import { Id } from "../../../../domain/entities/Ref";
 import { FormState } from "../../../components/form/FormState";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import {
-    DiseaseOutbreakEventLables,
+    DiseaseOutbreakEventLabels,
     DiseaseOutbreakEventWithOptions,
 } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { mapFormStateToEntityData } from "./utils/mapFormStateToEntityData";
@@ -40,7 +40,7 @@ export type DiseaseOutbreakEventFormState =
     | DiseaseOutbreakEventFormStateError;
 
 type State = {
-    formLabels: Maybe<DiseaseOutbreakEventLables>;
+    formLabels: Maybe<DiseaseOutbreakEventLabels>;
     globalMessage: Maybe<GlobalMessage>;
     formState: DiseaseOutbreakEventFormState;
     isLoading: boolean;
@@ -59,7 +59,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
     const [formState, setFormState] = useState<DiseaseOutbreakEventFormState>({ kind: "loading" });
     const [diseaseOutbreakEventWithOptions, setDiseaseOutbreakEventWithOptions] =
         useState<DiseaseOutbreakEventWithOptions>();
-    const [formLabels, setFormLabels] = useState<DiseaseOutbreakEventLables>();
+    const [formLabels, setFormLabels] = useState<DiseaseOutbreakEventLabels>();
     const [isSaved, setIsSaved] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 

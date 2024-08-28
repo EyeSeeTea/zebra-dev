@@ -15,10 +15,12 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
                     fields: d2UserFields,
                 },
             })
-        ).map(response => {
-            if (!response.users) throw new Error("Team Members not found");
-            return response.users.map(d2User => this.mapUserToTeamMember(d2User));
-        });
+        )
+            .flatMap(response => assertOrError(response.users, `Team Members not found`))
+            .map(d2Users => {
+                if (!d2Users) throw new Error("Team Members not found");
+                return d2Users.map(d2User => this.mapUserToTeamMember(d2User as D2UserFix));
+            });
     }
 
     get(id: Id): FutureData<TeamMember> {
@@ -31,15 +33,16 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
             })
         )
             .flatMap(response => assertOrError(response.users[0], "Team member"))
-            .map(D2User => {
-                return this.mapUserToTeamMember(D2User);
+            .map(d2User => {
+                return this.mapUserToTeamMember(d2User as D2UserFix);
             });
     }
 
     // TODO: FIXME Property using next version of d2-api ('username' does not exist on type 'D2User')
-    private mapUserToTeamMember(user: any): TeamMember {
-        const photoUrlString = user?.avatar?.id
-            ? `${this.api.baseUrl}/api/fileResources/${user?.avatar?.id}/data`
+    private mapUserToTeamMember(user: D2UserFix): TeamMember {
+        const avatarId = user?.avatar?.id;
+        const photoUrlString = avatarId
+            ? `${this.api.baseUrl}/api/fileResources/${avatarId}/data`
             : undefined;
 
         return new TeamMember({
@@ -65,8 +68,10 @@ const d2UserFields = {
     phoneNumber: true,
     username: true,
     avatar: true,
-};
+} as const;
 
-type _D2User = MetadataPick<{
+type D2UserFix = D2User & { username: string };
+
+type D2User = MetadataPick<{
     users: { fields: typeof d2UserFields };
 }>["users"][number];
