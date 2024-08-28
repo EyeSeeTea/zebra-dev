@@ -73,7 +73,7 @@ const optionSetsFields = {
     name: true,
     code: true,
     options: { id: true, name: true, code: true },
-};
+} as const;
 
 type D2OptionSet = MetadataPick<{
     optionSets: { fields: typeof optionSetsFields };
