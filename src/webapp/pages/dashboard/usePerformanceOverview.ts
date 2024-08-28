@@ -127,8 +127,6 @@ export function usePerformanceOverview(): State {
     ): PerformanceOverviewData => {
         return {
             ...programIndicator,
-            cases: "TBD",
-            deaths: "TBD",
             duration: "TBD",
             eri: "-1",
         };
