@@ -52,7 +52,6 @@ export function usePerformanceOverview(): State {
         setIsLoading(true);
         compositionRoot.analytics.getProgramIndicators.execute().run(
             programIndicators => {
-                // console.log({ programIndicators });
                 setDataPerformanceOverview(
                     programIndicators.map((data: ProgramIndicatorBaseAttrs) =>
                         mapEntityToTableData(data)
