@@ -23,6 +23,7 @@ import { GetDiseaseOutbreakWithOptionsUseCase } from "./domain/usecases/GetDisea
 import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
+import { GetRiskGradingWithOptionsUseCase } from "./domain/usecases/GetRiskGradingWithOptionsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -47,6 +48,11 @@ function getCompositionRoot(repositories: Repositories) {
             save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
             mapDiseaseOutbreakEventToAlerts: new MapDiseaseOutbreakToAlertsUseCase(
                 repositories.alertRepository
+            ),
+        },
+        riskAssessment: {
+            getGradingWithOptions: new GetRiskGradingWithOptionsUseCase(
+                repositories.optionsRepository
             ),
         },
     };

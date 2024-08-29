@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-08-22T08:58:16.724Z\n"
+"POT-Creation-Date: 2024-08-28T09:30:11.046Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -110,10 +110,10 @@ msgstr ""
 msgid "Event Tracker"
 msgstr ""
 
-msgid "Add new Assessment"
+msgid "Create Risk Assessment"
 msgstr ""
 
-msgid "Page Not Found"
+msgid "Add new Assessment"
 msgstr ""
 
 msgid "Create Event form cannot be loaded"

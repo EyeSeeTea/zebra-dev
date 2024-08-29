@@ -12,18 +12,6 @@ const NOTIFICATION_SOURCE_OPTION_SET_CODE = "RTSL_ZEB_OS_SOURCE";
 export class OptionsD2Repository implements OptionsRepository {
     constructor(private api: D2Api) {}
 
-    getMainSyndrome(optionCode: Code): FutureData<Option> {
-        return this.get(optionCode, MAIN_SYNDROME_OPTION_SET_CODE);
-    }
-
-    getSuspectedDisease(optionCode: Code): FutureData<Option> {
-        return this.get(optionCode, SUSPECTED_DISEASE_OPTION_SET_CODE);
-    }
-
-    getNotificationSource(optionCode: Code): FutureData<Option> {
-        return this.get(optionCode, NOTIFICATION_SOURCE_OPTION_SET_CODE);
-    }
-
     private get(optionCode: Code, optionSetCode: Code): FutureData<Option> {
         return apiToFuture(
             this.api.metadata.get({
@@ -46,6 +34,19 @@ export class OptionsD2Repository implements OptionsRepository {
                 };
                 return option;
             });
+    }
+
+    //Event Tracker Options
+    getMainSyndrome(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, MAIN_SYNDROME_OPTION_SET_CODE);
+    }
+
+    getSuspectedDisease(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, SUSPECTED_DISEASE_OPTION_SET_CODE);
+    }
+
+    getNotificationSource(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, NOTIFICATION_SOURCE_OPTION_SET_CODE);
     }
 
     getAllDataSources(): FutureData<Option[]> {
@@ -75,6 +76,25 @@ export class OptionsD2Repository implements OptionsRepository {
 
     getAllIncidentStatus(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_INCIDENT_STATUS");
+    }
+
+    //Risk Assessment Grading Options
+    getPopulationAtRisks(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_POPULATION_AT_RISK");
+    }
+
+    getLowMediumHighOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_LMH");
+    }
+    getGeographicalSpreads(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD");
+    }
+
+    getCapacities(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_CAPACITY");
+    }
+    getCapabilities(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_CAPABILITY");
     }
 
     private getOptionSetByCode(code: string): FutureData<Option[]> {

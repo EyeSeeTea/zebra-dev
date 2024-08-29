@@ -1,10 +1,10 @@
-import { DiseaseOutbreakEventFormData } from "../../../../../domain/entities/ConfigurableForm";
-import { TeamMember } from "../../../../../domain/entities/incident-management-team/TeamMember";
-import { Option } from "../../../../../domain/entities/Ref";
-import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormFieldsState";
-import { FormState } from "../../../../components/form/FormState";
-import { User } from "../../../../components/user-selector/UserSelector";
-import { Option as PresentationOption } from "../../../../components/utils/option";
+import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
+
+import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
+import { FormState } from "../../../components/form/FormState";
+import { User } from "../../../components/user-selector/UserSelector";
+import { Option as PresentationOption } from "../../../components/utils/option";
+import { mapTeamMemberToUser, mapToPresentationOptions } from "../mapEntityToFormState";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -37,19 +37,6 @@ export const diseaseOutbreakEventFieldIds = {
     incidentManagerName: "incidentManagerName",
     notes: "notes",
 } as const;
-
-export function mapTeamMemberToUser(teamMember: TeamMember): User {
-    return {
-        value: teamMember.username,
-        label: teamMember.name,
-        workPosition: teamMember.role?.name || "",
-        phone: teamMember.phone || "",
-        email: teamMember.email || "",
-        status: teamMember.status || "",
-        src: teamMember.photo?.toString(),
-        alt: teamMember.photo ? `Photo of ${teamMember.name}` : undefined,
-    };
-}
 
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapDiseaseOutbreakEventToInitialFormState(
@@ -684,13 +671,4 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             },
         ],
     };
-}
-
-function mapToPresentationOptions(options: Option[]): PresentationOption[] {
-    return options.map(
-        (option): PresentationOption => ({
-            value: option.id,
-            label: option.name,
-        })
-    );
 }

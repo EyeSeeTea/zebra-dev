@@ -23,7 +23,7 @@ export type VisualizationTypes =
     | "EVENT_TRACKER_717_CARDS";
 
 //TO DO : Create Risk assessment section
-const riskAssessmentColumns: TableColumn[] = [
+export const riskAssessmentColumns: TableColumn[] = [
     { value: "grade", label: "Grade", type: "text" },
     { value: "populationRisk", label: "Population at risk", type: "text" },
     { value: "attackRate", label: "Attack rate", type: "text" },
@@ -67,7 +67,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             startIcon={<EditOutlined />}
                             onClick={() => {
                                 goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment",
+                                    formType: "risk-assessment-grading",
                                 });
                             }}
                         >
@@ -80,7 +80,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             startIcon={<AddCircleOutline />}
                             onClick={() => {
                                 goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment",
+                                    formType: "risk-assessment-grading",
                                 });
                             }}
                         >

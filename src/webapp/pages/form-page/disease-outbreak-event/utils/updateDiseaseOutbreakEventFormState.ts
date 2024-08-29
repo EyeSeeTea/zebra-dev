@@ -53,15 +53,15 @@ function validateFormState(
     configurableForm: ConfigurableForm,
     currentUserUsername: string
 ): ValidationError[] {
-    switch (configurableForm.data.type) {
+    switch (configurableForm.type) {
         case "disease-outbreak-event":
             return validateDiseaseOutbreakEventFormState(
                 updatedForm,
                 updatedField,
-                configurableForm.data,
+                configurableForm,
                 currentUserUsername
             );
-        case "risk-assessment":
+        case "risk-assessment-grading":
             return validateRiskAssessmentFormState(
                 updatedForm,
                 updatedField,

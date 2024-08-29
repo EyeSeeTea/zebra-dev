@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-08-22T08:58:16.724Z\n"
-"PO-Revision-Date: 2024-08-22T08:58:16.724Z\n"
+"POT-Creation-Date: 2024-08-28T09:30:11.046Z\n"
+"PO-Revision-Date: 2024-08-28T09:30:11.046Z\n"
 
 msgid "Low"
 msgstr ""
@@ -111,10 +111,10 @@ msgstr ""
 msgid "Event Tracker"
 msgstr ""
 
-msgid "Add new Assessment"
+msgid "Create Risk Assessment"
 msgstr ""
 
-msgid "Page Not Found"
+msgid "Add new Assessment"
 msgstr ""
 
 msgid "Create Event form cannot be loaded"

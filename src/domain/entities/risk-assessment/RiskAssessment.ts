@@ -6,7 +6,7 @@ import { RiskAssessmentSummary } from "./RiskAssessmentSummary";
 interface RiskAssessmentAttrs {
     grading: RiskAssessmentGrading[];
     summary: RiskAssessmentSummary;
-    questionnaire: RiskAssessmentQuestionnaire[];
+    questionnaire: RiskAssessmentQuestionnaire;
 }
 
 export class RiskAssessment extends Struct<RiskAssessmentAttrs>() {}

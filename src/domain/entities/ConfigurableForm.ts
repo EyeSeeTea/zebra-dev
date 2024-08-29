@@ -4,6 +4,7 @@ import { Option } from "./Ref";
 import { Rule } from "./Rule";
 import { DiseaseOutbreakEventBaseAttrs } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 import { RiskAssessment } from "./risk-assessment/RiskAssessment";
+import { FormType } from "../../webapp/pages/form-page/FormPage";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -15,28 +16,36 @@ export type DiseaseOutbreakEventOptions = {
     teamMembers: TeamMember[];
 };
 
-export type RiskAssessmentOptions = {};
+export type RiskAssessmentOptions = {
+    populationAtRisk: Option[];
+    attackRate: Option[];
+    geographicalSpread: Option[];
+    complexity: Option[];
+    capacity: Option[];
+    reputationalRisk: Option[];
+    severity: Option[];
+    capability: Option[];
+};
 
 export type FormLables = {
     errors: Record<string, string>;
 };
 
-export type DiseaseOutbreakEventFormData = {
+type BaseFormData = {
+    labels: FormLables;
+    rules: Rule[];
+    type: FormType;
+};
+export type DiseaseOutbreakEventFormData = BaseFormData & {
     type: "disease-outbreak-event";
     entity: Maybe<DiseaseOutbreakEventBaseAttrs>;
     options: DiseaseOutbreakEventOptions;
 };
 
-export type RiskAssessmentFormData = {
-    type: "risk-assessment";
+export type RiskAssessmentGradingFormData = BaseFormData & {
+    type: "risk-assessment-grading";
     entity: Maybe<RiskAssessment>;
     options: RiskAssessmentOptions;
 };
 
-type FormData = DiseaseOutbreakEventFormData | RiskAssessmentFormData;
-
-export type ConfigurableForm = {
-    data: FormData;
-    labels: FormLables;
-    rules: Rule[];
-};
+export type ConfigurableForm = DiseaseOutbreakEventFormData | RiskAssessmentGradingFormData;

@@ -1,9 +1,10 @@
 import { Future } from "../../../domain/entities/generic/Future";
-import { Code, Id, Option } from "../../../domain/entities/Ref";
+import { Code, Option } from "../../../domain/entities/Ref";
 import { OptionsRepository } from "../../../domain/repositories/OptionsRepository";
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
+    //Event Tracker Options
     getMainSyndrome(_optionCode: Code): FutureData<Option> {
         return Future.success({ id: "1", name: "Test Main Syndrome", code: "MainSyndromeCode" });
     }
@@ -49,5 +50,25 @@ export class OptionsTestRepository implements OptionsRepository {
         return Future.success([
             { id: "1", name: "Test Incident Status", code: "IncidentStatusCode" },
         ]);
+    }
+
+    //Risk Grading Options
+    getPopulationAtRisks(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Less than 1%", code: "LessThan1" }]);
+    }
+    getAttackRates(): FutureData<Option[]> {
+        throw new Error("Method not implemented.");
+    }
+    getGeographicalSpreads(): FutureData<Option[]> {
+        throw new Error("Method not implemented.");
+    }
+    getLowMediumHighOptions(): FutureData<Option[]> {
+        throw new Error("Method not implemented.");
+    }
+    getCapacities(): FutureData<Option[]> {
+        throw new Error("Method not implemented.");
+    }
+    getCapabilities(): FutureData<Option[]> {
+        throw new Error("Method not implemented.");
     }
 }

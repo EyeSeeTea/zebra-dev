@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Maybe } from "../../../../utils/ts-utils";
-import i18n from "../../../../utils/i18n";
-import { useAppContext } from "../../../contexts/app-context";
-import { Id } from "../../../../domain/entities/Ref";
-import { FormState } from "../../../components/form/FormState";
-import { RouteName, useRoutes } from "../../../hooks/useRoutes";
-import { mapFormStateToEntityData } from "./utils/mapFormStateToEntityData";
-import { updateAndValidateFormState } from "./utils/updateDiseaseOutbreakEventFormState";
-import { mapDiseaseOutbreakEventToInitialFormState } from "./utils/mapEntityToInitialFormState";
-import { FormFieldState } from "../../../components/form/FormFieldsState";
-import { FormType } from "../FormPage";
-import { ConfigurableForm, FormLables } from "../../../../domain/entities/ConfigurableForm";
+import { Maybe } from "../../../utils/ts-utils";
+import i18n from "../../../utils/i18n";
+import { useAppContext } from "../../contexts/app-context";
+import { Id } from "../../../domain/entities/Ref";
+import { FormState } from "../../components/form/FormState";
+import { RouteName, useRoutes } from "../../hooks/useRoutes";
+import { mapFormStateToEntityData } from "./disease-outbreak-event/utils/mapFormStateToEntityData";
+import { updateAndValidateFormState } from "./disease-outbreak-event/utils/updateDiseaseOutbreakEventFormState";
+import { mapDiseaseOutbreakEventToInitialFormState } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
+import { FormFieldState } from "../../components/form/FormFieldsState";
+import { FormType } from "./FormPage";
+import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
+import { mapEntityToFormState } from "./mapEntityToFormState";
 
 export type GlobalMessage = {
     text: string;
@@ -54,52 +55,54 @@ export function useForm(formType: FormType, id?: Id): State {
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
 
+    const setFormData = useCallback(
+        (formData: ConfigurableForm) => {
+            setConfigurableForm(formData);
+            setFormLabels(formData.labels);
+            setFormState({
+                kind: "loaded",
+                data: mapEntityToFormState(formData, !!id),
+            });
+        },
+        [id]
+    );
+    const setErrorData = useCallback((error: Error) => {
+        setFormState({
+            kind: "error",
+            message: i18n.t(`Create Event form cannot be loaded`),
+        });
+        setGlobalMessage({
+            text: i18n.t(`An error occurred while loading Create Event form: ${error.message}`),
+            type: "error",
+        });
+    }, []);
+
     useEffect(() => {
         //SNEHA TO DO : cases based on form type
 
         switch (formType) {
             case "disease-outbreak-event":
                 compositionRoot.diseaseOutbreakEvent.getWithOptions.execute(id).run(
-                    diseaseOutbreakEventWithOptionsData => {
-                        if (
-                            diseaseOutbreakEventWithOptionsData.data.type ===
-                            "disease-outbreak-event"
-                        ) {
-                            setConfigurableForm(diseaseOutbreakEventWithOptionsData);
-                            setFormLabels(diseaseOutbreakEventWithOptionsData.labels);
-                            setFormState({
-                                kind: "loaded",
-                                data: mapDiseaseOutbreakEventToInitialFormState(
-                                    diseaseOutbreakEventWithOptionsData.data,
-                                    !!id
-                                ),
-                            });
-                        } else {
-                            setFormState({
-                                kind: "error",
-                                message: i18n.t(`Create Event form cannot be loaded`),
-                            });
-                            setGlobalMessage({
-                                text: i18n.t(`An error occurred while loading Create Event form:}`),
-                                type: "error",
-                            });
-                        }
-                    },
-                    error => {
-                        setFormState({
-                            kind: "error",
-                            message: i18n.t(`Create Event form cannot be loaded`),
-                        });
-                        setGlobalMessage({
-                            text: i18n.t(
-                                `An error occurred while loading Create Event form: ${error.message}`
-                            ),
-                            type: "error",
-                        });
-                    }
+                    diseaseOutbreakEventFormData => setFormData(diseaseOutbreakEventFormData),
+                    error => setErrorData(error)
                 );
+                break;
+            case "risk-assessment-grading":
+                compositionRoot.riskAssessment.getGradingWithOptions.execute().run(
+                    riskFormData => setFormData(riskFormData),
+                    error => setErrorData(error)
+                );
+
+                break;
         }
-    }, [compositionRoot.diseaseOutbreakEvent.getWithOptions, formType, id]);
+    }, [
+        compositionRoot.diseaseOutbreakEvent.getWithOptions,
+        compositionRoot.riskAssessment.getGradingWithOptions,
+        formType,
+        id,
+        setFormData,
+        setErrorData,
+    ]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {
@@ -127,12 +130,12 @@ export function useForm(formType: FormType, id?: Id): State {
 
         setIsLoading(true);
 
-        switch (configurableForm.data.type) {
+        switch (configurableForm.type) {
             case "disease-outbreak-event": {
                 const diseaseOutbreakEventData = mapFormStateToEntityData(
                     formState.data,
                     currentUser.username,
-                    configurableForm.data
+                    configurableForm
                 );
 
                 compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(

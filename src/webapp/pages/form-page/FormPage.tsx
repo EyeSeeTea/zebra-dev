@@ -1,15 +1,18 @@
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useForm } from "./disease-outbreak-event/useDiseaseOutbreakEventForm";
+import { useForm } from "./useForm";
 import { Layout } from "../../components/layout/Layout";
 import { Loader } from "../../components/loader/Loader";
 import { Form } from "../../components/form/Form";
 import styled from "styled-components";
 
-export type FormType = "disease-outbreak-event" | "risk-assessment";
+export type FormType =
+    | "disease-outbreak-event"
+    | "risk-assessment-grading"
+    | "risk-assessment-questionnaire"
+    | "risk-assessment-summary";
 
-// TODO: Thinking for the future about making this more generic
 export const FormPage: React.FC = React.memo(() => {
     const { formType, id } = useParams<{
         formType: FormType;

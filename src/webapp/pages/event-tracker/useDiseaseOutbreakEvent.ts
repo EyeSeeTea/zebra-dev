@@ -7,10 +7,11 @@ import {
     getDateAsLocaleDateTimeString,
     getDateAsMonthYearString,
 } from "../../../data/repositories/utils/DateTimeHelper";
-import { mapTeamMemberToUser } from "../form-page/disease-outbreak-event/utils/mapEntityToInitialFormState";
+
 import { User } from "../../components/user-selector/UserSelector";
 import { TableRowType } from "../../components/table/BasicTable";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
+import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
 
 const EventTypeLabel = "Event type";
 const DiseaseLabel = "Disease";

@@ -5,7 +5,7 @@ import {
     IncidentStatusType,
 } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormState } from "../../../../components/form/FormState";
-import { diseaseOutbreakEventFieldIds } from "./mapEntityToInitialFormState";
+import { diseaseOutbreakEventFieldIds } from "../mapDiseaseOutbreakEventToInitialFormState";
 import {
     FormFieldState,
     getAllFieldsFromSections,

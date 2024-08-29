@@ -1,5 +1,5 @@
 import { FutureData } from "../../data/api-futures";
-import { ConfigurableForm } from "../entities/ConfigurableForm";
+import { ConfigurableForm, DiseaseOutbreakEventFormData } from "../entities/ConfigurableForm";
 import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
@@ -16,7 +16,7 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
         }
     ) {}
 
-    public execute(id?: Id): FutureData<ConfigurableForm> {
+    public execute(id?: Id): FutureData<DiseaseOutbreakEventFormData> {
         if (id) {
             return this.options.diseaseOutbreakEventRepository
                 .get(id)
@@ -30,7 +30,7 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
 
     private getDiseaseOutbreakEventWithOptions(
         diseaseOutbreakEventBase?: DiseaseOutbreakEventBaseAttrs
-    ): FutureData<ConfigurableForm> {
+    ): FutureData<DiseaseOutbreakEventFormData> {
         return Future.joinObj({
             dataSources: this.options.optionsRepository.getAllDataSources(),
             hazardTypes: this.options.optionsRepository.getAllHazardTypes(),
@@ -50,19 +50,18 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                 teamMembers,
             }) => {
                 const diseaseOutbreakEventWithOptions: ConfigurableForm = {
-                    data: {
-                        type: "disease-outbreak-event",
-                        entity: diseaseOutbreakEventBase,
-                        options: {
-                            dataSources,
-                            teamMembers,
-                            hazardTypes,
-                            mainSyndromes,
-                            suspectedDiseases,
-                            notificationSources,
-                            incidentStatus,
-                        },
+                    type: "disease-outbreak-event",
+                    entity: diseaseOutbreakEventBase,
+                    options: {
+                        dataSources,
+                        teamMembers,
+                        hazardTypes,
+                        mainSyndromes,
+                        suspectedDiseases,
+                        notificationSources,
+                        incidentStatus,
                     },
+
                     // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
                     labels: {
                         errors: {
