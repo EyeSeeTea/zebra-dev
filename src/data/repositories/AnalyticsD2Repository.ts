@@ -40,7 +40,19 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     `/analytics/enrollments/query/${RTSL_ZEBRA_PROGRAM_ID}`,
                     {
                         enrollmentDate: "LAST_12_MONTHS,THIS_MONTH",
-                        dimension: Object.values(IndicatorsId),
+                        dimension: [
+                            IndicatorsId.suspectedDisease,
+                            IndicatorsId.event,
+                            IndicatorsId.era1,
+                            IndicatorsId.era2,
+                            IndicatorsId.era3,
+                            IndicatorsId.era4,
+                            IndicatorsId.era5,
+                            IndicatorsId.era6,
+                            IndicatorsId.era7,
+                            IndicatorsId.detect7d,
+                            IndicatorsId.notify1d,
+                        ],
                     }
                 )
             );
