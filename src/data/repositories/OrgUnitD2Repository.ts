@@ -52,7 +52,7 @@ const d2OrgUnitFields = {
     name: true,
     code: true,
     level: true,
-};
+} as const;
 
 type D2OrgUnit = MetadataPick<{
     organisationUnits: { fields: typeof d2OrgUnitFields };
