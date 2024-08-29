@@ -16,33 +16,12 @@ type State = {
     isLoading: boolean;
 };
 
-type PerformanceOverviewData = {
-    event: string;
-    province: string;
-    cases: string;
-    deaths: string;
-    duration: string;
-    manager: string;
-    detect7d: string;
-    notify1d: string;
-    era1: string;
-    era2: string;
-    era3: string;
-    era4: string;
-    era5: string;
-    era6: string;
-    era7: string;
-    eri: string;
-    respond7d: string;
-    creationDate: Date;
-};
-
 export type Order = { name: string; direction: "asc" | "desc" };
 export function usePerformanceOverview(): State {
     const { compositionRoot } = useAppContext();
 
     const [dataPerformanceOverview, setDataPerformanceOverview] = useState<
-        PerformanceOverviewData[]
+        ProgramIndicatorBaseAttrs[]
     >([]);
     const [isLoading, setIsLoading] = useState(false);
     const [order, setOrder] = useState<Order>();
@@ -53,10 +32,10 @@ export function usePerformanceOverview(): State {
                 _(dataPerformanceOverview)
                     .orderBy([
                         [
-                            (dataPerformanceOverviewdata: PerformanceOverviewData) => {
+                            (dataPerformanceOverviewdata: ProgramIndicatorBaseAttrs) => {
                                 const value =
                                     dataPerformanceOverviewdata[
-                                        (order?.name as keyof PerformanceOverviewData) ||
+                                        (order?.name as keyof ProgramIndicatorBaseAttrs) ||
                                             "creationDate"
                                     ];
                                 return Number.isNaN(Number(value)) ? value : Number(value);
@@ -124,11 +103,12 @@ export function usePerformanceOverview(): State {
     };
     const mapEntityToTableData = (
         programIndicator: ProgramIndicatorBaseAttrs
-    ): PerformanceOverviewData => {
+    ): ProgramIndicatorBaseAttrs => {
         return {
             ...programIndicator,
+            event: programIndicator.event + " (" + programIndicator.suspectedDisease + ")",
             duration: "TBD",
-            eri: "-1",
+            eri: "TBD",
         };
     };
 
