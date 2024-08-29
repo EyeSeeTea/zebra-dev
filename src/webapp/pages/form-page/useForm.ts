@@ -8,7 +8,6 @@ import { FormState } from "../../components/form/FormState";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { mapFormStateToEntityData } from "./disease-outbreak-event/utils/mapFormStateToEntityData";
 import { updateAndValidateFormState } from "./disease-outbreak-event/utils/updateDiseaseOutbreakEventFormState";
-import { mapDiseaseOutbreakEventToInitialFormState } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
 import { FormFieldState } from "../../components/form/FormFieldsState";
 import { FormType } from "./FormPage";
 import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";

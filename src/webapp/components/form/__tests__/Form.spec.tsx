@@ -212,7 +212,7 @@ function givenFormProps(): FormProps {
             sections: [
                 {
                     title: "Text section Title",
-                    id: "Text_section",
+                    id: "Text_section1",
                     isVisible: true,
                     required: true,
                     fields: [
@@ -243,7 +243,7 @@ function givenFormProps(): FormProps {
                 },
                 {
                     title: "Text section Title with info icon",
-                    id: "Text_section",
+                    id: "Text_section2",
                     isVisible: true,
                     required: true,
                     onClickInfo: () => {},
@@ -251,14 +251,14 @@ function givenFormProps(): FormProps {
                 },
                 {
                     title: "Text section Title not required",
-                    id: "Text_section",
+                    id: "Text_section3",
                     isVisible: true,
                     required: false,
                     fields: [],
                 },
                 {
                     title: "Text section Title not visible",
-                    id: "Text_section_not_visible",
+                    id: "Text_section_not_visible4",
                     isVisible: false,
                     required: true,
                     fields: [

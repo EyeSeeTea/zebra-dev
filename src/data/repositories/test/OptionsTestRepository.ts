@@ -56,19 +56,26 @@ export class OptionsTestRepository implements OptionsRepository {
     getPopulationAtRisks(): FutureData<Option[]> {
         return Future.success([{ id: "1", name: "Less than 1%", code: "LessThan1" }]);
     }
-    getAttackRates(): FutureData<Option[]> {
-        throw new Error("Method not implemented.");
-    }
+
     getGeographicalSpreads(): FutureData<Option[]> {
-        throw new Error("Method not implemented.");
+        return Future.success([{ id: "1", name: "Within a district", code: "WithinDistrict" }]);
     }
     getLowMediumHighOptions(): FutureData<Option[]> {
-        throw new Error("Method not implemented.");
+        return Future.success([
+            { id: "1", name: "Low", code: "Low" },
+            { id: "2", name: "Medium", code: "Medium" },
+        ]);
     }
     getCapacities(): FutureData<Option[]> {
-        throw new Error("Method not implemented.");
+        return Future.success([
+            { id: "1", name: "Within District", code: "WD" },
+            { id: "2", name: "Within Province", code: "WP" },
+        ]);
     }
     getCapabilities(): FutureData<Option[]> {
-        throw new Error("Method not implemented.");
+        return Future.success([
+            { id: "1", name: "Cap1", code: "Cap1" },
+            { id: "2", name: "Cap2", code: "Cap2" },
+        ]);
     }
 }
