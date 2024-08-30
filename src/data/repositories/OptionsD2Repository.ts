@@ -1,5 +1,6 @@
+import _ from "../../domain/entities/generic/Collection";
 import { D2Api, MetadataPick } from "../../types/d2-api";
-import { Code, NamedRef, Option } from "../../domain/entities/Ref";
+import { Code, Option } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
 import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
 import { assertOrError } from "./utils/AssertOrError";
@@ -30,20 +31,17 @@ export class OptionsD2Repository implements OptionsRepository {
 
     getHazardTypes(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_HAZARD_TYPE").map(hazardTypes => {
-            return hazardTypes.reduce((acc: Option[], hazardType: NamedRef) => {
-                const hazardTypeId = getHazardTypeByCode(hazardType.id);
-                if (hazardTypeId) {
-                    return [
-                        ...acc,
-                        {
+            return _(hazardTypes)
+                .compactMap(hazardType => {
+                    const hazardTypeId = getHazardTypeByCode(hazardType.id);
+                    if (hazardTypeId) {
+                        return {
                             id: hazardTypeId,
                             name: hazardType.name,
-                        },
-                    ];
-                } else {
-                    return acc;
-                }
-            }, [] as Option[]);
+                        };
+                    }
+                })
+                .toArray();
         });
     }
 

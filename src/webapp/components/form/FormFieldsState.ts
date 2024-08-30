@@ -199,12 +199,5 @@ export function validateField(
 // RULES:
 
 export function hideFieldsAndSetToEmpty(fields: FormFieldState[]): FormFieldState[] {
-    return fields.map(field => {
-        const fieldWithEmptyValue = getFieldWithEmptyValue(field);
-
-        return {
-            ...fieldWithEmptyValue,
-            isVisible: false,
-        };
-    });
+    return fields.map(field => ({ ...getFieldWithEmptyValue(field), isVisible: false }));
 }

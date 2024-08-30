@@ -20,6 +20,19 @@ export const hazardTypeCodeMap: Record<HazardType, string> = {
     Unknown: "UNKNOWN",
 };
 
+export const incidentStatusMap: Record<string, IncidentStatus> = {
+    WATCH: IncidentStatus.WATCH,
+    ALERT: IncidentStatus.ALERT,
+    RESPOND: IncidentStatus.RESPOND,
+    CLOSED: IncidentStatus.CLOSED,
+    DISCARDED: IncidentStatus.DISCARDED,
+};
+
+export const dataSourceMap: Record<string, DataSource> = {
+    IBS: DataSource.IBS,
+    EBS: DataSource.EBS,
+};
+
 export const diseaseOutbreakCodes = {
     name: "RTSL_ZEB_TEA_EVENT_NAME",
     dataSource: "RTSL_ZEB_TEA_DATA_SOURCE",
@@ -58,34 +71,6 @@ export type KeyCode = (typeof diseaseOutbreakCodes)[keyof typeof diseaseOutbreak
 
 export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
     return (Object.values(diseaseOutbreakCodes) as string[]).includes(code);
-}
-
-export function mapValueToDataSource(value: string): DataSource | undefined {
-    switch (value) {
-        case "IBS":
-            return DataSource.IBS;
-        case "EBS":
-            return DataSource.EBS;
-        default:
-            return undefined;
-    }
-}
-
-export function mapValueToIncidentStatus(value: string): IncidentStatus | undefined {
-    switch (value) {
-        case "WATCH":
-            return IncidentStatus.WATCH;
-        case "ALERT":
-            return IncidentStatus.ALERT;
-        case "RESPOND":
-            return IncidentStatus.RESPOND;
-        case "CLOSED":
-            return IncidentStatus.CLOSED;
-        case "DISCARDED":
-            return IncidentStatus.DISCARDED;
-        default:
-            return undefined;
-    }
 }
 
 export function getValueFromDiseaseOutbreak(

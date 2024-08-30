@@ -7,8 +7,8 @@ import {
     getValueFromDiseaseOutbreak,
     isStringInDiseaseOutbreakCodes,
     KeyCode,
-    mapValueToDataSource,
-    mapValueToIncidentStatus,
+    dataSourceMap,
+    incidentStatusMap,
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
@@ -37,8 +37,8 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 
     const fromMap = (key: keyof typeof diseaseOutbreakCodes) => getValueFromMap(key, trackedEntity);
 
-    const dataSource = mapValueToDataSource(fromMap("dataSource"));
-    const incidentStatus = mapValueToIncidentStatus(fromMap("incidentStatus"));
+    const dataSource = dataSourceMap[fromMap("dataSource")];
+    const incidentStatus = incidentStatusMap[fromMap("incidentStatus")];
 
     if (!dataSource || !incidentStatus) throw new Error("Data source or incident status not valid");
 

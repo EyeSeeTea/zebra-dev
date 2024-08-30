@@ -1,3 +1,4 @@
+import _ from "../../../../../domain/entities/generic/Collection";
 import { DiseaseOutbreakEventBaseAttrs } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { FormState } from "../../../../components/form/FormState";
@@ -12,8 +13,8 @@ import {
 } from "../../../../components/form/FormFieldsState";
 import {
     getHazardTypeFromString,
-    mapValueToDataSource,
-    mapValueToIncidentStatus,
+    dataSourceMap,
+    incidentStatusMap,
 } from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
 
 type DateFieldIdsToValidate =
@@ -33,13 +34,13 @@ export function mapFormStateToEntityData(
 
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
-    const dataSource = mapValueToDataSource(
-        getStringFieldValue(diseaseOutbreakEventFieldIds.dataSource, allFields)
-    );
+    const dataSource =
+        dataSourceMap[getStringFieldValue(diseaseOutbreakEventFieldIds.dataSource, allFields)];
 
-    const incidentStatus = mapValueToIncidentStatus(
-        getStringFieldValue(diseaseOutbreakEventFieldIds.incidentStatus, allFields)
-    );
+    const incidentStatus =
+        incidentStatusMap[
+            getStringFieldValue(diseaseOutbreakEventFieldIds.incidentStatus, allFields)
+        ];
 
     if (!dataSource || !incidentStatus)
         throw new Error(`Data source or incident status not valid.`);
@@ -178,20 +179,9 @@ function getValidDateValuesByFieldIdFromFields(
         establishCoordination: getFromAllFields(diseaseOutbreakEventFieldIds.establishCoordination),
     };
 
-    return Object.keys(dateValues).reduce(
-        (acc: Record<DateFieldIdsToValidate, Date>, key: string) => {
-            const dateFieldId = key as DateFieldIdsToValidate;
-
-            const dateValue = getDateFieldValue(dateFieldId, allFields);
-            if (dateValue === null) {
-                throw new Error(`Invalid date value for field: ${dateFieldId}`);
-            } else {
-                return {
-                    ...acc,
-                    [dateFieldId]: dateValue,
-                };
-            }
-        },
-        {} as Record<DateFieldIdsToValidate, Date>
-    );
+    if (Object.values(dateValues).every((dateValue): dateValue is Date => dateValue !== null)) {
+        return dateValues as Record<DateFieldIdsToValidate, Date>;
+    } else {
+        throw new Error(`Invalid date value.`);
+    }
 }

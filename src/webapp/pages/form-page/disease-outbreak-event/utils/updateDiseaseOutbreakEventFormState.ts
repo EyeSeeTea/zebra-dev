@@ -1,5 +1,4 @@
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
-import { ValidationError } from "../../../../../domain/entities/ValidationError";
 import { FormFieldState } from "../../../../components/form/FormFieldsState";
 import {
     FormState,
@@ -25,10 +24,7 @@ export function updateDiseaseOutbreakEventFormState(
         ? applyRulesInFormState(updatedForm, updatedField, diseaseOutbreakEventWithOptions.rules)
         : updatedForm;
 
-    const fieldValidationErrors = validateDiseaseOutbreakEventFormState(
-        updatedFormWithRulesApplied,
-        updatedField
-    );
+    const fieldValidationErrors = validateForm(updatedFormWithRulesApplied, updatedField);
 
     const updatedFormStateWithErrors = updateFormStateWithFieldErrors(
         updatedFormWithRulesApplied,
@@ -40,13 +36,4 @@ export function updateDiseaseOutbreakEventFormState(
         ...updatedFormStateWithErrors,
         isValid: isValidForm(updatedFormStateWithErrors.sections),
     };
-}
-
-export function validateDiseaseOutbreakEventFormState(
-    updatedForm: FormState,
-    updatedField: FormFieldState
-): ValidationError[] {
-    const formValidationErrors = validateForm(updatedForm, updatedField);
-
-    return [...formValidationErrors];
 }

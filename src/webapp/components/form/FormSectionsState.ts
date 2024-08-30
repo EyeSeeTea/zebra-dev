@@ -168,29 +168,27 @@ export function toggleSectionVisibilityByFieldValue(
         const subsections = section.subsections?.map(subsection => {
             return toggleSectionVisibilityByFieldValue(subsection, fieldValue, rule);
         });
+
+        const sectionToggleVisibility = {
+            isVisible: fieldValue === rule.fieldValue,
+            fields:
+                fieldValue === rule.fieldValue
+                    ? section.fields.map(field => ({
+                          ...field,
+                          isVisible: true,
+                      }))
+                    : hideFieldsAndSetToEmpty(section.fields),
+        };
+
         return section.subsections
             ? {
                   ...section,
+                  ...sectionToggleVisibility,
                   subsections: subsections,
-                  isVisible: fieldValue === rule.fieldValue,
-                  fields:
-                      fieldValue === rule.fieldValue
-                          ? section.fields.map(field => ({
-                                ...field,
-                                isVisible: true,
-                            }))
-                          : hideFieldsAndSetToEmpty(section.fields),
               }
             : {
                   ...section,
-                  isVisible: fieldValue === rule.fieldValue,
-                  fields:
-                      fieldValue === rule.fieldValue
-                          ? section.fields.map(field => ({
-                                ...field,
-                                isVisible: true,
-                            }))
-                          : hideFieldsAndSetToEmpty(section.fields),
+                  ...sectionToggleVisibility,
               };
     } else {
         return {
