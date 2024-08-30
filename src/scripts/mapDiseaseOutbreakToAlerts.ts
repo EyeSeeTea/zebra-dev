@@ -2,32 +2,37 @@ import { command, run } from "cmd-ts";
 import path from "path";
 import { getD2ApiFromArgs } from "./common";
 import {
-    Attribute,
-    D2TrackerTrackedEntity,
-    TrackedEntitiesGetResponse,
-} from "@eyeseetea/d2-api/api/trackerTrackedEntities";
-import {
+    diseaseOutbreakCodes,
     RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
     RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-    RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
 } from "../data/repositories/consts/DiseaseOutbreakConstants";
-import { Id } from "../domain/entities/Ref";
-import { D2Api } from "@eyeseetea/d2-api/2.36";
 import _ from "../domain/entities/generic/Collection";
+import { AlertD2Repository } from "../data/repositories/AlertD2Repository";
+import { Attribute, D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
+import {
+    DataSource,
+    IncidentStatusType,
+} from "../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertOptions } from "../domain/repositories/AlertRepository";
+import { DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
 import { Maybe } from "../utils/ts-utils";
 
-const RTSL_ZEBRA_SUSPECTED_DISEASE_TEA_ID = "jLvbkuvPdZ6";
-const RTSL_ZEBRA_HAZARD_TYPE_TEA_ID = "Dzrw3Tf0ukB";
-const RTSL_ZEBRA_INCIDENT_STATUS_TEA_ID = "cDLJoNCWHHs";
+//1. update the datastore with the last sync time for that disease
+//2. what are all the districts mapped to that national events
+//3. what are the cases, deaths and number of districts for each of these
+// notification triggered when a new event has been created since the last time (2 hours) if it is a verified event
+
+// fetch program stage to get cases, deaths
+// alert id is tei id of the particular event
 
 function main() {
     const cmd = command({
         name: path.basename(__filename),
-        description: "Show DHIS2 instance info",
+        description: "Map national event ID to Zebra Alert Events with no event ID",
         args: {},
         handler: async () => {
             if (!process.env.VITE_DHIS2_BASE_URL)
@@ -52,135 +57,195 @@ function main() {
             };
 
             const api = getD2ApiFromArgs(envVars);
+            const alertRepository = new AlertD2Repository(api);
 
             try {
                 // 1. Get all TEIs for Zebra Alerts Program which do not have a National Disease Outbreak event Id
-                const alertTEIs = await getTrackedEntities(
-                    api,
-                    RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                    RTSL_ZEBRA_ORG_UNIT_ID,
-                    "DESCENDANTS"
+                const alertTrackedEntities = await alertRepository.getTrackedEntitiesByTEACodeAsync(
+                    {
+                        program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                        ouMode: "DESCENDANTS",
+                    }
                 );
 
-                const teisWithNoEventId = alertTEIs.filter(tei => {
-                    const nationalEventId = getTEIAttributeById(
-                        tei,
-                        RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID
-                    );
-                    const hazardType = getTEIAttributeById(
-                        tei,
-                        RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID
-                    );
-                    const diseaseType = getTEIAttributeById(tei, RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID);
-
-                    return !nationalEventId && (hazardType || diseaseType);
-                });
-
-                // 2. For each of these, get the disease/hazard type
-                const alertsWithDiseaseOrHazardType = _(teisWithNoEventId)
-                    .map(trackedEntity => {
-                        const diseaseAttr = getTEIAttributeById(
+                const alertsWithNoEventId = _(alertTrackedEntities)
+                    .compactMap(trackedEntity => {
+                        const nationalEventId = alertRepository.getTEAttributeById(
                             trackedEntity,
-                            RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
+                            RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID
                         );
-                        const hazardAttr = getTEIAttributeById(
+                        const hazardType = alertRepository.getTEAttributeById(
                             trackedEntity,
                             RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID
                         );
+                        const diseaseType = alertRepository.getTEAttributeById(
+                            trackedEntity,
+                            RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
+                        );
 
-                        return diseaseAttr
-                            ? {
-                                  attribute: diseaseAttr.attribute,
-                                  value: diseaseAttr.value,
-                                  type: "DISEASE",
-                              }
-                            : {
-                                  attribute: hazardAttr?.attribute,
-                                  value: hazardAttr?.value,
-                                  type: "HAZARD",
-                              };
+                        if (!nationalEventId && (hazardType || diseaseType)) {
+                            if (diseaseType) {
+                                return {
+                                    ...trackedEntity,
+                                    ...diseaseType,
+                                    type: "DISEASE",
+                                    uniqueKey: getAttributeUniqueKey(diseaseType),
+                                };
+                            } else if (hazardType) {
+                                return {
+                                    ...trackedEntity,
+                                    ...hazardType,
+                                    type: "HAZARD",
+                                    uniqueKey: getAttributeUniqueKey(hazardType),
+                                };
+                            }
+                        }
+                        return undefined;
                     })
-                    .uniqBy(item => `${item.attribute}-${item.value}`)
                     .value();
 
-                // 3. Fetch TEIs for Zebra RTSL program with above disease/hazard type
-                // (Ideally it should return only 1 TEI, because only 1 National Event per disease/hazard type is allowed) - do error handling if TEIs.length > 1
-                const alertFilters = alertsWithDiseaseOrHazardType.map(diseaseHazardType =>
-                    diseaseHazardType.type === "DISEASE"
-                        ? { ...diseaseHazardType, id: RTSL_ZEBRA_SUSPECTED_DISEASE_TEA_ID }
-                        : { ...diseaseHazardType, id: RTSL_ZEBRA_HAZARD_TYPE_TEA_ID }
+                console.debug(
+                    `There are ${alertsWithNoEventId.length} events in the Zebra Alerts program without event id`
                 );
 
-                return alertFilters.map(async filterItem => {
-                    const nationalTEIs = await getTrackedEntities(
-                        api,
-                        RTSL_ZEBRA_PROGRAM_ID,
-                        RTSL_ZEBRA_ORG_UNIT_ID,
-                        "SELECTED",
-                        `${filterItem.id}:eq:${filterItem.value}`
-                    );
+                // 2. For each of these, get the disease/hazard type, get the unique disease/hazard type
+                const alertFilters = _(alertsWithNoEventId)
+                    .uniqBy(item => item.uniqueKey)
+                    .compactMap(item => {
+                        if (item.type === "DISEASE") {
+                            return {
+                                attribute: "jLvbkuvPdZ6",
+                                value: item.value,
+                                type: item.type,
+                            };
+                        } else if (item.type === "HAZARD") {
+                            return {
+                                attribute: "Dzrw3Tf0ukB",
+                                value: item.value,
+                                type: item.type,
+                            };
+                        }
+                    })
+                    .value();
 
-                    if (nationalTEIs.length > 1) {
-                        console.error(
-                            `More than 1 National TEIs found for disease/hazard type ${filterItem.value}`
+                const alerts = _(alertFilters)
+                    .compactMap(async filterItem => {
+                        const nationalTEIs = await alertRepository.getTrackedEntitiesByTEACodeAsync(
+                            {
+                                program: RTSL_ZEBRA_PROGRAM_ID,
+                                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                                ouMode: "SELECTED",
+                                filter: { id: filterItem.attribute, value: filterItem.value },
+                            }
                         );
-                    }
 
-                    // 4. Update Zebra Alerts TEI with above National TEI id and incident status.
-                    if (nationalTEIs.length !== 0) {
-                        const diseaseOrHazardTypeMatchedTeis = teisWithNoEventId.filter(tei =>
-                            tei.attributes?.find(attribute => {
-                                if (filterItem.type === "DISEASE") {
-                                    return (
-                                        attribute.attribute === RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID &&
-                                        attribute.value === filterItem.value
-                                    );
+                        if (nationalTEIs.length > 1) {
+                            console.error(
+                                `More than 1 National TEI found for ${
+                                    filterItem.attribute
+                                }  ${filterItem.type.toLocaleLowerCase()} type with code ${
+                                    filterItem.value
+                                }`
+                            );
+
+                            return undefined;
+                        } else if (nationalTEIs.length === 0) {
+                            console.debug(
+                                `There is no national event with ${
+                                    filterItem.value
+                                } ${filterItem.type.toLocaleLowerCase()} type`
+                            );
+
+                            // send notification
+                            // await api.messageConversations
+                            //     .post({
+                            //         subject: "No National Event Found",
+                            //         text: `There is no national event found for ${
+                            //             filterItem.value
+                            //         } ${filterItem.type.toLocaleLowerCase()} type`,
+                            //         users: [{ id: "TC5tfBmieZ6" }],
+                            //     })
+                            //     .getData()
+                            //     .then(response => console.debug(response))
+                            //     .catch(error => console.error(error));
+
+                            return undefined;
+                        }
+
+                        const nationalTrackedEntity = nationalTEIs[0];
+                        if (!nationalTrackedEntity) return undefined;
+
+                        return _(alertsWithNoEventId)
+                            .compactMap(alertTrackedEntity => {
+                                if (
+                                    alertTrackedEntity.type !== filterItem.type &&
+                                    alertTrackedEntity.value !== filterItem.value &&
+                                    alertTrackedEntity.attribute !== filterItem.attribute
+                                )
+                                    return undefined;
+
+                                const alertOutbreak = mapTrackedEntityAttributesToAlertOutbreak(
+                                    nationalTrackedEntity,
+                                    alertTrackedEntity
+                                );
+
+                                // 4. Update Zebra Alerts TEI with above National TEI id and incident status.
+                                alertRepository.updateAlerts(alertOutbreak).run(
+                                    () => console.debug("Successfully updated alert"),
+                                    error => console.error(error)
+                                );
+
+                                const verificationStatus = getValueFromMap(
+                                    "verificationStatus",
+                                    alertTrackedEntity
+                                );
+
+                                if (verificationStatus === "VERIFIED") {
+                                    const dataValues = alertTrackedEntity.enrollments
+                                        ? alertTrackedEntity.enrollments[0]?.events[0]?.dataValues
+                                        : [];
+
+                                    const alertData = {
+                                        type: alertTrackedEntity.type,
+                                        alertId: alertTrackedEntity.trackedEntity,
+                                        orgUnit: alertTrackedEntity.orgUnit,
+                                        "Suspected Cases": getDataValueFromMap(
+                                            "Suspected Cases",
+                                            dataValues
+                                        ),
+                                        "Probable Cases": getDataValueFromMap(
+                                            "Probable Cases",
+                                            dataValues
+                                        ),
+                                        "Confirmed Cases": getDataValueFromMap(
+                                            "Confirmed Cases",
+                                            dataValues
+                                        ),
+                                        Deaths: getDataValueFromMap("Deaths", dataValues),
+                                    };
+
+                                    return alertData;
                                 } else {
-                                    return (
-                                        attribute.attribute ===
-                                            RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID &&
-                                        attribute.value === filterItem.value
-                                    );
+                                    return undefined;
                                 }
                             })
-                        );
+                            .value();
+                    })
+                    .value();
 
-                        const eventId = nationalTEIs[0]?.trackedEntity ?? "";
-                        const incidentStatus =
-                            getTEIAttributeById(nationalTEIs[0], RTSL_ZEBRA_INCIDENT_STATUS_TEA_ID)
-                                ?.value ?? "";
+                const alertsToSave = _(await Promise.all(alerts))
+                    .flatten()
+                    .compact()
+                    .value();
 
-                        const alertsToMap = diseaseOrHazardTypeMatchedTeis.map(trackedEntity => ({
-                            ...trackedEntity,
-                            attributes: [
-                                {
-                                    attribute:
-                                        RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                                    value: eventId,
-                                },
-                                {
-                                    attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
-                                    value: incidentStatus,
-                                },
-                            ],
-                        }));
-
-                        console.debug(
-                            `Updating ${alertsToMap.length} TEIs with event id ${eventId}`
-                        );
-
-                        return await api.tracker
-                            .post({ importStrategy: "UPDATE" }, { trackedEntities: alertsToMap })
-                            .getData()
-                            .then(response => {
-                                if (response.status === "ERROR")
-                                    console.error(
-                                        "Error mapping disease outbreak event id to alert"
-                                    );
-                                console.debug(`Updated ${response.stats.updated} TEIs`);
-                            });
-                    }
-                });
+                // save date and time for the particular hazard or disease type -> zebra : synchronization
+                await api
+                    .dataStore("zebra")
+                    .save("synchronization", alertsToSave)
+                    .getData()
+                    .then(response => console.debug(response))
+                    .catch(error => console.error(error));
             } catch (error) {
                 console.error(error);
             }
@@ -190,51 +255,58 @@ function main() {
     run(cmd, process.argv.slice(2));
 }
 
-function getTEIAttributeById(
-    trackedEntity: Maybe<D2TrackerTrackedEntity>,
-    attributeId: Id
-): Maybe<Attribute> {
-    return trackedEntity?.attributes?.find(attribute => attribute.attribute === attributeId);
+function getAttributeUniqueKey(attribute: Attribute): string {
+    return `${attribute.attribute}-${attribute.value}`;
 }
 
-async function getTrackedEntities(
-    api: D2Api,
-    program: Id,
-    orgUnit: Id,
-    ouMode: "SELECTED" | "DESCENDANTS",
-    filter?: Maybe<string>
-): Promise<D2TrackerTrackedEntity[]> {
-    const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
+function mapTrackedEntityAttributesToAlertOutbreak(
+    nationalTrackedEntity: D2TrackerTrackedEntity,
+    alertTrackedEntity: D2TrackerTrackedEntity
+): AlertOptions {
+    if (!nationalTrackedEntity.trackedEntity) throw new Error("Tracked entity not found");
 
-    const pageSize = 250;
-    let page = 1;
-    let result: TrackedEntitiesGetResponse;
+    const diseaseOutbreak: AlertOptions = {
+        eventId: nationalTrackedEntity.trackedEntity,
+        dataSource: getValueFromMap("dataSource", nationalTrackedEntity) as DataSource,
+        hazardTypeCode: getValueFromMap("hazardType", alertTrackedEntity),
+        suspectedDiseaseCode: getValueFromMap("suspectedDisease", alertTrackedEntity),
+        incidentStatus: getValueFromMap(
+            "incidentStatus",
+            nationalTrackedEntity
+        ) as IncidentStatusType,
+    };
 
-    do {
-        result = await api.tracker.trackedEntities
-            .get({
-                program: program,
-                orgUnit: orgUnit,
-                ouMode: ouMode,
-                totalPages: true,
-                page: page,
-                pageSize: pageSize,
-                fields: {
-                    attributes: true,
-                    orgUnit: true,
-                    trackedEntity: true,
-                    trackedEntityType: true,
-                },
-                filter: filter,
-            })
-            .getData();
-
-        d2TrackerTrackedEntities.push(...result.instances);
-
-        page++;
-    } while (result.page < Math.ceil((result.total as number) / pageSize));
-
-    return d2TrackerTrackedEntities;
+    return diseaseOutbreak;
 }
+
+function getValueFromMap(
+    key: keyof typeof alertOutbreakCodes,
+    trackedEntity: D2TrackerTrackedEntity
+): string {
+    return trackedEntity.attributes?.find(a => a.code === alertOutbreakCodes[key])?.value ?? "";
+}
+
+function getDataValueFromMap(
+    key: keyof typeof dataElementIds,
+    dataValues: Maybe<DataValue[]>
+): string {
+    if (!dataValues) return "";
+
+    return dataValues.find(dataValue => dataValue.dataElement === dataElementIds[key])?.value ?? "";
+}
+
+const dataElementIds = {
+    "Suspected Cases": "d4B5pN7ZTEu",
+    "Probable Cases": "bUMlIfyJEYK",
+    "Confirmed Cases": "ApKJDLI5nHP",
+    Deaths: "Sfl82Bx0ZNz",
+} as const;
+
+const alertOutbreakCodes = {
+    ...diseaseOutbreakCodes,
+    hazardType: "RTSL_ZEB_TEA_EVENT_TYPE",
+    suspectedDisease: "RTSL_ZEB_TEA_DISEASE",
+    verificationStatus: "RTSL_ZEB_TEA_VERIFICATION_STATUS",
+} as const;
 
 main();

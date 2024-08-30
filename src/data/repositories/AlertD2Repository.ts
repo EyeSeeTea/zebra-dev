@@ -13,6 +13,7 @@ import { Id } from "../../domain/entities/Ref";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
+    Attribute,
     D2TrackerTrackedEntity,
     TrackedEntitiesGetResponse,
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
@@ -32,7 +33,12 @@ export class AlertD2Repository implements AlertRepository {
             alertOptions;
         const filter = this.getAlertFilter(dataSource, suspectedDiseaseCode, hazardTypeCode);
 
-        return this.getTrackedEntitiesByTEACode(filter).flatMap(response => {
+        return this.getTrackedEntitiesByTEACode({
+            program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            ouMode: "DESCENDANTS",
+            filter: filter,
+        }).flatMap(response => {
             const alertsToMap = response.map(trackedEntity => ({
                 ...trackedEntity,
                 attributes: [
@@ -64,9 +70,13 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    private async getTrackedEntitiesByTEACodeAsync(
-        filter: Filter
-    ): Promise<D2TrackerTrackedEntity[]> {
+    async getTrackedEntitiesByTEACodeAsync(options: {
+        program: Id;
+        orgUnit: Id;
+        ouMode: "SELECTED" | "DESCENDANTS";
+        filter?: Filter;
+    }): Promise<D2TrackerTrackedEntity[]> {
+        const { program, orgUnit, ouMode, filter } = options;
         const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
         const pageSize = 250;
@@ -77,9 +87,9 @@ export class AlertD2Repository implements AlertRepository {
             do {
                 result = await this.api.tracker.trackedEntities
                     .get({
-                        program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                        ouMode: "DESCENDANTS",
+                        program: program,
+                        orgUnit: orgUnit,
+                        ouMode: ouMode,
                         totalPages: true,
                         page: page,
                         pageSize: pageSize,
@@ -88,8 +98,16 @@ export class AlertD2Repository implements AlertRepository {
                             orgUnit: true,
                             trackedEntity: true,
                             trackedEntityType: true,
+                            enrollments: {
+                                events: {
+                                    dataValues: {
+                                        dataElement: true,
+                                        value: true,
+                                    },
+                                },
+                            },
                         },
-                        filter: `${filter.id}:eq:${filter.value}`,
+                        filter: filter ? `${filter.id}:eq:${filter.value}` : undefined,
                     })
                     .getData();
 
@@ -103,8 +121,13 @@ export class AlertD2Repository implements AlertRepository {
         }
     }
 
-    private getTrackedEntitiesByTEACode(filter: Filter): FutureData<D2TrackerTrackedEntity[]> {
-        return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(filter));
+    private getTrackedEntitiesByTEACode(options: {
+        program: Id;
+        orgUnit: Id;
+        ouMode: "SELECTED" | "DESCENDANTS";
+        filter: Filter;
+    }): FutureData<D2TrackerTrackedEntity[]> {
+        return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(options));
     }
 
     private getAlertFilter(
@@ -118,5 +141,13 @@ export class AlertD2Repository implements AlertRepository {
             case "EBS":
                 return { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: hazardTypeCode };
         }
+    }
+
+    getTEAttributeById(trackedEntity: D2TrackerTrackedEntity, attributeId: Id): Maybe<Attribute> {
+        if (!trackedEntity.attributes) return undefined;
+
+        return trackedEntity.attributes
+            .map(attribute => ({ attribute: attribute.attribute, value: attribute.value }))
+            .find(attribute => attribute.attribute === attributeId);
     }
 }
