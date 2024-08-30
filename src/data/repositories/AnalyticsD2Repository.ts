@@ -22,7 +22,6 @@ export type ProgramIndicatorBaseAttrs = {
     era5: string;
     era6: string;
     era7: string;
-    eri: string;
     detect7d: string;
     notify1d: string;
     respond7d: string;
