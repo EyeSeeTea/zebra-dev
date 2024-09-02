@@ -1,7 +1,4 @@
-import {
-    ConfigurableForm,
-    DiseaseOutbreakEventFormData,
-} from "../../../../../domain/entities/ConfigurableForm";
+import { ConfigurableForm } from "../../../../../domain/entities/ConfigurableForm";
 import { DiseaseOutbreakEvent } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { ValidationError } from "../../../../../domain/entities/ValidationError";
 import { FormFieldState } from "../../../../components/form/FormFieldsState";
@@ -13,7 +10,6 @@ import {
     validateForm,
 } from "../../../../components/form/FormState";
 import { applyRulesInFormState } from "./applyRulesInFormState";
-import { mapFormStateToEntityData } from "../../mapFormStateToEntityData";
 import { mapFormStateToDiseaseOutbreakEventData } from "../mapFormStateToDiseaseOutbreakEventData";
 
 export function updateAndValidateFormState(

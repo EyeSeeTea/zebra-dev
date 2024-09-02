@@ -1,7 +1,6 @@
 import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
-import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import {
     RTSL_ZEBRA_ORG_UNIT_ID,
@@ -30,6 +29,7 @@ type D2ProgramStageDataElementsMetadata = {
 
 export function mapRiskAssessmentGradingToDataElements(
     teiId: Id,
+    enrollmentId: Id,
     riskAssessmentGrading: RiskAssessmentGrading,
     programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
 ): D2TrackerEvent {
@@ -57,7 +57,7 @@ export function mapRiskAssessmentGradingToDataElements(
         status: "ACTIVE",
         program: RTSL_ZEBRA_PROGRAM_ID,
         programStage: RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID,
-        // enrollment?: "", // SNEHA TO DO : do we need this?
+        enrollment: enrollmentId,
         orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
         occurredAt: new Date().toISOString(),
         dataValues: dataValues,

@@ -13,6 +13,8 @@ const highGeographicalSpread = { type: "MoreThanOneProvince" as const, weight: 3
 const lowCapacity = { type: "ProvincialNationalLevel" as const, weight: 1 as const };
 const mediumCapacity = { type: "ProvincialLevel" as const, weight: 2 as const };
 const highCapacity = { type: "NationalInternationalLevel" as const, weight: 3 as const };
+const capability1 = { type: "Capability1" as const, weight: 1 as const };
+const capability2 = { type: "Capability2" as const, weight: 2 as const };
 
 describe("RiskAssessmentGrading", () => {
     it("should be Grade1 if total weight is less than or equal to 7", () => {
@@ -26,7 +28,7 @@ describe("RiskAssessmentGrading", () => {
             capacity: lowCapacity,
             reputationalRisk: lowWeightedOption,
             severity: lowWeightedOption,
-            capability: lowWeightedOption,
+            capability: capability1,
         });
         const grade = riskAssessmentGrading.getGrade().getOrThrow();
         if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 1");
@@ -43,7 +45,7 @@ describe("RiskAssessmentGrading", () => {
             capacity: mediumCapacity,
             reputationalRisk: mediumWeightedOption,
             severity: mediumWeightedOption,
-            capability: mediumWeightedOption,
+            capability: capability2,
         });
         const grade = riskAssessmentGrading.getGrade().getOrThrow();
         if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 2");
@@ -60,7 +62,7 @@ describe("RiskAssessmentGrading", () => {
             capacity: highCapacity,
             reputationalRisk: highWeightedOption,
             severity: highWeightedOption,
-            capability: highWeightedOption,
+            capability: capability2,
         });
 
         const grade = riskAssessmentGrading.getGrade().getOrThrow();

@@ -22,10 +22,9 @@ export function getProgramTEAsMetadata(api: D2Api, programId: Id) {
     );
 }
 
-export function getProgramStage(api: D2Api, programId: Id, stageId: Id) {
+export function getProgramStage(api: D2Api, stageId: Id) {
     return apiToFuture(
         api.models.programStages.get({
-            id: stageId,
             fields: {
                 id: true,
                 programStageDataElements: {
@@ -37,7 +36,7 @@ export function getProgramStage(api: D2Api, programId: Id, stageId: Id) {
                 },
             },
             filter: {
-                program: { eq: programId },
+                id: { eq: stageId },
             },
         })
     );

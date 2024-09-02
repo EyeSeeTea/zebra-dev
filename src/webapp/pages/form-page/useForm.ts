@@ -114,6 +114,7 @@ export function useForm(formType: FormType, id?: Id): State {
         );
         compositionRoot.save.execute(formData).run(
             diseaseOutbreakEventId => {
+                setIsLoading(false);
                 if (
                     formData.type === "disease-outbreak-event" &&
                     diseaseOutbreakEventId &&
@@ -130,23 +131,38 @@ export function useForm(formType: FormType, id?: Id): State {
                     goTo(RouteName.EVENT_TRACKER, {
                         id: diseaseOutbreakEventId,
                     });
+                    setGlobalMessage({
+                        text: i18n.t(`Disease Outbreak saved successfully`),
+                        type: "success",
+                    });
+                } else if (formData.type === "risk-assessment-grading" && currentEventTrackerId) {
+                    goTo(RouteName.EVENT_TRACKER, {
+                        id: currentEventTrackerId,
+                    });
+                    setGlobalMessage({
+                        text: i18n.t(`Risk Assessment Grading saved successfully`),
+                        type: "success",
+                    });
+                } else {
+                    console.error("Unknown form type");
+                    goTo(RouteName.DASHBOARD);
                 }
-
-                setIsLoading(false);
-                setGlobalMessage({
-                    text: i18n.t(`Disease Outbreak saved successfully`),
-                    type: "success",
-                });
             },
             err => {
                 setGlobalMessage({
                     text: i18n.t(`Error saving disease outbreak: ${err.message}`),
                     type: "error",
                 });
-                setIsLoading(false);
             }
         );
-    }, [formState, configurableForm, currentUser.username, compositionRoot, goTo]);
+    }, [
+        formState,
+        configurableForm,
+        currentUser.username,
+        compositionRoot,
+        currentEventTrackerId,
+        goTo,
+    ]);
 
     const onCancelForm = useCallback(() => {
         if (currentEventTrackerId)

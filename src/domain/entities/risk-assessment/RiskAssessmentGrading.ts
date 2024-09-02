@@ -13,6 +13,7 @@ export const riskAssessmentGradingCodes = {
     severity: "RTSL_ZEB_DET_SEVERITY",
     capability: "RTSL_ZEB_DET_CAPABILITY",
     grade: "RTSL_ZEB_DET_GRADE",
+    riskId: "RTSL_ZEB_DET_RISK_ID_RAG",
 } as const;
 
 type WeightedOptionTypes = "Low" | "Medium" | "High";
@@ -25,6 +26,7 @@ type CapacityOptionsTypes =
     | "ProvincialNationalLevel"
     | "ProvincialLevel"
     | "NationalInternationalLevel";
+type CapabilityOptionsTypes = "Capability1" | "Capability2";
 
 export type LowWeightedOption = {
     type: "Low";
@@ -78,13 +80,23 @@ export type HighCapacity = {
     weight: 3;
 };
 
+export type Capability1 = {
+    type: "Capability1";
+    weight: 1;
+};
+export type Capability2 = {
+    type: "Capability2";
+    weight: 2;
+};
+
 export type Grade = "Grade1" | "Grade2" | "Grade3";
 
-type AllOptionTypes =
+export type AllOptionTypes =
     | WeightedOptionTypes
     | PopulationWeightOptionsTypes
     | GeographicalSpreadOptionsTypes
     | CapacityOptionsTypes
+    | CapabilityOptionsTypes
     | Grade;
 
 const translations: Record<AllOptionTypes, string> = {
@@ -108,13 +120,12 @@ const translations: Record<AllOptionTypes, string> = {
     NationalInternationalLevel: i18n.t(
         "Available at national with support required from international"
     ),
+    Capability1: i18n.t("Capability 1"),
+    Capability2: i18n.t("Capability 2"),
     Grade1: i18n.t("Grade 1"),
     Grade2: i18n.t("Grade 2"),
     Grade3: i18n.t("Grade 3"),
 };
-
-
-
 
 interface RiskAssessmentGradingAttrs extends Ref {
     lastUpdated: Date;
@@ -123,7 +134,7 @@ interface RiskAssessmentGradingAttrs extends Ref {
     geographicalSpread: LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread;
     complexity: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
     capacity: LowCapacity | MediumCapacity | HighCapacity;
-    capability: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
+    capability: Capability1 | Capability2;
     reputationalRisk: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
     severity: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
 }

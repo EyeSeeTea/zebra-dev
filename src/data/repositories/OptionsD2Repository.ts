@@ -4,6 +4,8 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
 import { assertOrError } from "./utils/AssertOrError";
 import { getHazardTypeByCode } from "./consts/DiseaseOutbreakConstants";
+import { Future } from "../../domain/entities/generic/Future";
+import { riskAssessmentGradingOptionCodes } from "./consts/RiskAssessmentGradingConstants";
 
 const MAIN_SYNDROME_OPTION_SET_CODE = "AGENTS";
 const SUSPECTED_DISEASE_OPTION_SET_CODE = "RTSL_ZEB_OS_DISEASE";
@@ -80,21 +82,77 @@ export class OptionsD2Repository implements OptionsRepository {
 
     //Risk Assessment Grading Options
     getPopulationAtRisks(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_POPULATION_AT_RISK");
+        return this.getOptionSetByCode("RTSL_ZEB_OS_POPULATION_AT_RISK").map(
+            populationAtRiskOptions => {
+                return populationAtRiskOptions.map(populationAtRisk => {
+                    const population = Object.entries(
+                        riskAssessmentGradingOptionCodes.populationAtRisk
+                    ).filter(([_key, val]) => val === populationAtRisk.id)[0]?.[0];
+
+                    return {
+                        id: population ?? populationAtRisk.id,
+                        name: populationAtRisk.name,
+                    };
+                });
+            }
+        );
     }
 
     getLowMediumHighOptions(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_LMH");
+        return this.getOptionSetByCode("RTSL_ZEB_OS_LMH").map(lowMediumHighOptions => {
+            return lowMediumHighOptions.map(lowMediumHigh => {
+                return {
+                    id:
+                        Object.entries(riskAssessmentGradingOptionCodes.weightedOption).filter(
+                            ([key, val]) => val === lowMediumHigh.id
+                        )[0]?.[0] ?? lowMediumHigh.id,
+                    name: lowMediumHigh.name,
+                };
+            });
+        });
     }
     getGeographicalSpreads(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD");
+        return this.getOptionSetByCode("RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD").map(
+            geographicalSpreadOptions => {
+                return geographicalSpreadOptions.map(geographicalSpread => {
+                    return {
+                        id:
+                            Object.entries(
+                                riskAssessmentGradingOptionCodes.geographicalSpread
+                            ).filter(([_key, val]) => val === geographicalSpread.id)[0]?.[0] ??
+                            geographicalSpread.id,
+                        name: geographicalSpread.name,
+                    };
+                });
+            }
+        );
     }
 
     getCapacities(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_CAPACITY");
+        return this.getOptionSetByCode("RTSL_ZEB_OS_CAPACITY").map(capacityOptions => {
+            return capacityOptions.map(capacity => {
+                return {
+                    id:
+                        Object.entries(riskAssessmentGradingOptionCodes.capacity).filter(
+                            ([_key, val]) => val === capacity.id
+                        )[0]?.[0] ?? capacity.id,
+                    name: capacity.name,
+                };
+            });
+        });
     }
     getCapabilities(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_CAPABILITY");
+        return this.getOptionSetByCode("RTSL_ZEB_OS_CAPABILITY").map(capabilityOptions => {
+            return capabilityOptions.map(capability => {
+                return {
+                    id:
+                        Object.entries(riskAssessmentGradingOptionCodes.capability).filter(
+                            ([_key, val]) => val === capability.id
+                        )[0]?.[0] ?? capability.id,
+                    name: capability.name,
+                };
+            });
+        });
     }
 
     private getOptionSetByCode(code: string): FutureData<Option[]> {
