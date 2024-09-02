@@ -34,5 +34,5 @@ export function getUserGroupsByCode(api: D2Api, code: string): FutureData<Ref[]>
                 },
             },
         })
-    );
+    ).map(response => response.userGroups);
 }

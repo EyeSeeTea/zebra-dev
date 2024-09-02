@@ -23,6 +23,8 @@ export type IncidentStatusType = "Watch" | "Alert" | "Respond" | "Closed" | "Dis
 
 export type DataSource = "IBS" | "EBS";
 
+export type OutbreakType = "disease" | "hazard";
+
 type DateWithNarrative = {
     date: Date;
     narrative: string;
