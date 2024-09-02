@@ -24,9 +24,11 @@ import { NotificationD2Repository } from "../data/repositories/NotificationD2Rep
 import { OptionsD2Repository } from "../data/repositories/OptionsD2Repository";
 import { Future } from "../domain/entities/generic/Future";
 import { Option } from "/Users/deeonwuli-est/Documents/zebra-dev/src/domain/entities/Ref";
+import { getUserGroupsByCode } from "../data/repositories/utils/MetadataHelper";
 
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
+const RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE = "RTSL_ZEBRA_ADMIN";
 //1. update the datastore with the last sync time for that disease
 //2. what are all the districts mapped to that national events
 //3. what are the cases, deaths and number of districts for each of these
@@ -68,15 +70,15 @@ function main() {
             const optionsRepository = new OptionsD2Repository(api);
 
             return Future.joinObj({
-                suspectedDiseases: optionsRepository.getAllSuspectedDiseases(),
-                hazardTypes: optionsRepository.getAllHazardTypes(),
                 alertTrackedEntities: alertRepository.getTrackedEntitiesByTEACode({
                     program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
                     orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
                     ouMode: "DESCENDANTS",
                 }),
+                hazardTypes: optionsRepository.getAllHazardTypes(),
+                suspectedDiseases: optionsRepository.getAllSuspectedDiseases(),
             }).run(
-                ({ suspectedDiseases, hazardTypes, alertTrackedEntities }) => {
+                ({ alertTrackedEntities, hazardTypes, suspectedDiseases }) => {
                     const alertsWithNoEventId = _(alertTrackedEntities)
                         .compactMap(trackedEntity => {
                             const nationalEventId = alertRepository.getTEAttributeById(
@@ -118,7 +120,7 @@ function main() {
                     const synchronizationData = [];
 
                     return _(alertsWithNoEventId)
-                        .groupBy(item => item.type)
+                        .groupBy(alert => alert.type)
                         .values()
                         .forEach(alertsByType => {
                             const uniqueFilters = _(alertsByType)
@@ -142,8 +144,8 @@ function main() {
                                         filter: filter,
                                     })
                                     .run(
-                                        nationalTEIs => {
-                                            if (nationalTEIs.length > 1) {
+                                        nationalTrackedEntities => {
+                                            if (nationalTrackedEntities.length > 1) {
                                                 const outbreak = getOutbreakFromOptions(
                                                     filter,
                                                     suspectedDiseases,
@@ -160,61 +162,46 @@ function main() {
                                             return alertsByType
                                                 .filter(alert => alert.value === filter.value)
                                                 .forEach(alertTrackedEntity => {
-                                                    if (nationalTEIs.length === 0) {
+                                                    if (nationalTrackedEntities.length === 0) {
                                                         const outbreak = getOutbreakFromOptions(
                                                             alertTrackedEntity,
                                                             suspectedDiseases,
                                                             hazardTypes
-                                                        );
-                                                        const verificationStatus = getValueFromMap(
-                                                            "verificationStatus",
-                                                            alertTrackedEntity
-                                                        );
-                                                        const incidentManager = getValueFromMap(
-                                                            "incidentManager",
-                                                            alertTrackedEntity
-                                                        );
-                                                        const emergenceDate = getValueFromMap(
-                                                            "emergedDate",
-                                                            alertTrackedEntity
-                                                        );
-                                                        const detectionDate = getValueFromMap(
-                                                            "detectedDate",
-                                                            alertTrackedEntity
-                                                        );
-                                                        const notificationDate = getValueFromMap(
-                                                            "notifiedDate",
-                                                            alertTrackedEntity
                                                         );
 
                                                         console.debug(
                                                             `There is no national event with ${outbreak} ${alertTrackedEntity.type.toLocaleLowerCase()} type`
                                                         );
 
-                                                        return notificationRepository
-                                                            .save({
-                                                                subject: `New Outbreak Alert: ${outbreak} in zm Zambia Ministry of Health`,
-                                                                text: buildOutbreakNotification(
-                                                                    outbreak,
-                                                                    emergenceDate,
-                                                                    detectionDate,
-                                                                    notificationDate,
-                                                                    incidentManager,
-                                                                    verificationStatus
-                                                                ),
-                                                                users: [{ id: "TC5tfBmieZ6" }], // dev.user, to change to actual user or user groups
-                                                                userGroups: [],
-                                                            })
-                                                            .run(
-                                                                () =>
-                                                                    console.debug(
-                                                                        `Successfully notified all admin users`
-                                                                    ),
-                                                                error => console.error(error)
-                                                            );
+                                                        return getUserGroupsByCode(
+                                                            api,
+                                                            RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE
+                                                        ).run(
+                                                            userGroups => {
+                                                                notificationRepository
+                                                                    .save({
+                                                                        subject: `New Outbreak Alert: ${outbreak} in zm Zambia Ministry of Health`,
+                                                                        text: buildOutbreakNotification(
+                                                                            alertTrackedEntity,
+                                                                            outbreak
+                                                                        ),
+                                                                        userGroups: userGroups,
+                                                                    })
+                                                                    .run(
+                                                                        () =>
+                                                                            console.debug(
+                                                                                `Successfully notified all national watch staff.`
+                                                                            ),
+                                                                        error =>
+                                                                            console.error(error)
+                                                                    );
+                                                            },
+                                                            error => console.error(error)
+                                                        );
                                                     }
 
-                                                    const nationalTrackedEntity = nationalTEIs[0];
+                                                    const nationalTrackedEntity =
+                                                        nationalTrackedEntities[0];
                                                     if (!nationalTrackedEntity) return undefined;
 
                                                     const alertOutbreak =
@@ -240,13 +227,14 @@ function main() {
                                                         const dataValues =
                                                             alertTrackedEntity.enrollments
                                                                 ? alertTrackedEntity.enrollments[0]
-                                                                      ?.events[0]?.dataValues
+                                                                      ?.events[0]?.dataValues // for each event
                                                                 : [];
 
                                                         const alertData = {
                                                             type: alertTrackedEntity.type,
                                                             alertId:
-                                                                alertTrackedEntity.trackedEntity,
+                                                                alertTrackedEntity.trackedEntity, // event id
+                                                            // eventDate: event.reportDate,
                                                             orgUnit: alertTrackedEntity.orgUnit,
                                                             "Suspected Cases": getDataValueFromMap(
                                                                 "Suspected Cases",
@@ -296,15 +284,17 @@ function getOutbreakFromOptions(
 }
 
 function buildOutbreakNotification(
-    outbreak: string,
-    emergenceDate: string,
-    detectionDate: string,
-    notificationDate: string,
-    incidentManager: string,
-    verificationStatus: string
+    alertTrackedEntity: D2TrackerTrackedEntity,
+    outbreak: string
 ): string {
+    const verificationStatus = getValueFromMap("verificationStatus", alertTrackedEntity);
+    const incidentManager = getValueFromMap("incidentManager", alertTrackedEntity);
+    const emergenceDate = getValueFromMap("emergedDate", alertTrackedEntity);
+    const detectionDate = getValueFromMap("detectedDate", alertTrackedEntity);
+    const notificationDate = getValueFromMap("notifiedDate", alertTrackedEntity);
     // ? i18n
     return `There has been a new Outbreak detected for ${outbreak} in zm Zambia Ministry of Health.
+
 Please see the details of the outbreak below:
 
 Emergence date: ${emergenceDate}
