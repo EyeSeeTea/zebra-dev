@@ -70,7 +70,7 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    async getTrackedEntitiesByTEACodeAsync(options: {
+    private async getTrackedEntitiesByTEACodeAsync(options: {
         program: Id;
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
@@ -121,11 +121,11 @@ export class AlertD2Repository implements AlertRepository {
         }
     }
 
-    private getTrackedEntitiesByTEACode(options: {
+    getTrackedEntitiesByTEACode(options: {
         program: Id;
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
-        filter: Filter;
+        filter?: Filter;
     }): FutureData<D2TrackerTrackedEntity[]> {
         return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(options));
     }
