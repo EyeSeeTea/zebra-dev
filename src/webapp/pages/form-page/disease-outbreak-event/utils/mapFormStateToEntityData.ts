@@ -165,10 +165,17 @@ export function mapFormStateToEntityData(
 function getValidDateValuesByFieldIdFromFields(
     allFields: FormFieldState[]
 ): Record<DateFieldIdsToValidate, Date> {
-    const getFromAllFields = (fieldId: keyof typeof diseaseOutbreakEventFieldIds) =>
-        getDateFieldValue(fieldId, allFields);
+    const getFromAllFields = (fieldId: keyof typeof diseaseOutbreakEventFieldIds): Date => {
+        const maybeDate = getDateFieldValue(fieldId, allFields);
 
-    const dateValues: Record<DateFieldIdsToValidate, Date | null> = {
+        if (maybeDate === null) {
+            throw new Error(`Invalid date value.`);
+        } else {
+            return maybeDate;
+        }
+    };
+
+    return {
         emergedDate: getFromAllFields(diseaseOutbreakEventFieldIds.emergedDate),
         detectedDate: getFromAllFields(diseaseOutbreakEventFieldIds.detectedDate),
         notifiedDate: getFromAllFields(diseaseOutbreakEventFieldIds.notifiedDate),
@@ -178,10 +185,4 @@ function getValidDateValuesByFieldIdFromFields(
         ),
         establishCoordination: getFromAllFields(diseaseOutbreakEventFieldIds.establishCoordination),
     };
-
-    if (Object.values(dateValues).every((dateValue): dateValue is Date => dateValue !== null)) {
-        return dateValues as Record<DateFieldIdsToValidate, Date>;
-    } else {
-        throw new Error(`Invalid date value.`);
-    }
 }
