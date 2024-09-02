@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
@@ -8,6 +8,7 @@ import { usePerformanceOverview } from "./usePerformanceOverview";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
+import { useCurrentEventTrackerId } from "../../contexts/current-event-tracker-context";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -20,6 +21,12 @@ export const DashboardPage: React.FC = React.memo(() => {
     } = usePerformanceOverview();
 
     const { goTo } = useRoutes();
+    const { resetCurrentEventTrackerId } = useCurrentEventTrackerId();
+
+    useEffect(() => {
+        //On navigating to the dashboard page, reset the current event tracker id
+        resetCurrentEventTrackerId();
+    });
 
     const goToEvent = (id: Maybe<Id>) => {
         if (!id) return;

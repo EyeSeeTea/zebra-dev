@@ -10,7 +10,7 @@ import {
     getHazardTypeValue,
     getValueFromDiseaseOutbreak,
     isStringInDiseaseOutbreakCodes,
-    KeyCode,
+    DiseaseOutbreakKeyCode,
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
@@ -130,7 +130,7 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
         if (!isStringInDiseaseOutbreakCodes(attribute.trackedEntityAttribute.code)) {
             throw new Error("Attribute code not found in DiseaseOutbreakCodes");
         }
-        const typedCode: KeyCode = attribute.trackedEntityAttribute.code;
+        const typedCode: DiseaseOutbreakKeyCode = attribute.trackedEntityAttribute.code;
         const populatedAttribute = {
             attribute: attribute.trackedEntityAttribute.id,
             value: attributeValues[typedCode],

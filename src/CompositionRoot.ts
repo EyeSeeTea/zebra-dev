@@ -18,12 +18,14 @@ import { OptionsTestRepository } from "./data/repositories/test/OptionsTestRepos
 import { TeamMemberTestRepository } from "./data/repositories/test/TeamMemberTestRepository";
 import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepository";
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
-import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
-import { GetDiseaseOutbreakWithOptionsUseCase } from "./domain/usecases/GetDiseaseOutbreakWithOptionsUseCase";
 import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
-import { GetRiskGradingWithOptionsUseCase } from "./domain/usecases/GetRiskGradingWithOptionsUseCase";
+import { GetEntityWithOptionsUseCase } from "./domain/usecases/GetEntityWithOptionsUseCase";
+import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
+import { RiskAssessmentGradingRepository } from "./domain/repositories/RiskAssessmentGradingRepository";
+import { RiskAssessmentGradingD2Repository } from "./data/repositories/RiskAssessmentGradingD2Repository";
+import { RiskAssessmentGradingTestRepository } from "./data/repositories/test/RiskAssessmentGradingTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -34,27 +36,29 @@ type Repositories = {
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
+    riskAssessmentGradingsRepository: RiskAssessmentGradingRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
     return {
+        getWithOptions: new GetEntityWithOptionsUseCase(repositories),
+        save: new SaveEntityUseCase(
+            repositories.diseaseOutbreakEventRepository,
+            repositories.riskAssessmentGradingsRepository
+        ),
         users: {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
         },
         diseaseOutbreakEvent: {
             get: new GetDiseaseOutbreakByIdUseCase(repositories),
-            getWithOptions: new GetDiseaseOutbreakWithOptionsUseCase(repositories),
+
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
-            save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
+
             mapDiseaseOutbreakEventToAlerts: new MapDiseaseOutbreakToAlertsUseCase(
                 repositories.alertRepository
             ),
         },
-        riskAssessment: {
-            getGradingWithOptions: new GetRiskGradingWithOptionsUseCase(
-                repositories.optionsRepository
-            ),
-        },
+        riskAssessment: {},
     };
 }
 
@@ -66,6 +70,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
+        riskAssessmentGradingsRepository: new RiskAssessmentGradingD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -79,6 +84,7 @@ export function getTestCompositionRoot() {
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
+        riskAssessmentGradingsRepository: new RiskAssessmentGradingTestRepository(),
     };
 
     return getCompositionRoot(repositories);

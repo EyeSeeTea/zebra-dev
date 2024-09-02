@@ -1,4 +1,5 @@
 import { RiskAssessmentGradingFormData } from "../../../../domain/entities/ConfigurableForm";
+import { riskAssessmentGradingCodes } from "../../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { FormState } from "../../../components/form/FormState";
 import { Option as UIOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
@@ -38,12 +39,12 @@ export function mapRiskGradingToInitialFormState(
         sections: [
             {
                 title: "Population at risk",
-                id: "1",
+                id: riskAssessmentGradingCodes.populationAtRisk,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "1a",
+                        id: `${riskAssessmentGradingCodes.populationAtRisk}-a`,
                         placeholder: "Select..",
                         isVisible: true,
                         errors: [],
@@ -59,12 +60,12 @@ export function mapRiskGradingToInitialFormState(
             },
             {
                 title: "Attack Rate",
-                id: "2",
+                id: riskAssessmentGradingCodes.attackRate,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "2a",
+                        id: `${riskAssessmentGradingCodes.attackRate}-a`,
                         placeholder: "Select..",
                         isVisible: true,
                         errors: [],
@@ -80,12 +81,12 @@ export function mapRiskGradingToInitialFormState(
             },
             {
                 title: "Geographical Spread",
-                id: "3",
+                id: riskAssessmentGradingCodes.geographicalSpread,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "3a",
+                        id: `${riskAssessmentGradingCodes.geographicalSpread}-a`,
                         placeholder: "Select..",
                         isVisible: true,
                         errors: [],
@@ -101,12 +102,12 @@ export function mapRiskGradingToInitialFormState(
             },
             {
                 title: "Complexity",
-                id: "4",
+                id: riskAssessmentGradingCodes.complexity,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "4a",
+                        id: `${riskAssessmentGradingCodes.complexity}-a`,
                         placeholder: "Select..",
                         isVisible: true,
                         errors: [],
@@ -122,12 +123,12 @@ export function mapRiskGradingToInitialFormState(
             },
             {
                 title: "Capacity",
-                id: "5",
+                id: riskAssessmentGradingCodes.capacity,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "5a",
+                        id: `${riskAssessmentGradingCodes.capacity}-a`,
                         placeholder: "Select..",
                         isVisible: true,
                         errors: [],
@@ -143,12 +144,12 @@ export function mapRiskGradingToInitialFormState(
             },
             {
                 title: "Reputational Risk",
-                id: "6",
+                id: riskAssessmentGradingCodes.reputationalRisk,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "5a",
+                        id: `${riskAssessmentGradingCodes.reputationalRisk}-a`,
                         placeholder: "Select..",
                         isVisible: true,
                         errors: [],
@@ -164,12 +165,12 @@ export function mapRiskGradingToInitialFormState(
             },
             {
                 title: "Severity",
-                id: "7",
+                id: riskAssessmentGradingCodes.severity,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "7a",
+                        id: `${riskAssessmentGradingCodes.severity}-a`,
                         placeholder: "Select..",
                         isVisible: true,
                         errors: [],
@@ -185,12 +186,12 @@ export function mapRiskGradingToInitialFormState(
             },
             {
                 title: "Capability",
-                id: "8",
+                id: riskAssessmentGradingCodes.capability,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "8a",
+                        id: `${riskAssessmentGradingCodes.capability}-a`,
                         placeholder: "Select..",
                         isVisible: true,
                         errors: [],

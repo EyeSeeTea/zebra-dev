@@ -1,11 +1,10 @@
+import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
 import {
     DataSource,
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
     IncidentStatusType,
-} from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { FormState } from "../../../../components/form/FormState";
-import { diseaseOutbreakEventFieldIds } from "../mapDiseaseOutbreakEventToInitialFormState";
+} from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
     FormFieldState,
     getAllFieldsFromSections,
@@ -13,10 +12,11 @@ import {
     getDateFieldValue,
     getMultipleOptionsFieldValue,
     getStringFieldValue,
-} from "../../../../components/form/FormFieldsState";
-import { DiseaseOutbreakEventFormData } from "../../../../../domain/entities/ConfigurableForm";
+} from "../../../components/form/FormFieldsState";
+import { FormState } from "../../../components/form/FormState";
+import { diseaseOutbreakEventFieldIds } from "./mapDiseaseOutbreakEventToInitialFormState";
 
-export function mapFormStateToEntityData(
+export function mapFormStateToDiseaseOutbreakEventData(
     formState: FormState,
     currentUserName: string,
     configurableDiseaseOutbreakEventForm: DiseaseOutbreakEventFormData

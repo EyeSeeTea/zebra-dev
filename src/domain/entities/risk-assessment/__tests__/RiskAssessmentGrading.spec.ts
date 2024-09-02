@@ -26,6 +26,7 @@ describe("RiskAssessmentGrading", () => {
             capacity: lowCapacity,
             reputationalRisk: lowWeightedOption,
             severity: lowWeightedOption,
+            capability: lowWeightedOption,
         });
         const grade = riskAssessmentGrading.getGrade().getOrThrow();
         if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 1");
@@ -42,6 +43,7 @@ describe("RiskAssessmentGrading", () => {
             capacity: mediumCapacity,
             reputationalRisk: mediumWeightedOption,
             severity: mediumWeightedOption,
+            capability: mediumWeightedOption,
         });
         const grade = riskAssessmentGrading.getGrade().getOrThrow();
         if (grade) expect(RiskAssessmentGrading.getTranslatedLabel(grade)).toBe("Grade 2");
@@ -58,6 +60,7 @@ describe("RiskAssessmentGrading", () => {
             capacity: highCapacity,
             reputationalRisk: highWeightedOption,
             severity: highWeightedOption,
+            capability: highWeightedOption,
         });
 
         const grade = riskAssessmentGrading.getGrade().getOrThrow();

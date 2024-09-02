@@ -13,7 +13,8 @@ import {
     validateForm,
 } from "../../../../components/form/FormState";
 import { applyRulesInFormState } from "./applyRulesInFormState";
-import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
+import { mapFormStateToEntityData } from "../../mapFormStateToEntityData";
+import { mapFormStateToDiseaseOutbreakEventData } from "../mapFormStateToDiseaseOutbreakEventData";
 
 export function updateAndValidateFormState(
     prevFormState: FormState,
@@ -53,51 +54,23 @@ function validateFormState(
     configurableForm: ConfigurableForm,
     currentUserUsername: string
 ): ValidationError[] {
+    const formValidationErrors = validateForm(updatedForm, updatedField);
+    let entityValidationErrors: ValidationError[] = [];
+
     switch (configurableForm.type) {
-        case "disease-outbreak-event":
-            return validateDiseaseOutbreakEventFormState(
+        case "disease-outbreak-event": {
+            const diseaseOutbreakEvent = mapFormStateToDiseaseOutbreakEventData(
                 updatedForm,
-                updatedField,
-                configurableForm,
-                currentUserUsername
+                currentUserUsername,
+                configurableForm
             );
+            entityValidationErrors = DiseaseOutbreakEvent.validate(diseaseOutbreakEvent);
+            break;
+        }
+
         case "risk-assessment-grading":
-            return validateRiskAssessmentFormState(
-                updatedForm,
-                updatedField,
-                configurableForm,
-                currentUserUsername
-            );
+            break;
     }
-}
-
-//SNEHA TO DO : Combine below functions further and maybe move to domain
-
-function validateDiseaseOutbreakEventFormState(
-    updatedForm: FormState,
-    updatedField: FormFieldState,
-    configurableForm: DiseaseOutbreakEventFormData,
-    currentUserUsername: string
-): ValidationError[] {
-    const formValidationErrors = validateForm(updatedForm, updatedField);
-    const dieaseOutbreak = mapFormStateToEntityData(
-        updatedForm,
-        currentUserUsername,
-        configurableForm
-    );
-    const entityValidationErrors = DiseaseOutbreakEvent.validate(dieaseOutbreak);
-
-    return [...formValidationErrors, ...entityValidationErrors];
-}
-
-function validateRiskAssessmentFormState(
-    updatedForm: FormState,
-    updatedField: FormFieldState,
-    _configirableForm: ConfigurableForm,
-    _currentUserUsername: string
-): ValidationError[] {
-    const formValidationErrors = validateForm(updatedForm, updatedField);
-    const entityValidationErrors: ValidationError[] = []; //SNEHA TO DO : Risk assessment validations, if any?
 
     return [...formValidationErrors, ...entityValidationErrors];
 }

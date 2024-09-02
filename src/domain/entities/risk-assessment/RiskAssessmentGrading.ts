@@ -3,6 +3,18 @@ import { Ref } from "../Ref";
 import { Struct } from "../generic/Struct";
 import { Either } from "../generic/Either";
 
+export const riskAssessmentGradingCodes = {
+    populationAtRisk: "RTSL_ZEB_DET_POPULATION_RISK",
+    attackRate: "RTSL_ZEB_DET_ATTACK_RATE",
+    geographicalSpread: "RTSL_ZEB_DET_GEOGRAPHICAL_SPREAD",
+    complexity: "RTSL_ZEB_DET_COMPLEXITY",
+    capacity: "RTSL_ZEB_DET_CAPACITY",
+    reputationalRisk: "RTSL_ZEB_DET_REPUTATIONAL_RISK",
+    severity: "RTSL_ZEB_DET_SEVERITY",
+    capability: "RTSL_ZEB_DET_CAPABILITY",
+    grade: "RTSL_ZEB_DET_GRADE",
+} as const;
+
 type WeightedOptionTypes = "Low" | "Medium" | "High";
 type PopulationWeightOptionsTypes = "LessPercentage" | "MediumPercentage" | "HighPercentage";
 type GeographicalSpreadOptionsTypes =
@@ -101,6 +113,9 @@ const translations: Record<AllOptionTypes, string> = {
     Grade3: i18n.t("Grade 3"),
 };
 
+
+
+
 interface RiskAssessmentGradingAttrs extends Ref {
     lastUpdated: Date;
     populationAtRisk: LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk;
@@ -108,6 +123,7 @@ interface RiskAssessmentGradingAttrs extends Ref {
     geographicalSpread: LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread;
     complexity: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
     capacity: LowCapacity | MediumCapacity | HighCapacity;
+    capability: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
     reputationalRisk: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
     severity: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
 }

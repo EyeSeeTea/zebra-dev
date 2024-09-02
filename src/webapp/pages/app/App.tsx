@@ -15,6 +15,7 @@ import { Router } from "../Router";
 import Share from "../../components/share/Share";
 import { HeaderBar } from "../../components/layout/header-bar/HeaderBar";
 import "./App.css";
+import { CurrentEventTrackerContextProvider } from "../../contexts/CurrentEventTrackerIdProvider";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
@@ -56,7 +57,9 @@ function App(props: AppProps) {
 
                         <div id="app" className="content">
                             <AppContext.Provider value={appContext}>
-                                <Router />
+                                <CurrentEventTrackerContextProvider>
+                                    <Router />
+                                </CurrentEventTrackerContextProvider>
                             </AppContext.Provider>
                         </div>
 

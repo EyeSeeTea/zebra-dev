@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { useParams } from "react-router-dom";
@@ -11,6 +11,7 @@ import { BasicTable, TableColumn } from "../../components/table/BasicTable";
 import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { useDiseaseOutbreakEvent } from "./useDiseaseOutbreakEvent";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
+import { useCurrentEventTrackerId } from "../../contexts/current-event-tracker-context";
 
 // TODO: Add every section here
 export type VisualizationTypes =
@@ -41,6 +42,11 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     }>();
     const { goTo } = useRoutes();
     const { formSummary, summaryError, riskAssessmentRows } = useDiseaseOutbreakEvent(id);
+    const { changeCurrentEventTrackerId } = useCurrentEventTrackerId();
+
+    useEffect(() => {
+        changeCurrentEventTrackerId(id);
+    }, [changeCurrentEventTrackerId, id]);
 
     const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
     return (

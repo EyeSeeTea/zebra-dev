@@ -1,10 +1,10 @@
 import { Maybe } from "../../utils/ts-utils";
 import { TeamMember } from "./incident-management-team/TeamMember";
-import { Option } from "./Ref";
+import { Id, Option } from "./Ref";
 import { Rule } from "./Rule";
 import { DiseaseOutbreakEventBaseAttrs } from "./disease-outbreak-event/DiseaseOutbreakEvent";
-import { RiskAssessment } from "./risk-assessment/RiskAssessment";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
+import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -44,7 +44,8 @@ export type DiseaseOutbreakEventFormData = BaseFormData & {
 
 export type RiskAssessmentGradingFormData = BaseFormData & {
     type: "risk-assessment-grading";
-    entity: Maybe<RiskAssessment>;
+    diseaseOutbreakId: Id;
+    entity: Maybe<RiskAssessmentGrading>;
     options: RiskAssessmentOptions;
 };
 
