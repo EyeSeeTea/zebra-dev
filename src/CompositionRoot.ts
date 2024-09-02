@@ -23,6 +23,7 @@ import { AnalyticsRepository } from "./domain/repositories/AnalyticsRepository";
 import { GetAllProgramIndicatorsUseCase } from "./domain/usecases/GetAllProgramIndicatorsUseCase";
 import { AnalyticsD2Repository } from "./data/repositories/AnalyticsD2Repository";
 import { ProgramIndicatorsTestRepository } from "./data/repositories/test/ProgramIndicatorsTestRepository";
+import { GetDiseasesTotalUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -48,6 +49,7 @@ function getCompositionRoot(repositories: Repositories) {
         },
         analytics: {
             getProgramIndicators: new GetAllProgramIndicatorsUseCase(repositories),
+            getDiseasesTotal: new GetDiseasesTotalUseCase(repositories),
         },
     };
 }

@@ -3,6 +3,9 @@ import { AnalyticsRepository } from "../../../domain/repositories/AnalyticsRepos
 import { FutureData } from "../../api-futures";
 
 export class ProgramIndicatorsTestRepository implements AnalyticsRepository {
+    getDiseasesTotal(): FutureData<any> {
+        return Future.success(0);
+    }
     getProgramIndicators(): FutureData<any[]> {
         return Future.success([
             {

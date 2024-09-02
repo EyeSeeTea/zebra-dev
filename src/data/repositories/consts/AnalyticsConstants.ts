@@ -141,3 +141,142 @@ export const NB_OF_DEATHS = [
         disease: "Zika fever",
     },
 ];
+
+export const NB_OF_ACTIVE_VERIFIED = [
+    {
+        id: "PHhaZK4KeOA",
+        disease: "AFP",
+    },
+    {
+        id: "u4XTtjm9nEh",
+        disease: "Acute VHF",
+    },
+    {
+        id: "QnhsQnEsp1p",
+        disease: "Acute respiratory",
+    },
+    {
+        id: "wK8Z7XvjUcC",
+        disease: "Animal type",
+    },
+    {
+        id: "tKLdMcWUg9l",
+        disease: "Animal type",
+        incidentStatus: "Alert",
+    },
+    {
+        id: "TJhGnX8E7CP",
+        disease: "Animal type",
+        incidentStatus: "Respond",
+    },
+    {
+        id: "gMoRiHe1Z0Z",
+        disease: "Animal type",
+        incidentStatus: "Watch",
+    },
+    {
+        id: "FhdaufdE8l3",
+        disease: "Anthrax",
+    },
+    {
+        id: "WXlyJHUKI8T",
+        disease: "Bacterial meningitis",
+    },
+    {
+        id: "sY5lGlHpcuN",
+        disease: "COVID19",
+    },
+    {
+        id: "U31oe2BwJtt",
+        disease: "Cholera",
+    },
+    {
+        id: "EgGc7XxZjmC",
+        disease: "Diarrhoea with blood",
+    },
+    {
+        id: "Xec7fRcZ1wy",
+        disease: "Environmental type",
+    },
+    {
+        id: "z3EbI98pgjG",
+        disease: "Environmental type",
+        incidentStatus: "Alert",
+    },
+    {
+        id: "gRcZNqpKyYg",
+        disease: "Environmental type",
+        incidentStatus: "Respond",
+    },
+    {
+        id: "Bu4bafAjFXN",
+        disease: "Environmental type",
+        incidentStatus: "Watch",
+    },
+    {
+        id: "It2z7nRoYn1",
+        disease: "Human and Animal type",
+    },
+    {
+        id: "ge4Jwq2MGrF",
+        disease: "Human and Animal type",
+        incidentStatus: "Alert",
+    },
+    {
+        id: "GQ6Yg9ZN4xL",
+        disease: "Human and Animal type",
+        incidentStatus: "Respond",
+    },
+    {
+        id: "kLtsjiyIzer",
+        disease: "Human and Animal type",
+        incidentStatus: "Watch",
+    },
+    {
+        id: "pmXUt3YWXO1",
+        disease: "Human type",
+    },
+    {
+        id: "NzpH7Y76JBw",
+        disease: "Human type",
+        incidentStatus: "Alert",
+    },
+    {
+        id: "jWDbWYr85DP",
+        disease: "Human type",
+        incidentStatus: "Respond",
+    },
+    {
+        id: "YfkOUZPhCY1",
+        disease: "Human type",
+        incidentStatus: "Watch",
+    },
+    {
+        id: "OvxA9yqaH7q",
+        disease: "Measles",
+    },
+    {
+        id: "kMsSxdZMqJV",
+        disease: "Monkeypox",
+    },
+    {
+        id: "EuIc8gJYAhP",
+        disease: "Neonatal tetanus",
+    },
+    {
+        id: "qdLWFsb7Ghk",
+        disease: "Plague",
+    },
+    {
+        id: "FSstKrL8oys",
+        disease: "SARIs",
+    },
+    {
+        id: "wfsBvSq7Hn1",
+        disease: "Typhoid fever",
+    },
+    {
+        id: "tIYANWCiMoR",
+        disease: "Zika fever",
+    },
+];

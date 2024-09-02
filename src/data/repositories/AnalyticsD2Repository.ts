@@ -5,7 +5,12 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
-import { IndicatorsId, NB_OF_CASES, NB_OF_DEATHS } from "./consts/AnalyticsConstants";
+import {
+    IndicatorsId,
+    NB_OF_ACTIVE_VERIFIED,
+    NB_OF_CASES,
+    NB_OF_DEATHS,
+} from "./consts/AnalyticsConstants";
 
 export type ProgramIndicatorBaseAttrs = {
     id: string;
@@ -31,6 +36,72 @@ export type ProgramIndicatorBaseAttrs = {
 
 export class AnalyticsD2Repository implements AnalyticsRepository {
     constructor(private api: D2Api) {}
+
+    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<any> {
+        const transformData = (
+            data: string[][],
+            diseases: { id: string; disease: string; incidentStatus?: string }[]
+        ) => {
+            return data
+                .flatMap(([id, , total]) => {
+                    const indicator = diseases.find(d => d.id === id);
+                    if (!indicator || !total) {
+                        return [];
+                    }
+                    return [
+                        {
+                            id,
+                            name: indicator.disease,
+                            incidentStatus: indicator.incidentStatus,
+                            total: parseFloat(total),
+                        },
+                    ];
+                })
+                .filter(item => {
+                    if (!item || item.total === 0) {
+                        return false;
+                    }
+                    if (filters) {
+                        return Object.entries(filters).every(([key, values]) => {
+                            if (!values) {
+                                return true;
+                            }
+                            if (item[key as keyof typeof item]) {
+                                return values.includes(item[key as keyof typeof item] as string);
+                            }
+                        });
+                    }
+                    return true;
+                });
+        };
+
+        const fetchCasesAnalytics = (): FutureData<AnalyticsResponse> =>
+            apiToFuture(
+                this.api.analytics.get({
+                    dimension: [
+                        `dx:${NB_OF_ACTIVE_VERIFIED.map(({ id }) => id).join(";")}`,
+                        "pe:THIS_YEAR",
+                    ],
+                    includeMetadataDetails: true,
+                })
+            );
+        return fetchCasesAnalytics().map(res => {
+            const rows = transformData(res.rows, NB_OF_ACTIVE_VERIFIED) || [];
+
+            return Object.values(
+                rows.reduce((acc, row) => {
+                    if (!row.name) {
+                        return acc;
+                    }
+
+                    const existingEntry = acc[row.name] || { name: row.name, total: 0 }; // New line to initialize or get existing entry
+                    existingEntry.total += row.total; // Update total safely
+                    acc[row.name] = existingEntry;
+                    return acc;
+                }, {} as Record<string, { name: string; total: number }>)
+            );
+        });
+    }
 
     getProgramIndicators(): FutureData<ProgramIndicatorBaseAttrs[]> {
         const fetchEnrollmentsQuery = (): FutureData<AnalyticsResponse> =>
