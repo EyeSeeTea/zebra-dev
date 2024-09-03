@@ -1,3 +1,4 @@
+import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
 import {
@@ -7,7 +8,7 @@ import {
 import { Id } from "../entities/Ref";
 
 export interface AlertRepository {
-    updateAlerts(alertOptions: AlertOptions): FutureData<void>;
+    updateAlerts(alertOptions: AlertOptions): FutureData<D2TrackerTrackedEntity[]>;
 }
 
 export type AlertOptions = {

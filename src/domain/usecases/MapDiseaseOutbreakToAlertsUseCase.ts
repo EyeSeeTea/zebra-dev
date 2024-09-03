@@ -5,6 +5,7 @@ import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
 import { hazardTypeCodeMap } from "../../data/repositories/consts/DiseaseOutbreakConstants";
+import { AlertSyncRepository } from "../repositories/AlertSyncRepository";
 
 type DiseaseOutbreakEventData = Pick<
     DiseaseOutbreakEventBaseAttrs,
@@ -12,7 +13,10 @@ type DiseaseOutbreakEventData = Pick<
 >;
 
 export class MapDiseaseOutbreakToAlertsUseCase {
-    constructor(private alertRepository: AlertRepository) {}
+    constructor(
+        private alertRepository: AlertRepository,
+        private alertSyncRepository: AlertSyncRepository
+    ) {}
 
     public execute(
         diseaseOutbreakEventId: Id,
@@ -26,12 +30,31 @@ export class MapDiseaseOutbreakToAlertsUseCase {
         if (!diseaseOutbreakEventId)
             return Future.error(new Error("Disease Outbreak Event Id is required"));
 
-        return this.alertRepository.updateAlerts({
-            dataSource: dataSource,
-            eventId: diseaseOutbreakEventId,
-            hazardTypeCode: hazardTypeCode,
-            incidentStatus: incidentStatus,
-            suspectedDiseaseCode: suspectedDiseaseCode,
-        });
+        return this.alertRepository
+            .updateAlerts({
+                dataSource: dataSource,
+                eventId: diseaseOutbreakEventId,
+                hazardTypeCode: hazardTypeCode,
+                incidentStatus: incidentStatus,
+                suspectedDiseaseCode: suspectedDiseaseCode,
+            })
+            .flatMap(response => {
+                console.debug({ response });
+                return Future.success(undefined);
+
+                // return response.forEach(alert => {
+                //     return this.alertSyncRepository
+                //         .saveAlertSyncData({
+                //             alertData: alert,
+                //             eventId: diseaseOutbreakEventId,
+                //             dataSource: dataSource,
+                //             hazardTypeCode: hazardTypeCode,
+                //             suspectedDiseaseCode: suspectedDiseaseCode,
+                //         })
+                //         .flatMap(() => {
+                //             return Future.void();
+                //         });
+                // });
+            });
     }
 }

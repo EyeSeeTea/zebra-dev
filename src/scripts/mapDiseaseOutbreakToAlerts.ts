@@ -11,28 +11,23 @@ import {
 } from "../data/repositories/consts/DiseaseOutbreakConstants";
 import _ from "../domain/entities/generic/Collection";
 import { AlertD2Repository } from "../data/repositories/AlertD2Repository";
-import { Attribute, D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
-import { Maybe } from "../utils/ts-utils";
 import { NotificationD2Repository } from "../data/repositories/NotificationD2Repository";
 import { OptionsD2Repository } from "../data/repositories/OptionsD2Repository";
 import { Future } from "../domain/entities/generic/Future";
 import { getUserGroupsByCode } from "../data/repositories/utils/MetadataHelper";
 import { NotifyWatchStaffUseCase } from "../domain/usecases/NotifyWatchStaffUseCase";
 import {
-    getOutbreakFromOptions,
+    getOutbreakKey,
     mapTrackedEntityAttributesToAlertOutbreak,
 } from "../data/repositories/utils/AlertOutbreakMapper";
-import { OutbreakType } from "../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    AlertData,
+    AlertSyncDataStoreRepository,
+} from "../data/repositories/AlertSyncDataStoreRepository";
 
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
 const RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE = "RTSL_ZEBRA_NATONAL_WATCH_STAFF";
-
-type AlertData = {
-    attribute: Maybe<Attribute>;
-    trackedEntity: D2TrackerTrackedEntity;
-    type: OutbreakType;
-};
 
 function main() {
     const cmd = command({
@@ -63,6 +58,7 @@ function main() {
 
             const api = getD2ApiFromArgs(envVars);
             const alertRepository = new AlertD2Repository(api);
+            const alertSyncRepository = new AlertSyncDataStoreRepository(api);
             const notificationRepository = new NotificationD2Repository(api);
             const optionsRepository = new OptionsD2Repository(api);
 
@@ -94,9 +90,9 @@ function main() {
                             );
 
                             const alertData: AlertData = {
-                                trackedEntity: trackedEntity,
+                                alert: trackedEntity,
                                 attribute: diseaseType ?? hazardType,
-                                type: diseaseType ? "disease" : "hazard",
+                                dataSource: diseaseType ? "IBS" : "EBS",
                             };
 
                             return !nationalEventId && (hazardType || diseaseType)
@@ -110,7 +106,7 @@ function main() {
                     );
 
                     return _(alertsWithNoEventId)
-                        .groupBy(alert => alert.type)
+                        .groupBy(alert => alert.dataSource)
                         .values()
                         .forEach(alertsByType => {
                             const uniqueFilters = getUniqueFilters(alertsByType);
@@ -126,14 +122,15 @@ function main() {
                                     .run(
                                         nationalTrackedEntities => {
                                             if (nationalTrackedEntities.length > 1) {
-                                                const outbreakName = getOutbreakFromOptions(
-                                                    filter,
+                                                const outbreakKey = getOutbreakKey(
+                                                    filter.type,
+                                                    filter.value,
                                                     suspectedDiseases,
                                                     hazardTypes
                                                 );
 
                                                 console.error(
-                                                    `More than 1 National TEI found for ${filter.type} type ${outbreakName}.`
+                                                    `More than 1 National event found for ${outbreakKey} outbreak.`
                                                 );
 
                                                 return undefined;
@@ -147,15 +144,13 @@ function main() {
                                                 .forEach(alertData => {
                                                     const {
                                                         attribute,
-                                                        trackedEntity: alertTrackedEntity,
-                                                        type: alertOutbreakType,
+                                                        alert: alertTrackedEntity,
+                                                        dataSource: alertOutbreakType,
                                                     } = alertData;
 
-                                                    const outbreakName = getOutbreakFromOptions(
-                                                        {
-                                                            value: attribute?.value ?? "",
-                                                            type: alertOutbreakType,
-                                                        },
+                                                    const outbreakName = getOutbreakKey(
+                                                        alertOutbreakType,
+                                                        attribute?.value,
                                                         suspectedDiseases,
                                                         hazardTypes
                                                     );
@@ -164,7 +159,7 @@ function main() {
 
                                                     if (nationalTrackedEntities.length === 0) {
                                                         console.debug(
-                                                            `There is no national event with ${outbreakName} ${alertOutbreakType} type`
+                                                            `There is no national event with ${outbreakName} ${alertOutbreakType} type.`
                                                         );
 
                                                         return getUserGroupsByCode(
@@ -203,31 +198,22 @@ function main() {
                                                     alertRepository.updateAlerts(alertOutbreak).run(
                                                         () =>
                                                             console.debug(
-                                                                "Successfully updated alert"
+                                                                "Successfully updated alert."
                                                             ),
                                                         error => console.error(error)
                                                     );
 
-                                                    alertRepository
-                                                        .saveAlertData({
-                                                            nationalTrackedEntityEventId:
-                                                                nationalTrackedEntity.trackedEntity ??
-                                                                "",
-                                                            outbreakKey: outbreakName,
-                                                            outbreakType: alertOutbreakType,
-                                                            trackedEntity: alertTrackedEntity,
+                                                    alertSyncRepository
+                                                        .saveAlertSyncData({
+                                                            ...alertOutbreak,
+                                                            alertData: alertTrackedEntity,
                                                         })
                                                         .run(
                                                             () =>
                                                                 console.debug(
                                                                     `Saved alert data for ${outbreakName} ${alertOutbreakType}`
                                                                 ),
-                                                            error => {
-                                                                console.error(error);
-                                                                console.error(
-                                                                    `Error saving alert data for ${outbreakName} ${alertOutbreakType}`
-                                                                );
-                                                            }
+                                                            error => console.error(error)
                                                         );
                                                 });
                                         },
@@ -244,17 +230,13 @@ function main() {
     run(cmd, process.argv.slice(2));
 }
 
-function getUniqueFilters(alertsByType: AlertData[]): {
-    id: string;
-    value: string;
-    type: OutbreakType;
-}[] {
-    return _(alertsByType)
+function getUniqueFilters(alerts: AlertData[]) {
+    return _(alerts)
         .uniqBy(filter => filter.attribute?.value)
         .map(filter => ({
-            id: filter.type === "disease" ? RTSL_ZEBRA_DISEASE_TEA_ID : RTSL_ZEBRA_HAZARD_TEA_ID,
+            id: filter.dataSource === "EBS" ? RTSL_ZEBRA_DISEASE_TEA_ID : RTSL_ZEBRA_HAZARD_TEA_ID,
             value: filter.attribute?.value ?? "",
-            type: filter.type,
+            type: filter.dataSource,
         }))
         .value();
 }

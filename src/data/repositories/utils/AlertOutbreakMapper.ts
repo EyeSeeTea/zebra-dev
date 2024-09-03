@@ -3,7 +3,6 @@ import { diseaseOutbreakCodes } from "../consts/DiseaseOutbreakConstants";
 import {
     DataSource,
     IncidentStatusType,
-    OutbreakType,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { AlertOptions } from "../../../domain/repositories/AlertRepository";
 import { Maybe } from "../../../utils/ts-utils";
@@ -39,18 +38,17 @@ export function getValueFromMap(
     );
 }
 
-export function getOutbreakFromOptions(
-    alert: { value: Maybe<string>; type: OutbreakType },
-    suspectedDiseases: Option[],
-    hazardTypes: Option[]
+export function getOutbreakKey(
+    dataSource: DataSource,
+    outbreak: Maybe<string>,
+    hazardTypes: Option[],
+    suspectedDiseases: Option[]
 ): Maybe<string> {
-    const { type, value = "" } = alert;
-
-    switch (type) {
-        case "disease":
-            return suspectedDiseases.find(disease => disease.id === value)?.name ?? alert.value;
-        case "hazard":
-            return hazardTypes.find(hazardType => hazardType.id === value)?.name ?? alert.value;
+    switch (dataSource) {
+        case "EBS":
+            return hazardTypes.find(hazardType => hazardType.id === outbreak)?.name;
+        case "IBS":
+            return suspectedDiseases.find(disease => disease.id === outbreak)?.name;
     }
 }
 
