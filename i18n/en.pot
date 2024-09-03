@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-08-28T09:30:11.046Z\n"
-"PO-Revision-Date: 2024-08-28T09:30:11.046Z\n"
+"POT-Creation-Date: 2024-09-02T20:06:36.120Z\n"
+"PO-Revision-Date: 2024-09-02T20:06:36.120Z\n"
 
 msgid "Low"
 msgstr ""
@@ -46,6 +46,12 @@ msgid "Available within the province with minimal support from national level"
 msgstr ""
 
 msgid "Available at national with support required from international"
+msgstr ""
+
+msgid "Capability 1"
+msgstr ""
+
+msgid "Capability 2"
 msgstr ""
 
 msgid "Grade 1"
@@ -121,6 +127,9 @@ msgid "Create Event form cannot be loaded"
 msgstr ""
 
 msgid "Disease Outbreak saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Grading saved successfully"
 msgstr ""
 
 msgid "Incident Action Plan"

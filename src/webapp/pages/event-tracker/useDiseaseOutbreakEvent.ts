@@ -121,8 +121,9 @@ export function useDiseaseOutbreakEvent(id: Id) {
                     riskAssessmentGrading.severity.type
                 ),
             }));
+        } else {
+            return [];
         }
-        return [];
     };
 
     return { formSummary, summaryError, riskAssessmentRows };

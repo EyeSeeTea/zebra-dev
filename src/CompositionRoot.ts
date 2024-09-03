@@ -26,6 +26,9 @@ import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
 import { RiskAssessmentGradingRepository } from "./domain/repositories/RiskAssessmentGradingRepository";
 import { RiskAssessmentGradingD2Repository } from "./data/repositories/RiskAssessmentGradingD2Repository";
 import { RiskAssessmentGradingTestRepository } from "./data/repositories/test/RiskAssessmentGradingTestRepository";
+import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
+import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
+import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -37,6 +40,7 @@ type Repositories = {
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
     riskAssessmentGradingsRepository: RiskAssessmentGradingRepository;
+    riskAssessmentRepository: RiskAssessmentRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -71,6 +75,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         riskAssessmentGradingsRepository: new RiskAssessmentGradingD2Repository(api),
+        riskAssessmentRepository: new RiskAssessmentD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -85,6 +90,7 @@ export function getTestCompositionRoot() {
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
         riskAssessmentGradingsRepository: new RiskAssessmentGradingTestRepository(),
+        riskAssessmentRepository: new RiskAssessmentTestRepository(),
     };
 
     return getCompositionRoot(repositories);

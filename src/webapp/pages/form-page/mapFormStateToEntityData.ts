@@ -21,7 +21,6 @@ import {
 } from "../../../domain/entities/ConfigurableForm";
 import { Maybe } from "../../../utils/ts-utils";
 import {
-    AllOptionTypes,
     Capability1,
     Capability2,
     HighCapacity,
@@ -301,7 +300,7 @@ function mapFormStateToRiskAssessmentGrading(formState: FormState): RiskAssessme
     return riskAssessmentGrading;
 }
 
-function getWeightBasedOnOptionType(optionType: string) {
+export function getWeightBasedOnOptionType(optionType: string) {
     switch (optionType) {
         case "HighPercentage":
         case "High":
