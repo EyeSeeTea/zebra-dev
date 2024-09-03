@@ -17,6 +17,7 @@ import { Future } from "../domain/entities/generic/Future";
 import { getUserGroupsByCode } from "../data/repositories/utils/MetadataHelper";
 import { NotifyWatchStaffUseCase } from "../domain/usecases/NotifyWatchStaffUseCase";
 import {
+    getNotificationOptionsFromTrackedEntity,
     getOutbreakKey,
     mapTrackedEntityAttributesToAlertOutbreak,
 } from "../data/repositories/utils/AlertOutbreakMapper";
@@ -166,11 +167,16 @@ function main() {
                                                             api,
                                                             RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE
                                                         ).run(
-                                                            userGroups =>
-                                                                notifyWatchStaffUseCase
+                                                            userGroups => {
+                                                                const notificationOptions =
+                                                                    getNotificationOptionsFromTrackedEntity(
+                                                                        alertTrackedEntity
+                                                                    );
+
+                                                                return notifyWatchStaffUseCase
                                                                     .execute(
                                                                         outbreakName,
-                                                                        alertTrackedEntity,
+                                                                        notificationOptions,
                                                                         userGroups
                                                                     )
                                                                     .run(
@@ -180,7 +186,8 @@ function main() {
                                                                             ),
                                                                         error =>
                                                                             console.error(error)
-                                                                    ),
+                                                                    );
+                                                            },
                                                             error => console.error(error)
                                                         );
                                                     }

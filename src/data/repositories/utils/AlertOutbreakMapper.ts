@@ -7,6 +7,7 @@ import {
 import { AlertOptions } from "../../../domain/repositories/AlertRepository";
 import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../../domain/entities/Ref";
+import { NotificationOptions } from "../../../domain/repositories/NotificationRepository";
 
 export function mapTrackedEntityAttributesToAlertOutbreak(
     nationalTrackedEntity: D2TrackerTrackedEntity,
@@ -50,6 +51,24 @@ export function getOutbreakKey(
         case "IBS":
             return suspectedDiseases.find(disease => disease.id === outbreak)?.name;
     }
+}
+
+export function getNotificationOptionsFromTrackedEntity(
+    alertTrackedEntity: D2TrackerTrackedEntity
+): NotificationOptions {
+    const verificationStatus = getValueFromMap("verificationStatus", alertTrackedEntity);
+    const incidentManager = getValueFromMap("incidentManager", alertTrackedEntity);
+    const emergenceDate = getValueFromMap("emergedDate", alertTrackedEntity);
+    const detectionDate = getValueFromMap("detectedDate", alertTrackedEntity);
+    const notificationDate = getValueFromMap("notifiedDate", alertTrackedEntity);
+
+    return {
+        detectionDate: detectionDate,
+        emergenceDate: emergenceDate,
+        incidentManager: incidentManager,
+        notificationDate: notificationDate,
+        verificationStatus: verificationStatus,
+    };
 }
 
 const alertOutbreakCodes = {

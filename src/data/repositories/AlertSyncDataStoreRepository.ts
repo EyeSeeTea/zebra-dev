@@ -16,7 +16,7 @@ import {
     Alert,
     AlertSynchronizationData,
     OutbreakType,
-} from "../../domain/entities/alert-data/AlertData";
+} from "../../domain/entities/alert/AlertData";
 
 export type AlertData = {
     alert: D2TrackerTrackedEntity;

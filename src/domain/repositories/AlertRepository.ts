@@ -1,4 +1,3 @@
-import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
 import {
@@ -6,9 +5,10 @@ import {
     IncidentStatusType,
 } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id } from "../entities/Ref";
+import { Alert } from "../entities/alert/Alert";
 
 export interface AlertRepository {
-    updateAlerts(alertOptions: AlertOptions): FutureData<D2TrackerTrackedEntity[]>;
+    updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]>;
 }
 
 export type AlertOptions = {

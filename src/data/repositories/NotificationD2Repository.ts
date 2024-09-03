@@ -10,7 +10,7 @@ export class NotificationD2Repository implements NotificationRepository {
     constructor(private api: D2Api) {}
 
     save(notification: Notification): FutureData<void> {
-        return apiToFuture(this.api.messageConversations.post(notification)).flatMap(_res =>
+        return apiToFuture(this.api.messageConversations.post(notification)).flatMap(() =>
             Future.success(undefined)
         );
     }

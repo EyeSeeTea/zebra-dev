@@ -19,6 +19,7 @@ import {
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { Alert } from "../../domain/entities/alert/Alert";
 
 export type Filter = {
     id: Id;
@@ -28,7 +29,7 @@ export type Filter = {
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
 
-    updateAlerts(alertOptions: AlertOptions): FutureData<D2TrackerTrackedEntity[]> {
+    updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]> {
         const { dataSource, eventId, hazardTypeCode, incidentStatus, suspectedDiseaseCode } =
             alertOptions;
         const filter = this.getAlertFilter(dataSource, suspectedDiseaseCode, hazardTypeCode);
