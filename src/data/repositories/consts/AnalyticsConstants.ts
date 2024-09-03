@@ -14,6 +14,7 @@ export enum IndicatorsId {
     manager = "createdbydisplayname",
     creationDate = "lastupdated",
     id = "tei",
+    eventDetectionDate = "enrollmentdate",
 }
 
 export const NB_OF_CASES = [

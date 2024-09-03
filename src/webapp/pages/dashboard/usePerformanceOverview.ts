@@ -96,7 +96,6 @@ export function usePerformanceOverview(): State {
         return {
             ...programIndicator,
             event: programIndicator.event + " (" + programIndicator.suspectedDisease + ")",
-            duration: "TBD",
         };
     };
 

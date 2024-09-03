@@ -11,6 +11,7 @@ import {
     NB_OF_CASES,
     NB_OF_DEATHS,
 } from "./consts/AnalyticsConstants";
+import moment from "moment";
 
 export type ProgramIndicatorBaseAttrs = {
     id: string;
@@ -32,6 +33,7 @@ export type ProgramIndicatorBaseAttrs = {
     respond7d: string;
     creationDate: string;
     suspectedDisease: string;
+    eventDetectionDate: string;
 };
 
 export class AnalyticsD2Repository implements AnalyticsRepository {
@@ -212,6 +214,9 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     "";
                 acc.cases = cases[acc.suspectedDisease]?.toString() || "";
                 acc.deaths = deaths[acc.suspectedDisease]?.toString() || "";
+            } else if (key === "eventDetectionDate") {
+                acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
+                acc[key] = moment(row[index]).format("YYYY-MM-DD"); // Keep the original date formatted
             } else {
                 acc[key] = row[index] || "";
             }
