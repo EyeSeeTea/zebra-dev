@@ -18,6 +18,9 @@ import { useStatisticCalculations } from "./useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
 import { Order } from "../../../pages/dashboard/usePerformanceOverview";
+import { Option } from "../../utils/option";
+import { Id } from "@eyeseetea/d2-api";
+import { Maybe } from "../../../../utils/ts-utils";
 
 export type TableColumn = {
     value: string;
@@ -29,6 +32,7 @@ export type FilterType = {
     value: TableColumn["value"];
     label: TableColumn["label"];
     type: "multiselector" | "datepicker";
+    options?: Option<string>[];
 };
 
 export type FiltersValuesType = {
@@ -47,6 +51,7 @@ export type StatisticTableProps = {
     filters: FilterType[];
     order?: Order;
     setOrder?: (order: Order) => void;
+    goToEvent: (id: Maybe<Id>) => void;
 };
 
 export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
@@ -58,6 +63,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         filters: filtersConfig,
         order,
         setOrder,
+        goToEvent,
     }) => {
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
@@ -142,7 +148,8 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                         ) : (
                                             <StyledTableCell
                                                 key={`${rowIndex}-${column.value}`}
-                                                $boldUnderline={columnIndex === 0}
+                                                onClick={() => goToEvent(row.id)}
+                                                $link={columnIndex === 0}
                                             >
                                                 {row[column.value] || ""}
                                             </StyledTableCell>
@@ -201,9 +208,10 @@ const HeadTableCell = styled(TableCell)<{ $dark?: boolean }>`
     font-weight: 600;
 `;
 
-const StyledTableCell = styled(TableCell)<{ $boldUnderline?: boolean }>`
-    text-decoration: ${props => (props.$boldUnderline ? "underline" : "none")};
-    font-weight: ${props => (props.$boldUnderline ? "600" : "initial")};
+const StyledTableCell = styled(TableCell)<{ $link?: boolean }>`
+    text-decoration: ${props => (props.$link ? "underline" : "none")};
+    cursor: ${props => (props.$link ? "pointer" : "initial")};
+    font-weight: ${props => (props.$link ? "600" : "initial")};
 `;
 
 const Container = styled.div`

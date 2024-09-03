@@ -63,7 +63,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     }
                     if (filters) {
                         return Object.entries(filters).every(([key, values]) => {
-                            if (!values) {
+                            if (!values.length) {
                                 return true;
                             }
                             if (item[key as keyof typeof item]) {
