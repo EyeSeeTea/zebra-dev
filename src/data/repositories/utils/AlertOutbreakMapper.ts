@@ -1,5 +1,4 @@
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
-import { diseaseOutbreakCodes } from "../consts/DiseaseOutbreakConstants";
 import {
     DataSource,
     IncidentStatusType,
@@ -8,6 +7,7 @@ import { AlertOptions } from "../../../domain/repositories/AlertRepository";
 import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../../domain/entities/Ref";
 import { NotificationOptions } from "../../../domain/repositories/NotificationRepository";
+import { alertOutbreakCodes } from "../consts/DiseaseOutbreakConstants";
 
 export function mapTrackedEntityAttributesToAlertOutbreak(
     nationalTrackedEntity: D2TrackerTrackedEntity,
@@ -70,11 +70,3 @@ export function getNotificationOptionsFromTrackedEntity(
         verificationStatus: verificationStatus,
     };
 }
-
-const alertOutbreakCodes = {
-    ...diseaseOutbreakCodes,
-    hazardType: "RTSL_ZEB_TEA_EVENT_TYPE",
-    suspectedDisease: "RTSL_ZEB_TEA_DISEASE",
-    verificationStatus: "RTSL_ZEB_TEA_VERIFICATION_STATUS",
-    incidentManager: "RTSL_ZEB_TEA_ ALERT_IM_NAME",
-} as const;

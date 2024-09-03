@@ -38,23 +38,20 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                 incidentStatus: incidentStatus,
                 suspectedDiseaseCode: suspectedDiseaseCode,
             })
-            .flatMap(response => {
-                console.debug({ response });
-                return Future.success(undefined);
-
-                // return response.forEach(alert => {
-                //     return this.alertSyncRepository
-                //         .saveAlertSyncData({
-                //             alertData: alert,
-                //             eventId: diseaseOutbreakEventId,
-                //             dataSource: dataSource,
-                //             hazardTypeCode: hazardTypeCode,
-                //             suspectedDiseaseCode: suspectedDiseaseCode,
-                //         })
-                //         .flatMap(() => {
-                //             return Future.void();
-                //         });
-                // });
-            });
+            .flatMap(response =>
+                Future.sequential(
+                    response.map(alert => {
+                        return this.alertSyncRepository.saveAlertSyncData({
+                            alertData: alert,
+                            eventId: diseaseOutbreakEventId,
+                            dataSource: dataSource,
+                            hazardTypeCode: hazardTypeCode,
+                            suspectedDiseaseCode: suspectedDiseaseCode,
+                        });
+                    })
+                ).flatMap(() => {
+                    return Future.success(undefined);
+                })
+            );
     }
 }
