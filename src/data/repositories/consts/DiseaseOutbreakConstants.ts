@@ -12,25 +12,25 @@ export const RTSL_ZEBRA_ORG_UNIT_ID = "PS5JpkoHHio";
 export const RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID = "lIzNjLOUAKA";
 
 export const hazardTypeCodeMap: Record<HazardType, string> = {
-    "Biological:Human": "BIOLOGICAL_HUMAN",
-    "Biological:Animal": "BIOLOGICAL_ANIMAL",
-    "Biological:HumanAndAnimal": "BIOLOGICAL_HUM_ANM",
-    Chemical: "CHEMICAL",
-    Environmental: "ENVIRONMENTAL",
-    Unknown: "UNKNOWN",
+    "Biological:Human": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_HUMAN",
+    "Biological:Animal": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_ANIMAL",
+    "Biological:HumanAndAnimal": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_HUM_ANM",
+    Chemical: "RTSL_ZEB_OS_HAZARD_TYPE_CHEMICAL",
+    Environmental: "RTSL_ZEB_OS_HAZARD_TYPE_ENVIRONMENTAL",
+    Unknown: "RTSL_ZEB_OS_HAZARD_TYPE_UNKNOWN",
 };
 
 export const incidentStatusMap: Record<string, IncidentStatus> = {
-    WATCH: IncidentStatus.WATCH,
-    ALERT: IncidentStatus.ALERT,
-    RESPOND: IncidentStatus.RESPOND,
-    CLOSED: IncidentStatus.CLOSED,
-    DISCARDED: IncidentStatus.DISCARDED,
+    RTSL_ZEB_OS_INCIDENT_STATUS_WATCH: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
+    RTSL_ZEB_OS_INCIDENT_STATUS_ALERT: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT,
+    RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND,
+    RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED,
+    RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED,
 };
 
 export const dataSourceMap: Record<string, DataSource> = {
-    IBS: DataSource.IBS,
-    EBS: DataSource.EBS,
+    RTSL_ZEB_OS_DATA_SOURCE_IBS: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+    RTSL_ZEB_OS_DATA_SOURCE_EBS: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
 };
 
 export const diseaseOutbreakCodes = {

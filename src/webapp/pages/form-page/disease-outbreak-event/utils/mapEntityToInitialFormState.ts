@@ -1,3 +1,4 @@
+import i18n from "../../../../../utils/i18n";
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { Option } from "../../../../../domain/entities/Ref";
 import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormFieldsState";
@@ -5,6 +6,7 @@ import { FormState } from "../../../../components/form/FormState";
 import { UserOption } from "../../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../../components/utils/option";
 import { FormSectionState } from "../../../../components/form/FormSectionsState";
+import { DataSource } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -98,8 +100,10 @@ export function mapEntityToInitialFormState(
         mapToPresentationOptions(notificationSources);
     const incidentStatusOptions: PresentationOption[] = mapToPresentationOptions(incidentStatus);
 
-    const isEBSDataSource = diseaseOutbreakEvent?.dataSource === "EBS";
-    const isIBSDataSource = diseaseOutbreakEvent?.dataSource === "IBS";
+    const isEBSDataSource =
+        diseaseOutbreakEvent?.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
+    const isIBSDataSource =
+        diseaseOutbreakEvent?.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS;
 
     const fromIdsDictionary = (key: keyof typeof diseaseOutbreakEventFieldIds) =>
         getFieldIdFromIdsDictionary(key, diseaseOutbreakEventFieldIds);
@@ -168,7 +172,7 @@ export function mapEntityToInitialFormState(
                 },
                 {
                     id: fromIdsDictionary("laboratoryConfirmationNA"),
-                    label: "N/A",
+                    label: i18n.t("N/A"),
                     isVisible: true,
                     errors: [],
                     type: "boolean",
@@ -204,7 +208,7 @@ export function mapEntityToInitialFormState(
                 },
                 {
                     id: fromIdsDictionary("appropriateCaseManagementNA"),
-                    label: "N/A",
+                    label: i18n.t("N/A"),
                     isVisible: true,
                     errors: [],
                     type: "boolean",
@@ -240,7 +244,7 @@ export function mapEntityToInitialFormState(
                             .initiatePublicHealthCounterMeasures.na,
                 },
                 {
-                    label: "N/A",
+                    label: i18n.t("N/A"),
                     id: fromIdsDictionary("initiatePublicHealthCounterMeasuresNA"),
                     isVisible: true,
                     errors: [],
@@ -279,7 +283,7 @@ export function mapEntityToInitialFormState(
                 },
                 {
                     id: fromIdsDictionary("initiateRiskCommunicationNA"),
-                    label: "N/A",
+                    label: i18n.t("N/A"),
                     isVisible: true,
                     errors: [],
                     type: "boolean",
@@ -412,18 +416,18 @@ export function mapEntityToInitialFormState(
         suspectedDisease: {
             title: "Suspected Disease",
             id: "suspectedDisease_section",
-            isVisible: !isEBSDataSource,
+            isVisible: isIBSDataSource,
             required: true,
             fields: [
                 {
                     id: fromIdsDictionary("suspectedDiseaseCode"),
                     placeholder: "Select a disease",
-                    isVisible: !isEBSDataSource,
+                    isVisible: isIBSDataSource,
                     errors: [],
                     type: "select",
                     multiple: false,
                     options: suspectedDiseasesOptions,
-                    value: isEBSDataSource ? "" : diseaseOutbreakEvent?.suspectedDiseaseCode || "",
+                    value: isIBSDataSource ? diseaseOutbreakEvent?.suspectedDiseaseCode || "" : "",
                     width: "300px",
                     required: true,
                     showIsRequired: false,

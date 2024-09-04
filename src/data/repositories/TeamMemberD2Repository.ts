@@ -4,6 +4,7 @@ import { Id } from "../../domain/entities/Ref";
 import { TeamMemberRepository } from "../../domain/repositories/TeamMemberRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import { assertOrError } from "./utils/AssertOrError";
+import { Future } from "../../domain/entities/generic/Future";
 
 export class TeamMemberD2Repository implements TeamMemberRepository {
     constructor(private api: D2Api) {}
@@ -17,9 +18,12 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
             })
         )
             .flatMap(response => assertOrError(response.users, `Team Members not found`))
-            .map(d2Users => {
-                if (!d2Users) throw new Error("Team Members not found");
-                return d2Users.map(d2User => this.mapUserToTeamMember(d2User as D2UserFix));
+            .flatMap(d2Users => {
+                if (d2Users.length === 0) return Future.error(new Error(`Team Members not found`));
+                else
+                    return Future.success(
+                        d2Users.map(d2User => this.mapUserToTeamMember(d2User as D2UserFix))
+                    );
             });
     }
 

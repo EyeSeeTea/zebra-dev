@@ -1,3 +1,4 @@
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../domain/entities/generic/Future";
 import { Id, Option } from "../../../domain/entities/Ref";
 import { OptionsRepository } from "../../../domain/repositories/OptionsRepository";
@@ -10,34 +11,28 @@ export class OptionsTestRepository implements OptionsRepository {
 
     getDataSources(): FutureData<Option[]> {
         return Future.success([
-            { id: "EBS", name: "EBS", code: "EBS" },
-            { id: "IBS", name: "IBS", code: "IBS" },
+            { id: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS, name: "EBS" },
+            { id: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS, name: "IBS" },
         ]);
     }
 
     getHazardTypes(): FutureData<Option[]> {
-        return Future.success([{ id: "1", name: "Test Hazard Type", code: "HazardTypeCode" }]);
+        return Future.success([{ id: "1", name: "Test Hazard Type" }]);
     }
 
     getMainSyndromes(): FutureData<Option[]> {
-        return Future.success([{ id: "1", name: "Test Main Syndrome", code: "MainSyndromeCode" }]);
+        return Future.success([{ id: "1", name: "Test Main Syndrome" }]);
     }
 
     getSuspectedDiseases(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Test Suspected Disease", code: "SuspectedDiseaseCode" },
-        ]);
+        return Future.success([{ id: "1", name: "Test Suspected Disease" }]);
     }
 
     getNotificationSources(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Test Notification Source", code: "NotificationSourceCode" },
-        ]);
+        return Future.success([{ id: "1", name: "Test Notification Source" }]);
     }
 
     getIncidentStatus(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Test Incident Status", code: "IncidentStatusCode" },
-        ]);
+        return Future.success([{ id: "1", name: "Test Incident Status" }]);
     }
 }
