@@ -61,7 +61,12 @@ export const DashboardPage: React.FC = React.memo(() => {
                 <GridWrapper>
                     {diseasesTotal &&
                         diseasesTotal.map((disease, index) => (
-                            <StatsCard key={index} stat={disease.total} title={disease.name} />
+                            <StatsCard
+                                key={index}
+                                stat={disease.total}
+                                title={disease.name}
+                                size="small"
+                            />
                         ))}
                 </GridWrapper>
             </Section>
@@ -83,6 +88,10 @@ export const DashboardPage: React.FC = React.memo(() => {
 
 const GridWrapper = styled.div`
     width: 100%;
+    @media screen and (min-width: 1200px) {
+        width: 80%;
+    }
+
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -93,6 +102,6 @@ const Container = styled.div`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-    width: 20rem;
+    width: 14rem;
     gap: 1rem;
 `;

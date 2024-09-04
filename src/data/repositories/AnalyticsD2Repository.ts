@@ -60,7 +60,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     ];
                 })
                 .filter(item => {
-                    if (!item || item.total === 0) {
+                    if (!item) {
                         return false;
                     }
                     if (filters) {

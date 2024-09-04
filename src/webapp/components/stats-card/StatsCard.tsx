@@ -10,6 +10,7 @@ type StatsCardProps = {
     subtitle?: string;
     isPercentage?: boolean;
     error?: boolean;
+    size?: "small" | "large";
 };
 
 export const StatsCard: React.FC<StatsCardProps> = React.memo(
@@ -21,9 +22,10 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
         color = "normal",
         isPercentage = false,
         error = false,
+        size,
     }) => {
         return (
-            <StyledCard $error={error}>
+            <StyledCard $error={error} $size={size}>
                 <StyledCardContent>
                     <Stat color={color}>{`${stat}${isPercentage ? " %" : ""}`}</Stat>
 
@@ -38,8 +40,8 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
     }
 );
 
-const StyledCard = styled(Card)<{ $error?: boolean }>`
-    width: fit-content;
+const StyledCard = styled(Card)<{ $error?: boolean; $size?: string }>`
+    width: ${props => (!props.$size ? "fit-content" : props.$size === "small" ? "220px" : "300px")};
     min-width: 220px;
     max-width: 300px;
     border-style: ${props => (props.$error ? "solid" : "none")};
