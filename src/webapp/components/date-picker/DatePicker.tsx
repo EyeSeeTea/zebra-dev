@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { InputLabel } from "@material-ui/core";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -18,6 +18,8 @@ type DatePickerProps = {
     required?: boolean;
 };
 
+const slots = { openPickerIcon: IconCalendar24 };
+
 export const DatePicker: React.FC<DatePickerProps> = React.memo(
     ({
         id,
@@ -30,6 +32,28 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
         error = false,
         required = false,
     }) => {
+        const notifyChange = useCallback(
+            (date: Date | null) => {
+                onChange(
+                    date
+                        ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+                        : null
+                );
+            },
+            [onChange]
+        );
+
+        const slotProps = useMemo(
+            () => ({
+                textField: {
+                    helperText: error && !!errorText ? errorText : helperText,
+                    "aria-label": label || `${id}-label`,
+                    id: id,
+                },
+            }),
+            [error, errorText, helperText, id, label]
+        );
+
         return (
             <Container>
                 {label && (
@@ -41,18 +65,12 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <StyledDatePicker
                         value={value}
-                        onChange={onChange}
+                        onChange={notifyChange}
                         format="dd/MM/yyyy"
-                        slots={{ openPickerIcon: IconCalendar24 }}
+                        slots={slots}
                         error={error}
                         disabled={disabled}
-                        slotProps={{
-                            textField: {
-                                helperText: error && !!errorText ? errorText : helperText,
-                                "aria-label": label || `${id}-label`,
-                                id: id,
-                            },
-                        }}
+                        slotProps={slotProps}
                     />
                 </LocalizationProvider>
             </Container>
@@ -81,6 +99,7 @@ const Label = styled(InputLabel)`
 `;
 
 const StyledDatePicker = styled(DatePickerMUI)<{ error?: boolean; disabled?: boolean }>`
+    height: 40px;
     & .MuiInputBase-root {
         border-radius: 3px;
         background-color: ${props =>

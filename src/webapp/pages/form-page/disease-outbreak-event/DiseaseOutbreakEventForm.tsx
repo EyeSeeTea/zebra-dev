@@ -5,22 +5,31 @@ import styled from "styled-components";
 import { useDiseaseOutbreakEventForm } from "./useDiseaseOutbreakEventForm";
 import { Form } from "../../../components/form/Form";
 import { Id } from "../../../../domain/entities/Ref";
-import { FormType } from "../FormPage";
 import { Layout } from "../../../components/layout/Layout";
 import { Loader } from "../../../components/loader/Loader";
+import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 
 type DiseaseOutbreakEventFormProps = {
-    formType: FormType;
     diseaseOutbreakEventId?: Id;
 };
 
+// TODO: Thinking for the future about making this more generic
 export const DiseaseOutbreakEventForm: React.FC<DiseaseOutbreakEventFormProps> = React.memo(
     props => {
-        const { diseaseOutbreakEventId, formType } = props;
+        const { diseaseOutbreakEventId } = props;
 
+        const { goTo } = useRoutes();
         const snackbar = useSnackbar();
-        const { globalMessage, formState, handleFormChange, onSaveForm, onCancelForm } =
-            useDiseaseOutbreakEventForm(formType, diseaseOutbreakEventId);
+        const {
+            formLabels,
+            globalMessage,
+            formState,
+            isSaved,
+            isLoading,
+            handleFormChange,
+            onSaveForm,
+            onCancelForm,
+        } = useDiseaseOutbreakEventForm(diseaseOutbreakEventId);
 
         useEffect(() => {
             if (!globalMessage) return;
@@ -28,7 +37,13 @@ export const DiseaseOutbreakEventForm: React.FC<DiseaseOutbreakEventFormProps> =
             snackbar[globalMessage.type](globalMessage.text);
         }, [globalMessage, snackbar]);
 
-        return formState.kind === "loading" ? (
+        useEffect(() => {
+            if (isSaved) {
+                goTo(RouteName.DASHBOARD);
+            }
+        }, [goTo, isSaved]);
+
+        return formState.kind === "loading" || isLoading ? (
             <Layout hideSideBarOptions>
                 <Loader />
             </Layout>
@@ -38,6 +53,7 @@ export const DiseaseOutbreakEventForm: React.FC<DiseaseOutbreakEventFormProps> =
                 onFormChange={handleFormChange}
                 onSave={onSaveForm}
                 onCancel={onCancelForm}
+                errorLabels={formLabels?.errors}
             />
         ) : (
             formState.message && <ErrorMessageContainer>{formState.message}</ErrorMessageContainer>

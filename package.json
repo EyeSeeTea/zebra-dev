@@ -113,7 +113,7 @@
         "script-example": "npx ts-node src/scripts/example.ts"
     },
     "manifest.webapp": {
-        "name": "zebra",
+        "name": "ZEBRA",
         "description": "Zambia Emergency Bridge for Response Application",
         "icons": {
             "48": "icon.png"

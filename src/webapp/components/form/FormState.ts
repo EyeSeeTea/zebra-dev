@@ -1,6 +1,11 @@
-import { Maybe } from "../../../utils/ts-utils";
-import { UserOption } from "../user-selector/UserSelector";
-import { Option } from "../utils/option";
+import { ValidationError } from "../../../domain/entities/ValidationError";
+import { FormFieldState, getAllFieldsFromSections, validateField } from "./FormFieldsState";
+import {
+    applyEffectNotApplicableFieldUpdatedInSections,
+    FormSectionState,
+    updateSections,
+    validateSections,
+} from "./FormSectionsState";
 
 export type FormState = {
     id: string;
@@ -14,122 +19,67 @@ export type FormState = {
     isValid: boolean;
 };
 
-export type FormSectionState = {
-    id: string;
-    title?: string;
-    isVisible?: boolean;
-    required?: boolean;
-    direction?: "row" | "column";
-    fields: FormFieldState[];
-    subsections?: FormSectionState[];
-    onClickInfo?: (id: string) => void;
-};
+// UPDATES:
 
-type FieldTypes = "text" | "boolean" | "select" | "radio" | "date" | "user";
+export function updateFormStateAndApplySideEffects(
+    currentFormState: FormState,
+    updatedField: FormFieldState
+): FormState {
+    const updatedFormState = updateFormState(currentFormState, updatedField);
 
-type FormFieldStateBase<T> = {
-    id: string;
-    label?: string;
-    placeholder?: string;
-    helperText?: string;
-    errors?: string[];
-    required?: boolean;
-    showIsRequired?: boolean;
-    disabled?: boolean;
-    isVisible?: boolean;
-    showNotApplicable?: boolean;
-    width?: string;
-    value: T;
-    type: FieldTypes;
-};
+    return applySideEffects(updatedFormState, updatedField);
+}
 
-export type FormTextFieldState = FormFieldStateBase<string> & {
-    type: "text";
-    multiline?: boolean;
-};
+function applySideEffects(updatedFormState: FormState, updatedField: FormFieldState): FormState {
+    if (updatedField.notApplicableFieldId) {
+        return {
+            ...applyEffectNotApplicableFieldUpdated(updatedFormState),
+        };
+    } else {
+        return updatedFormState;
+    }
+}
 
-export type FormBooleanFieldState = FormFieldStateBase<boolean> & {
-    type: "boolean";
-};
-
-export type FormMultipleOptionsFieldState = FormFieldStateBase<string[]> & {
-    type: "select";
-    options: Option[];
-    multiple: true;
-};
-
-export type FormOptionsFieldState = FormFieldStateBase<string> & {
-    type: "select" | "radio";
-    options: Option[];
-    multiple: false;
-};
-
-export type FormDateFieldState = FormFieldStateBase<Date | null> & {
-    type: "date";
-};
-
-export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
-    type: "user";
-    options: UserOption[];
-};
-
-export type FormFieldState =
-    | FormTextFieldState
-    | FormOptionsFieldState
-    | FormMultipleOptionsFieldState
-    | FormBooleanFieldState
-    | FormDateFieldState
-    | FormAvatarFieldState;
-
-export function updateFormState(prevFormState: FormState, updatedField: FormFieldState): FormState {
+function applyEffectNotApplicableFieldUpdated(formState: FormState): FormState {
     return {
-        ...prevFormState,
-        sections: updateSectionsState(prevFormState.sections, updatedField),
+        ...formState,
+        sections: applyEffectNotApplicableFieldUpdatedInSections(formState.sections),
     };
 }
 
-export function updateSectionsState(
-    prevFormSectionsState: FormSectionState[],
-    updatedField: FormFieldState
-): FormSectionState[] {
-    const updatedSections = prevFormSectionsState.map(section => {
-        if (section?.subsections) {
-            return {
-                ...updateSectionState(section, updatedField),
-                subsections: updateSectionsState(section?.subsections, updatedField),
-            };
-        } else {
-            return updateSectionState(section, updatedField);
-        }
-    });
-
-    return updatedSections;
-}
-
-export function updateSectionState(
-    prevFormSectionState: FormSectionState,
-    updatedField: FormFieldState
-): FormSectionState {
+export function updateFormState(formState: FormState, updatedField: FormFieldState): FormState {
     return {
-        ...prevFormSectionState,
-        fields: updateFieldsState(prevFormSectionState.fields, updatedField),
+        ...formState,
+        sections: updateSections(formState.sections, updatedField),
     };
 }
 
-export function updateFieldsState(
-    prevFormFields: FormFieldState[],
-    updatedField: FormFieldState
-): FormFieldState[] {
-    const updatedFields = prevFormFields.map(field => {
-        return field.id === updatedField.id ? updatedField : field;
-    });
-
-    return updatedFields;
+export function updateFormStateWithFieldErrors(
+    formState: FormState,
+    updatedField: FormFieldState,
+    fieldValidationErrors: ValidationError[]
+): FormState {
+    return {
+        ...formState,
+        sections: updateSections(formState.sections, updatedField, fieldValidationErrors),
+    };
 }
 
-export function updateFieldState<F extends FormFieldState>(
-    fieldToUpdate: F,
-    newValue: F["value"]
-): F {
-    return { ...fieldToUpdate, value: newValue };
+// VALIDATIONS:
+
+export function isValidForm(formSections: FormSectionState[]): boolean {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formSections);
+
+    return allFields.every(field => {
+        const validationErrors = validateField(field, allFields);
+
+        return !validationErrors || validationErrors.errors.length === 0;
+    });
+}
+
+export function validateForm(
+    formState: FormState,
+    updatedField: FormFieldState
+): ValidationError[] {
+    return validateSections(formState.sections, updatedField, formState);
 }

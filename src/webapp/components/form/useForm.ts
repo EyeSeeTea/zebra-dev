@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { updateFormState, FormState, FormFieldState } from "./FormState";
+import { updateFormState, FormState } from "./FormState";
+import { FormFieldState } from "./FormFieldsState";
 
 type State = {
     formLocalState: FormState;
@@ -9,7 +10,7 @@ type State = {
 
 export function useForm(
     formState: FormState,
-    onFormChange: (newFormState: FormState, updatedField: FormFieldState) => void
+    onFormChange: (updatedField: FormFieldState) => void
 ): State {
     const [formLocalState, setFormLocalState] = useState<FormState>(formState);
 
@@ -21,11 +22,10 @@ export function useForm(
 
     const handleUpdateFormField = useCallback(
         (updatedField: FormFieldState) => {
-            const newFormState = updateFormState(formState, updatedField);
-            setFormLocalState(newFormState);
-            onFormChange(newFormState, updatedField);
+            setFormLocalState(prevState => updateFormState(prevState, updatedField));
+            onFormChange(updatedField);
         },
-        [formState, onFormChange]
+        [onFormChange]
     );
 
     return {

@@ -11,6 +11,7 @@ export type TeamRole = NamedRef & {
 };
 
 interface TeamMemberAttrs extends NamedRef {
+    username: string;
     phone: Maybe<PhoneNumber>;
     email: Maybe<Email>;
     status: Maybe<IncidentManagerStatus>;
@@ -22,5 +23,13 @@ export class TeamMember extends Struct<TeamMemberAttrs>() {
     static validatePhAndEmail() {
         //TO DO : any validations for phone number?
         //TO DO : any validations for email?
+    }
+
+    static isValidPhotoUrl(urlString: string): boolean {
+        try {
+            return Boolean(new URL(urlString));
+        } catch (e) {
+            return false;
+        }
     }
 }

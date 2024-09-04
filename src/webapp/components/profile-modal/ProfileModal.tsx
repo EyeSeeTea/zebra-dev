@@ -47,7 +47,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = React.memo(
 
 const Content = styled.div`
     display: flex;
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
         flex-direction: column;
     }
 `;
@@ -65,7 +65,7 @@ const Footer = styled.div`
 
 const StyledCard = styled(Card)`
     width: 500px;
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
         width: 300px;
     }
     display: flex;

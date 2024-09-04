@@ -6,6 +6,7 @@ import { OrgUnit } from "../OrgUnit";
 import { Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
+import { ValidationError } from "../ValidationError";
 
 export const hazardTypes = [
     "Biological:Human",
@@ -41,7 +42,6 @@ type EarlyResponseActions = {
 };
 
 export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
-    eventId: number;
     created: Date;
     lastUpdated: Date;
     createdByName: Maybe<string>;
@@ -55,12 +55,12 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     emerged: DateWithNarrative;
     detected: DateWithNarrative;
     notified: DateWithNarrative;
-    earlyResponseActions: EarlyResponseActions; //TO DO : mandatory field
+    earlyResponseActions: EarlyResponseActions;
     incidentManagerName: string;
     notes: Maybe<string>;
 };
 
-type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
+export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     createdBy: Maybe<TeamMember>;
     mainSyndrome: NamedRef;
     suspectedDisease: NamedRef;
@@ -79,7 +79,8 @@ type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
  **/
 
 export class DiseaseOutbreakEvent extends Struct<DiseaseOutbreakEventAttrs>() {
-    static validateEventName() {
-        //TO DO : Ensure event name is unique on event creation.
+    //TODO: Add required validations if exists:
+    static validate(_data: DiseaseOutbreakEventBaseAttrs): ValidationError[] {
+        return [];
     }
 }

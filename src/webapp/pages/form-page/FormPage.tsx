@@ -14,7 +14,7 @@ export const FormPage: React.FC = React.memo(() => {
 
     switch (formType) {
         case "disease-outbreak-event":
-            return <DiseaseOutbreakEventForm diseaseOutbreakEventId={id} formType={formType} />;
+            return <DiseaseOutbreakEventForm diseaseOutbreakEventId={id} />;
         default:
             return <div>{i18n.t("Page Not Found")}</div>;
     }

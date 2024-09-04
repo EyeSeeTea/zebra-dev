@@ -1,8 +1,6 @@
-import { getAvatarUtilityClass } from "@mui/material";
 import {
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
-    hazardTypes,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { GetValue, Maybe } from "../../../utils/ts-utils";
 import { getDateAsIsoString } from "../utils/DateTimeHelper";
@@ -20,7 +18,6 @@ export const hazardTypeCodeMap: Record<HazardType, string> = {
 };
 
 export const diseaseOutbreakCodes = {
-    eventId: "RTSL_ZEB_TEA_EVENT_id",
     name: "RTSL_ZEB_TEA_EVENT_NAME",
     hazardType: "RTSL_ZEB_TEA_HAZARD_TYPE",
     mainSyndrome: "RTSL_ZEB_TEA_MAIN_SYNDROME",
@@ -37,13 +34,13 @@ export const diseaseOutbreakCodes = {
     notifiedNarrative: "RTSL_ZEB_TEA_DATE_NOTIFIED_NARRATIVE",
     initiateInvestigation: "RTSL_ZEB_TEA_INITIATE_INVESTIGATION",
     conductEpidemiologicalAnalysis: "RTSL_ZEB_TEA_CONDUCT_EPIDEMIOLOGICAL_ANALYSIS",
-    laboratoryConfirmationNA: "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION",
+    laboratoryConfirmationNA: "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION_NA",
     laboratoryConfirmationDate: "RTSL_ZEB_TEA_SPECIFY_DATE1",
-    appropriateCaseManagementNA: "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT",
+    appropriateCaseManagementNA: "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT_NA",
     appropriateCaseManagementDate: "RTSL_ZEB_TEA_SPECIFY_DATE2",
-    initiatePublicHealthCounterMeasuresNA: "RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH",
+    initiatePublicHealthCounterMeasuresNA: "RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH_NA",
     initiatePublicHealthCounterMeasuresDate: "RTSL_ZEB_TEA_SPECIFY_DATE3",
-    initiateRiskCommunicationNA: "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION",
+    initiateRiskCommunicationNA: "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION_NA",
     initiateRiskCommunicationDate: "RTSL_ZEB_TEA_SPECIFY_DATE4",
     establishCoordination: "RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM",
     responseNarrative: "RTSL_ZEB_TEA_RESPONSE_NARRATIVE",
@@ -70,7 +67,6 @@ export function getValueFromDiseaseOutbreak(
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs
 ): Record<DiseaseOutbreakCode, string> {
     return {
-        RTSL_ZEB_TEA_EVENT_id: diseaseOutbreak.eventId.toString(),
         RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
         RTSL_ZEB_TEA_HAZARD_TYPE: hazardTypeCodeMap[diseaseOutbreak.hazardType],
         RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode,
@@ -95,27 +91,27 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_CONDUCT_EPIDEMIOLOGICAL_ANALYSIS: getDateAsIsoString(
             diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis
         ),
-        RTSL_ZEB_TEA_LABORATORY_CONFIRMATION: getNaValue(
+        RTSL_ZEB_TEA_LABORATORY_CONFIRMATION_NA: getNaValue(
             diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.na
         ),
         RTSL_ZEB_TEA_SPECIFY_DATE1: getDateAsIsoString(
             diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date
         ),
-        RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT: getNaValue(
+        RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT_NA: getNaValue(
             diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.na
         ),
 
         RTSL_ZEB_TEA_SPECIFY_DATE2: getDateAsIsoString(
             diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date
         ),
-        RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH: getNaValue(
+        RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH_NA: getNaValue(
             diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.na
         ),
 
         RTSL_ZEB_TEA_SPECIFY_DATE3: getDateAsIsoString(
             diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date
         ),
-        RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION: getNaValue(
+        RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION_NA: getNaValue(
             diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.na
         ),
         RTSL_ZEB_TEA_SPECIFY_DATE4: getDateAsIsoString(
@@ -128,6 +124,14 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
     };
+}
+
+export function getHazardTypeByCode(hazardTypeCode: string): HazardType {
+    return (
+        (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
+            key => hazardTypeCodeMap[key] === hazardTypeCode
+        ) || "Unknown"
+    );
 }
 
 function getOUTextFromList(OUs: string[]): string {

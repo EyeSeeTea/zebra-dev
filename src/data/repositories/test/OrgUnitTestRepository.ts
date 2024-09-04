@@ -16,4 +16,16 @@ export class OrgUnitTestRepository implements OrgUnitRepository {
         });
         return Future.success(orgUnits);
     }
+
+    getAll(): FutureData<OrgUnit[]> {
+        const orgUnits: OrgUnit[] = ["1", "2"].map(id => {
+            return {
+                id: id,
+                name: `Org Unit Name ${id}`,
+                code: `Org Unit Code ${id}`,
+                level: id === "1" ? "Province" : "District",
+            };
+        });
+        return Future.success(orgUnits);
+    }
 }
