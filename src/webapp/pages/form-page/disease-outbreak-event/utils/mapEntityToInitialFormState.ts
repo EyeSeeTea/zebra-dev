@@ -1,3 +1,4 @@
+import i18n from "../../../../../utils/i18n";
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { Option } from "../../../../../domain/entities/Ref";
 import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormFieldsState";
@@ -171,7 +172,7 @@ export function mapEntityToInitialFormState(
                         "laboratoryConfirmationNA",
                         diseaseOutbreakEventFieldIds
                     ),
-                    label: "N/A",
+                    label: i18n.t("N/A"),
                     isVisible: true,
                     errors: [],
                     type: "boolean",
@@ -216,7 +217,7 @@ export function mapEntityToInitialFormState(
                         "appropriateCaseManagementNA",
                         diseaseOutbreakEventFieldIds
                     ),
-                    label: "N/A",
+                    label: i18n.t("N/A"),
                     isVisible: true,
                     errors: [],
                     type: "boolean",
@@ -258,7 +259,7 @@ export function mapEntityToInitialFormState(
                             .initiatePublicHealthCounterMeasures.na,
                 },
                 {
-                    label: "N/A",
+                    label: i18n.t("N/A"),
                     id: getFieldIdFromIdsDictionary(
                         "initiatePublicHealthCounterMeasuresNA",
                         diseaseOutbreakEventFieldIds
@@ -307,7 +308,7 @@ export function mapEntityToInitialFormState(
                         "initiateRiskCommunicationNA",
                         diseaseOutbreakEventFieldIds
                     ),
-                    label: "N/A",
+                    label: i18n.t("N/A"),
                     isVisible: true,
                     errors: [],
                     type: "boolean",
