@@ -1,6 +1,8 @@
 import {
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
+    IncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { GetValue, Maybe } from "../../../utils/ts-utils";
 import { getDateAsIsoString } from "../utils/DateTimeHelper";
@@ -10,15 +12,30 @@ export const RTSL_ZEBRA_ORG_UNIT_ID = "PS5JpkoHHio";
 export const RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID = "lIzNjLOUAKA";
 
 export const hazardTypeCodeMap: Record<HazardType, string> = {
-    "Biological:Human": "BIOLOGICAL_HUMAN",
-    "Biological:Animal": "BIOLOGICAL_ANIMAL",
-    Chemical: "CHEMICAL",
-    Environmental: "ENVIRONMENTAL",
-    Unknown: "UNKNOWN",
+    "Biological:Human": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_HUMAN",
+    "Biological:Animal": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_ANIMAL",
+    "Biological:HumanAndAnimal": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_HUM_ANM",
+    Chemical: "RTSL_ZEB_OS_HAZARD_TYPE_CHEMICAL",
+    Environmental: "RTSL_ZEB_OS_HAZARD_TYPE_ENVIRONMENTAL",
+    Unknown: "RTSL_ZEB_OS_HAZARD_TYPE_UNKNOWN",
+};
+
+export const incidentStatusMap: Record<string, IncidentStatus> = {
+    RTSL_ZEB_OS_INCIDENT_STATUS_WATCH: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
+    RTSL_ZEB_OS_INCIDENT_STATUS_ALERT: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT,
+    RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND,
+    RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED,
+    RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED,
+};
+
+export const dataSourceMap: Record<string, DataSource> = {
+    RTSL_ZEB_OS_DATA_SOURCE_IBS: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+    RTSL_ZEB_OS_DATA_SOURCE_EBS: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
 };
 
 export const diseaseOutbreakCodes = {
     name: "RTSL_ZEB_TEA_EVENT_NAME",
+    dataSource: "RTSL_ZEB_TEA_DATA_SOURCE",
     hazardType: "RTSL_ZEB_TEA_HAZARD_TYPE",
     mainSyndrome: "RTSL_ZEB_TEA_MAIN_SYNDROME",
     suspectedDisease: "RTSL_ZEB_TEA_SUSPECTED_DISEASE",
@@ -56,21 +73,17 @@ export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
     return (Object.values(diseaseOutbreakCodes) as string[]).includes(code);
 }
 
-export function getHazardTypeValue(hazardType: string): HazardType {
-    const hazardTypeString = Object.keys(hazardTypeCodeMap).find(
-        key => hazardTypeCodeMap[key as HazardType] === hazardType
-    );
-    return hazardTypeString ? (hazardTypeString as HazardType) : "Unknown";
-}
-
 export function getValueFromDiseaseOutbreak(
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs
 ): Record<DiseaseOutbreakCode, string> {
     return {
         RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
-        RTSL_ZEB_TEA_HAZARD_TYPE: hazardTypeCodeMap[diseaseOutbreak.hazardType],
-        RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode,
-        RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode,
+        RTSL_ZEB_TEA_DATA_SOURCE: diseaseOutbreak.dataSource,
+        RTSL_ZEB_TEA_HAZARD_TYPE: diseaseOutbreak.hazardType
+            ? hazardTypeCodeMap[diseaseOutbreak.hazardType]
+            : "",
+        RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode ?? "",
+        RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode ?? "",
         RTSL_ZEB_TEA_NOTIFICATION_SOURCE: diseaseOutbreak.notificationSourceCode,
         RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES: getOUTextFromList(
             diseaseOutbreak.areasAffectedProvinceIds
@@ -126,11 +139,15 @@ export function getValueFromDiseaseOutbreak(
     };
 }
 
-export function getHazardTypeByCode(hazardTypeCode: string): HazardType {
-    return (
-        (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
-            key => hazardTypeCodeMap[key] === hazardTypeCode
-        ) || "Unknown"
+export function getHazardTypeByCode(hazardTypeCode: string): HazardType | undefined {
+    return (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
+        key => hazardTypeCodeMap[key] === hazardTypeCode
+    );
+}
+
+export function getHazardTypeFromString(hazardTypeString: string): HazardType | undefined {
+    return (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
+        hazardType => hazardType === hazardTypeString
     );
 }
 

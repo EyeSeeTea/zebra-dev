@@ -1,15 +1,14 @@
-import {
-    DiseaseOutbreakEventBaseAttrs,
-    IncidentStatusType,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEventBaseAttrs } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     DiseaseOutbreakCode,
     diseaseOutbreakCodes,
-    getHazardTypeValue,
+    getHazardTypeByCode,
     getValueFromDiseaseOutbreak,
     isStringInDiseaseOutbreakCodes,
     KeyCode,
+    dataSourceMap,
+    incidentStatusMap,
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
@@ -38,19 +37,25 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 
     const fromMap = (key: keyof typeof diseaseOutbreakCodes) => getValueFromMap(key, trackedEntity);
 
+    const dataSource = dataSourceMap[fromMap("dataSource")];
+    const incidentStatus = incidentStatusMap[fromMap("incidentStatus")];
+
+    if (!dataSource || !incidentStatus) throw new Error("Data source or incident status not valid");
+
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
         name: fromMap("name"),
+        dataSource: dataSource,
         created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : new Date(),
         lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : new Date(),
         createdByName: undefined,
-        hazardType: getHazardTypeValue(fromMap("hazardType")),
+        hazardType: getHazardTypeByCode(fromMap("hazardType")),
         mainSyndromeCode: fromMap("mainSyndrome"),
         suspectedDiseaseCode: fromMap("suspectedDisease"),
         notificationSourceCode: fromMap("notificationSource"),
         areasAffectedProvinceIds: getMultipleOUFromText(fromMap("areasAffectedProvinces")),
         areasAffectedDistrictIds: getMultipleOUFromText(fromMap("areasAffectedDistricts")),
-        incidentStatus: fromMap("incidentStatus") as IncidentStatusType,
+        incidentStatus: incidentStatus,
         emerged: {
             date: new Date(fromMap("emergedDate")),
             narrative: fromMap("emergedNarrative"),
