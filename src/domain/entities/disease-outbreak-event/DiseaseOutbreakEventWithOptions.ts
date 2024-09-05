@@ -1,9 +1,12 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { TeamMember } from "../incident-management-team/TeamMember";
 import { Option } from "../Ref";
+import { Rule } from "../Rule";
+import { ValidationErrorKey } from "../ValidationError";
 import { DiseaseOutbreakEventBaseAttrs } from "./DiseaseOutbreakEvent";
 
 export type DiseaseOutbreakEventOptions = {
+    dataSources: Option[];
     hazardTypes: Option[];
     mainSyndromes: Option[];
     suspectedDiseases: Option[];
@@ -12,12 +15,13 @@ export type DiseaseOutbreakEventOptions = {
     teamMembers: TeamMember[];
 };
 
-export type DiseaseOutbreakEventLables = {
-    errors: Record<string, string>;
+export type DiseaseOutbreakEventLabels = {
+    errors: Record<ValidationErrorKey, string>;
 };
 
 export type DiseaseOutbreakEventWithOptions = {
     diseaseOutbreakEvent: Maybe<DiseaseOutbreakEventBaseAttrs>;
     options: DiseaseOutbreakEventOptions;
-    labels: DiseaseOutbreakEventLables;
+    labels: DiseaseOutbreakEventLabels;
+    rules: Rule[];
 };
