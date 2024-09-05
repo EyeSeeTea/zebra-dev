@@ -69,6 +69,7 @@ export const diseaseOutbreakCodes = {
     responseNarrative: "RTSL_ZEB_TEA_RESPONSE_NARRATIVE",
     incidentManager: "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER",
     notes: "RTSL_ZEB_TEA_NOTES",
+    caseDataSource: "RTSL_ZEB_TEA_CASE_DATA_SOURCE",
 } as const;
 
 export type DiseaseOutbreakCode = GetValue<typeof diseaseOutbreakCodes>;
@@ -77,11 +78,6 @@ export type KeyCode = (typeof diseaseOutbreakCodes)[keyof typeof diseaseOutbreak
 
 export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
     return (Object.values(diseaseOutbreakCodes) as string[]).includes(code);
-}
-
-export function getHazardTypeValue(hazardType: string): HazardType {
-    const hazardTypeString = Object.keys(hazardTypeCodeMap).find(key => key === hazardType);
-    return hazardTypeString ? (hazardTypeString as HazardType) : "Unknown";
 }
 
 export function getValueFromDiseaseOutbreak(
@@ -147,6 +143,7 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_RESPONSE_NARRATIVE: diseaseOutbreak.earlyResponseActions.responseNarrative,
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
+        RTSL_ZEB_TEA_CASE_DATA_SOURCE: "",
     };
 }
 
