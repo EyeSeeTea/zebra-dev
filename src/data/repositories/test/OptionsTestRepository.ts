@@ -5,8 +5,8 @@ import { OptionsRepository } from "../../../domain/repositories/OptionsRepositor
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
-    get(_id: Id): FutureData<Option> {
-        throw new Error("Method not implemented.");
+    get(id: Id): FutureData<Option> {
+        return Future.success({ id: id, name: "Test Main Syndrome", code: "MainSyndromeCode" });
     }
     getMainSyndrome(_optionCode: Code): FutureData<Option> {
         return Future.success({ id: "1", name: "Test Main Syndrome", code: "MainSyndromeCode" });
