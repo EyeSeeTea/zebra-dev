@@ -69,6 +69,7 @@ export const diseaseOutbreakCodes = {
     responseNarrative: "RTSL_ZEB_TEA_RESPONSE_NARRATIVE",
     incidentManager: "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER",
     notes: "RTSL_ZEB_TEA_NOTES",
+    caseDataSource: "RTSL_ZEB_TEA_CASE_DATA_SOURCE",
 } as const;
 
 export type DiseaseOutbreakCode = GetValue<typeof diseaseOutbreakCodes>;
@@ -142,6 +143,7 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_RESPONSE_NARRATIVE: diseaseOutbreak.earlyResponseActions.responseNarrative,
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
+        RTSL_ZEB_TEA_CASE_DATA_SOURCE: "",
     };
 }
 
