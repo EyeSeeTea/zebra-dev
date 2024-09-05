@@ -44,6 +44,7 @@ type State = {
     globalMessage: Maybe<GlobalMessage>;
     formState: DiseaseOutbreakEventFormState;
     isLoading: boolean;
+    isSaved: boolean;
     handleFormChange: (updatedField: FormFieldState) => void;
     onSaveForm: () => void;
     onCancelForm: () => void;
@@ -167,7 +168,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
             setIsSaved(false);
             return;
         }
-    }, [compositionRoot, currentUser.username, diseaseOutbreakEventWithOptions, formState]);
+    }, [compositionRoot, currentUser.username, diseaseOutbreakEventWithOptions, formState, goTo]);
 
     const onCancelForm = useCallback(() => {
         goTo(RouteName.DASHBOARD);
@@ -178,6 +179,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
         globalMessage,
         formState,
         isLoading,
+        isSaved,
         handleFormChange,
         onSaveForm,
         onCancelForm,
