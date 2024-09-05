@@ -71,16 +71,18 @@ export const DashboardPage: React.FC = React.memo(() => {
                 </GridWrapper>
             </Section>
             <Section title={i18n.t("Performance overview")}>
-                <StatisticTable
-                    columns={columns}
-                    rows={dataPerformanceOverview}
-                    filters={filters}
-                    order={order}
-                    setOrder={setOrder}
-                    columnRules={columnRules}
-                    editRiskAssessmentColumns={editRiskAssessmentColumns}
-                    goToEvent={goToEvent}
-                />
+                <StatisticTableWrapper>
+                    <StatisticTable
+                        columns={columns}
+                        rows={dataPerformanceOverview}
+                        filters={filters}
+                        order={order}
+                        setOrder={setOrder}
+                        columnRules={columnRules}
+                        editRiskAssessmentColumns={editRiskAssessmentColumns}
+                        goToEvent={goToEvent}
+                    />
+                </StatisticTableWrapper>
             </Section>
         </Layout>
     );
@@ -95,6 +97,10 @@ const GridWrapper = styled.div`
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+`;
+
+const StatisticTableWrapper = styled.div`
+    display: grid;
 `;
 
 const Container = styled.div`
