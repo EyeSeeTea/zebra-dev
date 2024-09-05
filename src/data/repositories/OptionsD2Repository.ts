@@ -1,3 +1,4 @@
+import _ from "../../domain/entities/generic/Collection";
 import { D2Api, MetadataPick } from "../../types/d2-api";
 import { Code, Option } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
@@ -24,32 +25,39 @@ export class OptionsD2Repository implements OptionsRepository {
             });
     }
 
-    getAllDataSources(): FutureData<Option[]> {
+    getDataSources(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_DATA_SOURCE");
     }
 
-    getAllHazardTypes(): FutureData<Option[]> {
+    getHazardTypes(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_HAZARD_TYPE").map(hazardTypes => {
-            return hazardTypes.map(hazardType => ({
-                id: getHazardTypeByCode(hazardType.id),
-                name: hazardType.name,
-            }));
+            return _(hazardTypes)
+                .compactMap(hazardType => {
+                    const hazardTypeId = getHazardTypeByCode(hazardType.id);
+                    if (hazardTypeId) {
+                        return {
+                            id: hazardTypeId,
+                            name: hazardType.name,
+                        };
+                    }
+                })
+                .toArray();
         });
     }
 
-    getAllMainSyndromes(): FutureData<Option[]> {
+    getMainSyndromes(): FutureData<Option[]> {
         return this.getOptionSetByCode("AGENTS");
     }
 
-    getAllSuspectedDiseases(): FutureData<Option[]> {
+    getSuspectedDiseases(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_DISEASE");
     }
 
-    getAllNotificationSources(): FutureData<Option[]> {
+    getNotificationSources(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_SOURCE");
     }
 
-    getAllIncidentStatus(): FutureData<Option[]> {
+    getIncidentStatus(): FutureData<Option[]> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_INCIDENT_STATUS");
     }
 
@@ -77,7 +85,7 @@ const optionSetsFields = {
     name: true,
     code: true,
     options: { id: true, name: true, code: true },
-};
+} as const;
 
 type D2OptionSet = MetadataPick<{
     optionSets: { fields: typeof optionSetsFields };

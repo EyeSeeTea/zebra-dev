@@ -31,7 +31,7 @@ export function RadioButtonsGroup<Value extends string>({
     disabled = false,
     required = false,
 }: RadioButtonsGroupProps<Value>): JSX.Element {
-    const handleChange = React.useCallback(
+    const notifyChange = React.useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
             onChange(event.target.value);
         },
@@ -50,7 +50,7 @@ export function RadioButtonsGroup<Value extends string>({
                 aria-label={id}
                 name={id}
                 value={selected}
-                onChange={handleChange}
+                onChange={notifyChange}
                 gap={gap}
             >
                 {options.map(option => (

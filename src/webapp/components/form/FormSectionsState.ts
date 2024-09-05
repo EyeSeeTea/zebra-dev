@@ -1,12 +1,13 @@
+import { Rule } from "../../../domain/entities/Rule";
 import { ValidationError } from "../../../domain/entities/ValidationError";
 import {
     FormFieldState,
     getAllFieldsFromSections,
-    getEmptyValueForField,
-    getFieldValue,
     isFieldInSection,
+    getFieldWithEmptyValue,
     updateFields,
     validateField,
+    hideFieldsAndSetToEmpty,
 } from "./FormFieldsState";
 import { FormState } from "./FormState";
 
@@ -33,13 +34,13 @@ export function applyEffectNotApplicableFieldUpdatedInSections(
     sectionsState: FormSectionState[]
 ): FormSectionState[] {
     return sectionsState.map(section => {
-        if (section?.subsections) {
+        if (section.subsections?.length) {
             const maybeAppliedEffect = hasSectionAFieldWithNotApplicable(section)
                 ? applyEffectNotApplicableFieldUpdatedInSection(section)
                 : section;
             return {
                 ...maybeAppliedEffect,
-                subsections: applyEffectNotApplicableFieldUpdatedInSections(section?.subsections),
+                subsections: applyEffectNotApplicableFieldUpdatedInSections(section.subsections),
             };
         } else {
             return hasSectionAFieldWithNotApplicable(section)
@@ -60,18 +61,17 @@ function applyEffectNotApplicableFieldUpdatedInSection(
                     f => f.notApplicableFieldId === field.id
                 );
 
-                // TODO: FIXME TypeScript error returning the corresponding fieldValue type
-                const fieldValue = (
-                    notApplicableField?.value ? getEmptyValueForField(field) : getFieldValue(field)
-                ) as any;
+                const fieldWithMaybeEmptyValue = notApplicableField?.value
+                    ? getFieldWithEmptyValue(field)
+                    : field;
 
                 return {
-                    ...field,
-                    value: fieldValue,
+                    ...fieldWithMaybeEmptyValue,
                     disabled: !!notApplicableField?.value,
                 };
+            } else {
+                return field;
             }
-            return field;
         }),
     };
 }
@@ -82,14 +82,14 @@ export function updateSections(
     fieldValidationErrors?: ValidationError[]
 ): FormSectionState[] {
     return formSectionsState.map(section => {
-        if (section?.subsections) {
+        if (section.subsections?.length) {
             const maybeUpdatedSection = isFieldInSection(section, updatedField)
                 ? updateSectionState(section, updatedField, fieldValidationErrors)
                 : section;
             return {
                 ...maybeUpdatedSection,
                 subsections: updateSections(
-                    section?.subsections,
+                    section.subsections,
                     updatedField,
                     fieldValidationErrors
                 ),
@@ -125,13 +125,13 @@ export function validateSections(
     newState: FormState
 ): ValidationError[] {
     return sections.flatMap(section => {
-        if (section?.subsections) {
+        if (section.subsections?.length) {
             const maybeValidatedSection = isFieldInSection(section, updatedField)
                 ? validateSection(section, updatedField, newState)
                 : [];
             return [
                 ...maybeValidatedSection,
-                ...validateSections(section?.subsections, updatedField, newState),
+                ...validateSections(section.subsections, updatedField, newState),
             ];
         } else {
             return isFieldInSection(section, updatedField)
@@ -151,7 +151,51 @@ function validateSection(
     return section.fields.flatMap(field => {
         if (field.id === updatedField.id) {
             return validateField(updatedField, allFields) || [];
+        } else {
+            return [];
         }
-        return [];
     });
+}
+
+// RULES:
+
+export function toggleSectionVisibilityByFieldValue(
+    section: FormSectionState,
+    fieldValue: FormFieldState["value"],
+    rule: Rule
+): FormSectionState {
+    if (rule.sectionIds.includes(section.id)) {
+        const subsections = section.subsections?.map(subsection => {
+            return toggleSectionVisibilityByFieldValue(subsection, fieldValue, rule);
+        });
+
+        const sectionToggleVisibility = {
+            isVisible: fieldValue === rule.fieldValue,
+            fields:
+                fieldValue === rule.fieldValue
+                    ? section.fields.map(field => ({
+                          ...field,
+                          isVisible: true,
+                      }))
+                    : hideFieldsAndSetToEmpty(section.fields),
+        };
+
+        return section.subsections
+            ? {
+                  ...section,
+                  ...sectionToggleVisibility,
+                  subsections: subsections,
+              }
+            : {
+                  ...section,
+                  ...sectionToggleVisibility,
+              };
+    } else {
+        return {
+            ...section,
+            subsections: section.subsections?.map(subsection =>
+                toggleSectionVisibilityByFieldValue(subsection, fieldValue, rule)
+            ),
+        };
+    }
 }

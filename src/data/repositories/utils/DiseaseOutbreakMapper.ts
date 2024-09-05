@@ -1,16 +1,14 @@
-import {
-    DataSource,
-    DiseaseOutbreakEventBaseAttrs,
-    IncidentStatusType,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEventBaseAttrs } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     DiseaseOutbreakCode,
     diseaseOutbreakCodes,
-    getHazardTypeValue,
+    getHazardTypeByCode,
     getValueFromDiseaseOutbreak,
     isStringInDiseaseOutbreakCodes,
     KeyCode,
+    dataSourceMap,
+    incidentStatusMap,
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
@@ -37,70 +35,63 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 ): DiseaseOutbreakEventBaseAttrs {
     if (!trackedEntity.trackedEntity) throw new Error("Tracked entity not found");
 
+    const fromMap = (key: keyof typeof diseaseOutbreakCodes) => getValueFromMap(key, trackedEntity);
+
+    const dataSource = dataSourceMap[fromMap("dataSource")];
+    const incidentStatus = incidentStatusMap[fromMap("incidentStatus")];
+
+    if (!dataSource || !incidentStatus) throw new Error("Data source or incident status not valid");
+
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
-        name: getValueFromMap("name", trackedEntity),
-        dataSource: getValueFromMap("dataSource", trackedEntity) as DataSource,
+        name: fromMap("name"),
+        dataSource: dataSource,
         created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : new Date(),
         lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : new Date(),
         createdByName: undefined,
-        hazardType: getHazardTypeValue(getValueFromMap("hazardType", trackedEntity)),
-        mainSyndromeCode: getValueFromMap("mainSyndrome", trackedEntity),
-        suspectedDiseaseCode: getValueFromMap("suspectedDisease", trackedEntity),
-        notificationSourceCode: getValueFromMap("notificationSource", trackedEntity),
-        areasAffectedProvinceIds: getMultipleOUFromText(
-            getValueFromMap("areasAffectedProvinces", trackedEntity)
-        ),
-        areasAffectedDistrictIds: getMultipleOUFromText(
-            getValueFromMap("areasAffectedDistricts", trackedEntity)
-        ),
-        incidentStatus: getValueFromMap("incidentStatus", trackedEntity) as IncidentStatusType,
+        hazardType: getHazardTypeByCode(fromMap("hazardType")),
+        mainSyndromeCode: fromMap("mainSyndrome"),
+        suspectedDiseaseCode: fromMap("suspectedDisease"),
+        notificationSourceCode: fromMap("notificationSource"),
+        areasAffectedProvinceIds: getMultipleOUFromText(fromMap("areasAffectedProvinces")),
+        areasAffectedDistrictIds: getMultipleOUFromText(fromMap("areasAffectedDistricts")),
+        incidentStatus: incidentStatus,
         emerged: {
-            date: new Date(getValueFromMap("emergedDate", trackedEntity)),
-            narrative: getValueFromMap("emergedNarrative", trackedEntity),
+            date: new Date(fromMap("emergedDate")),
+            narrative: fromMap("emergedNarrative"),
         },
         detected: {
-            date: new Date(getValueFromMap("detectedDate", trackedEntity)),
-            narrative: getValueFromMap("detectedNarrative", trackedEntity),
+            date: new Date(fromMap("detectedDate")),
+            narrative: fromMap("detectedNarrative"),
         },
         notified: {
-            date: new Date(getValueFromMap("notifiedDate", trackedEntity)),
-            narrative: getValueFromMap("notifiedNarrative", trackedEntity),
+            date: new Date(fromMap("notifiedDate")),
+            narrative: fromMap("notifiedNarrative"),
         },
-        incidentManagerName: getValueFromMap("incidentManager", trackedEntity),
+        incidentManagerName: fromMap("incidentManager"),
         earlyResponseActions: {
-            initiateInvestigation: new Date(
-                getValueFromMap("initiateInvestigation", trackedEntity)
-            ),
-            conductEpidemiologicalAnalysis: new Date(
-                getValueFromMap("conductEpidemiologicalAnalysis", trackedEntity)
-            ),
+            initiateInvestigation: new Date(fromMap("initiateInvestigation")),
+            conductEpidemiologicalAnalysis: new Date(fromMap("conductEpidemiologicalAnalysis")),
             laboratoryConfirmation: {
-                date: new Date(getValueFromMap("laboratoryConfirmationDate", trackedEntity)),
-                na: getValueFromMap("laboratoryConfirmationNA", trackedEntity) === "true",
+                date: new Date(fromMap("laboratoryConfirmationDate")),
+                na: fromMap("laboratoryConfirmationNA") === "true",
             },
             appropriateCaseManagement: {
-                date: new Date(getValueFromMap("appropriateCaseManagementDate", trackedEntity)),
-                na: getValueFromMap("appropriateCaseManagementNA", trackedEntity) === "true",
+                date: new Date(fromMap("appropriateCaseManagementDate")),
+                na: fromMap("appropriateCaseManagementNA") === "true",
             },
             initiatePublicHealthCounterMeasures: {
-                date: new Date(
-                    getValueFromMap("initiatePublicHealthCounterMeasuresDate", trackedEntity)
-                ),
-                na:
-                    getValueFromMap("initiatePublicHealthCounterMeasuresNA", trackedEntity) ===
-                    "true",
+                date: new Date(fromMap("initiatePublicHealthCounterMeasuresDate")),
+                na: fromMap("initiatePublicHealthCounterMeasuresNA") === "true",
             },
             initiateRiskCommunication: {
-                date: new Date(getValueFromMap("initiateRiskCommunicationDate", trackedEntity)),
-                na: getValueFromMap("initiateRiskCommunicationNA", trackedEntity) === "true",
+                date: new Date(fromMap("initiateRiskCommunicationDate")),
+                na: fromMap("initiateRiskCommunicationNA") === "true",
             },
-            establishCoordination: new Date(
-                getValueFromMap("establishCoordination", trackedEntity)
-            ),
-            responseNarrative: getValueFromMap("responseNarrative", trackedEntity),
+            establishCoordination: new Date(fromMap("establishCoordination")),
+            responseNarrative: fromMap("responseNarrative"),
         },
-        notes: getValueFromMap("notes", trackedEntity),
+        notes: fromMap("notes"),
     };
 
     return diseaseOutbreak;
