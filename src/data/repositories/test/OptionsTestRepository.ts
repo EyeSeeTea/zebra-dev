@@ -1,10 +1,14 @@
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../domain/entities/generic/Future";
-import { Code, Option } from "../../../domain/entities/Ref";
+import { Code, Id, Option } from "../../../domain/entities/Ref";
 import { OptionsRepository } from "../../../domain/repositories/OptionsRepository";
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
     //Event Tracker Options
+    get(id: Id): FutureData<Option> {
+        return Future.success({ id: id, name: "Test Main Syndrome", code: "MainSyndromeCode" });
+    }
     getMainSyndrome(_optionCode: Code): FutureData<Option> {
         return Future.success({ id: "1", name: "Test Main Syndrome", code: "MainSyndromeCode" });
     }
@@ -19,37 +23,31 @@ export class OptionsTestRepository implements OptionsRepository {
         });
     }
 
-    getAllDataSources(): FutureData<Option[]> {
+    getDataSources(): FutureData<Option[]> {
         return Future.success([
-            { id: "EBS", name: "EBS", code: "EBS" },
-            { id: "IBS", name: "IBS", code: "IBS" },
+            { id: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS, name: "EBS" },
+            { id: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS, name: "IBS" },
         ]);
     }
 
-    getAllHazardTypes(): FutureData<Option[]> {
-        return Future.success([{ id: "1", name: "Test Hazard Type", code: "HazardTypeCode" }]);
+    getHazardTypes(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test Hazard Type" }]);
     }
 
-    getAllMainSyndromes(): FutureData<Option[]> {
-        return Future.success([{ id: "1", name: "Test Main Syndrome", code: "MainSyndromeCode" }]);
+    getMainSyndromes(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test Main Syndrome" }]);
     }
 
-    getAllSuspectedDiseases(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Test Suspected Disease", code: "SuspectedDiseaseCode" },
-        ]);
+    getSuspectedDiseases(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test Suspected Disease" }]);
     }
 
-    getAllNotificationSources(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Test Notification Source", code: "NotificationSourceCode" },
-        ]);
+    getNotificationSources(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test Notification Source" }]);
     }
 
-    getAllIncidentStatus(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Test Incident Status", code: "IncidentStatusCode" },
-        ]);
+    getIncidentStatus(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test Incident Status" }]);
     }
 
     //Risk Grading Options

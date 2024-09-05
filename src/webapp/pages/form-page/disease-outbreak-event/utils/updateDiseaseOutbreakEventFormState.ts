@@ -20,10 +20,12 @@ export function updateAndValidateFormState(
 ): FormState {
     const updatedForm = updateFormStateAndApplySideEffects(prevFormState, updatedField);
 
-    const updatedFormWithRulesApplied =
-        configirableForm.rules.filter(rule => rule.fieldId === updatedField.id).length > 0
-            ? applyRulesInFormState(updatedForm, updatedField, configirableForm.rules)
-            : updatedForm;
+    const hasUpdatedFieldAnyRule =
+        configirableForm.rules.filter(rule => rule.fieldId === updatedField.id).length > 0;
+
+    const updatedFormWithRulesApplied = hasUpdatedFieldAnyRule
+        ? applyRulesInFormState(updatedForm, updatedField, configirableForm.rules)
+        : updatedForm;
 
     const fieldValidationErrors = validateFormState(
         updatedFormWithRulesApplied,

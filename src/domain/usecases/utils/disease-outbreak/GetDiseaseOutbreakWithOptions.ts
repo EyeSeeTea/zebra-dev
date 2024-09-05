@@ -33,12 +33,12 @@ function getPopulatedDiseaseOutbreakEventWithOptions(
     diseaseOutbreakEventBase?: DiseaseOutbreakEventBaseAttrs
 ): FutureData<DiseaseOutbreakEventFormData> {
     return Future.joinObj({
-        dataSources: options.optionsRepository.getAllDataSources(),
-        hazardTypes: options.optionsRepository.getAllHazardTypes(),
-        mainSyndromes: options.optionsRepository.getAllMainSyndromes(),
-        suspectedDiseases: options.optionsRepository.getAllSuspectedDiseases(),
-        notificationSources: options.optionsRepository.getAllNotificationSources(),
-        incidentStatus: options.optionsRepository.getAllIncidentStatus(),
+        dataSources: options.optionsRepository.getDataSources(),
+        hazardTypes: options.optionsRepository.getHazardTypes(),
+        mainSyndromes: options.optionsRepository.getMainSyndromes(),
+        suspectedDiseases: options.optionsRepository.getSuspectedDiseases(),
+        notificationSources: options.optionsRepository.getNotificationSources(),
+        incidentStatus: options.optionsRepository.getIncidentStatus(),
         teamMembers: options.teamMemberRepository.getAll(),
     }).flatMap(
         ({

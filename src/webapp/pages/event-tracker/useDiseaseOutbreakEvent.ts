@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
-import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DataSource,
+    DiseaseOutbreakEvent,
+} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
     getDateAsLocaleDateTimeString,
     getDateAsMonthYearString,
@@ -50,7 +53,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
         diseaseOutbreakEvent: DiseaseOutbreakEvent
     ): FormSummaryData => {
         const dataSourceLabelValue: LabelWithValue =
-            diseaseOutbreakEvent.dataSource === "EBS"
+            diseaseOutbreakEvent.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
                 ? {
                       label: EventTypeLabel,
                       value: diseaseOutbreakEvent.hazardType ?? "",

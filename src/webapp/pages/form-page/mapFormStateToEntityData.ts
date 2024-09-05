@@ -2,7 +2,7 @@ import {
     DataSource,
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
-    IncidentStatusType,
+    IncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormState } from "../../components/form/FormState";
 import { diseaseOutbreakEventFieldIds } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
@@ -112,7 +112,7 @@ function mapFormStateToDiseaseOutbreakEvent(
         incidentStatus: getStringFieldValue(
             diseaseOutbreakEventFieldIds.incidentStatus,
             allFields
-        ) as IncidentStatusType,
+        ) as IncidentStatus,
         emerged: {
             date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
             narrative: getStringFieldValue(
