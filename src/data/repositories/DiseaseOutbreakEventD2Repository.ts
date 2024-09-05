@@ -67,7 +67,13 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                             ?.uid;
 
                     if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
-                        return Future.error(new Error(`Error saving disease ooutbreak event`));
+                        return Future.error(
+                            new Error(
+                                `Error saving disease outbreak event: ${saveResponse.validationReport.errorReports
+                                    .map(e => e.message)
+                                    .join(", ")}`
+                            )
+                        );
                     } else {
                         return Future.success(diseaseOutbreakId);
                     }

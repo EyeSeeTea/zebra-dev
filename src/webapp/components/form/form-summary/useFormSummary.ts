@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../../contexts/app-context";
 import { Id } from "../../../../domain/entities/Ref";
-import { DiseaseOutbreakEvent } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DataSource,
+    DiseaseOutbreakEvent,
+} from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { User } from "../../user-selector/UserSelector";
 import { mapTeamMemberToUser } from "../../../pages/form-page/disease-outbreak-event/utils/mapEntityToInitialFormState";
 import { Maybe } from "../../../../utils/ts-utils";
@@ -43,7 +46,7 @@ export function useFormSummary(id: Id) {
         diseaseOutbreakEvent: DiseaseOutbreakEvent
     ): FormSummary => {
         const dataSourceLabelValue: LabelWithValue =
-            diseaseOutbreakEvent.dataSource === "EBS"
+            diseaseOutbreakEvent.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
                 ? {
                       label: EventTypeLabel,
                       value: diseaseOutbreakEvent.hazardType ?? "",

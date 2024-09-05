@@ -32,7 +32,7 @@ export function MultipleSelector<Value extends string>({
     error = false,
     required = false,
 }: MultipleSelectorProps<Value>): JSX.Element {
-    const handleChange = useCallback(
+    const notifyChange = useCallback(
         (
             event: React.ChangeEvent<{
                 value: unknown;
@@ -65,7 +65,7 @@ export function MultipleSelector<Value extends string>({
                 labelId={label || `${id}-label`}
                 id={id}
                 value={selected}
-                onChange={handleChange}
+                onChange={notifyChange}
                 disabled={disabled}
                 variant="outlined"
                 IconComponent={IconChevronDown24}

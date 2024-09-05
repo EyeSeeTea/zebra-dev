@@ -1,6 +1,4 @@
-import { DiseaseOutbreakEvent } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
-import { ValidationError } from "../../../../../domain/entities/ValidationError";
 import { FormFieldState } from "../../../../components/form/FormFieldsState";
 import {
     FormState,
@@ -10,32 +8,23 @@ import {
     validateForm,
 } from "../../../../components/form/FormState";
 import { applyRulesInFormState } from "./applyRulesInFormState";
-import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
 
 export function updateDiseaseOutbreakEventFormState(
     prevFormState: FormState,
     updatedField: FormFieldState,
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions,
-    currentUserUsername: string
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions
 ): FormState {
     const updatedForm = updateFormStateAndApplySideEffects(prevFormState, updatedField);
 
-    const updatedFormWithRulesApplied =
+    const hasUpdatedFieldAnyRule =
         diseaseOutbreakEventWithOptions.rules.filter(rule => rule.fieldId === updatedField.id)
-            .length > 0
-            ? applyRulesInFormState(
-                  updatedForm,
-                  updatedField,
-                  diseaseOutbreakEventWithOptions.rules
-              )
-            : updatedForm;
+            .length > 0;
 
-    const fieldValidationErrors = validateDiseaseOutbreakEventFormState(
-        updatedFormWithRulesApplied,
-        updatedField,
-        diseaseOutbreakEventWithOptions,
-        currentUserUsername
-    );
+    const updatedFormWithRulesApplied = hasUpdatedFieldAnyRule
+        ? applyRulesInFormState(updatedForm, updatedField, diseaseOutbreakEventWithOptions.rules)
+        : updatedForm;
+
+    const fieldValidationErrors = validateForm(updatedFormWithRulesApplied, updatedField);
 
     const updatedFormStateWithErrors = updateFormStateWithFieldErrors(
         updatedFormWithRulesApplied,
@@ -47,18 +36,4 @@ export function updateDiseaseOutbreakEventFormState(
         ...updatedFormStateWithErrors,
         isValid: isValidForm(updatedFormStateWithErrors.sections),
     };
-}
-
-export function validateDiseaseOutbreakEventFormState(
-    updatedForm: FormState,
-    updatedField: FormFieldState,
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions,
-    currentUserUsername: string
-): ValidationError[] {
-    const formValidationErrors = validateForm(updatedForm, updatedField);
-    const entityValidationErrors = DiseaseOutbreakEvent.validate(
-        mapFormStateToEntityData(updatedForm, currentUserUsername, diseaseOutbreakEventWithOptions)
-    );
-
-    return [...formValidationErrors, ...entityValidationErrors];
 }
