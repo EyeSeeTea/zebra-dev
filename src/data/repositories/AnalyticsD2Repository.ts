@@ -124,6 +124,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                             IndicatorsId.era7,
                             IndicatorsId.detect7d,
                             IndicatorsId.notify1d,
+                            IndicatorsId.respond7d,
                         ],
                     }
                 )

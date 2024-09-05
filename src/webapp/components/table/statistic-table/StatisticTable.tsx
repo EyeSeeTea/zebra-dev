@@ -108,7 +108,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                     <SearchInput value={searchTerm} onChange={value => setSearchTerm(value)} />
                 </Container>
                 <StyledTableContainer>
-                    <Table size="small">
+                    <Table>
                         <TableHead>
                             <TableRow>
                                 {columns.map(({ value, label, dark = false }) => (

@@ -10,6 +10,7 @@ export enum IndicatorsId {
     era7 = "GgUJMCklxFu",
     detect7d = "cGFwM7qiPzl",
     notify1d = "HDa3nE7Elxj",
+    respond7d = "yxVOW4lj4xP",
     province = "ouname",
     manager = "createdbydisplayname",
     creationDate = "lastupdated",
