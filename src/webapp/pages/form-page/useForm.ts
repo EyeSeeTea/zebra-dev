@@ -90,8 +90,7 @@ export function useForm(formType: FormType, id?: Id): State {
                         data: updateAndValidateFormState(
                             prevState.data,
                             updatedField,
-                            configurableForm,
-                            currentUser.username
+                            configurableForm
                         ),
                     };
                 } else {
@@ -99,7 +98,7 @@ export function useForm(formType: FormType, id?: Id): State {
                 }
             });
         },
-        [currentUser.username, configurableForm]
+        [configurableForm]
     );
 
     const onSaveForm = useCallback(() => {

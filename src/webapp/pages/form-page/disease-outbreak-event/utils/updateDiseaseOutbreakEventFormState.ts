@@ -10,13 +10,11 @@ import {
     validateForm,
 } from "../../../../components/form/FormState";
 import { applyRulesInFormState } from "./applyRulesInFormState";
-import { mapFormStateToDiseaseOutbreakEventData } from "../mapFormStateToDiseaseOutbreakEventData";
 
 export function updateAndValidateFormState(
     prevFormState: FormState,
     updatedField: FormFieldState,
-    configirableForm: ConfigurableForm,
-    currentUserUsername: string
+    configirableForm: ConfigurableForm
 ): FormState {
     const updatedForm = updateFormStateAndApplySideEffects(prevFormState, updatedField);
 
@@ -30,8 +28,7 @@ export function updateAndValidateFormState(
     const fieldValidationErrors = validateFormState(
         updatedFormWithRulesApplied,
         updatedField,
-        configirableForm,
-        currentUserUsername
+        configirableForm
     );
 
     const updatedFormStateWithErrors = updateFormStateWithFieldErrors(
@@ -49,20 +46,15 @@ export function updateAndValidateFormState(
 function validateFormState(
     updatedForm: FormState,
     updatedField: FormFieldState,
-    configurableForm: ConfigurableForm,
-    currentUserUsername: string
+    configurableForm: ConfigurableForm
 ): ValidationError[] {
     const formValidationErrors = validateForm(updatedForm, updatedField);
     let entityValidationErrors: ValidationError[] = [];
 
     switch (configurableForm.type) {
         case "disease-outbreak-event": {
-            const diseaseOutbreakEvent = mapFormStateToDiseaseOutbreakEventData(
-                updatedForm,
-                currentUserUsername,
-                configurableForm
-            );
-            entityValidationErrors = DiseaseOutbreakEvent.validate(diseaseOutbreakEvent);
+            if (configurableForm.entity)
+                entityValidationErrors = DiseaseOutbreakEvent.validate(configurableForm.entity);
             break;
         }
 
