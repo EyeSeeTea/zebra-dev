@@ -5,7 +5,7 @@ import { RiskAssessmentRepository } from "../../../domain/repositories/RiskAsses
 import { FutureData } from "../../api-futures";
 
 export class RiskAssessmentTestRepository implements RiskAssessmentRepository {
-    getAll(diseaseOutbreakId: Id): FutureData<RiskAssessment> {
+    getAll(_diseaseOutbreakId: Id): FutureData<RiskAssessment> {
         return Future.success(
             new RiskAssessment({
                 grading: [],

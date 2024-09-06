@@ -5,7 +5,6 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
 import { assertOrError } from "./utils/AssertOrError";
 import { getHazardTypeByCode } from "./consts/DiseaseOutbreakConstants";
-import { Future } from "../../domain/entities/generic/Future";
 import { riskAssessmentGradingOptionCodes } from "./consts/RiskAssessmentGradingConstants";
 
 const MAIN_SYNDROME_OPTION_SET_CODE = "AGENTS";
@@ -111,7 +110,7 @@ export class OptionsD2Repository implements OptionsRepository {
                 return {
                     id:
                         Object.entries(riskAssessmentGradingOptionCodes.weightedOption).filter(
-                            ([key, val]) => val === lowMediumHigh.id
+                            ([_key, val]) => val === lowMediumHigh.id
                         )[0]?.[0] ?? lowMediumHigh.id,
                     name: lowMediumHigh.name,
                 };

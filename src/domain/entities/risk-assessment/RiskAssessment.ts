@@ -9,6 +9,4 @@ interface RiskAssessmentAttrs {
     questionnaire?: RiskAssessmentQuestionnaire;
 }
 
-export class RiskAssessment extends Struct<RiskAssessmentAttrs>() {
-    
-}
+export class RiskAssessment extends Struct<RiskAssessmentAttrs>() {}
