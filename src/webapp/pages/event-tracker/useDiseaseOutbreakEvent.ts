@@ -98,7 +98,9 @@ export function useDiseaseOutbreakEvent(id: Id) {
     ) => {
         if (diseaseOutbreakEvent.riskAssessment) {
             return diseaseOutbreakEvent.riskAssessment.grading.map(riskAssessmentGrading => ({
-                grade: riskAssessmentGrading.getGrade().getOrThrow(),
+                grade: RiskAssessmentGrading.getTranslatedLabel(
+                    riskAssessmentGrading.getGrade().getOrThrow()
+                ),
                 populationRisk: RiskAssessmentGrading.getTranslatedLabel(
                     riskAssessmentGrading.populationAtRisk.type
                 ),

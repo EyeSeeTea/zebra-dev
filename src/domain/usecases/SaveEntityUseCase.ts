@@ -4,7 +4,7 @@ import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { RiskAssessmentGradingRepository } from "../repositories/RiskAssessmentGradingRepository";
-import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreakUseCase";
+import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
 import { saveRiskAssessmentGrading } from "./utils/risk-assessment/SaveRiskAssessmentGrading";
 
 export class SaveEntityUseCase {

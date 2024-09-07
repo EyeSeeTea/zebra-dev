@@ -5,7 +5,25 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
 import { assertOrError } from "./utils/AssertOrError";
 import { getHazardTypeByCode } from "./consts/DiseaseOutbreakConstants";
-import { riskAssessmentGradingOptionCodes } from "./consts/RiskAssessmentGradingConstants";
+
+import {
+    Capability1,
+    Capability2,
+    HighCapacity,
+    HighGeographicalSpread,
+    HighPopulationAtRisk,
+    HighWeightedOption,
+    LowCapacity,
+    LowGeographicalSpread,
+    LowPopulationAtRisk,
+    LowWeightedOption,
+    MediumCapacity,
+    MediumGeographicalSpread,
+    MediumPopulationAtRisk,
+    MediumWeightedOption,
+    RiskAssessmentGrading,
+} from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
+import { Future } from "../../domain/entities/generic/Future";
 
 const MAIN_SYNDROME_OPTION_SET_CODE = "AGENTS";
 const SUSPECTED_DISEASE_OPTION_SET_CODE = "RTSL_ZEB_OS_DISEASE";
@@ -87,76 +105,52 @@ export class OptionsD2Repository implements OptionsRepository {
     }
 
     //Risk Assessment Grading Options
-    getPopulationAtRisks(): FutureData<Option[]> {
+    getPopulationAtRisks(): FutureData<
+        Array<LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk>
+    > {
         return this.getOptionSetByCode("RTSL_ZEB_OS_POPULATION_AT_RISK").map(
             populationAtRiskOptions => {
                 return populationAtRiskOptions.map(populationAtRisk => {
-                    const population = Object.entries(
-                        riskAssessmentGradingOptionCodes.populationAtRisk
-                    ).filter(([_key, val]) => val === populationAtRisk.id)[0]?.[0];
-
-                    return {
-                        id: population ?? populationAtRisk.id,
-                        name: populationAtRisk.name,
-                    };
+                    return RiskAssessmentGrading.getOptionTypeByCodePopulation(populationAtRisk.id);
                 });
             }
         );
     }
 
-    getLowMediumHighOptions(): FutureData<Option[]> {
+    getLowMediumHighOptions(): FutureData<
+        Array<LowWeightedOption | MediumWeightedOption | HighWeightedOption>
+    > {
         return this.getOptionSetByCode("RTSL_ZEB_OS_LMH").map(lowMediumHighOptions => {
             return lowMediumHighOptions.map(lowMediumHigh => {
-                return {
-                    id:
-                        Object.entries(riskAssessmentGradingOptionCodes.weightedOption).filter(
-                            ([_key, val]) => val === lowMediumHigh.id
-                        )[0]?.[0] ?? lowMediumHigh.id,
-                    name: lowMediumHigh.name,
-                };
+                return RiskAssessmentGrading.getOptionTypeByCodeWeighted(lowMediumHigh.id);
             });
         });
     }
-    getGeographicalSpreads(): FutureData<Option[]> {
+    getGeographicalSpreads(): FutureData<
+        Array<LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread>
+    > {
         return this.getOptionSetByCode("RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD").map(
             geographicalSpreadOptions => {
                 return geographicalSpreadOptions.map(geographicalSpread => {
-                    return {
-                        id:
-                            Object.entries(
-                                riskAssessmentGradingOptionCodes.geographicalSpread
-                            ).filter(([_key, val]) => val === geographicalSpread.id)[0]?.[0] ??
-                            geographicalSpread.id,
-                        name: geographicalSpread.name,
-                    };
+                    return RiskAssessmentGrading.getOptionTypeByCodeGeographicalSpread(
+                        geographicalSpread.id
+                    );
                 });
             }
         );
     }
 
-    getCapacities(): FutureData<Option[]> {
+    getCapacities(): FutureData<Array<LowCapacity | MediumCapacity | HighCapacity>> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_CAPACITY").map(capacityOptions => {
             return capacityOptions.map(capacity => {
-                return {
-                    id:
-                        Object.entries(riskAssessmentGradingOptionCodes.capacity).filter(
-                            ([_key, val]) => val === capacity.id
-                        )[0]?.[0] ?? capacity.id,
-                    name: capacity.name,
-                };
+                return RiskAssessmentGrading.getOptionTypeByCodeCapacity(capacity.id);
             });
         });
     }
-    getCapabilities(): FutureData<Option[]> {
+    getCapabilities(): FutureData<Array<Capability1 | Capability2>> {
         return this.getOptionSetByCode("RTSL_ZEB_OS_CAPABILITY").map(capabilityOptions => {
             return capabilityOptions.map(capability => {
-                return {
-                    id:
-                        Object.entries(riskAssessmentGradingOptionCodes.capability).filter(
-                            ([_key, val]) => val === capability.id
-                        )[0]?.[0] ?? capability.id,
-                    name: capability.name,
-                };
+                return RiskAssessmentGrading.getOptionTypeByCodeCapability(capability.id);
             });
         });
     }

@@ -1,5 +1,5 @@
+import { riskAssessmentGradingCodes } from "../../../../data/repositories/consts/RiskAssessmentGradingConstants";
 import { RiskAssessmentGradingFormData } from "../../../../domain/entities/ConfigurableForm";
-import { riskAssessmentGradingCodes } from "../../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { FormState } from "../../../components/form/FormState";
 import { Option as UIOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";

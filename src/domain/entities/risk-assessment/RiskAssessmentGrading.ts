@@ -1,20 +1,8 @@
 import i18n from "@eyeseetea/feedback-component/locales";
-import { Ref } from "../Ref";
+import { Code, Id, Ref } from "../Ref";
 import { Struct } from "../generic/Struct";
 import { Either } from "../generic/Either";
-
-export const riskAssessmentGradingCodes = {
-    populationAtRisk: "RTSL_ZEB_DET_POPULATION_RISK",
-    attackRate: "RTSL_ZEB_DET_ATTACK_RATE",
-    geographicalSpread: "RTSL_ZEB_DET_GEOGRAPHICAL_SPREAD",
-    complexity: "RTSL_ZEB_DET_COMPLEXITY",
-    capacity: "RTSL_ZEB_DET_CAPACITY",
-    reputationalRisk: "RTSL_ZEB_DET_REPUTATIONAL_RISK",
-    severity: "RTSL_ZEB_DET_SEVERITY",
-    capability: "RTSL_ZEB_DET_CAPABILITY",
-    grade: "RTSL_ZEB_DET_GRADE",
-    riskId: "RTSL_ZEB_DET_RISK_ID_RAG",
-} as const;
+import { Maybe } from "../../../utils/ts-utils";
 
 type WeightedOptionTypes = "Low" | "Medium" | "High";
 type PopulationWeightOptionsTypes = "LessPercentage" | "MediumPercentage" | "HighPercentage";
@@ -127,7 +115,7 @@ const translations: Record<AllOptionTypes, string> = {
     Grade3: i18n.t("Grade 3"),
 };
 
-interface RiskAssessmentGradingAttrs extends Ref {
+export interface RiskAssessmentGradingAttrs extends Ref {
     lastUpdated: Date;
     populationAtRisk: LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk;
     attackRate: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
@@ -150,6 +138,118 @@ export class RiskAssessmentGrading extends Struct<RiskAssessmentGradingAttrs>() 
 
     public static getTranslatedLabel(key: AllOptionTypes): string {
         return translations[key];
+    }
+    public static getOptionTypeByCodePopulation(
+        code: Maybe<Code>
+    ): LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk {
+        switch (code) {
+            case "RTSL_ZEB_OS_POPULATION_AT_RISK_1":
+                return {
+                    type: "LessPercentage",
+                    weight: 1,
+                };
+            case "RTSL_ZEB_OS_POPULATION_AT_RISK_2":
+                return {
+                    type: "MediumPercentage",
+                    weight: 2,
+                };
+            case "RTSL_ZEB_OS_POPULATION_AT_RISK_3":
+                return {
+                    type: "HighPercentage",
+                    weight: 3,
+                };
+            default:
+                throw new Error("Invalid code");
+        }
+    }
+
+    public static getOptionTypeByCodeWeighted(
+        code: Maybe<Code>
+    ): LowWeightedOption | MediumWeightedOption | HighWeightedOption {
+        switch (code) {
+            case "RTSL_ZEB_OS_LMH_LOW":
+                return {
+                    type: "Low",
+                    weight: 1,
+                };
+            case "RTSL_ZEB_OS_LMH_MEDIUM":
+                return {
+                    type: "Medium",
+                    weight: 2,
+                };
+            case "RTSL_ZEB_OS_LMH_HIGH":
+                return {
+                    type: "High",
+                    weight: 3,
+                };
+            default:
+                throw new Error("Invalid code");
+        }
+    }
+
+    public static getOptionTypeByCodeGeographicalSpread(
+        code: Maybe<Code>
+    ): LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread {
+        switch (code) {
+            case "RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD_1":
+                return {
+                    type: "WithinDistrict",
+                    weight: 1,
+                };
+            case "RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD_2":
+                return {
+                    type: "MoretThanOneDistrict",
+                    weight: 2,
+                };
+            case "RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD_3":
+                return {
+                    type: "MoreThanOneProvince",
+                    weight: 3,
+                };
+            default:
+                throw new Error("Invalid code");
+        }
+    }
+
+    public static getOptionTypeByCodeCapacity(
+        code: Maybe<Code>
+    ): LowCapacity | MediumCapacity | HighCapacity {
+        switch (code) {
+            case "RTSL_ZEB_OS_CAPACITY_1":
+                return {
+                    type: "ProvincialNationalLevel",
+                    weight: 1,
+                };
+            case "RTSL_ZEB_OS_CAPACITY_2":
+                return {
+                    type: "ProvincialLevel",
+                    weight: 2,
+                };
+            case "RTSL_ZEB_OS_CAPACITY_3":
+                return {
+                    type: "NationalInternationalLevel",
+                    weight: 3,
+                };
+            default:
+                throw new Error("Invalid code");
+        }
+    }
+
+    public static getOptionTypeByCodeCapability(code: Maybe<Code>): Capability1 | Capability2 {
+        switch (code) {
+            case "RTSL_ZEB_OS_CAPABILITY_1":
+                return {
+                    type: "Capability1",
+                    weight: 1,
+                };
+            case "RTSL_ZEB_OS_CAPABILITY_2":
+                return {
+                    type: "Capability2",
+                    weight: 2,
+                };
+            default:
+                throw new Error("Invalid code");
+        }
     }
 
     getGrade(): Either<Error, Grade> {

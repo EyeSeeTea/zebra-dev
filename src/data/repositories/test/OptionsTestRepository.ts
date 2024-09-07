@@ -1,10 +1,47 @@
 import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../domain/entities/generic/Future";
 import { Code, Id, Option } from "../../../domain/entities/Ref";
+import {
+    LowPopulationAtRisk,
+    MediumPopulationAtRisk,
+    HighPopulationAtRisk,
+    LowWeightedOption,
+    MediumWeightedOption,
+    HighWeightedOption,
+    LowGeographicalSpread,
+    MediumGeographicalSpread,
+    HighGeographicalSpread,
+    LowCapacity,
+    MediumCapacity,
+    HighCapacity,
+    Capability1,
+    Capability2,
+} from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { OptionsRepository } from "../../../domain/repositories/OptionsRepository";
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
+    getPopulationAtRisks(): FutureData<
+        Array<LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk>
+    > {
+        throw new Error("Method not implemented.");
+    }
+    getLowMediumHighOptions(): FutureData<
+        Array<LowWeightedOption | MediumWeightedOption | HighWeightedOption>
+    > {
+        throw new Error("Method not implemented.");
+    }
+    getGeographicalSpreads(): FutureData<
+        Array<LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread>
+    > {
+        throw new Error("Method not implemented.");
+    }
+    getCapacities(): FutureData<Array<LowCapacity | MediumCapacity | HighCapacity>> {
+        throw new Error("Method not implemented.");
+    }
+    getCapabilities(): FutureData<Array<Capability1 | Capability2>> {
+        throw new Error("Method not implemented.");
+    }
     //Event Tracker Options
     get(id: Id): FutureData<Option> {
         return Future.success({ id: id, name: "Test Main Syndrome", code: "MainSyndromeCode" });
@@ -51,29 +88,4 @@ export class OptionsTestRepository implements OptionsRepository {
     }
 
     //Risk Grading Options
-    getPopulationAtRisks(): FutureData<Option[]> {
-        return Future.success([{ id: "1", name: "Less than 1%", code: "LessThan1" }]);
-    }
-
-    getGeographicalSpreads(): FutureData<Option[]> {
-        return Future.success([{ id: "1", name: "Within a district", code: "WithinDistrict" }]);
-    }
-    getLowMediumHighOptions(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Low", code: "Low" },
-            { id: "2", name: "Medium", code: "Medium" },
-        ]);
-    }
-    getCapacities(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Within District", code: "WD" },
-            { id: "2", name: "Within Province", code: "WP" },
-        ]);
-    }
-    getCapabilities(): FutureData<Option[]> {
-        return Future.success([
-            { id: "1", name: "Cap1", code: "Cap1" },
-            { id: "2", name: "Cap2", code: "Cap2" },
-        ]);
-    }
 }

@@ -1,5 +1,21 @@
 import { FutureData } from "../../data/api-futures";
 import { Code, Option } from "../entities/Ref";
+import {
+    Capability1,
+    Capability2,
+    HighCapacity,
+    HighGeographicalSpread,
+    HighPopulationAtRisk,
+    HighWeightedOption,
+    LowCapacity,
+    LowGeographicalSpread,
+    LowPopulationAtRisk,
+    LowWeightedOption,
+    MediumCapacity,
+    MediumGeographicalSpread,
+    MediumPopulationAtRisk,
+    MediumWeightedOption,
+} from "../entities/risk-assessment/RiskAssessmentGrading";
 
 export interface OptionsRepository {
     get(optionCode: Code, optionSetCode: Code): FutureData<Option>;
@@ -14,9 +30,15 @@ export interface OptionsRepository {
     getNotificationSources(): FutureData<Option[]>;
     getIncidentStatus(): FutureData<Option[]>;
     //risk assessment grading options
-    getPopulationAtRisks(): FutureData<Option[]>;
-    getLowMediumHighOptions(): FutureData<Option[]>;
-    getGeographicalSpreads(): FutureData<Option[]>;
-    getCapacities(): FutureData<Option[]>;
-    getCapabilities(): FutureData<Option[]>;
+    getPopulationAtRisks(): FutureData<
+        Array<LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk>
+    >;
+    getLowMediumHighOptions(): FutureData<
+        Array<LowWeightedOption | MediumWeightedOption | HighWeightedOption>
+    >;
+    getGeographicalSpreads(): FutureData<
+        Array<LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread>
+    >;
+    getCapacities(): FutureData<Array<LowCapacity | MediumCapacity | HighCapacity>>;
+    getCapabilities(): FutureData<Array<Capability1 | Capability2>>;
 }

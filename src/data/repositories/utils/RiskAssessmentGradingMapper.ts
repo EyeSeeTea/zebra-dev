@@ -11,7 +11,7 @@ import { DataValue } from "@eyeseetea/d2-api";
 import { Id } from "../../../domain/entities/Ref";
 import {
     getValueFromRiskAssessmentGrading,
-    isStringIRiskAssessmentGradingCodes,
+    isStringInRiskAssessmentGradingCodes,
     RiskAssessmentGradingCodes,
     RiskAssessmentGradingKeyCode,
 } from "../consts/RiskAssessmentGradingConstants";
@@ -37,13 +37,13 @@ export function mapRiskAssessmentGradingToDataElements(
         getValueFromRiskAssessmentGrading(riskAssessmentGrading);
 
     const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
-        if (!isStringIRiskAssessmentGradingCodes(programStage.dataElement.code)) {
+        if (!isStringInRiskAssessmentGradingCodes(programStage.dataElement.code)) {
             throw new Error("DataElement code not found in RiskAssessmentGradingCodes");
         }
         const typedCode: RiskAssessmentGradingKeyCode = programStage.dataElement.code;
         const populatedDataElement = {
             dataElement: programStage.dataElement.id,
-            value: dataElementValues[typedCode],
+            value: dataElementValues[typedCode] ?? "",
             lastUpdated: new Date().toISOString(),
             storedBy: "",
             created: new Date().toISOString(),
