@@ -9,28 +9,28 @@ export type RiskAssessmentGradingCodes = GetValue<typeof riskAssessmentGradingCo
 //SNEHA TO DO : Better naming for these codes in metadata
 export const riskAssessmentGradingOptionCodes = {
     populationAtRisk: {
-        LessPercentage: "1",
-        MediumPercentage: "2",
-        HighPercentage: "3",
+        LessPercentage: "RTSL_ZEB_OS_POPULATION_AT_RISK_1",
+        MediumPercentage: "RTSL_ZEB_OS_POPULATION_AT_RISK_2",
+        HighPercentage: "RTSL_ZEB_OS_POPULATION_AT_RISK_3",
     },
     weightedOption: {
-        Low: "LOW",
-        Medium: "MEDIUM",
-        High: "HIGH",
+        Low: "RTSL_ZEB_OS_LMH_LOW",
+        Medium: "RTSL_ZEB_OS_LMH_MEDIUM",
+        High: "RTSL_ZEB_OS_LMH_HIGH",
     },
     geographicalSpread: {
-        WithinDistrict: "1",
-        MoretThanOneDistrict: "2",
-        MoreThanOneProvince: "3",
+        WithinDistrict: "RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD_1",
+        MoretThanOneDistrict: "RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD_2",
+        MoreThanOneProvince: "RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD_3",
     },
     capacity: {
-        ProvincialNationalLevel: "1",
-        ProvincialLevel: "2",
-        NationalInternationalLevel: "3",
+        ProvincialNationalLevel: "RTSL_ZEB_OS_CAPACITY_1",
+        ProvincialLevel: "RTSL_ZEB_OS_CAPACITY_2",
+        NationalInternationalLevel: "RTSL_ZEB_OS_CAPACITY_3",
     },
     capability: {
-        Capability1: "1",
-        Capability2: "2",
+        Capability1: "RTSL_ZEB_OS_CAPABILITY_1",
+        Capability2: "RTSL_ZEB_OS_CAPABILITY_2",
     },
     grade: {
         Grade1: "1",

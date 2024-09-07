@@ -1,6 +1,9 @@
 import { FutureData } from "../../../../data/api-futures";
 import { ConfigurableForm, DiseaseOutbreakEventFormData } from "../../../entities/ConfigurableForm";
-import { DiseaseOutbreakEventBaseAttrs } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DataSource,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
 import { Id } from "../../../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
@@ -75,13 +78,13 @@ function getPopulatedDiseaseOutbreakEventWithOptions(
                     {
                         type: "toggleSectionsVisibilityByFieldValue",
                         fieldId: "dataSource",
-                        fieldValue: "EBS",
+                        fieldValue: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
                         sectionIds: ["hazardType_section"],
                     },
                     {
                         type: "toggleSectionsVisibilityByFieldValue",
                         fieldId: "dataSource",
-                        fieldValue: "IBS",
+                        fieldValue: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                         sectionIds: ["mainSyndrome_section", "suspectedDisease_section"],
                     },
                 ],
