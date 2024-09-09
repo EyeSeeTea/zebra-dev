@@ -96,8 +96,8 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                         return acc;
                     }
 
-                    const existingEntry = acc[row.name] || { name: row.name, total: 0 }; // New line to initialize or get existing entry
-                    existingEntry.total += row.total; // Update total safely
+                    const existingEntry = acc[row.name] || { name: row.name, total: 0 };
+                    existingEntry.total += row.total;
                     acc[row.name] = existingEntry;
                     return acc;
                 }, {} as Record<string, { name: string; total: number }>)
