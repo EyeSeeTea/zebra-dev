@@ -1,5 +1,8 @@
 import { FutureData } from "../../data/api-futures";
-import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DataSource,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DiseaseOutbreakEventWithOptions } from "../entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
@@ -32,14 +35,16 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
         diseaseOutbreakEventBase?: DiseaseOutbreakEventBaseAttrs
     ): FutureData<DiseaseOutbreakEventWithOptions> {
         return Future.joinObj({
-            hazardTypes: this.options.optionsRepository.getAllHazardTypes(),
-            mainSyndromes: this.options.optionsRepository.getAllMainSyndromes(),
-            suspectedDiseases: this.options.optionsRepository.getAllSuspectedDiseases(),
-            notificationSources: this.options.optionsRepository.getAllNotificationSources(),
-            incidentStatus: this.options.optionsRepository.getAllIncidentStatus(),
+            dataSources: this.options.optionsRepository.getDataSources(),
+            hazardTypes: this.options.optionsRepository.getHazardTypes(),
+            mainSyndromes: this.options.optionsRepository.getMainSyndromes(),
+            suspectedDiseases: this.options.optionsRepository.getSuspectedDiseases(),
+            notificationSources: this.options.optionsRepository.getNotificationSources(),
+            incidentStatus: this.options.optionsRepository.getIncidentStatus(),
             teamMembers: this.options.teamMemberRepository.getAll(),
         }).flatMap(
             ({
+                dataSources,
                 hazardTypes,
                 mainSyndromes,
                 suspectedDiseases,
@@ -50,6 +55,7 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                 const diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions = {
                     diseaseOutbreakEvent: diseaseOutbreakEventBase,
                     options: {
+                        dataSources,
                         teamMembers,
                         hazardTypes,
                         mainSyndromes,
@@ -57,13 +63,28 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                         notificationSources,
                         incidentStatus,
                     },
-                    // TODO: Get labels form Datastore used in mapEntityToInitialFormState to create initial form state
+                    // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
                     labels: {
                         errors: {
                             field_is_required: "This field is required",
                             field_is_required_na: "This field is required when not applicable",
                         },
                     },
+                    // TODO: Get rules from Datastore used in applyRulesInFormState
+                    rules: [
+                        {
+                            type: "toggleSectionsVisibilityByFieldValue",
+                            fieldId: "dataSource",
+                            fieldValue: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                            sectionIds: ["hazardType_section"],
+                        },
+                        {
+                            type: "toggleSectionsVisibilityByFieldValue",
+                            fieldId: "dataSource",
+                            fieldValue: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                            sectionIds: ["mainSyndrome_section", "suspectedDisease_section"],
+                        },
+                    ],
                 };
                 return Future.success(diseaseOutbreakEventWithOptions);
             }

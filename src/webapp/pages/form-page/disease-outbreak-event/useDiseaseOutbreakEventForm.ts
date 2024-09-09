@@ -7,7 +7,7 @@ import { Id } from "../../../../domain/entities/Ref";
 import { FormState } from "../../../components/form/FormState";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import {
-    DiseaseOutbreakEventLables,
+    DiseaseOutbreakEventLabels,
     DiseaseOutbreakEventWithOptions,
 } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
 import { mapFormStateToEntityData } from "./utils/mapFormStateToEntityData";
@@ -40,7 +40,7 @@ export type DiseaseOutbreakEventFormState =
     | DiseaseOutbreakEventFormStateError;
 
 type State = {
-    formLabels: Maybe<DiseaseOutbreakEventLables>;
+    formLabels: Maybe<DiseaseOutbreakEventLabels>;
     globalMessage: Maybe<GlobalMessage>;
     formState: DiseaseOutbreakEventFormState;
     isLoading: boolean;
@@ -59,7 +59,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
     const [formState, setFormState] = useState<DiseaseOutbreakEventFormState>({ kind: "loading" });
     const [diseaseOutbreakEventWithOptions, setDiseaseOutbreakEventWithOptions] =
         useState<DiseaseOutbreakEventWithOptions>();
-    const [formLabels, setFormLabels] = useState<DiseaseOutbreakEventLables>();
+    const [formLabels, setFormLabels] = useState<DiseaseOutbreakEventLabels>();
     const [isSaved, setIsSaved] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -97,8 +97,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                         data: updateDiseaseOutbreakEventFormState(
                             prevState.data,
                             updatedField,
-                            diseaseOutbreakEventWithOptions,
-                            currentUser.username
+                            diseaseOutbreakEventWithOptions
                         ),
                     };
                 } else {
@@ -106,7 +105,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                 }
             });
         },
-        [currentUser.username, diseaseOutbreakEventWithOptions]
+        [diseaseOutbreakEventWithOptions]
     );
 
     const onSaveForm = useCallback(() => {
@@ -120,30 +119,40 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
         setIsLoading(true);
         setIsSaved(false);
 
-        const diseaseOutbreakEventData = mapFormStateToEntityData(
-            formState.data,
-            currentUser.username,
-            diseaseOutbreakEventWithOptions
-        );
+        try {
+            const diseaseOutbreakEventData = mapFormStateToEntityData(
+                formState.data,
+                currentUser.username,
+                diseaseOutbreakEventWithOptions
+            );
 
-        compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
-            () => {
-                setGlobalMessage({
-                    text: i18n.t(`Disease Outbreak saved successfully`),
-                    type: "success",
-                });
-                setIsLoading(false);
-                setIsSaved(true);
-            },
-            err => {
-                setGlobalMessage({
-                    text: i18n.t(`Error saving disease outbreak: ${err.message}`),
-                    type: "error",
-                });
-                setIsLoading(false);
-                setIsSaved(false);
-            }
-        );
+            compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
+                () => {
+                    setGlobalMessage({
+                        text: i18n.t(`Disease Outbreak saved successfully`),
+                        type: "success",
+                    });
+                    setIsLoading(false);
+                    setIsSaved(true);
+                },
+                err => {
+                    setGlobalMessage({
+                        text: i18n.t(`Error saving disease outbreak: ${err.message}`),
+                        type: "error",
+                    });
+                    setIsLoading(false);
+                    setIsSaved(false);
+                }
+            );
+        } catch (error) {
+            setGlobalMessage({
+                text: i18n.t(`Error saving disease outbreak: ${error}`),
+                type: "error",
+            });
+            setIsLoading(false);
+            setIsSaved(false);
+            return;
+        }
     }, [
         compositionRoot.diseaseOutbreakEvent.save,
         currentUser.username,

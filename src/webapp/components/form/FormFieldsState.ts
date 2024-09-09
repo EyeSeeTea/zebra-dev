@@ -68,7 +68,7 @@ export type FormFieldState =
 export function getAllFieldsFromSections(formSections: FormSectionState[]): FormFieldState[] {
     return formSections.reduce(
         (acc: FormFieldState[], section: FormSectionState): FormFieldState[] => {
-            if (section.subsections) {
+            if (section.subsections?.length) {
                 return [...acc, ...getAllFieldsFromSections(section.subsections)];
             } else {
                 return [...acc, ...section.fields];
@@ -194,4 +194,10 @@ export function validateField(
               value: field.value,
           }
         : undefined;
+}
+
+// RULES:
+
+export function hideFieldsAndSetToEmpty(fields: FormFieldState[]): FormFieldState[] {
+    return fields.map(field => ({ ...getFieldWithEmptyValue(field), isVisible: false }));
 }

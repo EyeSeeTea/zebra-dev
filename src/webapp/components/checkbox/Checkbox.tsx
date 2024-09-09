@@ -28,7 +28,7 @@ export const Checkbox: React.FC<CheckboxProps> = React.memo(
         error = false,
         required = false,
     }) => {
-        const handleChange = useCallback(
+        const notifyChange = useCallback(
             (event: React.ChangeEvent<HTMLInputElement>) => {
                 onChange(event.target.checked);
             },
@@ -44,7 +44,7 @@ export const Checkbox: React.FC<CheckboxProps> = React.memo(
                         id={id}
                         checked={checked}
                         indeterminate={indeterminate}
-                        onChange={handleChange}
+                        onChange={notifyChange}
                         disabled={disabled}
                         size="small"
                         inputProps={inputProps}

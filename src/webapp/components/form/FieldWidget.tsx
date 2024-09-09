@@ -21,7 +21,7 @@ export type FieldWidgetProps = {
 export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.Element => {
     const { field, onChange, disabled = false, errorLabels } = props;
 
-    const handleChange = useCallback(
+    const notifyChange = useCallback(
         (newValue: FormFieldState["value"]) => {
             onChange(updateFieldState(field, newValue));
         },
@@ -31,7 +31,7 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
     const commonProps = {
         id: field.id,
         label: field.label,
-        onChange: handleChange,
+        onChange: notifyChange,
         helperText: field.helperText,
         errorText: field.errors
             ? field.errors

@@ -5,6 +5,6 @@ import { ConfigLabel, Id } from "../entities/Ref";
 export interface DiseaseOutbreakEventRepository {
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs>;
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]>;
-    save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<void>;
+    save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<Id>;
     getConfigStrings(): FutureData<ConfigLabel[]>;
 }
