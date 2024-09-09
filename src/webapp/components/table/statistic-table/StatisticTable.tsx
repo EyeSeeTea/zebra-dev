@@ -16,6 +16,8 @@ import { useTableCell } from "./useTableCell";
 import { useStatisticCalculations } from "./useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
+import { Id } from "../../../../domain/entities/Ref";
+import { Maybe } from "../../../../utils/ts-utils";
 
 export type TableColumn = {
     value: string;
@@ -43,10 +45,18 @@ export type StatisticTableProps = {
         [key: TableColumn["value"]]: string;
     }[];
     filters: FilterType[];
+    goToEvent: (id: Maybe<Id>) => void;
 };
 
 export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
-    ({ rows, columns, columnRules, editRiskAssessmentColumns, filters: filtersConfig }) => {
+    ({
+        rows,
+        columns,
+        columnRules,
+        editRiskAssessmentColumns,
+        filters: filtersConfig,
+        goToEvent,
+    }) => {
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
         const { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions } =
@@ -100,6 +110,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                             />
                                         ) : (
                                             <StyledTableCell
+                                                onClick={() => goToEvent(row.id)}
                                                 key={`${rowIndex}-${column.value}`}
                                                 boldUnderline={columnIndex === 0}
                                             >

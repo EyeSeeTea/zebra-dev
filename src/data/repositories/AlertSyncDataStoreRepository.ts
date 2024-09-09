@@ -11,6 +11,7 @@ import { Maybe } from "../../utils/ts-utils";
 import { DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
 import { OptionsD2Repository } from "./OptionsD2Repository";
 import { AlertEvent, AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
+import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export class AlertSyncDataStoreRepository implements AlertSyncRepository {
     private dataStoreClient: DataStoreClient;
@@ -27,8 +28,8 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
 
         if (verificationStatus === "VERIFIED") {
             return Future.joinObj({
-                hazardTypes: this.optionsRepository.getAllHazardTypes(),
-                suspectedDiseases: this.optionsRepository.getAllSuspectedDiseases(),
+                hazardTypes: this.optionsRepository.getHazardTypes(),
+                suspectedDiseases: this.optionsRepository.getSuspectedDiseases(),
             }).flatMap(({ hazardTypes, suspectedDiseases }) => {
                 const outbreakKey = getOutbreakKey(
                     dataSource,
@@ -73,7 +74,8 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
         outbreakKey: string
     ): AlertSynchronizationData {
         const { alert: alertData, nationalDiseaseOutbreakEventId, dataSource } = options;
-        const outbreakType = dataSource === "IBS" ? "disease" : "hazard";
+        const outbreakType =
+            dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS ? "disease" : "hazard";
 
         const alerts: AlertEvent[] =
             alertData.enrollments?.flatMap(enrollment =>

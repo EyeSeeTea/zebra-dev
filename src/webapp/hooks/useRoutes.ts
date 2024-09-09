@@ -31,7 +31,7 @@ export const routes: Record<RouteName, string> = {
 type RouteParams = {
     [RouteName.CREATE_FORM]: { formType: FormType };
     [RouteName.EDIT_FORM]: { formType: FormType; id: string };
-    [RouteName.EVENT_TRACKER]: undefined;
+    [RouteName.EVENT_TRACKER]: { id: string };
     [RouteName.IM_TEAM_BUILDER]: undefined;
     [RouteName.INCIDENT_ACTION_PLAN]: undefined;
     [RouteName.RESOURCES]: undefined;

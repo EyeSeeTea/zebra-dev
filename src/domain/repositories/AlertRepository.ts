@@ -3,7 +3,7 @@ import { Maybe } from "../../utils/ts-utils";
 import { Alert } from "../entities/alert/Alert";
 import {
     DataSource,
-    IncidentStatusType,
+    IncidentStatus,
 } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id } from "../entities/Ref";
 
@@ -15,6 +15,6 @@ export type AlertOptions = {
     dataSource: DataSource;
     eventId: Id;
     hazardTypeCode: Maybe<string>;
-    incidentStatus: IncidentStatusType;
+    incidentStatus: IncidentStatus;
     suspectedDiseaseCode: Maybe<string>;
 };

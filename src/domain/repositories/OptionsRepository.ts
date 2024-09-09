@@ -1,12 +1,15 @@
 import { FutureData } from "../../data/api-futures";
-import { Id, Option } from "../entities/Ref";
+import { Code, Option } from "../entities/Ref";
 
 export interface OptionsRepository {
-    get(id: Id): FutureData<Option>;
-    getAllDataSources(): FutureData<Option[]>;
-    getAllHazardTypes(): FutureData<Option[]>;
-    getAllMainSyndromes(): FutureData<Option[]>;
-    getAllSuspectedDiseases(): FutureData<Option[]>;
-    getAllNotificationSources(): FutureData<Option[]>;
-    getAllIncidentStatus(): FutureData<Option[]>;
+    get(optionCode: Code, optionSetCode: Code): FutureData<Option>;
+    getMainSyndrome(optionCode: Code): FutureData<Option>;
+    getSuspectedDisease(optionCode: Code): FutureData<Option>;
+    getNotificationSource(optionCode: Code): FutureData<Option>;
+    getDataSources(): FutureData<Option[]>;
+    getHazardTypes(): FutureData<Option[]>;
+    getMainSyndromes(): FutureData<Option[]>;
+    getSuspectedDiseases(): FutureData<Option[]>;
+    getNotificationSources(): FutureData<Option[]>;
+    getIncidentStatus(): FutureData<Option[]>;
 }

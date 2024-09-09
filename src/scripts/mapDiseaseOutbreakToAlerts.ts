@@ -23,6 +23,7 @@ import {
 import { AlertSyncDataStoreRepository } from "../data/repositories/AlertSyncDataStoreRepository";
 import { getNotificationOptionsFromTrackedEntity } from "../data/repositories/utils/NotificationMapper";
 import { AlertData } from "../domain/entities/alert/AlertData";
+import { DataSource } from "../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
@@ -69,8 +70,8 @@ function main() {
                     orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
                     ouMode: "DESCENDANTS",
                 }),
-                hazardTypes: optionsRepository.getAllHazardTypes(),
-                suspectedDiseases: optionsRepository.getAllSuspectedDiseases(),
+                hazardTypes: optionsRepository.getHazardTypes(),
+                suspectedDiseases: optionsRepository.getSuspectedDiseases(),
             }).run(
                 ({ alertTrackedEntities, hazardTypes, suspectedDiseases }) => {
                     const alertsWithNoEventId = _(alertTrackedEntities)
@@ -91,7 +92,9 @@ function main() {
                             const alertData: AlertData = {
                                 alert: trackedEntity,
                                 attribute: diseaseType ?? hazardType,
-                                dataSource: diseaseType ? "IBS" : "EBS",
+                                dataSource: diseaseType
+                                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
                             };
 
                             return !nationalEventId && (hazardType || diseaseType)
@@ -241,7 +244,10 @@ function getUniqueFilters(alerts: AlertData[]) {
     return _(alerts)
         .uniqBy(filter => filter.attribute?.value)
         .map(filter => ({
-            id: filter.dataSource === "EBS" ? RTSL_ZEBRA_DISEASE_TEA_ID : RTSL_ZEBRA_HAZARD_TEA_ID,
+            id:
+                filter.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                    ? RTSL_ZEBRA_DISEASE_TEA_ID
+                    : RTSL_ZEBRA_HAZARD_TEA_ID,
             value: filter.attribute?.value ?? "",
             type: filter.dataSource,
         }))

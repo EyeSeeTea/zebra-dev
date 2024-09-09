@@ -12,6 +12,7 @@ import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEnti
 import { getProgramTEAsMetadata } from "./utils/MetadataHelper";
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
+import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -32,14 +33,10 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     }
 
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
-        return apiToFuture(
-            this.api.tracker.trackedEntities.get({
-                program: RTSL_ZEBRA_PROGRAM_ID,
-                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                fields: { attributes: true, trackedEntity: true },
-            })
-        ).map(response => {
-            return response.instances.map(trackedEntity => {
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, RTSL_ZEBRA_PROGRAM_ID, RTSL_ZEBRA_ORG_UNIT_ID)
+        ).map(trackedEntities => {
+            return trackedEntities.map(trackedEntity => {
                 return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
             });
         });
@@ -70,7 +67,13 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                             ?.uid;
 
                     if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
-                        return Future.error(new Error(`Error saving disease ooutbreak event`));
+                        return Future.error(
+                            new Error(
+                                `Error saving disease outbreak event: ${saveResponse.validationReport.errorReports
+                                    .map(e => e.message)
+                                    .join(", ")}`
+                            )
+                        );
                     } else {
                         return Future.success(diseaseOutbreakId);
                     }

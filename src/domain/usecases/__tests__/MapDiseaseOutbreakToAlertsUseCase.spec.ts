@@ -1,4 +1,8 @@
 import { getTestCompositionRoot } from "../../../CompositionRoot";
+import {
+    DataSource,
+    IncidentStatus,
+} from "../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 describe("MapDiseaseOutbreakToAlertsUseCase", () => {
     it("does not map disease outbreak to alerts if there is no event id", async () => {
@@ -6,10 +10,10 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
 
         compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
             .execute("", {
-                dataSource: "EBS",
+                dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
                 hazardType: "Biological:Human",
                 suspectedDiseaseCode: "",
-                incidentStatus: "Watch",
+                incidentStatus: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
             })
             .run(
                 () => fail("Should not reach here"),
@@ -22,10 +26,10 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
 
         compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
             .execute("123", {
-                dataSource: "EBS",
+                dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
                 hazardType: "Biological:Human",
                 suspectedDiseaseCode: "",
-                incidentStatus: "Watch",
+                incidentStatus: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
             })
             .run(
                 data => expect(data).toBeUndefined(),

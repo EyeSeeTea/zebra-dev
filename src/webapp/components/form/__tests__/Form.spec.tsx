@@ -25,7 +25,7 @@ describe("Given Form component", () => {
 
             const view = getView(formProps);
 
-            expect(await view.findByText("Save & continue")).toBeInTheDocument();
+            expect(await view.findByText("Save & Continue")).toBeInTheDocument();
         });
 
         it("then shows save button disabled if form is not valid", async () => {
@@ -206,7 +206,7 @@ function givenFormProps(): FormProps {
             id: "Form Id",
             title: "Form Title",
             subtitle: "Form Subtitle",
-            saveButtonLabel: "Save & continue",
+            saveButtonLabel: "Save & Continue",
             cancelButtonLabel: "Cancel & back",
             isValid: false,
             sections: [

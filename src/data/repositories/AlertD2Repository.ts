@@ -141,9 +141,9 @@ export class AlertD2Repository implements AlertRepository {
         hazardTypeCode: Maybe<string>
     ): Filter {
         switch (dataSource) {
-            case "IBS":
+            case DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS:
                 return { id: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID, value: suspectedDiseaseCode };
-            case "EBS":
+            case DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS:
                 return { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: hazardTypeCode };
         }
     }

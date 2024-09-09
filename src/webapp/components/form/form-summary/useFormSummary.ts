@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../../contexts/app-context";
 import { Id } from "../../../../domain/entities/Ref";
-import { DiseaseOutbreakEvent } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DataSource,
+    DiseaseOutbreakEvent,
+} from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { User } from "../../user-selector/UserSelector";
 import { mapTeamMemberToUser } from "../../../pages/form-page/disease-outbreak-event/utils/mapEntityToInitialFormState";
 import { Maybe } from "../../../../utils/ts-utils";
+import {
+    getDateAsLocaleDateTimeString,
+    getDateAsMonthYearString,
+} from "../../../../data/repositories/utils/DateTimeHelper";
 
+const EventTypeLabel = "Event type";
+const DiseaseLabel = "Disease";
 type LabelWithValue = {
     label: string;
     value: string;
@@ -14,63 +23,61 @@ type LabelWithValue = {
 type FormSummary = {
     subTitle: string;
     summary: LabelWithValue[];
-
     incidentManager: Maybe<User>;
 };
 export function useFormSummary(id: Id) {
     const { compositionRoot } = useAppContext();
     const [formSummary, setFormSummary] = useState<FormSummary>();
+    const [summaryError, setSummaryError] = useState<string>();
 
     useEffect(() => {
         compositionRoot.diseaseOutbreakEvent.get.execute(id).run(
             diseaseOutbreakEvent => {
                 setFormSummary(mapDiseaseOutbreakEventToFormSummary(diseaseOutbreakEvent));
             },
-            () => {}
+            err => {
+                console.debug(err);
+                setSummaryError(`Event tracker with id: ${id} does not exist`);
+            }
         );
     }, [compositionRoot.diseaseOutbreakEvent.get, id]);
 
     const mapDiseaseOutbreakEventToFormSummary = (
         diseaseOutbreakEvent: DiseaseOutbreakEvent
     ): FormSummary => {
+        const dataSourceLabelValue: LabelWithValue =
+            diseaseOutbreakEvent.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                ? {
+                      label: EventTypeLabel,
+                      value: diseaseOutbreakEvent.hazardType ?? "",
+                  }
+                : {
+                      label: DiseaseLabel,
+                      value: diseaseOutbreakEvent.suspectedDisease?.name ?? "",
+                  };
         return {
             subTitle: diseaseOutbreakEvent.name,
             summary: [
                 {
                     label: "Last updated",
-                    value: `${diseaseOutbreakEvent.lastUpdated.toLocaleDateString()} ${diseaseOutbreakEvent.lastUpdated.toLocaleTimeString()}`,
+                    value: getDateAsLocaleDateTimeString(diseaseOutbreakEvent.lastUpdated),
                 },
-                {
-                    label: diseaseOutbreakEvent.dataSource === "EBS" ? "Event type" : "Disease",
-                    value:
-                        diseaseOutbreakEvent.dataSource === "EBS"
-                            ? diseaseOutbreakEvent.hazardType ?? ""
-                            : diseaseOutbreakEvent.suspectedDisease?.name ?? "",
-                },
+                dataSourceLabelValue,
                 {
                     label: "Event ID",
                     value: diseaseOutbreakEvent.id,
                 },
                 {
                     label: "Emergence date",
-                    value: diseaseOutbreakEvent.emerged.date.toLocaleString("default", {
-                        month: "long",
-                        year: "numeric",
-                    }),
+                    value: getDateAsMonthYearString(diseaseOutbreakEvent.emerged.date),
                 },
                 {
                     label: "Detection date",
-                    value: diseaseOutbreakEvent.detected.date.toLocaleString("default", {
-                        month: "long",
-                        year: "numeric",
-                    }),
+                    value: getDateAsMonthYearString(diseaseOutbreakEvent.detected.date),
                 },
                 {
                     label: "Notification date",
-                    value: diseaseOutbreakEvent.notified.date.toLocaleString("default", {
-                        month: "long",
-                        year: "numeric",
-                    }),
+                    value: getDateAsMonthYearString(diseaseOutbreakEvent.notified.date),
                 },
             ],
             incidentManager: diseaseOutbreakEvent.incidentManager
@@ -79,5 +86,5 @@ export function useFormSummary(id: Id) {
         };
     };
 
-    return { formSummary };
+    return { formSummary, summaryError };
 }

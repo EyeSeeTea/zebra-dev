@@ -8,6 +8,7 @@ import { Section } from "../../components/section/Section";
 import { Box, Button } from "@material-ui/core";
 import { AddCircleOutline } from "@material-ui/icons";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
+import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 
 // TODO: Add every section here
 export type VisualizationTypes =
@@ -19,6 +20,7 @@ export type VisualizationTypes =
     | "EVENT_TRACKER_OVERVIEW_CARDS"
     | "EVENT_TRACKER_717_CARDS";
 
+//TO DO : Create Risk assessment section
 const riskAssessmentColumns: TableColumn[] = [
     { value: "grade", label: "Grade", type: "text" },
     { value: "populationRisk", label: "Population at risk", type: "text" },
@@ -36,11 +38,15 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         id: string;
     }>();
 
-    const lastUpdated = `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`; //TO DO : Fetch sync time from datastore once implemented
+    const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
     return (
         <Layout title={i18n.t("Event Tracker")}>
             <FormSummary id={id} />
-            <Visualisation type="EVENT_TRACKER_AREAS_AFFECTED_MAP" title="Districts Affected" />
+            <Visualisation
+                type="EVENT_TRACKER_AREAS_AFFECTED_MAP"
+                title="Districts Affected"
+                hasSeparator={true}
+            />
             <Section
                 title="Risk Assessment"
                 hasSeparator={true}

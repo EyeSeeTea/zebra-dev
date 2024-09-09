@@ -1,7 +1,7 @@
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     DataSource,
-    IncidentStatusType,
+    IncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { AlertOptions } from "../../../domain/repositories/AlertRepository";
 import { Maybe } from "../../../utils/ts-utils";
@@ -20,10 +20,7 @@ export function mapTrackedEntityAttributesToAlertOutbreak(
         dataSource: getValueFromMap("dataSource", nationalTrackedEntity) as DataSource,
         hazardTypeCode: getAlertValueFromMap("hazardType", alertTrackedEntity),
         suspectedDiseaseCode: getAlertValueFromMap("suspectedDisease", alertTrackedEntity),
-        incidentStatus: getValueFromMap(
-            "incidentStatus",
-            nationalTrackedEntity
-        ) as IncidentStatusType,
+        incidentStatus: getValueFromMap("incidentStatus", nationalTrackedEntity) as IncidentStatus,
     };
 
     return diseaseOutbreak;
@@ -53,9 +50,9 @@ export function getOutbreakKey(
     if (!diseaseName || !hazardName) throw new Error("Outbreak not found");
 
     switch (dataSource) {
-        case "EBS":
+        case DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS:
             return hazardName;
-        case "IBS":
+        case DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS:
             return diseaseName;
     }
 }
