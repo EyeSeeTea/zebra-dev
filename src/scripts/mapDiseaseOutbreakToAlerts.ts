@@ -14,17 +14,15 @@ import { AlertD2Repository } from "../data/repositories/AlertD2Repository";
 import { NotificationD2Repository } from "../data/repositories/NotificationD2Repository";
 import { OptionsD2Repository } from "../data/repositories/OptionsD2Repository";
 import { Future } from "../domain/entities/generic/Future";
-import { getUserGroupsByCode } from "../data/repositories/utils/MetadataHelper";
+import { getTEAttributeById, getUserGroupByCode } from "../data/repositories/utils/MetadataHelper";
 import { NotifyWatchStaffUseCase } from "../domain/usecases/NotifyWatchStaffUseCase";
 import {
-    getNotificationOptionsFromTrackedEntity,
     getOutbreakKey,
     mapTrackedEntityAttributesToAlertOutbreak,
 } from "../data/repositories/utils/AlertOutbreakMapper";
-import {
-    AlertData,
-    AlertSyncDataStoreRepository,
-} from "../data/repositories/AlertSyncDataStoreRepository";
+import { AlertSyncDataStoreRepository } from "../data/repositories/AlertSyncDataStoreRepository";
+import { getNotificationOptionsFromTrackedEntity } from "../data/repositories/utils/NotificationMapper";
+import { AlertData } from "../domain/entities/alert/AlertData";
 
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
@@ -77,15 +75,15 @@ function main() {
                 ({ alertTrackedEntities, hazardTypes, suspectedDiseases }) => {
                     const alertsWithNoEventId = _(alertTrackedEntities)
                         .compactMap(trackedEntity => {
-                            const nationalEventId = alertRepository.getTEAttributeById(
+                            const nationalEventId = getTEAttributeById(
                                 trackedEntity,
                                 RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID
                             );
-                            const hazardType = alertRepository.getTEAttributeById(
+                            const hazardType = getTEAttributeById(
                                 trackedEntity,
                                 RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID
                             );
-                            const diseaseType = alertRepository.getTEAttributeById(
+                            const diseaseType = getTEAttributeById(
                                 trackedEntity,
                                 RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
                             );
@@ -163,11 +161,11 @@ function main() {
                                                             `There is no national event with ${outbreakName} ${alertOutbreakType} type.`
                                                         );
 
-                                                        return getUserGroupsByCode(
+                                                        return getUserGroupByCode(
                                                             api,
                                                             RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE
                                                         ).run(
-                                                            userGroups => {
+                                                            userGroup => {
                                                                 const notificationOptions =
                                                                     getNotificationOptionsFromTrackedEntity(
                                                                         alertTrackedEntity
@@ -177,7 +175,7 @@ function main() {
                                                                     .execute(
                                                                         outbreakName,
                                                                         notificationOptions,
-                                                                        userGroups
+                                                                        [userGroup]
                                                                     )
                                                                     .run(
                                                                         () =>
@@ -213,7 +211,9 @@ function main() {
                                                     alertSyncRepository
                                                         .saveAlertSyncData({
                                                             ...alertOutbreak,
-                                                            alertData: alertTrackedEntity,
+                                                            nationalDiseaseOutbreakEventId:
+                                                                alertOutbreak.eventId,
+                                                            alert: alertTrackedEntity,
                                                         })
                                                         .run(
                                                             () =>

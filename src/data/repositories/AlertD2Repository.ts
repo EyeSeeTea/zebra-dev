@@ -7,13 +7,13 @@ import {
     RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
+    RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
 } from "./consts/DiseaseOutbreakConstants";
 import { AlertOptions, AlertRepository } from "../../domain/repositories/AlertRepository";
 import { Id } from "../../domain/entities/Ref";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
-    Attribute,
     D2TrackerTrackedEntity,
     TrackedEntitiesGetResponse,
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
@@ -41,8 +41,8 @@ export class AlertD2Repository implements AlertRepository {
             filter: filter,
         }).flatMap(alertTrackedEntities => {
             const alertsToMap = alertTrackedEntities.map(trackedEntity => ({
-                trackedEntity: trackedEntity.trackedEntity,
-                trackedEntityType: trackedEntity.trackedEntityType,
+                id: trackedEntity.trackedEntity || "",
+                trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
                 orgUnit: trackedEntity.orgUnit,
                 attributes: [
                     {
@@ -146,13 +146,5 @@ export class AlertD2Repository implements AlertRepository {
             case "EBS":
                 return { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: hazardTypeCode };
         }
-    }
-
-    getTEAttributeById(trackedEntity: D2TrackerTrackedEntity, attributeId: Id): Maybe<Attribute> {
-        if (!trackedEntity.attributes) return undefined;
-
-        return trackedEntity.attributes
-            .map(attribute => ({ attribute: attribute.attribute, value: attribute.value }))
-            .find(attribute => attribute.attribute === attributeId);
     }
 }

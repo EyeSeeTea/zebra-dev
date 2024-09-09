@@ -38,12 +38,12 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                 incidentStatus: incidentStatus,
                 suspectedDiseaseCode: suspectedDiseaseCode,
             })
-            .flatMap(response =>
+            .flatMap(alerts =>
                 Future.sequential(
-                    response.map(alert => {
+                    alerts.map(alert => {
                         return this.alertSyncRepository.saveAlertSyncData({
-                            alertData: alert,
-                            eventId: diseaseOutbreakEventId,
+                            alert: alert,
+                            nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
                             dataSource: dataSource,
                             hazardTypeCode: hazardTypeCode,
                             suspectedDiseaseCode: suspectedDiseaseCode,

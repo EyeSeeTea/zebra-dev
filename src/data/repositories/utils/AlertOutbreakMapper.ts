@@ -6,8 +6,8 @@ import {
 import { AlertOptions } from "../../../domain/repositories/AlertRepository";
 import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../../domain/entities/Ref";
-import { NotificationOptions } from "../../../domain/repositories/NotificationRepository";
-import { alertOutbreakCodes } from "../consts/DiseaseOutbreakConstants";
+import { alertOutbreakCodes } from "../consts/AlertConstants";
+import { getValueFromMap } from "./DiseaseOutbreakMapper";
 
 export function mapTrackedEntityAttributesToAlertOutbreak(
     nationalTrackedEntity: D2TrackerTrackedEntity,
@@ -18,8 +18,8 @@ export function mapTrackedEntityAttributesToAlertOutbreak(
     const diseaseOutbreak: AlertOptions = {
         eventId: nationalTrackedEntity.trackedEntity,
         dataSource: getValueFromMap("dataSource", nationalTrackedEntity) as DataSource,
-        hazardTypeCode: getValueFromMap("hazardType", alertTrackedEntity),
-        suspectedDiseaseCode: getValueFromMap("suspectedDisease", alertTrackedEntity),
+        hazardTypeCode: getAlertValueFromMap("hazardType", alertTrackedEntity),
+        suspectedDiseaseCode: getAlertValueFromMap("suspectedDisease", alertTrackedEntity),
         incidentStatus: getValueFromMap(
             "incidentStatus",
             nationalTrackedEntity
@@ -29,7 +29,9 @@ export function mapTrackedEntityAttributesToAlertOutbreak(
     return diseaseOutbreak;
 }
 
-export function getValueFromMap(
+export function mapAlertOutbreakToTrackedEntity() {}
+
+export function getAlertValueFromMap(
     key: keyof typeof alertOutbreakCodes,
     trackedEntity: D2TrackerTrackedEntity
 ): string {
@@ -44,29 +46,16 @@ export function getOutbreakKey(
     outbreak: Maybe<string>,
     hazardTypes: Option[],
     suspectedDiseases: Option[]
-): Maybe<string> {
+): string {
+    const diseaseName = suspectedDiseases.find(disease => disease.id === outbreak)?.name;
+    const hazardName = hazardTypes.find(hazardType => hazardType.id === outbreak)?.name;
+
+    if (!diseaseName || !hazardName) throw new Error("Outbreak not found");
+
     switch (dataSource) {
         case "EBS":
-            return hazardTypes.find(hazardType => hazardType.id === outbreak)?.name;
+            return hazardName;
         case "IBS":
-            return suspectedDiseases.find(disease => disease.id === outbreak)?.name;
+            return diseaseName;
     }
-}
-
-export function getNotificationOptionsFromTrackedEntity(
-    alertTrackedEntity: D2TrackerTrackedEntity
-): NotificationOptions {
-    const verificationStatus = getValueFromMap("verificationStatus", alertTrackedEntity);
-    const incidentManager = getValueFromMap("incidentManager", alertTrackedEntity);
-    const emergenceDate = getValueFromMap("emergedDate", alertTrackedEntity);
-    const detectionDate = getValueFromMap("detectedDate", alertTrackedEntity);
-    const notificationDate = getValueFromMap("notifiedDate", alertTrackedEntity);
-
-    return {
-        detectionDate: detectionDate,
-        emergenceDate: emergenceDate,
-        incidentManager: incidentManager,
-        notificationDate: notificationDate,
-        verificationStatus: verificationStatus,
-    };
 }

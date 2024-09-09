@@ -56,14 +56,6 @@ export const diseaseOutbreakCodes = {
     notes: "RTSL_ZEB_TEA_NOTES",
 } as const;
 
-export const alertOutbreakCodes = {
-    ...diseaseOutbreakCodes,
-    hazardType: "RTSL_ZEB_TEA_EVENT_TYPE",
-    suspectedDisease: "RTSL_ZEB_TEA_DISEASE",
-    verificationStatus: "RTSL_ZEB_TEA_VERIFICATION_STATUS",
-    incidentManager: "RTSL_ZEB_TEA_ ALERT_IM_NAME",
-} as const;
-
 export type DiseaseOutbreakCode = GetValue<typeof diseaseOutbreakCodes>;
 
 export type KeyCode = (typeof diseaseOutbreakCodes)[keyof typeof diseaseOutbreakCodes];

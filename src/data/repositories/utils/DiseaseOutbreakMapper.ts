@@ -185,7 +185,7 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
     }
 }
 
-function getValueFromMap(
+export function getValueFromMap(
     key: keyof typeof diseaseOutbreakCodes,
     trackedEntity: D2TrackerTrackedEntity
 ): string {
