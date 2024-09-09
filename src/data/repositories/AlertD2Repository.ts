@@ -7,7 +7,6 @@ import {
     RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
-    RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
 } from "./consts/DiseaseOutbreakConstants";
 import { AlertOptions, AlertRepository } from "../../domain/repositories/AlertRepository";
 import { Id } from "../../domain/entities/Ref";
@@ -40,9 +39,9 @@ export class AlertD2Repository implements AlertRepository {
             ouMode: "DESCENDANTS",
             filter: filter,
         }).flatMap(alertTrackedEntities => {
-            const alertsToMap = alertTrackedEntities.map(trackedEntity => ({
-                id: trackedEntity.trackedEntity || "",
-                trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+            const alertsToMap: Alert[] = alertTrackedEntities.map(trackedEntity => ({
+                trackedEntity: trackedEntity.trackedEntity || "",
+                trackedEntityType: trackedEntity.trackedEntityType || "",
                 orgUnit: trackedEntity.orgUnit,
                 attributes: [
                     {

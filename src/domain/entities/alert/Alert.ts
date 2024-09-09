@@ -1,5 +1,5 @@
 export type Alert = {
-    id: string;
+    trackedEntity: string;
     orgUnit: string | undefined;
     attributes: {
         attribute: string;

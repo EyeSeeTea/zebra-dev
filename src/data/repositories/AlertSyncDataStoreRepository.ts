@@ -31,13 +31,14 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
                 hazardTypes: this.optionsRepository.getHazardTypes(),
                 suspectedDiseases: this.optionsRepository.getSuspectedDiseases(),
             }).flatMap(({ hazardTypes, suspectedDiseases }) => {
-                const outbreakKey = getOutbreakKey(
-                    dataSource,
-                    suspectedDiseaseCode ?? hazardTypeCode,
-                    suspectedDiseases,
-                    hazardTypes
-                );
-                if (!outbreakKey) return Future.success(undefined);
+                const outbreakKey = getOutbreakKey({
+                    dataSource: dataSource,
+                    outbreakValue: suspectedDiseaseCode ?? hazardTypeCode,
+                    hazardTypes: hazardTypes,
+                    suspectedDiseases: suspectedDiseases,
+                });
+
+                if (!outbreakKey) return Future.error(new Error(`No outbreak key found`));
 
                 const synchronizationData = this.buildSynchronizationData(options, outbreakKey);
 

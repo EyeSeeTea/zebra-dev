@@ -18,12 +18,15 @@ import { getTEAttributeById, getUserGroupByCode } from "../data/repositories/uti
 import { NotifyWatchStaffUseCase } from "../domain/usecases/NotifyWatchStaffUseCase";
 import {
     getOutbreakKey,
-    mapTrackedEntityAttributesToAlertOutbreak,
+    mapTrackedEntityAttributesToAlertOptions,
 } from "../data/repositories/utils/AlertOutbreakMapper";
 import { AlertSyncDataStoreRepository } from "../data/repositories/AlertSyncDataStoreRepository";
 import { getNotificationOptionsFromTrackedEntity } from "../data/repositories/utils/NotificationMapper";
 import { AlertData } from "../domain/entities/alert/AlertData";
 import { DataSource } from "../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
+import { FutureData } from "../data/api-futures";
+import { AlertOptions } from "../domain/repositories/AlertRepository";
 
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
@@ -65,191 +68,221 @@ function main() {
             const notifyWatchStaffUseCase = new NotifyWatchStaffUseCase(notificationRepository);
 
             return Future.joinObj({
-                alertTrackedEntities: alertRepository.getTrackedEntitiesByTEACode({
-                    program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                    ouMode: "DESCENDANTS",
-                }),
+                alertTrackedEntities: getAlertTrackedEntities(),
                 hazardTypes: optionsRepository.getHazardTypes(),
                 suspectedDiseases: optionsRepository.getSuspectedDiseases(),
             }).run(
                 ({ alertTrackedEntities, hazardTypes, suspectedDiseases }) => {
-                    const alertsWithNoEventId = _(alertTrackedEntities)
-                        .compactMap(trackedEntity => {
-                            const nationalEventId = getTEAttributeById(
-                                trackedEntity,
-                                RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID
-                            );
-                            const hazardType = getTEAttributeById(
-                                trackedEntity,
-                                RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID
-                            );
-                            const diseaseType = getTEAttributeById(
-                                trackedEntity,
-                                RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
-                            );
-
-                            const alertData: AlertData = {
-                                alert: trackedEntity,
-                                attribute: diseaseType ?? hazardType,
-                                dataSource: diseaseType
-                                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
-                                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
-                            };
-
-                            return !nationalEventId && (hazardType || diseaseType)
-                                ? alertData
-                                : undefined;
-                        })
-                        .value();
+                    const alertsWithNoEventId =
+                        getAlertsWithNoNationalEventId(alertTrackedEntities);
 
                     console.debug(
-                        `There are ${alertsWithNoEventId.length} events in the Zebra Alerts program without event id`
+                        `${alertsWithNoEventId.length} event(s) found in the Zebra Alerts program with no national event id`
                     );
 
                     return _(alertsWithNoEventId)
                         .groupBy(alert => alert.dataSource)
                         .values()
-                        .forEach(alertsByType => {
-                            const uniqueFilters = getUniqueFilters(alertsByType);
+                        .forEach(alertsByDataSource => {
+                            const uniqueFilters = getUniqueFilters(alertsByDataSource);
 
-                            return uniqueFilters.forEach(filter => {
-                                alertRepository
-                                    .getTrackedEntitiesByTEACode({
-                                        program: RTSL_ZEBRA_PROGRAM_ID,
-                                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                                        ouMode: "SELECTED",
-                                        filter: filter,
-                                    })
-                                    .run(
-                                        nationalTrackedEntities => {
-                                            if (nationalTrackedEntities.length > 1) {
-                                                const outbreakKey = getOutbreakKey(
-                                                    filter.type,
-                                                    filter.value,
-                                                    suspectedDiseases,
-                                                    hazardTypes
-                                                );
+                            return uniqueFilters.forEach(filter =>
+                                getNationalTrackedEntities({
+                                    id: filter.filterId,
+                                    value: filter.filterValue,
+                                }).run(
+                                    nationalTrackedEntities => {
+                                        if (nationalTrackedEntities.length > 1) {
+                                            const outbreakKey = getOutbreakKey({
+                                                dataSource: filter.dataSource,
+                                                outbreakValue: filter.filterValue,
+                                                hazardTypes: hazardTypes,
+                                                suspectedDiseases: suspectedDiseases,
+                                            });
 
-                                                console.error(
-                                                    `More than 1 National event found for ${outbreakKey} outbreak.`
-                                                );
+                                            console.error(
+                                                `More than 1 National event found for ${outbreakKey} outbreak.`
+                                            );
 
-                                                return undefined;
-                                            }
+                                            return undefined;
+                                        }
 
-                                            return alertsByType
-                                                .filter(
-                                                    alertData =>
-                                                        alertData.attribute?.value === filter.value
-                                                )
-                                                .forEach(alertData => {
-                                                    const {
-                                                        attribute,
-                                                        alert: alertTrackedEntity,
-                                                        dataSource: alertOutbreakType,
-                                                    } = alertData;
+                                        return alertsByDataSource
+                                            .filter(
+                                                alertData =>
+                                                    alertData.attribute?.value ===
+                                                    filter.filterValue
+                                            )
+                                            .forEach(alertData => {
+                                                const { alert, attribute, dataSource } = alertData;
 
-                                                    const outbreakName = getOutbreakKey(
-                                                        alertOutbreakType,
-                                                        attribute?.value,
-                                                        suspectedDiseases,
-                                                        hazardTypes
-                                                    );
+                                                const outbreakType =
+                                                    dataSource ===
+                                                    DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                                                        ? "disease"
+                                                        : "hazard";
+                                                const outbreakName = getOutbreakKey({
+                                                    dataSource: dataSource,
+                                                    outbreakValue: attribute?.value,
+                                                    hazardTypes: hazardTypes,
+                                                    suspectedDiseases: suspectedDiseases,
+                                                });
 
-                                                    if (!outbreakName) return undefined;
-
-                                                    if (nationalTrackedEntities.length === 0) {
-                                                        console.debug(
-                                                            `There is no national event with ${outbreakName} ${alertOutbreakType} type.`
-                                                        );
-
-                                                        return getUserGroupByCode(
-                                                            api,
-                                                            RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE
-                                                        ).run(
-                                                            userGroup => {
-                                                                const notificationOptions =
-                                                                    getNotificationOptionsFromTrackedEntity(
-                                                                        alertTrackedEntity
-                                                                    );
-
-                                                                return notifyWatchStaffUseCase
-                                                                    .execute(
-                                                                        outbreakName,
-                                                                        notificationOptions,
-                                                                        [userGroup]
-                                                                    )
-                                                                    .run(
-                                                                        () =>
-                                                                            console.debug(
-                                                                                `Successfully notified all national watch staff.`
-                                                                            ),
-                                                                        error =>
-                                                                            console.error(error)
-                                                                    );
-                                                            },
-                                                            error => console.error(error)
-                                                        );
-                                                    }
-
-                                                    const nationalTrackedEntity =
-                                                        nationalTrackedEntities[0];
-                                                    if (!nationalTrackedEntity) return undefined;
-
-                                                    const alertOutbreak =
-                                                        mapTrackedEntityAttributesToAlertOutbreak(
-                                                            nationalTrackedEntity,
-                                                            alertTrackedEntity
-                                                        );
-
-                                                    alertRepository.updateAlerts(alertOutbreak).run(
+                                                if (nationalTrackedEntities.length === 0) {
+                                                    return notifyNationalWatchStaff(
+                                                        alert,
+                                                        outbreakType,
+                                                        outbreakName
+                                                    ).run(
                                                         () =>
                                                             console.debug(
-                                                                "Successfully updated alert."
+                                                                "Successfully notified all national watch staff"
                                                             ),
                                                         error => console.error(error)
                                                     );
+                                                }
 
-                                                    alertSyncRepository
-                                                        .saveAlertSyncData({
-                                                            ...alertOutbreak,
-                                                            nationalDiseaseOutbreakEventId:
-                                                                alertOutbreak.eventId,
-                                                            alert: alertTrackedEntity,
-                                                        })
-                                                        .run(
-                                                            () =>
-                                                                console.debug(
-                                                                    `Saved alert data for ${outbreakName} ${alertOutbreakType}`
-                                                                ),
-                                                            error => console.error(error)
-                                                        );
-                                                });
-                                        },
-                                        error => console.error(error)
-                                    );
-                            });
+                                                const nationalTrackedEntity =
+                                                    nationalTrackedEntities[0];
+                                                if (!nationalTrackedEntity)
+                                                    throw new Error(`No tracked entity found`);
+
+                                                const alertOutbreak =
+                                                    mapTrackedEntityAttributesToAlertOptions(
+                                                        nationalTrackedEntity,
+                                                        alert
+                                                    );
+
+                                                alertRepository.updateAlerts(alertOutbreak).run(
+                                                    () =>
+                                                        console.debug(
+                                                            "Successfully updated alert."
+                                                        ),
+                                                    error => console.error(error)
+                                                );
+
+                                                saveAlertSyncData(alert, alertOutbreak).run(
+                                                    () =>
+                                                        console.debug(
+                                                            `Saved alert data for ${outbreakName} ${outbreakType}`
+                                                        ),
+                                                    error => console.error(error)
+                                                );
+                                            });
+                                    },
+                                    error => console.error(error)
+                                )
+                            );
                         });
                 },
                 error => console.error(error)
             );
+
+            function getAlertTrackedEntities(): FutureData<D2TrackerTrackedEntity[]> {
+                return alertRepository.getTrackedEntitiesByTEACode({
+                    program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                    ouMode: "DESCENDANTS",
+                });
+            }
+
+            function getAlertsWithNoNationalEventId(
+                alertTrackedEntities: D2TrackerTrackedEntity[]
+            ): AlertData[] {
+                return _(alertTrackedEntities)
+                    .compactMap(trackedEntity => {
+                        const nationalEventId = getTEAttributeById(
+                            trackedEntity,
+                            RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID
+                        );
+                        const hazardType = getTEAttributeById(
+                            trackedEntity,
+                            RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID
+                        );
+                        const diseaseType = getTEAttributeById(
+                            trackedEntity,
+                            RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
+                        );
+
+                        const alertData: AlertData = {
+                            alert: trackedEntity,
+                            attribute: diseaseType ?? hazardType,
+                            dataSource: diseaseType
+                                ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                                : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                        };
+
+                        return !nationalEventId && (hazardType || diseaseType)
+                            ? alertData
+                            : undefined;
+                    })
+                    .value();
+            }
+
+            function getNationalTrackedEntities(filter: {
+                id: string;
+                value: string;
+            }): FutureData<D2TrackerTrackedEntity[]> {
+                return alertRepository.getTrackedEntitiesByTEACode({
+                    program: RTSL_ZEBRA_PROGRAM_ID,
+                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                    ouMode: "SELECTED",
+                    filter: filter,
+                });
+            }
+
+            function saveAlertSyncData(
+                alertTrackedEntity: D2TrackerTrackedEntity,
+                alertOutbreak: AlertOptions
+            ): FutureData<void> {
+                return alertSyncRepository.saveAlertSyncData({
+                    ...alertOutbreak,
+                    nationalDiseaseOutbreakEventId: alertOutbreak.eventId,
+                    alert: alertTrackedEntity,
+                });
+            }
+
+            function notifyNationalWatchStaff(
+                alertTrackedEntity: D2TrackerTrackedEntity,
+                alertOutbreakType: string,
+                outbreakName: string
+            ): FutureData<void> {
+                console.debug(
+                    `There is no national event with ${outbreakName} ${alertOutbreakType} type.`
+                );
+
+                return getUserGroupByCode(
+                    api,
+                    RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE
+                ).flatMap(userGroup => {
+                    const notificationOptions =
+                        getNotificationOptionsFromTrackedEntity(alertTrackedEntity);
+
+                    return notifyWatchStaffUseCase.execute(outbreakName, notificationOptions, [
+                        userGroup,
+                    ]);
+                });
+            }
         },
     });
 
     run(cmd, process.argv.slice(2));
 }
 
-function getUniqueFilters(alerts: AlertData[]) {
+function getUniqueFilters(alerts: AlertData[]): {
+    filterId: string;
+    filterValue: string;
+    dataSource: DataSource;
+}[] {
     return _(alerts)
         .uniqBy(filter => filter.attribute?.value)
         .map(filter => ({
-            id:
+            filterId:
                 filter.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
                     ? RTSL_ZEBRA_DISEASE_TEA_ID
                     : RTSL_ZEBRA_HAZARD_TEA_ID,
-            value: filter.attribute?.value ?? "",
-            type: filter.dataSource,
+            filterValue: filter.attribute?.value ?? "",
+            dataSource: filter.dataSource,
         }))
         .value();
 }
