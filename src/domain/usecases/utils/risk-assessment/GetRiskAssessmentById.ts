@@ -80,11 +80,17 @@ export function getAll(
                             overallConfidenceNational,
                             overallConfidenceRegional,
                         }) => {
+                            if (!summarybase) {
+                                const riskAssessment: RiskAssessment = new RiskAssessment({
+                                    grading: gradings,
+                                    summary: undefined,
+                                });
+                                return Future.success(riskAssessment);
+                            }
+
                             const summary = new RiskAssessmentSummary({
-                                id: summarybase?.id ?? "",
-                                riskAssessmentDate: summarybase?.riskAssessmentDate
-                                    ? new Date(summarybase.riskAssessmentDate)
-                                    : new Date(),
+                                id: summarybase.id ?? "",
+                                riskAssessmentDate: new Date(summarybase.riskAssessmentDate),
                                 riskAssessors: _c([
                                     riskAssessor1,
                                     riskAssessor2,

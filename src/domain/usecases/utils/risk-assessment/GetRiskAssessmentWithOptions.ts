@@ -27,7 +27,6 @@ import {
     RiskAssessmentGrading,
 } from "../../../entities/risk-assessment/RiskAssessmentGrading";
 import { OptionsRepository } from "../../../repositories/OptionsRepository";
-import { RiskAssessmentRepository } from "../../../repositories/RiskAssessmentRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
 export function getRiskAssessmentGradingWithOptions(
