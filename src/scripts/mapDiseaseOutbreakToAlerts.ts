@@ -26,6 +26,7 @@ import { AlertData } from "../domain/entities/alert/AlertData";
 import { DataSource } from "../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { FutureData } from "../data/api-futures";
+import { Alert } from "../domain/entities/alert/Alert";
 import { AlertOptions } from "../domain/repositories/AlertRepository";
 import { Option } from "../domain/entities/Ref";
 
@@ -70,7 +71,7 @@ function main() {
 
             return Future.joinObj({
                 alertTrackedEntities: getAlertTrackedEntities(),
-                hazardTypes: optionsRepository.getHazardTypes(),
+                hazardTypes: optionsRepository.getHazardTypesByCode(),
                 suspectedDiseases: optionsRepository.getSuspectedDiseases(),
             }).run(
                 ({ alertTrackedEntities, hazardTypes, suspectedDiseases }) => {
@@ -78,7 +79,7 @@ function main() {
                         getAlertsWithNoNationalEventId(alertTrackedEntities);
 
                     console.debug(
-                        `${alertsWithNoEventId.length} event(s) found in the Zebra Alerts program with no national event id`
+                        `${alertsWithNoEventId.length} event(s) found in the Zebra Alerts program with no national event id.`
                     );
 
                     return _(alertsWithNoEventId)
@@ -130,51 +131,65 @@ function main() {
                                                     suspectedDiseases: suspectedDiseases,
                                                 });
 
-                                                if (nationalTrackedEntities.length === 0) {
-                                                    return notifyNationalWatchStaff(
-                                                        alert,
-                                                        outbreakType,
-                                                        outbreakName
-                                                    ).run(
-                                                        () =>
-                                                            console.debug(
-                                                                "Successfully notified all national watch staff"
-                                                            ),
+                                                alertSyncRepository
+                                                    .getAlertTrackedEntity(alert)
+                                                    .run(
+                                                        alertTrackedEntity => {
+                                                            if (
+                                                                nationalTrackedEntities.length === 0
+                                                            ) {
+                                                                return notifyNationalWatchStaff(
+                                                                    alertTrackedEntity,
+                                                                    outbreakType,
+                                                                    outbreakName
+                                                                ).run(
+                                                                    () =>
+                                                                        console.debug(
+                                                                            "Successfully notified all national watch staff."
+                                                                        ),
+                                                                    error => console.error(error)
+                                                                );
+                                                            }
+
+                                                            const nationalTrackedEntity =
+                                                                nationalTrackedEntities[0];
+                                                            if (!nationalTrackedEntity)
+                                                                throw new Error(
+                                                                    `No tracked entity found.`
+                                                                );
+
+                                                            const alertOptions =
+                                                                mapTrackedEntityAttributesToAlertOptions(
+                                                                    nationalTrackedEntity,
+                                                                    alertTrackedEntity
+                                                                );
+
+                                                            alertRepository
+                                                                .updateAlerts(alertOptions)
+                                                                .run(
+                                                                    () =>
+                                                                        console.debug(
+                                                                            "Successfully updated alert."
+                                                                        ),
+                                                                    error => console.error(error)
+                                                                );
+
+                                                            saveAlertSyncData({
+                                                                alertOptions: alertOptions,
+                                                                alert: alert,
+                                                                hazardTypes: hazardTypes,
+                                                                suspectedDiseases:
+                                                                    suspectedDiseases,
+                                                            }).run(
+                                                                () =>
+                                                                    console.debug(
+                                                                        `Saved alert data for ${outbreakName} ${outbreakType}.`
+                                                                    ),
+                                                                error => console.error(error)
+                                                            );
+                                                        },
                                                         error => console.error(error)
                                                     );
-                                                }
-
-                                                const nationalTrackedEntity =
-                                                    nationalTrackedEntities[0];
-                                                if (!nationalTrackedEntity)
-                                                    throw new Error(`No tracked entity found`);
-
-                                                const alertOutbreak =
-                                                    mapTrackedEntityAttributesToAlertOptions(
-                                                        nationalTrackedEntity,
-                                                        alert
-                                                    );
-
-                                                alertRepository.updateAlerts(alertOutbreak).run(
-                                                    () =>
-                                                        console.debug(
-                                                            "Successfully updated alert."
-                                                        ),
-                                                    error => console.error(error)
-                                                );
-
-                                                saveAlertSyncData({
-                                                    alertTrackedEntity: alert,
-                                                    alertOutbreak: alertOutbreak,
-                                                    hazardTypes: hazardTypes,
-                                                    suspectedDiseases: suspectedDiseases,
-                                                }).run(
-                                                    () =>
-                                                        console.debug(
-                                                            `Saved alert data for ${outbreakName} ${outbreakType}`
-                                                        ),
-                                                    error => console.error(error)
-                                                );
                                             });
                                     },
                                     error => console.error(error)
@@ -213,10 +228,19 @@ function main() {
 
                         const outbreakData = diseaseType
                             ? { id: diseaseType.attribute, value: diseaseType.value }
-                            : { id: hazardType?.value, value: hazardType?.value };
+                            : hazardType
+                            ? { id: hazardType.value, value: hazardType.value }
+                            : undefined;
+
+                        if (!outbreakData) return undefined;
+                        if (!trackedEntity.trackedEntity || !trackedEntity.orgUnit)
+                            throw new Error("Tracked entity not found");
 
                         const alertData: AlertData = {
-                            alert: trackedEntity,
+                            alert: {
+                                id: trackedEntity.trackedEntity,
+                                district: trackedEntity.orgUnit,
+                            },
                             outbreakData: outbreakData,
                             dataSource: diseaseType
                                 ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
@@ -242,24 +266,6 @@ function main() {
                 });
             }
 
-            function saveAlertSyncData(options: {
-                alertTrackedEntity: D2TrackerTrackedEntity;
-                alertOutbreak: AlertOptions;
-                hazardTypes: Option[];
-                suspectedDiseases: Option[];
-            }): FutureData<void> {
-                const { alertTrackedEntity, alertOutbreak, hazardTypes, suspectedDiseases } =
-                    options;
-
-                return alertSyncRepository.saveAlertSyncData({
-                    ...alertOutbreak,
-                    nationalDiseaseOutbreakEventId: alertOutbreak.eventId,
-                    alert: alertTrackedEntity,
-                    hazardTypes: hazardTypes,
-                    suspectedDiseases: suspectedDiseases,
-                });
-            }
-
             function notifyNationalWatchStaff(
                 alertTrackedEntity: D2TrackerTrackedEntity,
                 alertOutbreakType: string,
@@ -279,6 +285,26 @@ function main() {
                     return notifyWatchStaffUseCase.execute(outbreakName, notificationOptions, [
                         userGroup,
                     ]);
+                });
+            }
+
+            function saveAlertSyncData(options: {
+                alertOptions: AlertOptions;
+                alert: Alert;
+                hazardTypes: Option[];
+                suspectedDiseases: Option[];
+            }) {
+                const { alert, alertOptions, hazardTypes, suspectedDiseases } = options;
+                const { dataSource, eventId, hazardTypeCode, suspectedDiseaseCode } = alertOptions;
+
+                return alertSyncRepository.saveAlertSyncData({
+                    dataSource: dataSource,
+                    hazardTypeCode: hazardTypeCode,
+                    suspectedDiseaseCode: suspectedDiseaseCode,
+                    nationalDiseaseOutbreakEventId: eventId,
+                    alert: alert,
+                    hazardTypes: hazardTypes,
+                    suspectedDiseases: suspectedDiseases,
                 });
             }
         },

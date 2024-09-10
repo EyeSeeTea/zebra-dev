@@ -40,27 +40,34 @@ export class AlertD2Repository implements AlertRepository {
             filter: filter,
         }).flatMap(alertTrackedEntities => {
             const alertsToMap: Alert[] = alertTrackedEntities.map(trackedEntity => ({
-                trackedEntity: trackedEntity.trackedEntity || "",
-                trackedEntityType: trackedEntity.trackedEntityType || "",
-                orgUnit: trackedEntity.orgUnit,
-                attributes: [
-                    {
-                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                        value: eventId,
-                    },
-                    {
-                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
-                        value: incidentStatus,
-                    },
-                ],
+                id: trackedEntity.trackedEntity || "",
+                district: trackedEntity.orgUnit || "",
             }));
+
+            const alertsToPost: D2TrackerTrackedEntity[] = alertTrackedEntities.map(
+                trackedEntity => ({
+                    trackedEntity: trackedEntity.trackedEntity,
+                    trackedEntityType: trackedEntity.trackedEntityType,
+                    orgUnit: trackedEntity.orgUnit,
+                    attributes: [
+                        {
+                            attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                            value: eventId,
+                        },
+                        {
+                            attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
+                            value: incidentStatus,
+                        },
+                    ],
+                })
+            );
 
             if (alertsToMap.length === 0) return Future.success([]);
 
             return apiToFuture(
                 this.api.tracker.post(
                     { importStrategy: "UPDATE" },
-                    { trackedEntities: alertsToMap }
+                    { trackedEntities: alertsToPost }
                 )
             ).flatMap(saveResponse => {
                 if (saveResponse.status === "ERROR")
