@@ -15,7 +15,6 @@ import { User } from "../../components/user-selector/UserSelector";
 import { TableRowType } from "../../components/table/BasicTable";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
-import { EventTrackerDetails } from "../../contexts/current-event-tracker-context";
 
 const EventTypeLabel = "Event type";
 const DiseaseLabel = "Disease";

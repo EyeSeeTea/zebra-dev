@@ -1,6 +1,5 @@
 import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
-import { EventTrackerDetails } from "../../webapp/contexts/current-event-tracker-context";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { ConfigurableForm } from "../entities/ConfigurableForm";
 import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";

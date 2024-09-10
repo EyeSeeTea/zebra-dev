@@ -1,5 +1,5 @@
 import { PropsWithChildren, useState } from "react";
-import { CurrentEventTrackerContext, EventTrackerDetails } from "./current-event-tracker-context";
+import { CurrentEventTrackerContext } from "./current-event-tracker-context";
 import { DiseaseOutbreakEvent } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export const CurrentEventTrackerContextProvider: React.FC<PropsWithChildren> = ({ children }) => {

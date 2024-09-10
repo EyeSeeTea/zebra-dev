@@ -21,7 +21,7 @@ import { OptionsRepository } from "../../../domain/repositories/OptionsRepositor
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
-    getLowMediumHighOption(optionCode: Code): FutureData<Option> {
+    getLowMediumHighOption(_optionCode: Code): FutureData<Option> {
         throw new Error("Method not implemented.");
     }
     getLowMediumHighOptions(): FutureData<Option[]> {

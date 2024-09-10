@@ -3,7 +3,6 @@ import {
     riskAssessmentGradingOptionCodeMap,
     riskAssessmentSummaryCodes,
 } from "../../../../data/repositories/consts/RiskAssessmentGradingConstants";
-import { EventTrackerDetails } from "../../../../webapp/contexts/current-event-tracker-context";
 import {
     RiskAssessmentGradingFormData,
     RiskAssessmentSummaryFormData,

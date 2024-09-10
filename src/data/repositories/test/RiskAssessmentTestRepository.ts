@@ -9,11 +9,11 @@ import { FutureData } from "../../api-futures";
 import { RiskAssessmentSummaryDataValues } from "../RiskAssessmentD2Repository";
 
 export class RiskAssessmentTestRepository implements RiskAssessmentRepository {
-    getAllRiskAssessmentGrading(diseaseOutbreakId: Id): FutureData<RiskAssessmentGrading[]> {
+    getAllRiskAssessmentGrading(_diseaseOutbreakId: Id): FutureData<RiskAssessmentGrading[]> {
         throw new Error("Method not implemented.");
     }
     getRiskAssessmentSummary(
-        diseaseOutbreakId: Id
+        _diseaseOutbreakId: Id
     ): FutureData<Maybe<RiskAssessmentSummaryDataValues>> {
         throw new Error("Method not implemented.");
     }

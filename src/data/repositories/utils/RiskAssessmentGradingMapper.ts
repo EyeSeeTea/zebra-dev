@@ -27,8 +27,6 @@ import {
 } from "../RiskAssessmentD2Repository";
 import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
-import { OptionsRepository } from "../../../domain/repositories/OptionsRepository";
-import { TeamMemberRepository } from "../../../domain/repositories/TeamMemberRepository";
 import _c from "../../../domain/entities/generic/Collection";
 
 type D2ProgramStageDataElementsMetadata = {

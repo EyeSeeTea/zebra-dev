@@ -8,7 +8,6 @@ import {
 } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
-import { EventTrackerDetails } from "../../webapp/contexts/current-event-tracker-context";
 import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
 
 export type DiseaseOutbreakEventOptions = {
