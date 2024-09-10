@@ -1,6 +1,6 @@
 import { FutureData } from "../../data/api-futures";
 import { DataSource } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { Id } from "../entities/Ref";
+import { Id, Option } from "../entities/Ref";
 import { Maybe } from "../../utils/ts-utils";
 import { AlertData } from "../entities/alert/AlertData";
 
@@ -14,4 +14,6 @@ export type AlertSyncOptions = {
     nationalDiseaseOutbreakEventId: Id;
     hazardTypeCode: Maybe<string>;
     suspectedDiseaseCode: Maybe<string>;
+    hazardTypes: Option[];
+    suspectedDiseases: Option[];
 };

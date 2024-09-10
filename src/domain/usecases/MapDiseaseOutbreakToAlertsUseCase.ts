@@ -6,6 +6,7 @@ import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-even
 import { Future } from "../entities/generic/Future";
 import { hazardTypeCodeMap } from "../../data/repositories/consts/DiseaseOutbreakConstants";
 import { AlertSyncRepository } from "../repositories/AlertSyncRepository";
+import { OptionsRepository } from "../repositories/OptionsRepository";
 
 type DiseaseOutbreakEventData = Pick<
     DiseaseOutbreakEventBaseAttrs,
@@ -15,7 +16,8 @@ type DiseaseOutbreakEventData = Pick<
 export class MapDiseaseOutbreakToAlertsUseCase {
     constructor(
         private alertRepository: AlertRepository,
-        private alertSyncRepository: AlertSyncRepository
+        private alertSyncRepository: AlertSyncRepository,
+        private optionsRepository: OptionsRepository
     ) {}
 
     public execute(
@@ -38,20 +40,29 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                 incidentStatus: incidentStatus,
                 suspectedDiseaseCode: suspectedDiseaseCode,
             })
-            .flatMap(alerts =>
-                Future.sequential(
-                    alerts.map(alert => {
-                        return this.alertSyncRepository.saveAlertSyncData({
-                            alert: alert,
-                            nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
-                            dataSource: dataSource,
-                            hazardTypeCode: hazardTypeCode,
-                            suspectedDiseaseCode: suspectedDiseaseCode,
-                        });
-                    })
-                ).flatMap(() => {
-                    return Future.success(undefined);
+            .flatMap(alerts => {
+                return Future.joinObj({
+                    hazardTypes: this.optionsRepository.getHazardTypes(),
+                    suspectedDiseases: this.optionsRepository.getSuspectedDiseases(),
                 })
-            );
+                    .flatMap(({ hazardTypes, suspectedDiseases }) =>
+                        Future.sequential(
+                            alerts
+                                .map(alert => {
+                                    return this.alertSyncRepository.saveAlertSyncData({
+                                        alert: alert,
+                                        nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
+                                        dataSource: dataSource,
+                                        hazardTypeCode: hazardTypeCode,
+                                        suspectedDiseaseCode: suspectedDiseaseCode,
+                                        hazardTypes: hazardTypes,
+                                        suspectedDiseases: suspectedDiseases,
+                                    });
+                                })
+                                .flatMap(() => Future.success(undefined))
+                        )
+                    )
+                    .flatMap(() => Future.success(undefined));
+            });
     }
 }

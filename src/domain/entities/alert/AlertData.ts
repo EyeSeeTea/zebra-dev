@@ -1,4 +1,3 @@
-import { Attribute } from "@eyeseetea/d2-api/api/trackedEntityInstances";
 import { Maybe } from "../../../utils/ts-utils";
 import { DataSource } from "../disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id } from "../Ref";
@@ -6,8 +5,11 @@ import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEnti
 
 export type AlertData = {
     alert: D2TrackerTrackedEntity;
-    attribute: Maybe<Attribute>;
     dataSource: DataSource;
+    outbreakData: {
+        id: Maybe<string>;
+        value: Maybe<string>;
+    };
 };
 
 export type AlertEvent = {

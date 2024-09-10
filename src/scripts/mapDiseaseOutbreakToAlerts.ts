@@ -27,6 +27,7 @@ import { DataSource } from "../domain/entities/disease-outbreak-event/DiseaseOut
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { FutureData } from "../data/api-futures";
 import { AlertOptions } from "../domain/repositories/AlertRepository";
+import { Option } from "../domain/entities/Ref";
 
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
@@ -110,11 +111,12 @@ function main() {
                                         return alertsByDataSource
                                             .filter(
                                                 alertData =>
-                                                    alertData.attribute?.value ===
+                                                    alertData.outbreakData.value ===
                                                     filter.filterValue
                                             )
                                             .forEach(alertData => {
-                                                const { alert, attribute, dataSource } = alertData;
+                                                const { alert, dataSource, outbreakData } =
+                                                    alertData;
 
                                                 const outbreakType =
                                                     dataSource ===
@@ -123,7 +125,7 @@ function main() {
                                                         : "hazard";
                                                 const outbreakName = getOutbreakKey({
                                                     dataSource: dataSource,
-                                                    outbreakValue: attribute?.value,
+                                                    outbreakValue: outbreakData.value,
                                                     hazardTypes: hazardTypes,
                                                     suspectedDiseases: suspectedDiseases,
                                                 });
@@ -161,7 +163,12 @@ function main() {
                                                     error => console.error(error)
                                                 );
 
-                                                saveAlertSyncData(alert, alertOutbreak).run(
+                                                saveAlertSyncData({
+                                                    alertTrackedEntity: alert,
+                                                    alertOutbreak: alertOutbreak,
+                                                    hazardTypes: hazardTypes,
+                                                    suspectedDiseases: suspectedDiseases,
+                                                }).run(
                                                     () =>
                                                         console.debug(
                                                             `Saved alert data for ${outbreakName} ${outbreakType}`
@@ -204,9 +211,13 @@ function main() {
                             RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
                         );
 
+                        const outbreakData = diseaseType
+                            ? { id: diseaseType.attribute, value: diseaseType.value }
+                            : { id: hazardType?.value, value: hazardType?.value };
+
                         const alertData: AlertData = {
                             alert: trackedEntity,
-                            attribute: diseaseType ?? hazardType,
+                            outbreakData: outbreakData,
                             dataSource: diseaseType
                                 ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
                                 : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
@@ -231,14 +242,21 @@ function main() {
                 });
             }
 
-            function saveAlertSyncData(
-                alertTrackedEntity: D2TrackerTrackedEntity,
-                alertOutbreak: AlertOptions
-            ): FutureData<void> {
+            function saveAlertSyncData(options: {
+                alertTrackedEntity: D2TrackerTrackedEntity;
+                alertOutbreak: AlertOptions;
+                hazardTypes: Option[];
+                suspectedDiseases: Option[];
+            }): FutureData<void> {
+                const { alertTrackedEntity, alertOutbreak, hazardTypes, suspectedDiseases } =
+                    options;
+
                 return alertSyncRepository.saveAlertSyncData({
                     ...alertOutbreak,
                     nationalDiseaseOutbreakEventId: alertOutbreak.eventId,
                     alert: alertTrackedEntity,
+                    hazardTypes: hazardTypes,
+                    suspectedDiseases: suspectedDiseases,
                 });
             }
 
@@ -275,13 +293,13 @@ function getUniqueFilters(alerts: AlertData[]): {
     dataSource: DataSource;
 }[] {
     return _(alerts)
-        .uniqBy(filter => filter.attribute?.value)
+        .uniqBy(filter => filter.outbreakData.value)
         .map(filter => ({
             filterId:
                 filter.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
                     ? RTSL_ZEBRA_DISEASE_TEA_ID
                     : RTSL_ZEBRA_HAZARD_TEA_ID,
-            filterValue: filter.attribute?.value ?? "",
+            filterValue: filter.outbreakData.value ?? "",
             dataSource: filter.dataSource,
         }))
         .value();

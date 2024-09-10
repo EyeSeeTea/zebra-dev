@@ -51,7 +51,8 @@ function getCompositionRoot(repositories: Repositories) {
             save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
             mapDiseaseOutbreakEventToAlerts: new MapDiseaseOutbreakToAlertsUseCase(
                 repositories.alertRepository,
-                repositories.alertSyncRepository
+                repositories.alertSyncRepository,
+                repositories.optionsRepository
             ),
         },
     };

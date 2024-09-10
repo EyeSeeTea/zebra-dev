@@ -9,50 +9,49 @@ import { FutureData } from "../api-futures";
 import { getOutbreakKey, getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
 import { Maybe } from "../../utils/ts-utils";
 import { DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
-import { OptionsD2Repository } from "./OptionsD2Repository";
 import { AlertEvent, AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export class AlertSyncDataStoreRepository implements AlertSyncRepository {
     private dataStoreClient: DataStoreClient;
-    private optionsRepository: OptionsD2Repository;
 
     constructor(private api: D2Api) {
         this.dataStoreClient = new DataStoreClient(api);
-        this.optionsRepository = new OptionsD2Repository(api);
     }
 
     saveAlertSyncData(options: AlertSyncOptions): FutureData<void> {
-        const { alert: alertData, dataSource, hazardTypeCode, suspectedDiseaseCode } = options;
+        const {
+            alert: alertData,
+            dataSource,
+            hazardTypeCode,
+            suspectedDiseaseCode,
+            hazardTypes,
+            suspectedDiseases,
+        } = options;
         const verificationStatus = getAlertValueFromMap("verificationStatus", alertData);
 
         if (verificationStatus === "VERIFIED") {
-            return Future.joinObj({
-                hazardTypes: this.optionsRepository.getHazardTypes(),
-                suspectedDiseases: this.optionsRepository.getSuspectedDiseases(),
-            }).flatMap(({ hazardTypes, suspectedDiseases }) => {
-                const outbreakKey = getOutbreakKey({
-                    dataSource: dataSource,
-                    outbreakValue: suspectedDiseaseCode ?? hazardTypeCode,
-                    hazardTypes: hazardTypes,
-                    suspectedDiseases: suspectedDiseases,
-                });
+            const outbreakKey = getOutbreakKey({
+                dataSource: dataSource,
+                outbreakValue: suspectedDiseaseCode ?? hazardTypeCode,
+                hazardTypes: hazardTypes,
+                suspectedDiseases: suspectedDiseases,
+            });
 
-                if (!outbreakKey) return Future.error(new Error(`No outbreak key found`));
+            if (!outbreakKey) return Future.error(new Error(`No outbreak key found`));
 
-                const synchronizationData = this.buildSynchronizationData(options, outbreakKey);
+            const synchronizationData = this.buildSynchronizationData(options, outbreakKey);
 
-                return this.getAlertObject(outbreakKey).flatMap(outbreakData => {
-                    const syncData: AlertSynchronizationData = !outbreakData
-                        ? synchronizationData
-                        : {
-                              ...outbreakData,
-                              lastSyncTime: new Date().toISOString(),
-                              alerts: [...outbreakData.alerts, ...synchronizationData.alerts],
-                          };
+            return this.getAlertObject(outbreakKey).flatMap(outbreakData => {
+                const syncData: AlertSynchronizationData = !outbreakData
+                    ? synchronizationData
+                    : {
+                          ...outbreakData,
+                          lastSyncTime: new Date().toISOString(),
+                          alerts: [...outbreakData.alerts, ...synchronizationData.alerts],
+                      };
 
-                    return this.saveAlertObject(outbreakKey, syncData);
-                });
+                return this.saveAlertObject(outbreakKey, syncData);
             });
         }
 
