@@ -4,6 +4,7 @@ import {
     RiskAssessmentGrading,
     RiskAssessmentGradingAttrs,
 } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
+import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
 import { GetValue } from "../../../utils/ts-utils";
 
 export const riskAssessmentGradingOptionCodeMap: Record<Exclude<AllOptionTypes, Grade>, string> = {
@@ -42,6 +43,29 @@ export const riskAssessmentGradingCodes: Record<
     lastUpdated: "",
 } as const;
 export type RiskAssessmentGradingCodes = GetValue<typeof riskAssessmentGradingCodes>;
+
+export const riskAssessmentSummaryCodes = {
+    riskAssessmentDate: "RTSL_ZEB_DET_RADATE",
+    riskGrade: "RTSL_ZEB_DET_RAG", //TO DO SNEHA : Do we need this?
+    riskId: "RTSL_ZEB_DET_RISK_ID_RAS", //TO DO SNEHA : Do we need this?
+    riskAssessor1: "RTSL_ZEB_DET_RA1",
+    addAnotherRiskAssessor1: "RTSL_ZEB_DET_OTHER_RAD1",
+    riskAssessor2: "RTSL_ZEB_DET_RA2",
+    addAnotherRiskAssessor2: "RTSL_ZEB_DET_OTHER_RAD2",
+    riskAssessor3: "RTSL_ZEB_DET_RA3",
+    addAnotherRiskAssessor3: "RTSL_ZEB_DET_OTHER_RAD3",
+    riskAssessor4: "RTSL_ZEB_DET_RA4",
+    addAnotherRiskAssessor4: "RTSL_ZEB_DET_OTHER_RAD4",
+    riskAssessor5: "RTSL_ZEB_DET_RA5",
+    qualitativeRiskAssessment: "RTSL_ZEB_DET_QRA",
+    overallRiskNational: "RTSL_ZEB_DET_QR_NATIONAL",
+    overallRiskRegional: "RTSL_ZEB_DET_QR_REGIONAL",
+    overallRiskGlobal: "RTSL_ZEB_DET_QR_GLOBAL",
+    overallConfidenceNational: "RTSL_ZEB_DET_OC_NATIONAL",
+    overallConfidenceRegional: "RTSL_ZEB_DET_OC_REGIONAL",
+    overallConfidenceGlobal: "RTSL_ZEB_DET_OC_GLOBAL",
+} as const;
+export type RiskAssessmentSummaryCodes = GetValue<typeof riskAssessmentSummaryCodes>;
 
 export function isStringInRiskAssessmentGradingOptionCodes(
     code: string
@@ -91,4 +115,39 @@ function getGradeValue(grade: Grade): string {
         case "Grade3":
             return "3";
     }
+}
+
+export function getValueFromRiskAssessmentSummary(
+    riskAssessmentSummary: RiskAssessmentSummary
+): Record<RiskAssessmentSummaryCodes, string> {
+    return {
+        RTSL_ZEB_DET_RADATE: riskAssessmentSummary.riskAssessmentDate.toISOString(),
+        RTSL_ZEB_DET_RAG: "", //TO DO SNEHA : Do we need this?
+        RTSL_ZEB_DET_RISK_ID_RAS: "", //TO DO SNEHA : Do we need this?
+        RTSL_ZEB_DET_RA1: riskAssessmentSummary.riskAssessors[0]?.username || "",
+        RTSL_ZEB_DET_OTHER_RAD1: riskAssessmentSummary.riskAssessors.length > 1 ? "true" : "",
+        RTSL_ZEB_DET_RA2: riskAssessmentSummary.riskAssessors[1]?.username || "",
+        RTSL_ZEB_DET_OTHER_RAD2: riskAssessmentSummary.riskAssessors.length > 2 ? "true" : "",
+        RTSL_ZEB_DET_RA3: riskAssessmentSummary.riskAssessors[2]?.username || "",
+        RTSL_ZEB_DET_OTHER_RAD3: riskAssessmentSummary.riskAssessors.length > 3 ? "true" : "",
+        RTSL_ZEB_DET_RA4: riskAssessmentSummary.riskAssessors[3]?.username || "",
+        RTSL_ZEB_DET_OTHER_RAD4: riskAssessmentSummary.riskAssessors.length > 4 ? "true" : "",
+        RTSL_ZEB_DET_RA5: riskAssessmentSummary.riskAssessors[4]?.username || "",
+        RTSL_ZEB_DET_QRA: riskAssessmentSummary.qualitativeRiskAssessment,
+        RTSL_ZEB_DET_QR_NATIONAL: riskAssessmentSummary.overallRiskNational.id,
+        RTSL_ZEB_DET_QR_REGIONAL: riskAssessmentSummary.overallRiskRegional.id,
+        RTSL_ZEB_DET_QR_GLOBAL: riskAssessmentSummary.overallRiskGlobal.id,
+        RTSL_ZEB_DET_OC_NATIONAL: riskAssessmentSummary.overallConfidenceNational.id,
+        RTSL_ZEB_DET_OC_REGIONAL: riskAssessmentSummary.overallConfidenceRegional.id,
+        RTSL_ZEB_DET_OC_GLOBAL: riskAssessmentSummary.overallConfidenceGlobal.id,
+    };
+}
+
+export type RiskAssessmentSummaryKeyCode =
+    (typeof riskAssessmentSummaryCodes)[keyof typeof riskAssessmentSummaryCodes];
+
+export function isStringInRiskAssessmentSummaryCodes(
+    code: string
+): code is RiskAssessmentSummaryKeyCode {
+    return (Object.values(riskAssessmentSummaryCodes) as string[]).includes(code);
 }

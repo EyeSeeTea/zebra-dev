@@ -11,7 +11,7 @@ import { BasicTable, TableColumn } from "../../components/table/BasicTable";
 import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { useDiseaseOutbreakEvent } from "./useDiseaseOutbreakEvent";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
-import { useCurrentEventTrackerId } from "../../contexts/current-event-tracker-context";
+import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 
 // TODO: Add every section here
 export type VisualizationTypes =
@@ -41,12 +41,13 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         id: string;
     }>();
     const { goTo } = useRoutes();
-    const { formSummary, summaryError, riskAssessmentRows } = useDiseaseOutbreakEvent(id);
-    const { changeCurrentEventTrackerId } = useCurrentEventTrackerId();
+    const { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails } =
+        useDiseaseOutbreakEvent(id);
+    const { changeCurrentEventTracker: changeCurrentEventTrackerId } = useCurrentEventTracker();
 
     useEffect(() => {
-        changeCurrentEventTrackerId(id);
-    }, [changeCurrentEventTrackerId, id]);
+        if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
+    }, [changeCurrentEventTrackerId, eventTrackerDetails, id]);
 
     const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
     return (
@@ -73,7 +74,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             startIcon={<EditOutlined />}
                             onClick={() => {
                                 goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment-grading",
+                                    formType: "risk-assessment-summary",
                                 });
                             }}
                         >
@@ -86,7 +87,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             startIcon={<AddCircleOutline />}
                             onClick={() => {
                                 goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment-grading",
+                                    formType: "risk-assessment-summary",
                                 });
                             }}
                         >

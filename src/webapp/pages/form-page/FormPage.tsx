@@ -26,7 +26,7 @@ export const FormPage: React.FC = React.memo(() => {
         formState,
         isLoading,
         handleFormChange,
-        onSaveForm,
+        onPrimaryButtonClick,
         onCancelForm,
     } = useForm(formType, id);
 
@@ -44,7 +44,7 @@ export const FormPage: React.FC = React.memo(() => {
         <Form
             formState={formState.data}
             onFormChange={handleFormChange}
-            onSave={onSaveForm}
+            onSave={onPrimaryButtonClick}
             onCancel={onCancelForm}
             errorLabels={formLabels?.errors}
         />

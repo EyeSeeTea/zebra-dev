@@ -8,7 +8,7 @@ import { usePerformanceOverview } from "./usePerformanceOverview";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
-import { useCurrentEventTrackerId } from "../../contexts/current-event-tracker-context";
+import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -21,7 +21,7 @@ export const DashboardPage: React.FC = React.memo(() => {
     } = usePerformanceOverview();
 
     const { goTo } = useRoutes();
-    const { resetCurrentEventTrackerId } = useCurrentEventTrackerId();
+    const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
 
     useEffect(() => {
         //On navigating to the dashboard page, reset the current event tracker id

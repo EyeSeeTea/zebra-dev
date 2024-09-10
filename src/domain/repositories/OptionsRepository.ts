@@ -33,7 +33,7 @@ export interface OptionsRepository {
     getPopulationAtRisks(): FutureData<
         Array<LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk>
     >;
-    getLowMediumHighOptions(): FutureData<
+    getLowMediumHighWeightedOptions(): FutureData<
         Array<LowWeightedOption | MediumWeightedOption | HighWeightedOption>
     >;
     getGeographicalSpreads(): FutureData<
@@ -41,4 +41,6 @@ export interface OptionsRepository {
     >;
     getCapacities(): FutureData<Array<LowCapacity | MediumCapacity | HighCapacity>>;
     getCapabilities(): FutureData<Array<Capability1 | Capability2>>;
+    getLowMediumHighOptions(): FutureData<Option[]>;
+    getLowMediumHighOption(optionCode: Code): FutureData<Option>;
 }

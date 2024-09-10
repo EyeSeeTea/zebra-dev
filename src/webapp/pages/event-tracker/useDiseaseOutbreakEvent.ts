@@ -15,6 +15,7 @@ import { User } from "../../components/user-selector/UserSelector";
 import { TableRowType } from "../../components/table/BasicTable";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
+import { EventTrackerDetails } from "../../contexts/current-event-tracker-context";
 
 const EventTypeLabel = "Event type";
 const DiseaseLabel = "Disease";
@@ -33,6 +34,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
     const [formSummary, setFormSummary] = useState<FormSummaryData>();
     const [summaryError, setSummaryError] = useState<string>();
     const [riskAssessmentRows, setRiskAssessmentRows] = useState<TableRowType[]>([]);
+    const [eventTrackerDetails, setEventTrackerDetails] = useState<DiseaseOutbreakEvent>();
 
     useEffect(() => {
         compositionRoot.diseaseOutbreakEvent.get.execute(id).run(
@@ -41,6 +43,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
                 setRiskAssessmentRows(
                     mapDiseaseOutbreakEventToRiskAssessmentRows(diseaseOutbreakEvent)
                 );
+                setEventTrackerDetails(diseaseOutbreakEvent);
             },
             err => {
                 console.debug(err);
@@ -131,5 +134,5 @@ export function useDiseaseOutbreakEvent(id: Id) {
         }
     };
 
-    return { formSummary, summaryError, riskAssessmentRows };
+    return { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails };
 }

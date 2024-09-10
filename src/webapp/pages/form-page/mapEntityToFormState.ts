@@ -1,17 +1,26 @@
 import { ConfigurableForm } from "../../../domain/entities/ConfigurableForm";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../../domain/entities/Ref";
+import { FormState } from "../../components/form/FormState";
 import { User } from "../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../components/utils/option";
 import { mapDiseaseOutbreakEventToInitialFormState } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
-import { mapRiskGradingToInitialFormState } from "./risk-assessment-grading/mapRiskGradingToInitialFormState";
+import {
+    mapRiskAssessmentSummaryToInitialFormState,
+    mapRiskGradingToInitialFormState,
+} from "./risk-assessment-grading/mapRiskGradingToInitialFormState";
 
-export function mapEntityToFormState(configurableForm: ConfigurableForm, editMode?: boolean) {
+export function mapEntityToFormState(
+    configurableForm: ConfigurableForm,
+    editMode?: boolean
+): FormState {
     switch (configurableForm.type) {
         case "disease-outbreak-event":
             return mapDiseaseOutbreakEventToInitialFormState(configurableForm, editMode ?? false);
         case "risk-assessment-grading":
             return mapRiskGradingToInitialFormState(configurableForm);
+        case "risk-assessment-summary":
+            return mapRiskAssessmentSummaryToInitialFormState(configurableForm);
     }
 }
 

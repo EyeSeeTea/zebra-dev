@@ -1,10 +1,15 @@
 import { Maybe } from "../../utils/ts-utils";
 import { TeamMember } from "./incident-management-team/TeamMember";
-import { Id, Option } from "./Ref";
+import { Option } from "./Ref";
 import { Rule } from "./Rule";
-import { DiseaseOutbreakEventBaseAttrs } from "./disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DiseaseOutbreakEvent,
+    DiseaseOutbreakEventBaseAttrs,
+} from "./disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
+import { EventTrackerDetails } from "../../webapp/contexts/current-event-tracker-context";
+import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -16,7 +21,7 @@ export type DiseaseOutbreakEventOptions = {
     teamMembers: TeamMember[];
 };
 
-export type RiskAssessmentOptions = {
+export type RiskAssessmentGradingOptions = {
     populationAtRisk: Option[];
     attackRate: Option[];
     geographicalSpread: Option[];
@@ -25,6 +30,16 @@ export type RiskAssessmentOptions = {
     reputationalRisk: Option[];
     severity: Option[];
     capability: Option[];
+};
+
+export type RiskAssessmentSummaryOptions = {
+    overallRiskNational: Option[];
+    overallRiskRegional: Option[];
+    overallRiskGlobal: Option[];
+    overAllConfidencNational: Option[];
+    overAllConfidencRegional: Option[];
+    overAllConfidencGlobal: Option[];
+    riskAssessors: TeamMember[];
 };
 
 export type FormLables = {
@@ -44,9 +59,19 @@ export type DiseaseOutbreakEventFormData = BaseFormData & {
 
 export type RiskAssessmentGradingFormData = BaseFormData & {
     type: "risk-assessment-grading";
-    diseaseOutbreakId: Id;
+    eventTrackerDetails: DiseaseOutbreakEvent;
     entity: Maybe<RiskAssessmentGrading>;
-    options: RiskAssessmentOptions;
+    options: RiskAssessmentGradingOptions;
 };
 
-export type ConfigurableForm = DiseaseOutbreakEventFormData | RiskAssessmentGradingFormData;
+export type RiskAssessmentSummaryFormData = BaseFormData & {
+    type: "risk-assessment-summary";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: Maybe<RiskAssessmentSummary>;
+    options: RiskAssessmentSummaryOptions;
+};
+
+export type ConfigurableForm =
+    | DiseaseOutbreakEventFormData
+    | RiskAssessmentGradingFormData
+    | RiskAssessmentSummaryFormData;

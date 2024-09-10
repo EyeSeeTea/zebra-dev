@@ -23,9 +23,6 @@ import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
 import { GetEntityWithOptionsUseCase } from "./domain/usecases/GetEntityWithOptionsUseCase";
 import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
-import { RiskAssessmentGradingRepository } from "./domain/repositories/RiskAssessmentGradingRepository";
-import { RiskAssessmentGradingD2Repository } from "./data/repositories/RiskAssessmentGradingD2Repository";
-import { RiskAssessmentGradingTestRepository } from "./data/repositories/test/RiskAssessmentGradingTestRepository";
 import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
 import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
 import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
@@ -39,7 +36,6 @@ type Repositories = {
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
-    riskAssessmentGradingsRepository: RiskAssessmentGradingRepository;
     riskAssessmentRepository: RiskAssessmentRepository;
 };
 
@@ -48,7 +44,7 @@ function getCompositionRoot(repositories: Repositories) {
         getWithOptions: new GetEntityWithOptionsUseCase(repositories),
         save: new SaveEntityUseCase(
             repositories.diseaseOutbreakEventRepository,
-            repositories.riskAssessmentGradingsRepository
+            repositories.riskAssessmentRepository
         ),
         users: {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
@@ -74,7 +70,6 @@ export function getWebappCompositionRoot(api: D2Api) {
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
-        riskAssessmentGradingsRepository: new RiskAssessmentGradingD2Repository(api),
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
     };
 
@@ -89,7 +84,6 @@ export function getTestCompositionRoot() {
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
-        riskAssessmentGradingsRepository: new RiskAssessmentGradingTestRepository(),
         riskAssessmentRepository: new RiskAssessmentTestRepository(),
     };
 

@@ -23,7 +23,6 @@ import {
     MediumWeightedOption,
     RiskAssessmentGrading,
 } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
-import { Future } from "../../domain/entities/generic/Future";
 
 const MAIN_SYNDROME_OPTION_SET_CODE = "AGENTS";
 const SUSPECTED_DISEASE_OPTION_SET_CODE = "RTSL_ZEB_OS_DISEASE";
@@ -117,7 +116,7 @@ export class OptionsD2Repository implements OptionsRepository {
         );
     }
 
-    getLowMediumHighOptions(): FutureData<
+    getLowMediumHighWeightedOptions(): FutureData<
         Array<LowWeightedOption | MediumWeightedOption | HighWeightedOption>
     > {
         return this.getOptionSetByCode("RTSL_ZEB_OS_LMH").map(lowMediumHighOptions => {
@@ -163,6 +162,12 @@ export class OptionsD2Repository implements OptionsRepository {
         )
             .flatMap(response => assertOrError(response.optionSets[0], `OptionSet ${code}`))
             .map(d2Option => this.mapD2OptionSetToOptions(d2Option));
+    }
+    getLowMediumHighOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_LMH");
+    }
+    getLowMediumHighOption(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, "RTSL_ZEB_OS_LMH");
     }
 
     private mapD2OptionSetToOptions(optionSet: D2OptionSet): Option[] {

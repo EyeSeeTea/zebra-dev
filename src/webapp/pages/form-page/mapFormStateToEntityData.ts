@@ -18,10 +18,16 @@ import {
     ConfigurableForm,
     DiseaseOutbreakEventFormData,
     RiskAssessmentGradingFormData,
+    RiskAssessmentSummaryFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
-import { riskAssessmentGradingCodes } from "../../../data/repositories/consts/RiskAssessmentGradingConstants";
+import {
+    riskAssessmentGradingCodes,
+    riskAssessmentSummaryCodes,
+} from "../../../data/repositories/consts/RiskAssessmentGradingConstants";
+import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
+import _c from "../../../domain/entities/generic/Collection";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -49,6 +55,14 @@ export function mapFormStateToEntityData(
                 entity: riskEntity,
             };
             return riskForm;
+        }
+        case "risk-assessment-summary": {
+            const riskSummary = mapFormStateToRiskAssessmentSummary(formState, formData);
+            const riskSummaryForm: RiskAssessmentSummaryFormData = {
+                ...formData,
+                entity: riskSummary,
+            };
+            return riskSummaryForm;
         }
 
         default:
@@ -236,4 +250,121 @@ function mapFormStateToRiskAssessmentGrading(formState: FormState): RiskAssessme
         severity: RiskAssessmentGrading.getOptionTypeByCodeWeighted(severityValue),
     });
     return riskAssessmentGrading;
+}
+
+function mapFormStateToRiskAssessmentSummary(
+    formState: FormState,
+    formData: RiskAssessmentSummaryFormData
+): RiskAssessmentSummary {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const riskAssessmentDate = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.riskAssessmentDate)
+    )?.value as Date;
+
+    const riskAssessor1Value = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.riskAssessor1)
+    )?.value as string;
+    const riskAssessor2Value = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.riskAssessor2)
+    )?.value as string;
+    const riskAssessor3Value = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.riskAssessor3)
+    )?.value as string;
+    const riskAssessor4Value = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.riskAssessor4)
+    )?.value as string;
+    const riskAssessor5Value = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.riskAssessor5)
+    )?.value as string;
+    const riskAssessor1 = formData.options.riskAssessors.find(
+        riskAssessor => riskAssessor.username === riskAssessor1Value
+    );
+    const riskAssessor2 = formData.options.riskAssessors.find(
+        riskAssessor => riskAssessor.username === riskAssessor2Value
+    );
+    const riskAssessor3 = formData.options.riskAssessors.find(
+        riskAssessor => riskAssessor.username === riskAssessor3Value
+    );
+    const riskAssessor4 = formData.options.riskAssessors.find(
+        riskAssessor => riskAssessor.username === riskAssessor4Value
+    );
+    const riskAssessor5 = formData.options.riskAssessors.find(
+        riskAssessor => riskAssessor.username === riskAssessor5Value
+    );
+
+    const qualitativeRiskAssessment = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.qualitativeRiskAssessment)
+    )?.value as string;
+
+    const overallRiskNationalValue = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.overallRiskNational)
+    )?.value as string;
+    const overallRiskNational = formData.options.overallRiskNational.find(
+        option => option.id === overallRiskNationalValue
+    );
+    if (!overallRiskNational) throw new Error("Overall risk national not found");
+
+    const overallRiskRegionalValue = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.overallRiskRegional)
+    )?.value as string;
+    const overallRiskRegional = formData.options.overallRiskRegional.find(
+        option => option.id === overallRiskRegionalValue
+    );
+    if (!overallRiskRegional) throw new Error("Overall risk regional not found");
+
+    const overallRiskGlobalValue = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.overallRiskGlobal)
+    )?.value as string;
+    const overallRiskGlobal = formData.options.overallRiskGlobal.find(
+        option => option.id === overallRiskGlobalValue
+    );
+    if (!overallRiskGlobal) throw new Error("Overall risk global not found");
+
+    const overallConfidenceNationalValue = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.overallConfidenceNational)
+    )?.value as string;
+    const overallConfidenceNational = formData.options.overAllConfidencNational.find(
+        option => option.id === overallConfidenceNationalValue
+    );
+    if (!overallConfidenceNational) throw new Error("Overall confidence national not found");
+
+    const overallConfidenceRegionalValue = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.overallConfidenceRegional)
+    )?.value as string;
+    const overallConfidenceRegional = formData.options.overAllConfidencRegional.find(
+        option => option.id === overallConfidenceRegionalValue
+    );
+    if (!overallConfidenceRegional) throw new Error("Overall confidence regional not found");
+
+    const overallConfidenceGlobalValue = allFields.find(field =>
+        field.id.includes(riskAssessmentSummaryCodes.overallConfidenceGlobal)
+    )?.value as string;
+    const overallConfidenceGlobal = formData.options.overAllConfidencGlobal.find(
+        option => option.id === overallConfidenceGlobalValue
+    );
+    if (!overallConfidenceGlobal) throw new Error("Overall confidence global not found");
+
+    const riskAssessmentSummary: RiskAssessmentSummary = new RiskAssessmentSummary({
+        id: formData.entity?.id ?? "",
+        riskAssessmentDate: riskAssessmentDate,
+        riskAssessors: _c([
+            riskAssessor1,
+            riskAssessor2,
+            riskAssessor3,
+            riskAssessor4,
+            riskAssessor5,
+        ])
+            .compact()
+            .value(),
+        qualitativeRiskAssessment: qualitativeRiskAssessment,
+        overallRiskNational: overallRiskNational,
+        overallRiskRegional: overallRiskRegional,
+        overallRiskGlobal: overallRiskGlobal,
+        overallConfidenceNational: overallConfidenceNational,
+        overallConfidenceRegional: overallConfidenceRegional,
+        overallConfidenceGlobal: overallConfidenceGlobal,
+        riskId: "",
+    });
+    return riskAssessmentSummary;
 }

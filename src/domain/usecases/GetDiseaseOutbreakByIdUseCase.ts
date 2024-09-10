@@ -7,6 +7,7 @@ import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
 
 export class GetDiseaseOutbreakByIdUseCase {
     constructor(
@@ -49,7 +50,12 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.orgUnitRepository.get(areasAffectedProvinceIds),
                     areasAffectedDistricts:
                         this.options.orgUnitRepository.get(areasAffectedDistrictIds),
-                    riskAssessment: this.options.riskAssessmentRepository.getAll(id),
+                    riskAssessment: getAll(
+                        id,
+                        this.options.riskAssessmentRepository,
+                        this.options.optionsRepository,
+                        this.options.teamMemberRepository
+                    ),
                 }).flatMap(
                     ({
                         mainSyndrome,

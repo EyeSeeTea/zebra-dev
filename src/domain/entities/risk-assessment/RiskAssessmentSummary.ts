@@ -1,23 +1,19 @@
-import { Maybe } from "../../../utils/ts-utils";
-import { NamedRef } from "../Ref";
+import { Id, NamedRef } from "../Ref";
 import { Struct } from "../generic/Struct";
+import { TeamMember } from "../incident-management-team/TeamMember";
 
-type RiskAssessor = {
-    riskAssessorFirstName: string;
-    riskAssessorLastName: string;
-    riskAssessorTitle: string;
-    addAnotherRiskAssessor: boolean;
-};
-interface RiskAssessmentSummaryAttrs {
-    riskAssessmentDate: Date;
-    riskAssessors: RiskAssessor[];
+export interface RiskAssessmentSummaryAttrs {
+    id: Id;
+    riskAssessmentDate: Date; //SNEHA QUERY - Do we need this?.
+    riskAssessors: TeamMember[];
     qualitativeRiskAssessment: string;
-    overallRiskNational: Maybe<NamedRef>;
-    overallRiskRegional: Maybe<NamedRef>;
-    overallRiskGlobal: Maybe<NamedRef>;
-    overAllConfidencNational: Maybe<NamedRef>;
-    overAllConfidencRegional: Maybe<NamedRef>;
-    overAllConfidencGlobal: Maybe<NamedRef>;
+    overallRiskNational: NamedRef;
+    overallRiskRegional: NamedRef;
+    overallRiskGlobal: NamedRef;
+    overallConfidenceNational: NamedRef;
+    overallConfidenceRegional: NamedRef;
+    overallConfidenceGlobal: NamedRef;
+    riskId: Id;
 }
 
 export class RiskAssessmentSummary extends Struct<RiskAssessmentSummaryAttrs>() {}

@@ -1,5 +1,5 @@
 import i18n from "@eyeseetea/feedback-component/locales";
-import { Code, Id, Ref } from "../Ref";
+import { Code, Ref } from "../Ref";
 import { Struct } from "../generic/Struct";
 import { Either } from "../generic/Either";
 import { Maybe } from "../../../utils/ts-utils";

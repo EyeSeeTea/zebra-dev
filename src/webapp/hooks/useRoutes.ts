@@ -17,6 +17,7 @@ export enum RouteName {
 const formTypes = [
     "disease-outbreak-event",
     "risk-assessment-grading",
+    "risk-assessment-summary",
 ] as const satisfies FormType[];
 
 const formType = `:formType(${join(formTypes, "|")})` as const;

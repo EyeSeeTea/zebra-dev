@@ -15,7 +15,7 @@ import { Router } from "../Router";
 import Share from "../../components/share/Share";
 import { HeaderBar } from "../../components/layout/header-bar/HeaderBar";
 import "./App.css";
-import { CurrentEventTrackerContextProvider } from "../../contexts/CurrentEventTrackerIdProvider";
+import { CurrentEventTrackerContextProvider } from "../../contexts/CurrentEventTrackerProvider";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;

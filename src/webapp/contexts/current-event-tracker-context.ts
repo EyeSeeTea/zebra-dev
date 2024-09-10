@@ -1,24 +1,38 @@
 import { createContext, useContext } from "react";
 import { Maybe } from "../../utils/ts-utils";
-import { Id } from "../../domain/entities/Ref";
+import { Id, NamedRef } from "../../domain/entities/Ref";
+import {
+    DataSource,
+    DiseaseOutbreakEvent,
+    HazardType,
+} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+
+export interface EventTrackerDetails {
+    id: Id;
+    name: string;
+    dataSource: DataSource;
+    hazardType: Maybe<HazardType>;
+    suspectedDisease: Maybe<NamedRef>;
+    lastUpdated: string;
+}
 
 export interface CurrentEventTrackerContextProps {
-    currentEventTrackerId: Maybe<Id>;
-    changeCurrentEventTrackerId: (id: string) => void;
-    resetCurrentEventTrackerId: () => void;
+    currentEventTracker: Maybe<DiseaseOutbreakEvent>;
+    changeCurrentEventTracker: (eventTrackerDetails: DiseaseOutbreakEvent) => void;
+    resetCurrentEventTracker: () => void;
 }
 
 export const CurrentEventTrackerContext = createContext<CurrentEventTrackerContextProps>({
-    currentEventTrackerId: undefined,
-    changeCurrentEventTrackerId: () => {},
-    resetCurrentEventTrackerId: () => {},
+    currentEventTracker: undefined,
+    changeCurrentEventTracker: () => {},
+    resetCurrentEventTracker: () => {},
 });
 
-export function useCurrentEventTrackerId() {
+export function useCurrentEventTracker() {
     const context = useContext(CurrentEventTrackerContext);
     if (context) {
         return context;
     } else {
-        throw new Error("Current Event tracker Id context uninitialized");
+        throw new Error("Current Event Tracker context uninitialized");
     }
 }

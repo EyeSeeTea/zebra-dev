@@ -21,12 +21,18 @@ import { OptionsRepository } from "../../../domain/repositories/OptionsRepositor
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
+    getLowMediumHighOption(optionCode: Code): FutureData<Option> {
+        throw new Error("Method not implemented.");
+    }
+    getLowMediumHighOptions(): FutureData<Option[]> {
+        throw new Error("Method not implemented.");
+    }
     getPopulationAtRisks(): FutureData<
         Array<LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk>
     > {
         throw new Error("Method not implemented.");
     }
-    getLowMediumHighOptions(): FutureData<
+    getLowMediumHighWeightedOptions(): FutureData<
         Array<LowWeightedOption | MediumWeightedOption | HighWeightedOption>
     > {
         throw new Error("Method not implemented.");
