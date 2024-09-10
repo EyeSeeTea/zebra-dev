@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 
-import { FilterType, TableColumn } from "../../components/table/statistic-table/StatisticTable";
+import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
 import { ProgramIndicatorBaseAttrs } from "../../../data/repositories/AnalyticsD2Repository";
 
 type State = {
@@ -10,7 +10,7 @@ type State = {
     dataPerformanceOverview: any[];
     columnRules: { [key: string]: number };
     editRiskAssessmentColumns: string[];
-    filters: FilterType[];
+    filters: FiltersConfig[];
     order?: Order;
     setOrder: (order: Order) => void;
     isLoading: boolean;
@@ -99,7 +99,7 @@ export function usePerformanceOverview(): State {
         };
     };
 
-    const filters: FilterType[] = [
+    const filters: FiltersConfig[] = [
         { value: "event", label: "Event", type: "multiselector" },
         { value: "province", label: "Province", type: "multiselector" },
     ];

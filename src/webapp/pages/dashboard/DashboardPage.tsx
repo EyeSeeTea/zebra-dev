@@ -12,24 +12,21 @@ import { MultipleSelector } from "../../components/selector/MultipleSelector";
 import { Id } from "@eyeseetea/d2-api";
 import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
+import { useFilters } from "./useFilters";
 
 export const DashboardPage: React.FC = React.memo(() => {
+    const { filters, filterOptions, setFilters } = useFilters();
     const {
         columns,
         dataPerformanceOverview,
-        filters,
+        filters: performanceOverviewFilters,
         order,
         setOrder,
         columnRules,
         editRiskAssessmentColumns,
     } = usePerformanceOverview();
 
-    const {
-        diseasesTotal,
-        filterOptions,
-        filters: incidentStatusFilters,
-        setFilters: setIncidentStatusFilters,
-    } = useDiseasesTotal();
+    const { diseasesTotal } = useDiseasesTotal(filters);
 
     const { goTo } = useRoutes();
 
@@ -72,12 +69,12 @@ export const DashboardPage: React.FC = React.memo(() => {
                         <MultipleSelector
                             id={`filters-${value}`}
                             key={`filters-${value}`}
-                            selected={incidentStatusFilters[value] || []}
+                            selected={filters[value] || []}
                             placeholder={i18n.t(label)}
                             options={options || []}
                             onChange={(values: string[]) =>
-                                setIncidentStatusFilters({
-                                    ...incidentStatusFilters,
+                                setFilters({
+                                    ...filters,
                                     [value]: values,
                                 })
                             }
@@ -118,7 +115,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                     <StatisticTable
                         columns={columns}
                         rows={dataPerformanceOverview}
-                        filters={filters}
+                        filters={performanceOverviewFilters}
                         order={order}
                         setOrder={setOrder}
                         columnRules={columnRules}

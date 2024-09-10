@@ -28,7 +28,7 @@ export type TableColumn = {
     dark?: boolean;
 };
 
-export type FilterType = {
+export type FiltersConfig = {
     value: TableColumn["value"];
     label: TableColumn["label"];
     type: "multiselector" | "datepicker";
@@ -49,7 +49,7 @@ export type StatisticTableProps = {
     rows: {
         [key: TableColumn["value"]]: string;
     }[];
-    filters: FilterType[];
+    filters: FiltersConfig[];
     order?: Order;
     setOrder?: (order: Order) => void;
     goToEvent: (id: Maybe<Id>) => void;
