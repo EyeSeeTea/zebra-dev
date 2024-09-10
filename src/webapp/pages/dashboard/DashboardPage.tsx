@@ -42,19 +42,20 @@ export const DashboardPage: React.FC = React.memo(() => {
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>
                 <Container>
-                    {filterOptions.map(({ value, label, options }) => (
+                    {filterOptions.map(({ value, label, options, disabled }) => (
                         <MultipleSelector
                             id={`filters-${value}`}
                             key={`filters-${value}`}
                             selected={incidentStatusFilters[value] || []}
                             placeholder={i18n.t(label)}
                             options={options || []}
-                            onChange={(values: string[]) => {
+                            onChange={(values: string[]) =>
                                 setIncidentStatusFilters({
                                     ...incidentStatusFilters,
                                     [value]: values,
-                                });
-                            }}
+                                })
+                            }
+                            disabled={disabled}
                         />
                     ))}
                 </Container>
@@ -64,8 +65,8 @@ export const DashboardPage: React.FC = React.memo(() => {
                             <StatsCard
                                 key={index}
                                 stat={disease.total}
-                                title={disease.name}
-                                size="small"
+                                title={disease.disease || disease.hazard}
+                                fillParent
                             />
                         ))}
                 </GridWrapper>
@@ -90,12 +91,8 @@ export const DashboardPage: React.FC = React.memo(() => {
 
 const GridWrapper = styled.div`
     width: 100%;
-    @media screen and (min-width: 1200px) {
-        width: 80%;
-    }
-
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 0.5rem;
 `;
 
@@ -108,6 +105,5 @@ const Container = styled.div`
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-    width: 14rem;
     gap: 1rem;
 `;

@@ -40,20 +40,17 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
     constructor(private api: D2Api) {}
 
     getDiseasesTotal(filters?: Record<string, string[]>): FutureData<any> {
-        const transformData = (
-            data: string[][],
-            diseases: { id: string; disease: string; incidentStatus?: string }[]
-        ) => {
+        const transformData = (data: string[][], activeVerified: typeof NB_OF_ACTIVE_VERIFIED) => {
             return data
                 .flatMap(([id, , total]) => {
-                    const indicator = diseases.find(d => d.id === id);
+                    const indicator = activeVerified.find(d => d.id === id);
                     if (!indicator || !total) {
                         return [];
                     }
                     return [
                         {
                             id,
-                            name: indicator.disease,
+                            [indicator.type]: indicator.name,
                             incidentStatus: indicator.incidentStatus,
                             total: parseFloat(total),
                         },
@@ -91,16 +88,19 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             const rows = transformData(res.rows, NB_OF_ACTIVE_VERIFIED) || [];
 
             return Object.values(
-                rows.reduce((acc, row) => {
-                    if (!row.name) {
+                rows.reduce((acc, { disease, hazard, total }) => {
+                    const name = (disease || hazard) as string;
+                    if (!name) {
                         return acc;
                     }
 
-                    const existingEntry = acc[row.name] || { name: row.name, total: 0 };
-                    existingEntry.total += row.total;
-                    acc[row.name] = existingEntry;
+                    const existingEntry =
+                        acc[name] || (disease ? { disease, total: 0 } : { hazard, total: 0 });
+                    existingEntry.total += total;
+                    // @ts-ignore
+                    acc[name] = existingEntry;
                     return acc;
-                }, {} as Record<string, { name: string; total: number }>)
+                }, {} as Record<string, { disease: string; total: number } | { hazard: string; total: number }>)
             );
         });
     }
@@ -164,7 +164,11 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             }: Record<string, AnalyticsResponse>) => {
                 const cases = this.calculateTotals(nbOfCasesByDiseaseFuture, NB_OF_CASES);
                 const deaths = this.calculateTotals(nbOfDeathsByDiseaseFuture, NB_OF_DEATHS);
-
+                console.log({
+                    indicatorsProgramFuture,
+                    nbOfCasesByDiseaseFuture,
+                    nbOfDeathsByDiseaseFuture,
+                });
                 return (
                     indicatorsProgramFuture?.rows.map((row: string[]) => {
                         return this.mapRowToIndicator(
