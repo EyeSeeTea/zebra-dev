@@ -30,6 +30,7 @@ import { Alert } from "../domain/entities/alert/Alert";
 import { AlertOptions } from "../domain/repositories/AlertRepository";
 import { Option } from "../domain/entities/Ref";
 
+//TO DO : Fetch from metadata on app load
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
 const RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE = "RTSL_ZEBRA_NATONAL_WATCH_STAFF";
