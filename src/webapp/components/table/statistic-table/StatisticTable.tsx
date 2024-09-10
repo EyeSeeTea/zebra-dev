@@ -33,6 +33,7 @@ export type FilterType = {
     label: TableColumn["label"];
     type: "multiselector" | "datepicker";
     options?: Option<string>[];
+    disabled?: boolean;
 };
 
 export type FiltersValuesType = {

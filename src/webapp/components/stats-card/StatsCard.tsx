@@ -2,15 +2,15 @@ import React from "react";
 import { CardContent, Card } from "@material-ui/core";
 import styled from "styled-components";
 
-type StatsCardProps = {
-    color?: "normal" | "green" | "red";
+export type StatsCardProps = {
+    color?: "normal" | "green" | "red" | "grey";
     stat: string;
     pretitle?: string;
     title: string;
     subtitle?: string;
     isPercentage?: boolean;
     error?: boolean;
-    size?: "small" | "large";
+    fillParent?: boolean;
 };
 
 export const StatsCard: React.FC<StatsCardProps> = React.memo(
@@ -22,12 +22,12 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
         color = "normal",
         isPercentage = false,
         error = false,
-        size,
+        fillParent = false,
     }) => {
         return (
-            <StyledCard $error={error} $size={size}>
+            <StyledCard $error={error} $fillParent={fillParent}>
                 <StyledCardContent>
-                    <Stat color={color}>{`${stat}${isPercentage ? " %" : ""}`}</Stat>
+                    <Stat color={color}>{`${stat}${isPercentage ? "%" : ""}`}</Stat>
 
                     <PreTitle>{pretitle}</PreTitle>
 
@@ -40,8 +40,8 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
     }
 );
 
-const StyledCard = styled(Card)<{ $error?: boolean; $size?: string }>`
-    width: ${props => (!props.$size ? "fit-content" : props.$size === "small" ? "220px" : "300px")};
+const StyledCard = styled(Card)<{ $error?: boolean; $fillParent?: boolean }>`
+    width: ${props => (props.$fillParent ? "100%" : "fit-content")};
     min-width: 220px;
     max-width: 300px;
     border-style: ${props => (props.$error ? "solid" : "none")};
