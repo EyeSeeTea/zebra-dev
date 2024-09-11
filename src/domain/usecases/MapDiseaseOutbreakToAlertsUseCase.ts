@@ -40,29 +40,27 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                 incidentStatus: incidentStatus,
                 suspectedDiseaseCode: suspectedDiseaseCode,
             })
-            .flatMap(alerts => {
-                return Future.joinObj({
-                    hazardTypes: this.optionsRepository.getHazardTypes(),
+            .flatMap(alerts =>
+                Future.joinObj({
+                    hazardTypes: this.optionsRepository.getHazardTypesByCode(),
                     suspectedDiseases: this.optionsRepository.getSuspectedDiseases(),
-                })
-                    .flatMap(({ hazardTypes, suspectedDiseases }) =>
-                        Future.sequential(
-                            alerts
-                                .map(alert => {
-                                    return this.alertSyncRepository.saveAlertSyncData({
-                                        alert: alert,
-                                        nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
-                                        dataSource: dataSource,
-                                        hazardTypeCode: hazardTypeCode,
-                                        suspectedDiseaseCode: suspectedDiseaseCode,
-                                        hazardTypes: hazardTypes,
-                                        suspectedDiseases: suspectedDiseases,
-                                    });
+                }).flatMap(({ hazardTypes, suspectedDiseases }) =>
+                    Future.sequential(
+                        alerts.map(alert =>
+                            this.alertSyncRepository
+                                .saveAlertSyncData({
+                                    alert: alert,
+                                    nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
+                                    dataSource: dataSource,
+                                    hazardTypeCode: hazardTypeCode,
+                                    suspectedDiseaseCode: suspectedDiseaseCode,
+                                    hazardTypes: hazardTypes,
+                                    suspectedDiseases: suspectedDiseases,
                                 })
                                 .flatMap(() => Future.success(undefined))
                         )
-                    )
-                    .flatMap(() => Future.success(undefined));
-            });
+                    ).flatMap(() => Future.success(undefined))
+                )
+            );
     }
 }
