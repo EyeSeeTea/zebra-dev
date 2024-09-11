@@ -43,4 +43,8 @@ export interface OptionsRepository {
     getCapabilities(): FutureData<Array<Capability1 | Capability2>>;
     getLowMediumHighOptions(): FutureData<Option[]>;
     getLowMediumHighOption(optionCode: Code): FutureData<Option>;
+    getLikelihoodOptions(): FutureData<Option[]>;
+    getLikelihoodOption(optionCode: Code): FutureData<Option>;
+    getConsequencesOptions(): FutureData<Option[]>;
+    getConsequencesOption(optionCode: Code): FutureData<Option>;
 }

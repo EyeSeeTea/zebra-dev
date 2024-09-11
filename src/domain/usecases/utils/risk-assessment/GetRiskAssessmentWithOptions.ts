@@ -2,9 +2,10 @@ import { FutureData } from "../../../../data/api-futures";
 import {
     riskAssessmentGradingOptionCodeMap,
     riskAssessmentSummaryCodes,
-} from "../../../../data/repositories/consts/RiskAssessmentGradingConstants";
+} from "../../../../data/repositories/consts/RiskAssessmentConstants";
 import {
     RiskAssessmentGradingFormData,
+    RiskAssessmentQuestionnaireFormData,
     RiskAssessmentSummaryFormData,
 } from "../../../entities/ConfigurableForm";
 import { DiseaseOutbreakEvent } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -26,6 +27,7 @@ import {
     MediumWeightedOption,
     RiskAssessmentGrading,
 } from "../../../entities/risk-assessment/RiskAssessmentGrading";
+import { RiskAssessmentQuestionnaire } from "../../../entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { OptionsRepository } from "../../../repositories/OptionsRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
@@ -92,8 +94,7 @@ export function getRiskAssessmentSummaryWithOptions(
     optionsRepository: OptionsRepository,
     teamMemberRepository: TeamMemberRepository
 ): FutureData<RiskAssessmentSummaryFormData> {
-    //Every Disease Outbreak can have only one Risk Assessment Summary, so if it has been filled already, then populate it.
-
+    //Every Disease Outbreak can have only one Risk Assessment Summary, so if it has been saved already, then populate it.
     return Future.joinObj(
         {
             lowMediumHighOptions: optionsRepository.getLowMediumHighOptions(),
@@ -101,7 +102,7 @@ export function getRiskAssessmentSummaryWithOptions(
         },
         { concurrency: 2 }
     ).flatMap(({ lowMediumHighOptions, riskAssessors }) => {
-        const riskGradingFormData: RiskAssessmentSummaryFormData = {
+        const riskSummaryFormData: RiskAssessmentSummaryFormData = {
             type: "risk-assessment-summary",
             eventTrackerDetails: eventTrackerDetails,
             entity: eventTrackerDetails.riskAssessment?.summary,
@@ -148,6 +149,41 @@ export function getRiskAssessmentSummaryWithOptions(
                 },
             ],
         };
-        return Future.success(riskGradingFormData);
+        return Future.success(riskSummaryFormData);
+    });
+}
+
+export function getRiskAssessmentQuestionnaireWithOptions(
+    eventTrackerDetails: DiseaseOutbreakEvent,
+    optionsRepository: OptionsRepository
+): FutureData<RiskAssessmentQuestionnaireFormData> {
+    //Every Disease Outbreak can have only one Risk Assessment Questionnaire, so if it has been saved already, then populate it.
+    return Future.joinObj(
+        {
+            likelihoodOptions: optionsRepository.getLikelihoodOptions(),
+            consequencesOptions: optionsRepository.getConsequencesOptions(),
+            riskOptions: optionsRepository.getLowMediumHighOptions(),
+        },
+        { concurrency: 3 }
+    ).flatMap(({ likelihoodOptions, consequencesOptions, riskOptions }) => {
+        const riskQuestionnaireFormData: RiskAssessmentQuestionnaireFormData = {
+            type: "risk-assessment-questionnaire",
+            eventTrackerDetails: eventTrackerDetails,
+            entity: eventTrackerDetails.riskAssessment?.questionnaire,
+            options: {
+                likelihood: likelihoodOptions,
+                consequences: consequencesOptions,
+                risk: riskOptions,
+            },
+
+            // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
+            labels: {
+                errors: {
+                    field_is_required: "This field is required",
+                },
+            },
+            rules: [],
+        };
+        return Future.success(riskQuestionnaireFormData);
     });
 }

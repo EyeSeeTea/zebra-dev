@@ -4,12 +4,7 @@ import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
-
 import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
-import {
-    saveRiskAssessmentGrading,
-    saveRiskAssessmentSummary,
-} from "./utils/risk-assessment/SaveRiskAssessment";
 
 export class SaveEntityUseCase {
     constructor(
@@ -23,15 +18,10 @@ export class SaveEntityUseCase {
             case "disease-outbreak-event":
                 return saveDiseaseOutbreak(this.diseaseOutbreakEventRepository, formData.entity);
             case "risk-assessment-grading":
-                return saveRiskAssessmentGrading(
-                    this.riskAssessmentRepository,
-                    formData.entity,
-                    formData.eventTrackerDetails.id
-                );
             case "risk-assessment-summary":
-                return saveRiskAssessmentSummary(
-                    this.riskAssessmentRepository,
-                    formData.entity,
+            case "risk-assessment-questionnaire":
+                return this.riskAssessmentRepository.saveRiskAssessment(
+                    formData,
                     formData.eventTrackerDetails.id
                 );
 

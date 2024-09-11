@@ -4,6 +4,7 @@ import {
     RiskAssessmentGrading,
     RiskAssessmentGradingAttrs,
 } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
+import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
 import { GetValue } from "../../../utils/ts-utils";
 
@@ -66,6 +67,26 @@ export const riskAssessmentSummaryCodes = {
     overallConfidenceGlobal: "RTSL_ZEB_DET_OC_GLOBAL",
 } as const;
 export type RiskAssessmentSummaryCodes = GetValue<typeof riskAssessmentSummaryCodes>;
+
+export const riskAssessmentQuestionnaireCodes = {
+    question: "RTSL_ZEB_DET_QUESTION",
+    likelihood1: "RTSL_ZEB_DET_LIKELIHOOD",
+    consequences1: "RTSL_ZEB_DET_CONSEQUENCES",
+    risk1: "RTSL_ZEB_DET_RISK",
+    rational1: "RTSL_ZEB_DET_RATIONALE",
+    likelihood2: "RTSL_ZEB_DET_LIKELIHOOD2",
+    consequences2: "RTSL_ZEB_DET_CONSEQUENCES2",
+    risk2: "RTSL_ZEB_DET_RISK2",
+    rational2: "RTSL_ZEB_DET_RATIONALE2",
+    likelihood3: "RTSL_ZEB_DET_LIKELIHOOD3",
+    consequences3: "RTSL_ZEB_DET_CONSEQUENCES3",
+    risk3: "RTSL_ZEB_DET_RISK3",
+    rational3: "RTSL_ZEB_DET_RATIONALE3",
+    riskId: "RTSL_ZEB_DET_RISK_ID_RAQ",
+    riskId2: "RTSL_ZEB_DET_RISK_ID_RAQ2",
+    riskId3: "RTSL_ZEB_DET_RISK_ID_RAQ3",
+} as const;
+export type RiskAssessmentQuestionnaireCodes = GetValue<typeof riskAssessmentQuestionnaireCodes>;
 
 export function isStringInRiskAssessmentGradingOptionCodes(
     code: string
@@ -150,4 +171,40 @@ export function isStringInRiskAssessmentSummaryCodes(
     code: string
 ): code is RiskAssessmentSummaryKeyCode {
     return (Object.values(riskAssessmentSummaryCodes) as string[]).includes(code);
+}
+
+export function getValueFromRiskAssessmentQuestionnaire(
+    riskAssessmentQuestionnaire: RiskAssessmentQuestionnaire
+): Record<RiskAssessmentQuestionnaireCodes, string> {
+    return {
+        RTSL_ZEB_DET_LIKELIHOOD:
+            riskAssessmentQuestionnaire.potentialRiskForHumanHealth.likelihood.id,
+        RTSL_ZEB_DET_CONSEQUENCES:
+            riskAssessmentQuestionnaire.potentialRiskForHumanHealth.consequences.id,
+        RTSL_ZEB_DET_RISK: riskAssessmentQuestionnaire.potentialRiskForHumanHealth.risk.id,
+        RTSL_ZEB_DET_RATIONALE: riskAssessmentQuestionnaire.potentialRiskForHumanHealth.rational,
+        RTSL_ZEB_DET_LIKELIHOOD2: riskAssessmentQuestionnaire.riskOfEventSpreading.likelihood.id,
+        RTSL_ZEB_DET_CONSEQUENCES2:
+            riskAssessmentQuestionnaire.riskOfEventSpreading.consequences.id,
+        RTSL_ZEB_DET_RISK2: riskAssessmentQuestionnaire.riskOfEventSpreading.risk.id,
+        RTSL_ZEB_DET_RATIONALE2: riskAssessmentQuestionnaire.riskOfEventSpreading.rational,
+        RTSL_ZEB_DET_LIKELIHOOD3:
+            riskAssessmentQuestionnaire.riskOfInsufficientCapacities.likelihood.id,
+        RTSL_ZEB_DET_CONSEQUENCES3:
+            riskAssessmentQuestionnaire.riskOfInsufficientCapacities.consequences.id,
+        RTSL_ZEB_DET_RISK3: riskAssessmentQuestionnaire.riskOfInsufficientCapacities.risk.id,
+        RTSL_ZEB_DET_RATIONALE3: riskAssessmentQuestionnaire.riskOfInsufficientCapacities.rational,
+        RTSL_ZEB_DET_QUESTION: "",
+        RTSL_ZEB_DET_RISK_ID_RAQ: "",
+        RTSL_ZEB_DET_RISK_ID_RAQ2: "",
+        RTSL_ZEB_DET_RISK_ID_RAQ3: "",
+    };
+}
+export type RiskAssessmentQuestionnaireKeyCode =
+    (typeof riskAssessmentQuestionnaireCodes)[keyof typeof riskAssessmentQuestionnaireCodes];
+
+export function isStringInRiskAssessmentQuestionnaireCodes(
+    code: string
+): code is RiskAssessmentQuestionnaireKeyCode {
+    return (Object.values(riskAssessmentQuestionnaireCodes) as string[]).includes(code);
 }

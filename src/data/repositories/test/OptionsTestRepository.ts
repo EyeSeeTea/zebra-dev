@@ -21,6 +21,18 @@ import { OptionsRepository } from "../../../domain/repositories/OptionsRepositor
 import { FutureData } from "../../api-futures";
 
 export class OptionsTestRepository implements OptionsRepository {
+    getLikelihoodOptions(): FutureData<Option[]> {
+        throw new Error("Method not implemented.");
+    }
+    getLikelihoodOption(optionCode: Code): FutureData<Option> {
+        throw new Error("Method not implemented.");
+    }
+    getConsequencesOptions(): FutureData<Option[]> {
+        throw new Error("Method not implemented.");
+    }
+    getConsequencesOption(optionCode: Code): FutureData<Option> {
+        throw new Error("Method not implemented.");
+    }
     getLowMediumHighOption(_optionCode: Code): FutureData<Option> {
         throw new Error("Method not implemented.");
     }

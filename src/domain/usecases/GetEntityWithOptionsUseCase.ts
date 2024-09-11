@@ -11,6 +11,7 @@ import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getDiseaseOutbreakWithEventOptions } from "./utils/disease-outbreak/GetDiseaseOutbreakWithOptions";
 import {
     getRiskAssessmentGradingWithOptions,
+    getRiskAssessmentQuestionnaireWithOptions,
     getRiskAssessmentSummaryWithOptions,
 } from "./utils/risk-assessment/GetRiskAssessmentWithOptions";
 
@@ -49,6 +50,15 @@ export class GetEntityWithOptionsUseCase {
                     eventTrackerDetails,
                     this.options.optionsRepository,
                     this.options.teamMemberRepository
+                );
+            case "risk-assessment-questionnaire":
+                if (!eventTrackerDetails)
+                    return Future.error(
+                        new Error("Disease outbreak id is required for risk questionnaire")
+                    );
+                return getRiskAssessmentQuestionnaireWithOptions(
+                    eventTrackerDetails,
+                    this.options.optionsRepository
                 );
 
             default:

@@ -1,8 +1,7 @@
 import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import { Future } from "../../domain/entities/generic/Future";
-import { Id } from "../../domain/entities/Ref";
+import { Code, Id } from "../../domain/entities/Ref";
 import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
-import { RiskAssessmentSummary } from "../../domain/entities/risk-assessment/RiskAssessmentSummary";
 import { RiskAssessmentRepository } from "../../domain/repositories/RiskAssessmentRepository";
 import { D2Api } from "../../types/d2-api";
 import { Maybe } from "../../utils/ts-utils";
@@ -11,15 +10,21 @@ import {
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID,
+    RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
     RTSL_ZEBRA_RISK_ASSESSMENT_SUMMARY_PROGRAM_STAGE_ID,
 } from "./consts/DiseaseOutbreakConstants";
 import { getProgramStage } from "./utils/MetadataHelper";
 import {
     mapDataElementsToRiskAssessmentGrading,
+    mapDataElementsToRiskAssessmentQuestionnaire,
     mapDataElementsToRiskAssessmentSummary,
-    mapRiskAssessmentGradingToDataElements,
-    mapRiskAssessmentSummaryToDataElements,
-} from "./utils/RiskAssessmentGradingMapper";
+    mapRiskAssessmentToDataElements,
+} from "./utils/RiskAssessmentMapper";
+import {
+    RiskAssessmentGradingFormData,
+    RiskAssessmentQuestionnaireFormData,
+    RiskAssessmentSummaryFormData,
+} from "../../domain/entities/ConfigurableForm";
 
 //SNEHA TO DO : Fetch from metadata on app load
 export const riskAssessmentGradingIds = {
@@ -54,7 +59,25 @@ export const riskAssessmentSummaryIds = {
     overallConfidenceNational: "zHcHPvTIGuM",
     overallConfidenceRegional: "GWnyfWV8AK5",
     overallConfidenceGlobal: "ms1psJdoFD3",
-    // riskId: "Um5rjA04Gby",
+} as const;
+
+export const riskAssessmentQuestionnaireIds = {
+    question: "NMU8ZbBPPRS",
+    likelihood1: "rEtL93VEx8t",
+    consequences1: "MC4qXnd8bF6",
+    risk1: "B64Q6Gqvuwp",
+    rational1: "EVQlTUZRJeb",
+    likelihood2: "H5FqXDO4S3d",
+    consequences2: "pFz63wn1rkm",
+    risk2: "vt0XBS2egab",
+    rational2: "EAvjE0FXf2N",
+    likelihood3: "jP8fzoDBVDR",
+    consequences3: "Ny0itBkNRNW",
+    risk3: "OUfGKAstsWa",
+    rational3: "T3oXwmPxKhU",
+    riskId: "gpf85UvsOf9",
+    riskId2: "vt0XBS2egab",
+    riskId3: "i4eXktJiTs5",
 } as const;
 
 export type RiskAssessmentSummaryDataValues = {
@@ -70,12 +93,28 @@ export type RiskAssessmentSummaryDataValues = {
     addAnotherRiskAssessor4: Maybe<string>;
     riskAssessor5: Maybe<string>;
     qualitativeRiskAssessment: string;
-    overallRiskNational: string;
-    overallRiskRegional: string;
-    overallRiskGlobal: string;
-    overallConfidenceNational: string;
-    overallConfidenceRegional: string;
-    overallConfidenceGlobal: string;
+    overallRiskNational: Code;
+    overallRiskRegional: Code;
+    overallRiskGlobal: Code;
+    overallConfidenceNational: Code;
+    overallConfidenceRegional: Code;
+    overallConfidenceGlobal: Code;
+};
+
+export type RiskAssessmentQuestionnaireDataValues = {
+    id: Id;
+    rationale1: Code;
+    rationale2: Code;
+    rationale3: Code;
+    risk1: Code;
+    risk2: Code;
+    risk3: Code;
+    likelihood1: Code;
+    likelihood2: Code;
+    likelihood3: Code;
+    consequence1: Code;
+    consequence2: Code;
+    consequence3: Code;
 };
 
 export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
@@ -133,112 +172,101 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
         });
     }
 
-    saveGrading(
-        riskAssessmentGrading: RiskAssessmentGrading,
+    getRiskAssessmentQuestionnaire(
         diseaseOutbreakId: Id
-    ): FutureData<void> {
-        return getProgramStage(
-            this.api,
-            RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID
-        ).flatMap(riskGradingResponse => {
-            const riskGradingDataElements =
-                riskGradingResponse.objects[0]?.programStageDataElements;
-
-            if (!riskGradingDataElements)
-                return Future.error(
-                    new Error(`Risk Assessment Grading Program Stage metadata not found`)
-                );
-
-            //Get the enrollment Id for the disease outbreak
-            return apiToFuture(
-                this.api.tracker.enrollments.get({
-                    fields: {
-                        enrollment: true,
+    ): FutureData<Maybe<RiskAssessmentQuestionnaireDataValues>> {
+        return apiToFuture(
+            this.api.tracker.events.get({
+                program: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                trackedEntity: diseaseOutbreakId,
+                programStage: RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
+                fields: {
+                    event: true,
+                    dataValues: {
+                        dataElement: { id: true, code: true },
+                        value: true,
                     },
-                    trackedEntity: diseaseOutbreakId,
-                    enrolledBefore: new Date().toISOString(),
-                    program: RTSL_ZEBRA_PROGRAM_ID,
-                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                })
-            ).flatMap(enrollmentResponse => {
-                const enrollmentId = enrollmentResponse.instances[0]?.enrollment;
-                if (!enrollmentId) {
-                    return Future.error(new Error(`Enrollment not found for Disease Outbreak`));
-                }
-                const events: D2TrackerEvent = mapRiskAssessmentGradingToDataElements(
-                    diseaseOutbreakId,
-                    enrollmentId,
-                    riskAssessmentGrading,
-                    riskGradingDataElements
-                );
+                    trackedEntity: true,
+                },
+            })
+        ).map(events => {
+            if (!events.instances[0]?.event) return undefined;
 
-                return apiToFuture(
-                    this.api.tracker.post(
-                        { importStrategy: "CREATE_AND_UPDATE" },
-                        { events: [events] }
-                    )
-                ).flatMap(saveResponse => {
-                    if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
-                        return Future.error(new Error(`Error Risk Assessment Grading`));
-                    } else {
-                        return Future.success(undefined);
-                    }
-                });
-            });
+            const summary: RiskAssessmentQuestionnaireDataValues =
+                mapDataElementsToRiskAssessmentQuestionnaire(
+                    events.instances[0].event,
+                    events.instances[0].dataValues
+                );
+            return summary;
         });
     }
-    saveSummary(
-        riskAssessmentSummary: RiskAssessmentSummary,
+
+    saveRiskAssessment(
+        formData:
+            | RiskAssessmentGradingFormData
+            | RiskAssessmentSummaryFormData
+            | RiskAssessmentQuestionnaireFormData,
         diseaseOutbreakId: Id
     ): FutureData<void> {
-        return getProgramStage(
-            this.api,
-            RTSL_ZEBRA_RISK_ASSESSMENT_SUMMARY_PROGRAM_STAGE_ID
-        ).flatMap(riskSummaryResponse => {
-            const riskSummaryDataElements =
-                riskSummaryResponse.objects[0]?.programStageDataElements;
+        return getProgramStage(this.api, this.getProgramStageByFormType(formData.type)).flatMap(
+            riskResponse => {
+                const riskDataElements = riskResponse.objects[0]?.programStageDataElements;
 
-            if (!riskSummaryDataElements)
-                return Future.error(
-                    new Error(`Risk Assessment Summary Program Stage metadata not found`)
-                );
+                if (!riskDataElements)
+                    return Future.error(
+                        new Error(` ${formData.type} Program Stage metadata not found`)
+                    );
 
-            //Get the enrollment Id for the disease outbreak
-            return apiToFuture(
-                this.api.tracker.enrollments.get({
-                    fields: {
-                        enrollment: true,
-                    },
-                    trackedEntity: diseaseOutbreakId,
-                    enrolledBefore: new Date().toISOString(),
-                    program: RTSL_ZEBRA_PROGRAM_ID,
-                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                })
-            ).flatMap(enrollmentResponse => {
-                const enrollmentId = enrollmentResponse.instances[0]?.enrollment;
-                if (!enrollmentId) {
-                    return Future.error(new Error(`Enrollment not found for Disease Outbreak`));
-                }
-                const events: D2TrackerEvent = mapRiskAssessmentSummaryToDataElements(
-                    diseaseOutbreakId,
-                    enrollmentId,
-                    riskAssessmentSummary,
-                    riskSummaryDataElements
-                );
-
+                //Get the enrollment Id for the disease outbreak
                 return apiToFuture(
-                    this.api.tracker.post(
-                        { importStrategy: "CREATE_AND_UPDATE" },
-                        { events: [events] }
-                    )
-                ).flatMap(saveResponse => {
-                    if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
-                        return Future.error(new Error(`Error Risk Assessment Summary`));
-                    } else {
-                        return Future.success(undefined);
+                    this.api.tracker.enrollments.get({
+                        fields: {
+                            enrollment: true,
+                        },
+                        trackedEntity: diseaseOutbreakId,
+                        enrolledBefore: new Date().toISOString(),
+                        program: RTSL_ZEBRA_PROGRAM_ID,
+                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                    })
+                ).flatMap(enrollmentResponse => {
+                    const enrollmentId = enrollmentResponse.instances[0]?.enrollment;
+                    if (!enrollmentId) {
+                        return Future.error(new Error(`Enrollment not found for Disease Outbreak`));
                     }
+                    const events: D2TrackerEvent = mapRiskAssessmentToDataElements(
+                        formData,
+                        diseaseOutbreakId,
+                        enrollmentId,
+                        riskDataElements
+                    );
+
+                    return apiToFuture(
+                        this.api.tracker.post(
+                            { importStrategy: "CREATE_AND_UPDATE" },
+                            { events: [events] }
+                        )
+                    ).flatMap(saveResponse => {
+                        if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
+                            return Future.error(new Error(`Error Risk Assessment Grading`));
+                        } else {
+                            return Future.success(undefined);
+                        }
+                    });
                 });
-            });
-        });
+            }
+        );
+    }
+    private getProgramStageByFormType(formType: string) {
+        switch (formType) {
+            case "risk-assessment-grading":
+                return RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID;
+            case "risk-assessment-summary":
+                return RTSL_ZEBRA_RISK_ASSESSMENT_SUMMARY_PROGRAM_STAGE_ID;
+            case "risk-assessment-questionnaire":
+                return RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID;
+            default:
+                throw new Error("Risk Form type not supported");
+        }
     }
 }

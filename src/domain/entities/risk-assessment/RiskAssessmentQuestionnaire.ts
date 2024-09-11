@@ -1,8 +1,8 @@
-import { NamedRef } from "../Ref";
+import { Id, NamedRef } from "../Ref";
 import { Struct } from "../generic/Struct";
 
-type RiskAssessmentQuestion = {
-    question: string;
+export type RiskAssessmentQuestion = {
+    question?: string;
     likelihood: NamedRef;
     consequences: NamedRef;
     risk: NamedRef;
@@ -11,6 +11,7 @@ type RiskAssessmentQuestion = {
 
 interface RiskAssessmentQuestionnaireAttrs {
     //standard questions
+    id: Id;
     potentialRiskForHumanHealth: RiskAssessmentQuestion;
     riskOfEventSpreading: RiskAssessmentQuestion;
     riskOfInsufficientCapacities: RiskAssessmentQuestion;

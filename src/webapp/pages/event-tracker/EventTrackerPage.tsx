@@ -74,7 +74,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             startIcon={<EditOutlined />}
                             onClick={() => {
                                 goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment-summary",
+                                    formType: "risk-assessment-questionnaire",
                                 });
                             }}
                         >
@@ -87,7 +87,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             startIcon={<AddCircleOutline />}
                             onClick={() => {
                                 goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment-summary",
+                                    formType: "risk-assessment-questionnaire",
                                 });
                             }}
                         >

@@ -9,6 +9,7 @@ import {
 import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
 import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
+import { RiskAssessmentQuestionnaire } from "./risk-assessment/RiskAssessmentQuestionnaire";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -41,6 +42,12 @@ export type RiskAssessmentSummaryOptions = {
     riskAssessors: TeamMember[];
 };
 
+export type RiskAssessmentQuestionnaireOptions = {
+    likelihood: Option[];
+    consequences: Option[];
+    risk: Option[];
+};
+
 export type FormLables = {
     errors: Record<string, string>;
 };
@@ -70,7 +77,15 @@ export type RiskAssessmentSummaryFormData = BaseFormData & {
     options: RiskAssessmentSummaryOptions;
 };
 
+export type RiskAssessmentQuestionnaireFormData = BaseFormData & {
+    type: "risk-assessment-questionnaire";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: Maybe<RiskAssessmentQuestionnaire>;
+    options: RiskAssessmentQuestionnaireOptions;
+};
+
 export type ConfigurableForm =
     | DiseaseOutbreakEventFormData
     | RiskAssessmentGradingFormData
-    | RiskAssessmentSummaryFormData;
+    | RiskAssessmentSummaryFormData
+    | RiskAssessmentQuestionnaireFormData;

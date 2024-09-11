@@ -6,28 +6,42 @@ import {
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID,
+    RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
     RTSL_ZEBRA_RISK_ASSESSMENT_SUMMARY_PROGRAM_STAGE_ID,
 } from "../consts/DiseaseOutbreakConstants";
 
 import { Id } from "../../../domain/entities/Ref";
 import {
     getValueFromRiskAssessmentGrading,
+    getValueFromRiskAssessmentQuestionnaire,
     getValueFromRiskAssessmentSummary,
     isStringInRiskAssessmentGradingCodes,
+    isStringInRiskAssessmentQuestionnaireCodes,
     isStringInRiskAssessmentSummaryCodes,
     RiskAssessmentGradingCodes,
     RiskAssessmentGradingKeyCode,
+    riskAssessmentQuestionnaireCodes,
+    RiskAssessmentQuestionnaireCodes,
+    RiskAssessmentQuestionnaireKeyCode,
     RiskAssessmentSummaryCodes,
     RiskAssessmentSummaryKeyCode,
-} from "../consts/RiskAssessmentGradingConstants";
+} from "../consts/RiskAssessmentConstants";
 import {
     riskAssessmentGradingIds,
+    RiskAssessmentQuestionnaireDataValues,
+    riskAssessmentQuestionnaireIds,
     RiskAssessmentSummaryDataValues,
     riskAssessmentSummaryIds,
 } from "../RiskAssessmentD2Repository";
 import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
 import _c from "../../../domain/entities/generic/Collection";
+import {
+    RiskAssessmentGradingFormData,
+    RiskAssessmentQuestionnaireFormData,
+    RiskAssessmentSummaryFormData,
+} from "../../../domain/entities/ConfigurableForm";
+import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 
 type D2ProgramStageDataElementsMetadata = {
     dataElement: SelectedPick<
@@ -40,7 +54,44 @@ type D2ProgramStageDataElementsMetadata = {
     >;
 };
 
-export function mapRiskAssessmentGradingToDataElements(
+export function mapRiskAssessmentToDataElements(
+    formData:
+        | RiskAssessmentGradingFormData
+        | RiskAssessmentSummaryFormData
+        | RiskAssessmentQuestionnaireFormData,
+    teiId: Id,
+    enrollmentId: Id,
+    programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
+): D2TrackerEvent {
+    if (!formData.entity) throw new Error("No form data found");
+    switch (formData.type) {
+        case "risk-assessment-grading":
+            return mapRiskAssessmentGradingToDataElements(
+                teiId,
+                enrollmentId,
+                formData.entity,
+                programStageDataElementsMetadata
+            );
+        case "risk-assessment-summary":
+            if (!formData.entity) throw new Error("No form data found");
+            return mapRiskAssessmentSummaryToDataElements(
+                teiId,
+                enrollmentId,
+                formData.entity,
+                programStageDataElementsMetadata
+            );
+        case "risk-assessment-questionnaire":
+            return mapRiskAssessmentQuestionnaireToDataElements(
+                teiId,
+                enrollmentId,
+                formData.entity,
+                programStageDataElementsMetadata
+            );
+        default:
+            throw new Error("Form type not supported");
+    }
+}
+function mapRiskAssessmentGradingToDataElements(
     teiId: Id,
     enrollmentId: Id,
     riskAssessmentGrading: RiskAssessmentGrading,
@@ -54,29 +105,89 @@ export function mapRiskAssessmentGradingToDataElements(
             throw new Error("DataElement code not found in RiskAssessmentGradingCodes");
         }
         const typedCode: RiskAssessmentGradingKeyCode = programStage.dataElement.code;
-        const populatedDataElement = {
-            dataElement: programStage.dataElement.id,
-            value: dataElementValues[typedCode] ?? "",
-            lastUpdated: new Date().toISOString(),
-            storedBy: "",
-            created: new Date().toISOString(),
-            providedElsewhere: false,
-        };
-        return populatedDataElement;
+        return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
     });
 
-    const d2RiskAssessmentGrading: D2TrackerEvent = {
-        event: "",
+    return getRiskAssessmentTrackerEvent(riskAssessmentGrading.id, enrollmentId, dataValues, teiId);
+}
+function mapRiskAssessmentSummaryToDataElements(
+    teiId: Id,
+    enrollmentId: Id,
+    riskAssessmentSummary: RiskAssessmentSummary,
+    programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
+): D2TrackerEvent {
+    const dataElementValues: Record<RiskAssessmentSummaryCodes, string> =
+        getValueFromRiskAssessmentSummary(riskAssessmentSummary);
+
+    const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
+        if (!isStringInRiskAssessmentSummaryCodes(programStage.dataElement.code)) {
+            throw new Error(
+                `DataElement code ${programStage.dataElement.code}  not found in Risk Assessment Summary Codes`
+            );
+        }
+        const typedCode: RiskAssessmentSummaryKeyCode = programStage.dataElement.code;
+        return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
+    });
+
+    return getRiskAssessmentTrackerEvent(riskAssessmentSummary.id, enrollmentId, dataValues, teiId);
+}
+
+function mapRiskAssessmentQuestionnaireToDataElements(
+    teiId: Id,
+    enrollmentId: Id,
+    riskAssessmentQuestionnaire: RiskAssessmentQuestionnaire,
+    programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
+): D2TrackerEvent {
+    const dataElementValues: Record<RiskAssessmentQuestionnaireCodes, string> =
+        getValueFromRiskAssessmentQuestionnaire(riskAssessmentQuestionnaire);
+
+    const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
+        if (!isStringInRiskAssessmentQuestionnaireCodes(programStage.dataElement.code)) {
+            throw new Error(
+                `DataElement code ${programStage.dataElement.code}  not found in Risk Assessment Questionnaire Codes`
+            );
+        }
+        const typedCode: RiskAssessmentQuestionnaireKeyCode = programStage.dataElement.code;
+        return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
+    });
+    return getRiskAssessmentTrackerEvent(
+        riskAssessmentQuestionnaire.id,
+        enrollmentId,
+        dataValues,
+        teiId
+    );
+}
+
+function getPopulatedDataElement(dataElement: Id, value: Maybe<string>): DataValue {
+    const populatedDataElement: DataValue = {
+        dataElement: dataElement,
+        value: value ?? "",
+        updatedAt: new Date().toISOString(),
+        storedBy: "",
+        createdAt: new Date().toISOString(),
+        providedElsewhere: false,
+    };
+    return populatedDataElement;
+}
+
+function getRiskAssessmentTrackerEvent(
+    id: Maybe<Id>,
+    enrollmentId: Id,
+    dataValues: DataValue[],
+    teiId: Id
+): D2TrackerEvent {
+    const d2RiskAssessment: D2TrackerEvent = {
+        event: id ?? "",
         status: "ACTIVE",
         program: RTSL_ZEBRA_PROGRAM_ID,
-        programStage: RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID,
+        programStage: RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
         enrollment: enrollmentId,
         orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
         occurredAt: new Date().toISOString(),
         dataValues: dataValues,
         trackedEntity: teiId,
     };
-    return d2RiskAssessmentGrading;
+    return d2RiskAssessment;
 }
 
 export function mapDataElementsToRiskAssessmentGrading(
@@ -111,47 +222,6 @@ export function mapDataElementsToRiskAssessmentGrading(
         severity: RiskAssessmentGrading.getOptionTypeByCodeWeighted(severityValue),
     });
     return riskAssessmentGrading;
-}
-
-export function mapRiskAssessmentSummaryToDataElements(
-    teiId: Id,
-    enrollmentId: Id,
-    riskAssessmentSummary: RiskAssessmentSummary,
-    programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
-): D2TrackerEvent {
-    const dataElementValues: Record<RiskAssessmentSummaryCodes, string> =
-        getValueFromRiskAssessmentSummary(riskAssessmentSummary);
-
-    const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
-        if (!isStringInRiskAssessmentSummaryCodes(programStage.dataElement.code)) {
-            throw new Error(
-                `DataElement code ${programStage.dataElement.code}  not found in RiskAssessmentGradingCodes`
-            );
-        }
-        const typedCode: RiskAssessmentSummaryKeyCode = programStage.dataElement.code;
-        const populatedDataElement = {
-            dataElement: programStage.dataElement.id,
-            value: dataElementValues[typedCode] ?? "",
-            lastUpdated: new Date().toISOString(),
-            storedBy: "",
-            created: new Date().toISOString(),
-            providedElsewhere: false,
-        };
-        return populatedDataElement;
-    });
-
-    const d2RiskAssessmentGrading: D2TrackerEvent = {
-        event: riskAssessmentSummary.id ?? "",
-        status: "ACTIVE",
-        program: RTSL_ZEBRA_PROGRAM_ID,
-        programStage: RTSL_ZEBRA_RISK_ASSESSMENT_SUMMARY_PROGRAM_STAGE_ID,
-        enrollment: enrollmentId,
-        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-        occurredAt: new Date().toISOString(),
-        dataValues: dataValues,
-        trackedEntity: teiId,
-    };
-    return d2RiskAssessmentGrading;
 }
 
 export function mapDataElementsToRiskAssessmentSummary(
@@ -233,6 +303,30 @@ export function mapDataElementsToRiskAssessmentSummary(
 
     return summary;
 }
+
+export function mapDataElementsToRiskAssessmentQuestionnaire(
+    id: Id,
+    dataValues: DataValue[]
+): RiskAssessmentQuestionnaireDataValues {
+    const summary: RiskAssessmentQuestionnaireDataValues = {
+        id: id,
+        rationale1: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational1) ?? "",
+        rationale2: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational2) ?? "",
+        rationale3: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational3) ?? "",
+        likelihood1: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood1) ?? "",
+        likelihood2: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood2) ?? "",
+        likelihood3: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood3) ?? "",
+        consequence1: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences1) ?? "",
+        consequence2: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences2) ?? "",
+        consequence3: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences3) ?? "",
+        risk1: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk1) ?? "",
+        risk2: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk2) ?? "",
+        risk3: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk3) ?? "",
+    };
+
+    return summary;
+}
+
 function getValueById(dataValues: DataValue[], dataElement: string): Maybe<string> {
     return dataValues.find(dataValue => dataValue.dataElement === dataElement)?.value;
 }

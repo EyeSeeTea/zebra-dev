@@ -47,13 +47,14 @@ type State = {
 export function useForm(formType: FormType, id?: Id): State {
     const { compositionRoot, currentUser } = useAppContext();
     const { goTo } = useRoutes();
-    const { currentEventTracker } = useCurrentEventTracker();
+    const { getCurrentEventTracker } = useCurrentEventTracker();
 
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [formState, setFormState] = useState<FormLoadState>({ kind: "loading" });
     const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
+    const currentEventTracker = getCurrentEventTracker();
 
     useEffect(() => {
         compositionRoot.getWithOptions.execute(formType, currentEventTracker, id).run(
@@ -84,13 +85,14 @@ export function useForm(formType: FormType, id?: Id): State {
         (updatedField: FormFieldState) => {
             setFormState(prevState => {
                 if (prevState.kind === "loaded" && configurableForm) {
+                    const updatedData = updateAndValidateFormState(
+                        prevState.data,
+                        updatedField,
+                        configurableForm
+                    );
                     return {
                         kind: "loaded",
-                        data: updateAndValidateFormState(
-                            prevState.data,
-                            updatedField,
-                            configurableForm
-                        ),
+                        data: updatedData,
                     };
                 } else {
                     return prevState;
@@ -136,15 +138,31 @@ export function useForm(formType: FormType, id?: Id): State {
                         break;
 
                     case "risk-assessment-grading":
-                        if (currentEventTracker?.id) {
-                            goTo(RouteName.CREATE_FORM, {
-                                formType: "risk-assessment-questionnaire",
+                        if (currentEventTracker?.id)
+                            goTo(RouteName.EVENT_TRACKER, {
+                                id: currentEventTracker?.id,
                             });
-                        }
+                        setGlobalMessage({
+                            text: i18n.t(`Risk Assessment Grading saved successfully`),
+                            type: "success",
+                        });
                         break;
                     case "risk-assessment-summary":
                         goTo(RouteName.CREATE_FORM, {
+                            formType: "risk-assessment-questionnaire",
+                        });
+                        setGlobalMessage({
+                            text: i18n.t(`Risk Assessment Summary saved successfully`),
+                            type: "success",
+                        });
+                        break;
+                    case "risk-assessment-questionnaire":
+                        goTo(RouteName.CREATE_FORM, {
                             formType: "risk-assessment-grading",
+                        });
+                        setGlobalMessage({
+                            text: i18n.t(`Risk Assessment Questionnaire saved successfully`),
+                            type: "success",
                         });
                         break;
                 }

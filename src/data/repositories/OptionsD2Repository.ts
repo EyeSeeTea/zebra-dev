@@ -170,6 +170,20 @@ export class OptionsD2Repository implements OptionsRepository {
         return this.get(optionCode, "RTSL_ZEB_OS_LMH");
     }
 
+    getLikelihoodOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_LIKELIHOOD");
+    }
+    getLikelihoodOption(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, "RTSL_ZEB_OS_LIKELIHOOD");
+    }
+
+    getConsequencesOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_CONSEQUENCES");
+    }
+    getConsequencesOption(optionCode: Code): FutureData<Option> {
+        return this.get(optionCode, "RTSL_ZEB_OS_CONSEQUENCES");
+    }
+
     private mapD2OptionSetToOptions(optionSet: D2OptionSet): Option[] {
         return optionSet.options.map(
             (option): Option => ({

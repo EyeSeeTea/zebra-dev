@@ -51,14 +51,11 @@ function getCompositionRoot(repositories: Repositories) {
         },
         diseaseOutbreakEvent: {
             get: new GetDiseaseOutbreakByIdUseCase(repositories),
-
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
-
             mapDiseaseOutbreakEventToAlerts: new MapDiseaseOutbreakToAlertsUseCase(
                 repositories.alertRepository
             ),
         },
-        riskAssessment: {},
     };
 }
 

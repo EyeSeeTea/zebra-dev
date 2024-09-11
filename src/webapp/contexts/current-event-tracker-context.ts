@@ -17,13 +17,13 @@ export interface EventTrackerDetails {
 }
 
 export interface CurrentEventTrackerContextProps {
-    currentEventTracker: Maybe<DiseaseOutbreakEvent>;
+    getCurrentEventTracker: () => Maybe<DiseaseOutbreakEvent>;
     changeCurrentEventTracker: (eventTrackerDetails: DiseaseOutbreakEvent) => void;
     resetCurrentEventTracker: () => void;
 }
 
 export const CurrentEventTrackerContext = createContext<CurrentEventTrackerContextProps>({
-    currentEventTracker: undefined,
+    getCurrentEventTracker: () => undefined,
     changeCurrentEventTracker: () => {},
     resetCurrentEventTracker: () => {},
 });
