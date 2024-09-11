@@ -8,21 +8,17 @@ type MapProps = {
     config: FilteredMapConfig;
 };
 
-function useDhis2Url(path: string) {
-    const { api, isDev } = useAppContext();
-    return (isDev ? "/dhis2" : api.baseUrl) + path;
-}
-
 type State = {
     type: "loading" | "loaded";
 };
 
 export const Map: React.FC<MapProps> = React.memo(props => {
     const { config } = props;
+    const { api } = useAppContext();
 
     const [state, setState] = React.useState<State>({ type: "loading" });
 
-    const baseUrl = useDhis2Url(`/api/apps/zebra-custom-maps-app/index.html`);
+    const baseUrl = `${api.baseUrl}/api/apps/zebra-custom-maps-app/index.html`;
 
     const params = {
         currentApp: config.currentApp,
