@@ -73,34 +73,42 @@ export function useMap(
                     multiSelectFilters?.province?.length &&
                     provincesHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
                 ) {
-                    setMapConfigState({ kind: "loading" });
-
-                    setMapConfigState({
-                        kind: "loaded",
-                        data: {
-                            ...mapConfigState.data,
-                            orgUnits: multiSelectFilters.province,
-                        },
+                    const provinceFilterValues = multiSelectFilters.province;
+                    setMapConfigState(prevMapConfigState => {
+                        if (prevMapConfigState.kind === "loaded") {
+                            return {
+                                kind: "loaded",
+                                data: {
+                                    ...prevMapConfigState.data,
+                                    orgUnits: provinceFilterValues,
+                                },
+                            };
+                        } else {
+                            return prevMapConfigState;
+                        }
                     });
                     return;
                 } else if (
                     !multiSelectFilters?.province?.length &&
                     provincesHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
                 ) {
-                    setMapConfigState({ kind: "loading" });
-
-                    setMapConfigState({
-                        kind: "loaded",
-                        data: {
-                            ...mapConfigState.data,
-                            orgUnits: allOrgUnitsIds,
-                        },
+                    setMapConfigState(prevMapConfigState => {
+                        if (prevMapConfigState.kind === "loaded") {
+                            return {
+                                kind: "loaded",
+                                data: {
+                                    ...prevMapConfigState.data,
+                                    orgUnits: allOrgUnitsIds,
+                                },
+                            };
+                        } else {
+                            return prevMapConfigState;
+                        }
                     });
                     return;
                 }
                 return;
             }
-            setMapConfigState({ kind: "loading" });
 
             if (!mapProgramIndicator) {
                 setMapConfigState({
@@ -109,17 +117,23 @@ export function useMap(
                 });
                 return;
             } else {
-                setMapConfigState({
-                    kind: "loaded",
-                    data: {
-                        ...mapConfigState.data,
-                        programIndicatorId: mapProgramIndicator.id,
-                        programIndicatorName: mapProgramIndicator.name,
-                        orgUnits:
-                            multiSelectFilters && multiSelectFilters?.province?.length
-                                ? multiSelectFilters?.province
-                                : allOrgUnitsIds,
-                    },
+                setMapConfigState(prevMapConfigState => {
+                    if (prevMapConfigState.kind === "loaded") {
+                        return {
+                            kind: "loaded",
+                            data: {
+                                ...prevMapConfigState.data,
+                                programIndicatorId: mapProgramIndicator.id,
+                                programIndicatorName: mapProgramIndicator.name,
+                                orgUnits:
+                                    multiSelectFilters && multiSelectFilters?.province?.length
+                                        ? multiSelectFilters?.province
+                                        : allOrgUnitsIds,
+                            },
+                        };
+                    } else {
+                        return prevMapConfigState;
+                    }
                 });
             }
         }
