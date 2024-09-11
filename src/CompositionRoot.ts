@@ -26,6 +26,16 @@ import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
 import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
 import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
 import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
+import { AnalyticsRepository } from "./domain/repositories/AnalyticsRepository";
+import { GetAllProgramIndicatorsUseCase } from "./domain/usecases/GetAllProgramIndicatorsUseCase";
+import { AnalyticsD2Repository } from "./data/repositories/AnalyticsD2Repository";
+import { ProgramIndicatorsTestRepository } from "./data/repositories/test/ProgramIndicatorsTestRepository";
+import { GetDiseasesTotalUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
+import { MapConfigRepository } from "./domain/repositories/MapConfigRepository";
+import { MapConfigD2Repository } from "./data/repositories/MapConfigD2Repository";
+import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestRepository";
+import { GetMapConfigUseCase } from "./domain/usecases/GetMapConfigUseCase";
+import { GetProvincesOrgUnits } from "./domain/usecases/GetProvincesOrgUnits";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -37,6 +47,8 @@ type Repositories = {
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
     riskAssessmentRepository: RiskAssessmentRepository;
+    analytics: AnalyticsRepository;
+    mapConfigRepository: MapConfigRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -56,6 +68,16 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertRepository
             ),
         },
+        analytics: {
+            getProgramIndicators: new GetAllProgramIndicatorsUseCase(repositories),
+            getDiseasesTotal: new GetDiseasesTotalUseCase(repositories),
+        },
+        maps: {
+            getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
+        },
+        orgUnits: {
+            getProvinces: new GetProvincesOrgUnits(repositories.orgUnitRepository),
+        },
     };
 }
 
@@ -68,6 +90,8 @@ export function getWebappCompositionRoot(api: D2Api) {
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
+        analytics: new AnalyticsD2Repository(api),
+        mapConfigRepository: new MapConfigD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -82,6 +106,8 @@ export function getTestCompositionRoot() {
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
         riskAssessmentRepository: new RiskAssessmentTestRepository(),
+        analytics: new ProgramIndicatorsTestRepository(),
+        mapConfigRepository: new MapConfigTestRepository(),
     };
 
     return getCompositionRoot(repositories);

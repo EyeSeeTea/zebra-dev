@@ -1,52 +1,61 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
+import _ from "../../../domain/entities/generic/Collection";
 
-import { FilterType, TableColumn } from "../../components/table/statistic-table/StatisticTable";
-import { Id } from "../../../domain/entities/Ref";
+import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
+import { ProgramIndicatorBaseAttrs } from "../../../data/repositories/AnalyticsD2Repository";
 
 type State = {
     columns: TableColumn[];
     dataPerformanceOverview: any[];
     columnRules: { [key: string]: number };
     editRiskAssessmentColumns: string[];
-    filters: FilterType[];
+    filters: FiltersConfig[];
+    order?: Order;
+    setOrder: (order: Order) => void;
     isLoading: boolean;
 };
 
-type PerformanceOverviewData = {
-    id: Id;
-    event: string;
-    location: string;
-    cases: string;
-    deaths: string;
-    duration: string;
-    manager: string;
-    detect7d: string;
-    notify1d: string;
-    era1: string;
-    era2: string;
-    era3: string;
-    era4: string;
-    era5: string;
-    era6: string;
-    era7: string;
-    eri: string;
-    respond7d: string;
-};
+export type Order = { name: string; direction: "asc" | "desc" };
 export function usePerformanceOverview(): State {
     const { compositionRoot } = useAppContext();
 
     const [dataPerformanceOverview, setDataPerformanceOverview] = useState<
-        PerformanceOverviewData[]
+        ProgramIndicatorBaseAttrs[]
     >([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [order, setOrder] = useState<Order>();
+
+    useEffect(() => {
+        if (dataPerformanceOverview) {
+            setDataPerformanceOverview(
+                _(dataPerformanceOverview)
+                    .orderBy([
+                        [
+                            (dataPerformanceOverviewdata: ProgramIndicatorBaseAttrs) => {
+                                const value =
+                                    dataPerformanceOverviewdata[
+                                        (order?.name as keyof ProgramIndicatorBaseAttrs) ||
+                                            "creationDate"
+                                    ];
+                                return Number.isNaN(Number(value)) ? value : Number(value);
+                            },
+                            order?.direction || "asc",
+                        ],
+                    ])
+                    .value()
+            );
+        }
+    }, [order]);
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.diseaseOutbreakEvent.getAll.execute().run(
-            diseaseOutbreakEvent => {
+        compositionRoot.analytics.getProgramIndicators.execute().run(
+            programIndicators => {
                 setDataPerformanceOverview(
-                    diseaseOutbreakEvent.map((data, i) => mapEntityToTableData(data, !i))
+                    programIndicators.map((data: ProgramIndicatorBaseAttrs) =>
+                        mapEntityToTableData(data)
+                    )
                 );
                 setIsLoading(false);
             },
@@ -55,11 +64,11 @@ export function usePerformanceOverview(): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.diseaseOutbreakEvent.getAll]);
+    }, [compositionRoot.analytics.getProgramIndicators]);
 
     const columns: TableColumn[] = [
         { label: "Event", value: "event" },
-        { label: "Location", value: "location" },
+        { label: "Province", value: "province" },
         { label: "Cases", value: "cases" },
         { label: "Deaths", value: "deaths" },
         { label: "Duration", value: "duration" },
@@ -73,57 +82,33 @@ export function usePerformanceOverview(): State {
         { label: "ERA5", value: "era5" },
         { label: "ERA6", value: "era6" },
         { label: "ERA7", value: "era7" },
-        { label: "ERI", value: "eri" },
         { label: "Respond 7d", dark: true, value: "respond7d" },
     ];
-    const editRiskAssessmentColumns = [
-        "era1",
-        "era2",
-        "era3",
-        "era4",
-        "era5",
-        "era6",
-        "era7",
-        "eri",
-    ];
+    const editRiskAssessmentColumns = ["era1", "era2", "era3", "era4", "era5", "era6", "era7"];
     const columnRules: { [key: string]: number } = {
         detect7d: 7,
         notify1d: 1,
         respond7d: 7,
     };
-    const mapEntityToTableData = (diseaseOutbreakEvent: any, blank = false) => {
-        const getRandom = (max: number) => Math.floor(Math.random() * max).toString();
-
+    const mapEntityToTableData = (
+        programIndicator: ProgramIndicatorBaseAttrs
+    ): ProgramIndicatorBaseAttrs => {
         return {
-            id: diseaseOutbreakEvent.id,
-            event: diseaseOutbreakEvent.name,
-            location: "TBD",
-            cases: "TBD",
-            deaths: "TBD",
-            duration: "TBD",
-            manager: diseaseOutbreakEvent.createdByName || "TBD",
-            detect7d: getRandom(12),
-            notify1d: getRandom(7),
-            era1: getRandom(14),
-            era2: blank ? "" : getRandom(14),
-            era3: blank ? "" : getRandom(14),
-            era4: blank ? "" : getRandom(14),
-            era5: blank ? "" : getRandom(14),
-            era6: blank ? "" : getRandom(14),
-            era7: blank ? "" : getRandom(14),
-            eri: blank ? "" : getRandom(14),
-            respond7d: getRandom(14),
+            ...programIndicator,
+            event: programIndicator.event + " (" + programIndicator.suspectedDisease + ")",
         };
     };
 
-    const filters: FilterType[] = [
+    const filters: FiltersConfig[] = [
         { value: "event", label: "Event", type: "multiselector" },
-        { value: "location", label: "Location", type: "multiselector" },
+        { value: "province", label: "Province", type: "multiselector" },
     ];
 
     return {
         dataPerformanceOverview,
         filters,
+        order,
+        setOrder,
         columnRules,
         editRiskAssessmentColumns,
         columns,

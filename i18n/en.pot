@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-11T11:00:15.232Z\n"
-"PO-Revision-Date: 2024-09-11T11:00:15.232Z\n"
+"POT-Creation-Date: 2024-09-11T12:04:20.691Z\n"
+"PO-Revision-Date: 2024-09-11T12:04:20.691Z\n"
 
 msgid "Low"
 msgstr ""
@@ -111,7 +111,16 @@ msgstr ""
 msgid "Respond, alert, watch"
 msgstr ""
 
+msgid "All public health events"
+msgstr ""
+
+msgid "7-1-7 performance"
+msgstr ""
+
 msgid "Performance overview"
+msgstr ""
+
+msgid "Map not found."
 msgstr ""
 
 msgid "Event Tracker"

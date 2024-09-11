@@ -5,4 +5,5 @@ import { Id } from "../entities/Ref";
 export interface OrgUnitRepository {
     get(ids: Id[]): FutureData<OrgUnit[]>;
     getAll(): FutureData<OrgUnit[]>;
+    getByLevel(level: number): FutureData<OrgUnit[]>;
 }
