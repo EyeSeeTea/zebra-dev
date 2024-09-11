@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-10T08:36:14.898Z\n"
-"PO-Revision-Date: 2024-09-10T08:36:14.898Z\n"
+"POT-Creation-Date: 2024-09-11T11:00:15.232Z\n"
+"PO-Revision-Date: 2024-09-11T11:00:15.232Z\n"
 
 msgid "Low"
 msgstr ""
@@ -133,6 +133,15 @@ msgid "Create Event form cannot be loaded"
 msgstr ""
 
 msgid "Disease Outbreak saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Grading saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Summary saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
 msgid "Incident Action Plan"

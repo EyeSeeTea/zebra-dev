@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-10T08:36:14.898Z\n"
+"POT-Creation-Date: 2024-09-11T11:00:15.232Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -132,6 +132,15 @@ msgid "Create Event form cannot be loaded"
 msgstr ""
 
 msgid "Disease Outbreak saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Grading saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Summary saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
 msgid "Incident Action Plan"

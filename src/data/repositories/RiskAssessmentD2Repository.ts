@@ -209,53 +209,53 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
             | RiskAssessmentQuestionnaireFormData,
         diseaseOutbreakId: Id
     ): FutureData<void> {
-        return getProgramStage(this.api, this.getProgramStageByFormType(formData.type)).flatMap(
-            riskResponse => {
-                const riskDataElements = riskResponse.objects[0]?.programStageDataElements;
+        const programStageId = this.getProgramStageByFormType(formData.type);
+        return getProgramStage(this.api, programStageId).flatMap(riskResponse => {
+            const riskDataElements = riskResponse.objects[0]?.programStageDataElements;
 
-                if (!riskDataElements)
-                    return Future.error(
-                        new Error(` ${formData.type} Program Stage metadata not found`)
-                    );
+            if (!riskDataElements)
+                return Future.error(
+                    new Error(` ${formData.type} Program Stage metadata not found`)
+                );
 
-                //Get the enrollment Id for the disease outbreak
+            //Get the enrollment Id for the disease outbreak
+            return apiToFuture(
+                this.api.tracker.enrollments.get({
+                    fields: {
+                        enrollment: true,
+                    },
+                    trackedEntity: diseaseOutbreakId,
+                    enrolledBefore: new Date().toISOString(),
+                    program: RTSL_ZEBRA_PROGRAM_ID,
+                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                })
+            ).flatMap(enrollmentResponse => {
+                const enrollmentId = enrollmentResponse.instances[0]?.enrollment;
+                if (!enrollmentId) {
+                    return Future.error(new Error(`Enrollment not found for Disease Outbreak`));
+                }
+                const events: D2TrackerEvent = mapRiskAssessmentToDataElements(
+                    formData,
+                    programStageId,
+                    diseaseOutbreakId,
+                    enrollmentId,
+                    riskDataElements
+                );
+
                 return apiToFuture(
-                    this.api.tracker.enrollments.get({
-                        fields: {
-                            enrollment: true,
-                        },
-                        trackedEntity: diseaseOutbreakId,
-                        enrolledBefore: new Date().toISOString(),
-                        program: RTSL_ZEBRA_PROGRAM_ID,
-                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                    })
-                ).flatMap(enrollmentResponse => {
-                    const enrollmentId = enrollmentResponse.instances[0]?.enrollment;
-                    if (!enrollmentId) {
-                        return Future.error(new Error(`Enrollment not found for Disease Outbreak`));
+                    this.api.tracker.post(
+                        { importStrategy: "CREATE_AND_UPDATE" },
+                        { events: [events] }
+                    )
+                ).flatMap(saveResponse => {
+                    if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
+                        return Future.error(new Error(`Error Risk Assessment Grading`));
+                    } else {
+                        return Future.success(undefined);
                     }
-                    const events: D2TrackerEvent = mapRiskAssessmentToDataElements(
-                        formData,
-                        diseaseOutbreakId,
-                        enrollmentId,
-                        riskDataElements
-                    );
-
-                    return apiToFuture(
-                        this.api.tracker.post(
-                            { importStrategy: "CREATE_AND_UPDATE" },
-                            { events: [events] }
-                        )
-                    ).flatMap(saveResponse => {
-                        if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
-                            return Future.error(new Error(`Error Risk Assessment Grading`));
-                        } else {
-                            return Future.success(undefined);
-                        }
-                    });
                 });
-            }
-        );
+            });
+        });
     }
     private getProgramStageByFormType(formType: string) {
         switch (formType) {

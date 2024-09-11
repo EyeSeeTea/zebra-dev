@@ -59,6 +59,7 @@ export function mapRiskAssessmentToDataElements(
         | RiskAssessmentGradingFormData
         | RiskAssessmentSummaryFormData
         | RiskAssessmentQuestionnaireFormData,
+    programStageId: Id,
     teiId: Id,
     enrollmentId: Id,
     programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
@@ -67,6 +68,7 @@ export function mapRiskAssessmentToDataElements(
     switch (formData.type) {
         case "risk-assessment-grading":
             return mapRiskAssessmentGradingToDataElements(
+                programStageId,
                 teiId,
                 enrollmentId,
                 formData.entity,
@@ -75,6 +77,7 @@ export function mapRiskAssessmentToDataElements(
         case "risk-assessment-summary":
             if (!formData.entity) throw new Error("No form data found");
             return mapRiskAssessmentSummaryToDataElements(
+                programStageId,
                 teiId,
                 enrollmentId,
                 formData.entity,
@@ -82,6 +85,7 @@ export function mapRiskAssessmentToDataElements(
             );
         case "risk-assessment-questionnaire":
             return mapRiskAssessmentQuestionnaireToDataElements(
+                programStageId,
                 teiId,
                 enrollmentId,
                 formData.entity,
@@ -92,6 +96,7 @@ export function mapRiskAssessmentToDataElements(
     }
 }
 function mapRiskAssessmentGradingToDataElements(
+    programStageId: Id,
     teiId: Id,
     enrollmentId: Id,
     riskAssessmentGrading: RiskAssessmentGrading,
@@ -108,9 +113,16 @@ function mapRiskAssessmentGradingToDataElements(
         return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
     });
 
-    return getRiskAssessmentTrackerEvent(riskAssessmentGrading.id, enrollmentId, dataValues, teiId);
+    return getRiskAssessmentTrackerEvent(
+        programStageId,
+        riskAssessmentGrading.id,
+        enrollmentId,
+        dataValues,
+        teiId
+    );
 }
 function mapRiskAssessmentSummaryToDataElements(
+    programStageId: Id,
     teiId: Id,
     enrollmentId: Id,
     riskAssessmentSummary: RiskAssessmentSummary,
@@ -129,10 +141,17 @@ function mapRiskAssessmentSummaryToDataElements(
         return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
     });
 
-    return getRiskAssessmentTrackerEvent(riskAssessmentSummary.id, enrollmentId, dataValues, teiId);
+    return getRiskAssessmentTrackerEvent(
+        programStageId,
+        riskAssessmentSummary.id,
+        enrollmentId,
+        dataValues,
+        teiId
+    );
 }
 
 function mapRiskAssessmentQuestionnaireToDataElements(
+    programStageId: Id,
     teiId: Id,
     enrollmentId: Id,
     riskAssessmentQuestionnaire: RiskAssessmentQuestionnaire,
@@ -151,6 +170,7 @@ function mapRiskAssessmentQuestionnaireToDataElements(
         return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
     });
     return getRiskAssessmentTrackerEvent(
+        programStageId,
         riskAssessmentQuestionnaire.id,
         enrollmentId,
         dataValues,
@@ -171,6 +191,7 @@ function getPopulatedDataElement(dataElement: Id, value: Maybe<string>): DataVal
 }
 
 function getRiskAssessmentTrackerEvent(
+    programStageId: Id,
     id: Maybe<Id>,
     enrollmentId: Id,
     dataValues: DataValue[],
@@ -180,7 +201,7 @@ function getRiskAssessmentTrackerEvent(
         event: id ?? "",
         status: "ACTIVE",
         program: RTSL_ZEBRA_PROGRAM_ID,
-        programStage: RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
+        programStage: programStageId,
         enrollment: enrollmentId,
         orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
         occurredAt: new Date().toISOString(),
