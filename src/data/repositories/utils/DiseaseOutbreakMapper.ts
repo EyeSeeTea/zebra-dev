@@ -121,41 +121,54 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
         return populatedAttribute;
     });
 
-    const enrollment: D2TrackerEnrollment = {
-        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-        program: RTSL_ZEBRA_PROGRAM_ID,
-        enrollment: "",
-        trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
-        notes: [],
-        relationships: [],
-        attributes: attributes,
-        events: [],
-        enrolledAt: diseaseOutbreak.created.toISOString(),
-        occurredAt: diseaseOutbreak.lastUpdated.toISOString(),
-        createdAt: getCurrentTimeString(),
-        createdAtClient: getCurrentTimeString(),
-        updatedAt: getCurrentTimeString(),
-        updatedAtClient: getCurrentTimeString(),
-        status: "ACTIVE",
-        orgUnitName: "",
-        followUp: false,
-        deleted: false,
-        storedBy: "",
-    };
-    const trackedEntity: D2TrackerTrackedEntity = {
-        trackedEntity: diseaseOutbreak.id,
-        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-        trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
-        createdAt: diseaseOutbreak.created.toISOString(),
-        updatedAt: diseaseOutbreak.lastUpdated.toISOString(),
-        attributes: attributes,
-        enrollments: [enrollment],
-    };
+    const isExistingTEI = diseaseOutbreak.id !== "";
 
-    return trackedEntity;
+    if (isExistingTEI) {
+        const trackedEntity: D2TrackerTrackedEntity = {
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+            trackedEntity: diseaseOutbreak.id,
+            attributes: attributes,
+        };
+
+        return trackedEntity;
+    } else {
+        const enrollment: D2TrackerEnrollment = {
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            program: RTSL_ZEBRA_PROGRAM_ID,
+            enrollment: "",
+            trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+            notes: [],
+            relationships: [],
+            attributes: attributes,
+            events: [],
+            enrolledAt: getCurrentTimeString(),
+            occurredAt: getCurrentTimeString(),
+            createdAt: getCurrentTimeString(),
+            createdAtClient: getCurrentTimeString(),
+            updatedAt: getCurrentTimeString(),
+            updatedAtClient: getCurrentTimeString(),
+            status: "ACTIVE",
+            orgUnitName: "",
+            followUp: false,
+            deleted: false,
+            storedBy: "",
+        };
+        const trackedEntity: D2TrackerTrackedEntity = {
+            trackedEntity: diseaseOutbreak.id,
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            trackedEntityType: RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+            attributes: attributes,
+            createdAt: getCurrentTimeString(),
+            updatedAt: getCurrentTimeString(),
+            enrollments: [enrollment],
+        };
+
+        return trackedEntity;
+    }
 }
 
-function getValueFromMap(
+export function getValueFromMap(
     key: keyof typeof diseaseOutbreakCodes,
     trackedEntity: D2TrackerTrackedEntity
 ): string {

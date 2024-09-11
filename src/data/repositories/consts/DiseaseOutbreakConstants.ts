@@ -11,6 +11,12 @@ export const RTSL_ZEBRA_PROGRAM_ID = "qkOTdxkte8V";
 export const RTSL_ZEBRA_ORG_UNIT_ID = "PS5JpkoHHio";
 export const RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID = "lIzNjLOUAKA";
 
+export const RTSL_ZEBRA_ALERTS_PROGRAM_ID = "MQtbs8UkBxy";
+export const RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID = "Pq1drzz2HJk";
+export const RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID = "agsVaIpit4S";
+export const RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID = "ydsfY6zyvt7";
+export const RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID = "DzGqKzjhIsz";
+
 export const hazardTypeCodeMap: Record<HazardType, string> = {
     "Biological:Human": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_HUMAN",
     "Biological:Animal": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_ANIMAL",
@@ -63,6 +69,7 @@ export const diseaseOutbreakCodes = {
     responseNarrative: "RTSL_ZEB_TEA_RESPONSE_NARRATIVE",
     incidentManager: "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER",
     notes: "RTSL_ZEB_TEA_NOTES",
+    caseDataSource: "RTSL_ZEB_TEA_CASE_DATA_SOURCE",
 } as const;
 
 export type DiseaseOutbreakCode = GetValue<typeof diseaseOutbreakCodes>;
@@ -136,6 +143,7 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_RESPONSE_NARRATIVE: diseaseOutbreak.earlyResponseActions.responseNarrative,
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
+        RTSL_ZEB_TEA_CASE_DATA_SOURCE: "",
     };
 }
 

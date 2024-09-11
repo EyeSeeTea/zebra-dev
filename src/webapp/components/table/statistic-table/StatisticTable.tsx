@@ -148,8 +148,8 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                             />
                                         ) : (
                                             <StyledTableCell
-                                                key={`${rowIndex}-${column.value}`}
                                                 onClick={() => goToEvent(row.id)}
+                                                key={`${rowIndex}-${column.value}`}
                                                 $link={columnIndex === 0}
                                             >
                                                 {row[column.value] || ""}

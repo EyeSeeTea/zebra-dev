@@ -70,7 +70,10 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                 setFormLabels(diseaseOutbreakEventWithOptionsData.labels);
                 setFormState({
                     kind: "loaded",
-                    data: mapEntityToInitialFormState(diseaseOutbreakEventWithOptionsData),
+                    data: mapEntityToInitialFormState(
+                        diseaseOutbreakEventWithOptionsData,
+                        !!diseaseOutbreakEventId
+                    ),
                 });
             },
             error => {
@@ -117,7 +120,6 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
             return;
 
         setIsLoading(true);
-        setIsSaved(false);
 
         try {
             const diseaseOutbreakEventData = mapFormStateToEntityData(
@@ -127,13 +129,26 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
             );
 
             compositionRoot.diseaseOutbreakEvent.save.execute(diseaseOutbreakEventData).run(
-                () => {
+                diseaseOutbreakEventId => {
+                    setIsSaved(true);
+
+                    compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
+                        .execute(diseaseOutbreakEventId, diseaseOutbreakEventData)
+                        .run(
+                            () => {
+                                setIsLoading(false);
+                                goTo(RouteName.EVENT_TRACKER, { id: diseaseOutbreakEventId });
+                            },
+                            err => {
+                                console.error({ err });
+                                setIsLoading(false);
+                            }
+                        );
+
                     setGlobalMessage({
                         text: i18n.t(`Disease Outbreak saved successfully`),
                         type: "success",
                     });
-                    setIsLoading(false);
-                    setIsSaved(true);
                 },
                 err => {
                     setGlobalMessage({
@@ -153,12 +168,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
             setIsSaved(false);
             return;
         }
-    }, [
-        compositionRoot.diseaseOutbreakEvent.save,
-        currentUser.username,
-        diseaseOutbreakEventWithOptions,
-        formState,
-    ]);
+    }, [compositionRoot, currentUser.username, diseaseOutbreakEventWithOptions, formState, goTo]);
 
     const onCancelForm = useCallback(() => {
         goTo(RouteName.DASHBOARD);

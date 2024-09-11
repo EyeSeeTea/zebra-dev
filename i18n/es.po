@@ -74,6 +74,9 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
+msgid "Edit Details"
+msgstr ""
+
 msgid "Create Event"
 msgstr ""
 
@@ -114,6 +117,9 @@ msgid "Map not found."
 msgstr ""
 
 msgid "Event Tracker"
+msgstr ""
+
+msgid "Add new Assessment"
 msgstr ""
 
 msgid "Page Not Found"
