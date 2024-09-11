@@ -57,14 +57,30 @@ export function useMap(
     });
 
     useEffect(() => {
-        if (mapConfigState.kind === "loaded" && (!!singleSelectFilters || !!multiSelectFilters)) {
+        if (
+            mapConfigState.kind === "loaded" &&
+            allOrgUnitsIds?.length &&
+            (!!singleSelectFilters || !!multiSelectFilters)
+        ) {
             const mapProgramIndicator = getFilteredMapProgramIndicator(
                 mapProgramIndicators,
                 singleSelectFilters
             );
 
             if (mapProgramIndicator?.id === mapConfigState.data.programIndicatorId) {
-                return;
+                if (multiSelectFilters && multiSelectFilters?.province?.length) {
+                    setMapConfigState({
+                        kind: "loaded",
+                        data: {
+                            ...mapConfigState.data,
+                            programIndicatorId: mapProgramIndicator.id,
+                            programIndicatorName: mapProgramIndicator.name,
+                            orgUnits: multiSelectFilters.province,
+                        },
+                    });
+                } else {
+                    return;
+                }
             }
             setMapConfigState({ kind: "loading" });
 
@@ -81,11 +97,21 @@ export function useMap(
                         ...mapConfigState.data,
                         programIndicatorId: mapProgramIndicator.id,
                         programIndicatorName: mapProgramIndicator.name,
+                        orgUnits:
+                            multiSelectFilters && multiSelectFilters?.province?.length
+                                ? multiSelectFilters?.province
+                                : allOrgUnitsIds,
                     },
                 });
             }
         }
-    }, [mapConfigState, mapProgramIndicators, multiSelectFilters, singleSelectFilters]);
+    }, [
+        allOrgUnitsIds,
+        mapConfigState,
+        mapProgramIndicators,
+        multiSelectFilters,
+        singleSelectFilters,
+    ]);
 
     useEffect(() => {
         compositionRoot.maps.getConfig.execute(mapKey).run(
