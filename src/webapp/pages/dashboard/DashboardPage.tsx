@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
@@ -12,11 +12,18 @@ import { MultipleSelector } from "../../components/selector/MultipleSelector";
 import { Id } from "@eyeseetea/d2-api";
 import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
-import { useFilters } from "./useFilters";
+import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
 import { MapSection } from "./map/MapSection";
+import { Selector } from "../../components/selector/Selector";
 
 export const DashboardPage: React.FC = React.memo(() => {
-    const { filters, filterOptions, setFilters } = useFilters();
+    const {
+        filtersConfig,
+        singleSelectFilters,
+        setSingleSelectFilters,
+        multiSelectFilters,
+        setMultiSelectFilters,
+    } = useAlertsActiveVerifiedFilters();
 
     const {
         columns,
@@ -28,7 +35,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         editRiskAssessmentColumns,
     } = usePerformanceOverview();
 
-    const { diseasesTotal } = useDiseasesTotal(filters);
+    const { diseasesTotal } = useDiseasesTotal(singleSelectFilters, multiSelectFilters);
 
     const { goTo } = useRoutes();
 
@@ -63,26 +70,48 @@ export const DashboardPage: React.FC = React.memo(() => {
             color: "grey",
         },
     ];
+
+    const allProvinceOptionsIds = useMemo(
+        () =>
+            filtersConfig
+                .find(filter => filter.id === "province")
+                ?.options.map(option => option.value),
+        [filtersConfig]
+    );
+
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>
                 <Container>
-                    {filterOptions.map(({ value, label, options, disabled }) => (
-                        <MultipleSelector
-                            id={`filters-${value}`}
-                            key={`filters-${value}`}
-                            selected={filters[value] || []}
-                            placeholder={i18n.t(label)}
-                            options={options || []}
-                            onChange={(values: string[]) =>
-                                setFilters({
-                                    ...filters,
-                                    [value]: values,
-                                })
-                            }
-                            disabled={disabled}
-                        />
-                    ))}
+                    {filtersConfig.map(({ id, label, placeholder, options, type }) =>
+                        type === "multiselector" ? (
+                            <MultipleSelector
+                                id={`filters-${id}`}
+                                key={`filters-${id}`}
+                                selected={multiSelectFilters[id] || []}
+                                label={i18n.t(label)}
+                                placeholder={i18n.t(placeholder)}
+                                options={options || []}
+                                onChange={(values: string[]) =>
+                                    setMultiSelectFilters({
+                                        ...multiSelectFilters,
+                                        [id]: values,
+                                    })
+                                }
+                            />
+                        ) : (
+                            <Selector
+                                id={`filters-${id}`}
+                                key={`filters-${id}`}
+                                options={options || []}
+                                label={i18n.t(label)}
+                                placeholder={i18n.t(placeholder)}
+                                selected={singleSelectFilters[id] || ""}
+                                onChange={(value: string) => setSingleSelectFilters(id, value)}
+                                allowClear
+                            />
+                        )
+                    )}
                 </Container>
                 <GridWrapper>
                     {diseasesTotal &&
@@ -97,7 +126,12 @@ export const DashboardPage: React.FC = React.memo(() => {
                 </GridWrapper>
             </Section>
             <Section title={i18n.t("All public health events")}>
-                <MapSection mapKey="dashboard" filters={filters} />
+                <MapSection
+                    mapKey="dashboard"
+                    singleSelectFilters={singleSelectFilters}
+                    multiSelectFilters={multiSelectFilters}
+                    allProvinces={allProvinceOptionsIds}
+                />
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>
                 <GridWrapper>

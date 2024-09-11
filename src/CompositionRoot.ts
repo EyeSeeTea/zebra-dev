@@ -35,6 +35,7 @@ import { AlertSyncRepository } from "./domain/repositories/AlertSyncRepository";
 import { AlertSyncDataStoreRepository } from "./data/repositories/AlertSyncDataStoreRepository";
 import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/AlertSyncDataStoreTestRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
+import { GetProvincesOrgUnits } from "./domain/usecases/GetProvincesOrgUnits";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -72,6 +73,9 @@ function getCompositionRoot(repositories: Repositories) {
         },
         maps: {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
+        },
+        orgUnits: {
+            getProvinces: new GetProvincesOrgUnits(repositories.orgUnitRepository),
         },
     };
 }

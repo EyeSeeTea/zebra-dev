@@ -44,7 +44,12 @@ type MapState = {
     mapConfigState: MapConfigState;
 };
 
-export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapState {
+export function useMap(
+    mapKey: MapKey,
+    allOrgUnitsIds: Maybe<string[]>,
+    singleSelectFilters?: Record<string, string>,
+    multiSelectFilters?: Record<string, string[]>
+): MapState {
     const { compositionRoot } = useAppContext();
     const [mapProgramIndicators, setMapProgramIndicators] = useState<MapProgramIndicator[]>([]);
     const [mapConfigState, setMapConfigState] = useState<MapConfigState>({
@@ -52,15 +57,58 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
     });
 
     useEffect(() => {
-        if (mapConfigState.kind === "loaded" && !!filters) {
+        if (
+            mapConfigState.kind === "loaded" &&
+            allOrgUnitsIds?.length &&
+            (!!singleSelectFilters || !!multiSelectFilters)
+        ) {
             const mapProgramIndicator = getFilteredMapProgramIndicator(
                 mapProgramIndicators,
-                filters
+                singleSelectFilters
             );
+
             if (mapProgramIndicator?.id === mapConfigState.data.programIndicatorId) {
+                if (
+                    multiSelectFilters &&
+                    multiSelectFilters?.province?.length &&
+                    provincesHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
+                ) {
+                    const provinceFilterValues = multiSelectFilters.province;
+                    setMapConfigState(prevMapConfigState => {
+                        if (prevMapConfigState.kind === "loaded") {
+                            return {
+                                kind: "loaded",
+                                data: {
+                                    ...prevMapConfigState.data,
+                                    orgUnits: provinceFilterValues,
+                                },
+                            };
+                        } else {
+                            return prevMapConfigState;
+                        }
+                    });
+                    return;
+                } else if (
+                    !multiSelectFilters?.province?.length &&
+                    provincesHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
+                ) {
+                    setMapConfigState(prevMapConfigState => {
+                        if (prevMapConfigState.kind === "loaded") {
+                            return {
+                                kind: "loaded",
+                                data: {
+                                    ...prevMapConfigState.data,
+                                    orgUnits: allOrgUnitsIds,
+                                },
+                            };
+                        } else {
+                            return prevMapConfigState;
+                        }
+                    });
+                    return;
+                }
                 return;
             }
-            setMapConfigState({ kind: "loading" });
 
             if (!mapProgramIndicator) {
                 setMapConfigState({
@@ -69,17 +117,33 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
                 });
                 return;
             } else {
-                setMapConfigState({
-                    kind: "loaded",
-                    data: {
-                        ...mapConfigState.data,
-                        programIndicatorId: mapProgramIndicator.id,
-                        programIndicatorName: mapProgramIndicator.name,
-                    },
+                setMapConfigState(prevMapConfigState => {
+                    if (prevMapConfigState.kind === "loaded") {
+                        return {
+                            kind: "loaded",
+                            data: {
+                                ...prevMapConfigState.data,
+                                programIndicatorId: mapProgramIndicator.id,
+                                programIndicatorName: mapProgramIndicator.name,
+                                orgUnits:
+                                    multiSelectFilters && multiSelectFilters?.province?.length
+                                        ? multiSelectFilters?.province
+                                        : allOrgUnitsIds,
+                            },
+                        };
+                    } else {
+                        return prevMapConfigState;
+                    }
                 });
             }
         }
-    }, [filters, mapConfigState, mapProgramIndicators]);
+    }, [
+        allOrgUnitsIds,
+        mapConfigState,
+        mapProgramIndicators,
+        multiSelectFilters,
+        singleSelectFilters,
+    ]);
 
     useEffect(() => {
         compositionRoot.maps.getConfig.execute(mapKey).run(
@@ -93,6 +157,10 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
                         kind: "error",
                         message: i18n.t("Map not found."),
                     });
+                    return;
+                }
+
+                if (!allOrgUnitsIds || allOrgUnitsIds.length === 0) {
                     return;
                 }
 
@@ -110,18 +178,7 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
                         dashboardDatastoreKey: config.dashboardDatastoreKey,
                         programIndicatorId: mapProgramIndicator.id,
                         programIndicatorName: mapProgramIndicator.name,
-                        orgUnits: [
-                            "AWn3s2RqgAN",
-                            "utIjliUdjp8",
-                            "J7PQPWAeRUk",
-                            "KozcEjeTyuD",
-                            "B1u1bVtIA92",
-                            "dbTLdTi7s8F",
-                            "SwwuteU1Ajk",
-                            "q5hODNmn021",
-                            "oPLMrarKeEY",
-                            "g1bv2xjtV0w",
-                        ],
+                        orgUnits: allOrgUnitsIds,
                     },
                 });
             },
@@ -133,7 +190,7 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
                 });
             }
         );
-    }, [compositionRoot.maps.getConfig, mapKey]);
+    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds]);
 
     return {
         mapConfigState,
@@ -153,31 +210,57 @@ function getMainMapProgramIndicator(
 
 function getFilteredMapProgramIndicator(
     programIndicators: MapProgramIndicator[],
-    filters?: Record<string, string[]>
+    singleSelectFilters?: Record<string, string>
 ): Maybe<MapProgramIndicator> {
-    if (!filters || Object.values(filters).every(value => value.length === 0)) {
+    if (!singleSelectFilters || Object.values(singleSelectFilters).every(value => !value)) {
         return getMainMapProgramIndicator(programIndicators);
     } else {
-        const { disease, hazardType, incidentStatus } = filters;
+        const {
+            disease: diseaseFilterValue,
+            hazard: hazardFilterValue,
+            incidentStatus: incidentStatusFilterValue,
+        } = singleSelectFilters;
 
         return programIndicators.find(indicator => {
-            if (disease && indicator.disease === disease[0]) {
+            const isIndicatorDisease =
+                diseaseFilterValue && indicator.disease === diseaseFilterValue;
+            const isIndicatorHazardType =
+                hazardFilterValue && indicator.hazardType === hazardFilterValue;
+            const isIndicatorIncidentStatus =
+                incidentStatusFilterValue && indicator.incidentStatus === incidentStatusFilterValue;
+
+            const isAllIncidentStatusIndicator = indicator.incidentStatus === "ALL";
+            const isAllDiseaseIndicator = indicator.disease === "ALL";
+            const isAllHazardTypeIndicator = indicator.hazardType === "ALL";
+
+            if (isIndicatorDisease) {
                 return (
-                    (incidentStatus && indicator.incidentStatus === incidentStatus[0]) ||
-                    (!incidentStatus && indicator.incidentStatus === "ALL")
+                    isIndicatorIncidentStatus ||
+                    (!incidentStatusFilterValue && isAllIncidentStatusIndicator)
                 );
-            } else if (hazardType && indicator.hazardType === hazardType[0]) {
+            } else if (isIndicatorHazardType) {
                 return (
-                    (incidentStatus && indicator.incidentStatus === incidentStatus[0]) ||
-                    (!incidentStatus && indicator.incidentStatus === "ALL")
+                    isIndicatorIncidentStatus ||
+                    (!incidentStatusFilterValue && isAllIncidentStatusIndicator)
+                );
+            } else if (isIndicatorIncidentStatus) {
+                return (
+                    (!hazardFilterValue && !diseaseFilterValue && isAllDiseaseIndicator) ||
+                    (!hazardFilterValue && !diseaseFilterValue && isAllHazardTypeIndicator) ||
+                    isIndicatorDisease ||
+                    isIndicatorHazardType
                 );
             }
-            return (
-                ((incidentStatus && indicator.incidentStatus === incidentStatus[0]) ||
-                    (!incidentStatus && indicator.incidentStatus === "ALL")) &&
-                indicator.disease === "ALL" &&
-                indicator.hazardType === "ALL"
-            );
+
+            return false;
         });
     }
+}
+
+function provincesHaveChanged(provincesFilter: string[], currentOrgUnits: string[]): boolean {
+    if (provincesFilter.length !== currentOrgUnits.length) {
+        return true;
+    }
+
+    return !provincesFilter.every((value, index) => value === currentOrgUnits[index]);
 }

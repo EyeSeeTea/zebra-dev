@@ -9,7 +9,10 @@ type State = {
 
 export type Order = { name: string; direction: "asc" | "desc" };
 
-export function useDiseasesTotal(filters: Record<string, string[]>): State {
+export function useDiseasesTotal(
+    singleSelectFilters: Record<string, string>,
+    multiSelectFilters: Record<string, string[]>
+): State {
     const { compositionRoot } = useAppContext();
 
     const [diseasesTotal, setDiseasesTotal] = useState<any[]>([]);
@@ -17,17 +20,19 @@ export function useDiseasesTotal(filters: Record<string, string[]>): State {
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.analytics.getDiseasesTotal.execute(filters).run(
-            diseasesTotal => {
-                setDiseasesTotal(diseasesTotal);
-                setIsLoading(false);
-            },
-            error => {
-                console.error({ error });
-                setIsLoading(false);
-            }
-        );
-    }, [compositionRoot.analytics.getDiseasesTotal, filters]);
+        compositionRoot.analytics.getDiseasesTotal
+            .execute(singleSelectFilters, multiSelectFilters)
+            .run(
+                diseasesTotal => {
+                    setDiseasesTotal(diseasesTotal);
+                    setIsLoading(false);
+                },
+                error => {
+                    console.error({ error });
+                    setIsLoading(false);
+                }
+            );
+    }, [compositionRoot.analytics.getDiseasesTotal, multiSelectFilters, singleSelectFilters]);
 
     return {
         diseasesTotal,
