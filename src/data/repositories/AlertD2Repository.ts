@@ -18,8 +18,9 @@ import {
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { Alert } from "../../domain/entities/alert/Alert";
 
-type Filter = {
+export type Filter = {
     id: Id;
     value: Maybe<string>;
 };
@@ -27,46 +28,64 @@ type Filter = {
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
 
-    updateAlerts(alertOptions: AlertOptions): FutureData<void> {
+    updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]> {
         const { dataSource, eventId, hazardTypeCode, incidentStatus, suspectedDiseaseCode } =
             alertOptions;
         const filter = this.getAlertFilter(dataSource, suspectedDiseaseCode, hazardTypeCode);
 
-        return this.getTrackedEntitiesByTEACode(filter).flatMap(response => {
-            const alertsToMap = response.map(trackedEntity => ({
-                ...trackedEntity,
-                attributes: [
-                    {
-                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                        value: eventId,
-                    },
-                    {
-                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
-                        value: incidentStatus,
-                    },
-                ],
+        return this.getTrackedEntitiesByTEACode({
+            program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            ouMode: "DESCENDANTS",
+            filter: filter,
+        }).flatMap(alertTrackedEntities => {
+            const alertsToMap: Alert[] = alertTrackedEntities.map(trackedEntity => ({
+                id: trackedEntity.trackedEntity || "",
+                district: trackedEntity.orgUnit || "",
             }));
 
-            if (alertsToMap.length === 0) return Future.success(undefined);
+            const alertsToPost: D2TrackerTrackedEntity[] = alertTrackedEntities.map(
+                trackedEntity => ({
+                    trackedEntity: trackedEntity.trackedEntity,
+                    trackedEntityType: trackedEntity.trackedEntityType,
+                    orgUnit: trackedEntity.orgUnit,
+                    attributes: [
+                        {
+                            attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                            value: eventId,
+                        },
+                        {
+                            attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
+                            value: incidentStatus,
+                        },
+                    ],
+                })
+            );
+
+            if (alertsToMap.length === 0) return Future.success([]);
 
             return apiToFuture(
                 this.api.tracker.post(
                     { importStrategy: "UPDATE" },
-                    { trackedEntities: alertsToMap }
+                    { trackedEntities: alertsToPost }
                 )
             ).flatMap(saveResponse => {
                 if (saveResponse.status === "ERROR")
                     return Future.error(
                         new Error("Error mapping disease outbreak event id to alert")
                     );
-                else return Future.success(undefined);
+                else return Future.success(alertsToMap);
             });
         });
     }
 
-    private async getTrackedEntitiesByTEACodeAsync(
-        filter: Filter
-    ): Promise<D2TrackerTrackedEntity[]> {
+    private async getTrackedEntitiesByTEACodeAsync(options: {
+        program: Id;
+        orgUnit: Id;
+        ouMode: "SELECTED" | "DESCENDANTS";
+        filter?: Filter;
+    }): Promise<D2TrackerTrackedEntity[]> {
+        const { program, orgUnit, ouMode, filter } = options;
         const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
         const pageSize = 250;
@@ -77,9 +96,9 @@ export class AlertD2Repository implements AlertRepository {
             do {
                 result = await this.api.tracker.trackedEntities
                     .get({
-                        program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                        ouMode: "DESCENDANTS",
+                        program: program,
+                        orgUnit: orgUnit,
+                        ouMode: ouMode,
                         totalPages: true,
                         page: page,
                         pageSize: pageSize,
@@ -88,8 +107,18 @@ export class AlertD2Repository implements AlertRepository {
                             orgUnit: true,
                             trackedEntity: true,
                             trackedEntityType: true,
+                            enrollments: {
+                                events: {
+                                    createdAt: true,
+                                    dataValues: {
+                                        dataElement: true,
+                                        value: true,
+                                    },
+                                    event: true,
+                                },
+                            },
                         },
-                        filter: `${filter.id}:eq:${filter.value}`,
+                        filter: filter ? `${filter.id}:eq:${filter.value}` : undefined,
                     })
                     .getData();
 
@@ -103,8 +132,13 @@ export class AlertD2Repository implements AlertRepository {
         }
     }
 
-    private getTrackedEntitiesByTEACode(filter: Filter): FutureData<D2TrackerTrackedEntity[]> {
-        return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(filter));
+    getTrackedEntitiesByTEACode(options: {
+        program: Id;
+        orgUnit: Id;
+        ouMode: "SELECTED" | "DESCENDANTS";
+        filter?: Filter;
+    }): FutureData<D2TrackerTrackedEntity[]> {
+        return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(options));
     }
 
     private getAlertFilter(
