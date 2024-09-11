@@ -28,6 +28,7 @@ import { MapConfigRepository } from "./domain/repositories/MapConfigRepository";
 import { MapConfigD2Repository } from "./data/repositories/MapConfigD2Repository";
 import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestRepository";
 import { GetMapConfigUseCase } from "./domain/usecases/GetMapConfigUseCase";
+import { GetProvincesOrgUnits } from "./domain/usecases/GetProvincesOrgUnits";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -58,6 +59,9 @@ function getCompositionRoot(repositories: Repositories) {
         },
         maps: {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
+        },
+        orgUnits: {
+            getProvinces: new GetProvincesOrgUnits(repositories.orgUnitRepository),
         },
     };
 }

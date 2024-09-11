@@ -3,5 +3,9 @@ import { ProgramIndicatorBaseAttrs } from "../../data/repositories/AnalyticsD2Re
 
 export interface AnalyticsRepository {
     getProgramIndicators(): FutureData<ProgramIndicatorBaseAttrs[]>;
-    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<any>;
+    getDiseasesTotal(
+        allProvincesIds: string[],
+        singleSelectFilters?: Record<string, string>,
+        multiSelectFilters?: Record<string, string[]>
+    ): FutureData<any>;
 }

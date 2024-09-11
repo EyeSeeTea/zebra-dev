@@ -39,10 +39,14 @@ export type ProgramIndicatorBaseAttrs = {
 export class AnalyticsD2Repository implements AnalyticsRepository {
     constructor(private api: D2Api) {}
 
-    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<any> {
+    getDiseasesTotal(
+        allProvincesIds: string[],
+        singleSelectFilters?: Record<string, string>,
+        multiSelectFilters?: Record<string, string[]>
+    ): FutureData<any> {
         const transformData = (data: string[][], activeVerified: typeof NB_OF_ACTIVE_VERIFIED) => {
             return data
-                .flatMap(([id, , total]) => {
+                .flatMap(([id, _period, _orgUnit, total]) => {
                     const indicator = activeVerified.find(d => d.id === id);
                     if (!indicator || !total) {
                         return [];
@@ -60,13 +64,13 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     if (!item) {
                         return false;
                     }
-                    if (filters) {
-                        return Object.entries(filters).every(([key, values]) => {
-                            if (!values.length) {
+                    if (singleSelectFilters) {
+                        return Object.entries(singleSelectFilters).every(([key, value]) => {
+                            if (!value) {
                                 return true;
                             }
                             if (item[key as keyof typeof item]) {
-                                return values.includes(item[key as keyof typeof item] as string);
+                                return value === (item[key as keyof typeof item] as string);
                             }
                         });
                     }
@@ -80,6 +84,11 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     dimension: [
                         `dx:${NB_OF_ACTIVE_VERIFIED.map(({ id }) => id).join(";")}`,
                         "pe:THIS_YEAR",
+                        `ou:${
+                            multiSelectFilters && multiSelectFilters?.province?.length
+                                ? multiSelectFilters.province.join(";")
+                                : allProvincesIds.join(";")
+                        }`,
                     ],
                     includeMetadataDetails: true,
                 })

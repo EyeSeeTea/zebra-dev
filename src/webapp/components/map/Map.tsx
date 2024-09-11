@@ -5,7 +5,7 @@ import { FilteredMapConfig } from "../../pages/dashboard/map/useMap";
 import LoaderContainer from "../loader/LoaderContainer";
 
 type MapProps = {
-    config: any;
+    config: FilteredMapConfig;
 };
 
 function useDhis2Url(path: string) {

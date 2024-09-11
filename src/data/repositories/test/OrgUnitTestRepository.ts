@@ -28,4 +28,16 @@ export class OrgUnitTestRepository implements OrgUnitRepository {
         });
         return Future.success(orgUnits);
     }
+
+    getByLevel(_level: number): FutureData<OrgUnit[]> {
+        const orgUnits: OrgUnit[] = [
+            {
+                id: "id",
+                name: `Org Unit Name`,
+                code: `Org Unit Code`,
+                level: "Province",
+            },
+        ];
+        return Future.success(orgUnits);
+    }
 }

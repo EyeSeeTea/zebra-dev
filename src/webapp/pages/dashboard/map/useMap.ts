@@ -44,7 +44,12 @@ type MapState = {
     mapConfigState: MapConfigState;
 };
 
-export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapState {
+export function useMap(
+    mapKey: MapKey,
+    allOrgUnitsIds: Maybe<string[]>,
+    singleSelectFilters?: Record<string, string>,
+    multiSelectFilters?: Record<string, string[]>
+): MapState {
     const { compositionRoot } = useAppContext();
     const [mapProgramIndicators, setMapProgramIndicators] = useState<MapProgramIndicator[]>([]);
     const [mapConfigState, setMapConfigState] = useState<MapConfigState>({
@@ -52,11 +57,12 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
     });
 
     useEffect(() => {
-        if (mapConfigState.kind === "loaded" && !!filters) {
+        if (mapConfigState.kind === "loaded" && (!!singleSelectFilters || !!multiSelectFilters)) {
             const mapProgramIndicator = getFilteredMapProgramIndicator(
                 mapProgramIndicators,
-                filters
+                singleSelectFilters
             );
+
             if (mapProgramIndicator?.id === mapConfigState.data.programIndicatorId) {
                 return;
             }
@@ -79,7 +85,7 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
                 });
             }
         }
-    }, [filters, mapConfigState, mapProgramIndicators]);
+    }, [mapConfigState, mapProgramIndicators, multiSelectFilters, singleSelectFilters]);
 
     useEffect(() => {
         compositionRoot.maps.getConfig.execute(mapKey).run(
@@ -93,6 +99,10 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
                         kind: "error",
                         message: i18n.t("Map not found."),
                     });
+                    return;
+                }
+
+                if (!allOrgUnitsIds || allOrgUnitsIds.length === 0) {
                     return;
                 }
 
@@ -110,18 +120,7 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
                         dashboardDatastoreKey: config.dashboardDatastoreKey,
                         programIndicatorId: mapProgramIndicator.id,
                         programIndicatorName: mapProgramIndicator.name,
-                        orgUnits: [
-                            "AWn3s2RqgAN",
-                            "utIjliUdjp8",
-                            "J7PQPWAeRUk",
-                            "KozcEjeTyuD",
-                            "B1u1bVtIA92",
-                            "dbTLdTi7s8F",
-                            "SwwuteU1Ajk",
-                            "q5hODNmn021",
-                            "oPLMrarKeEY",
-                            "g1bv2xjtV0w",
-                        ],
+                        orgUnits: allOrgUnitsIds,
                     },
                 });
             },
@@ -133,7 +132,7 @@ export function useMap(mapKey: MapKey, filters?: Record<string, string[]>): MapS
                 });
             }
         );
-    }, [compositionRoot.maps.getConfig, mapKey]);
+    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds]);
 
     return {
         mapConfigState,
@@ -153,27 +152,27 @@ function getMainMapProgramIndicator(
 
 function getFilteredMapProgramIndicator(
     programIndicators: MapProgramIndicator[],
-    filters?: Record<string, string[]>
+    singleSelectFilters?: Record<string, string>
 ): Maybe<MapProgramIndicator> {
-    if (!filters || Object.values(filters).every(value => value.length === 0)) {
+    if (!singleSelectFilters || Object.values(singleSelectFilters).every(value => !value)) {
         return getMainMapProgramIndicator(programIndicators);
     } else {
-        const { disease, hazardType, incidentStatus } = filters;
+        const { disease, hazardType, incidentStatus } = singleSelectFilters;
 
         return programIndicators.find(indicator => {
-            if (disease && indicator.disease === disease[0]) {
+            if (disease && indicator.disease === disease) {
                 return (
-                    (incidentStatus && indicator.incidentStatus === incidentStatus[0]) ||
+                    (incidentStatus && indicator.incidentStatus === incidentStatus) ||
                     (!incidentStatus && indicator.incidentStatus === "ALL")
                 );
-            } else if (hazardType && indicator.hazardType === hazardType[0]) {
+            } else if (hazardType && indicator.hazardType === hazardType) {
                 return (
-                    (incidentStatus && indicator.incidentStatus === incidentStatus[0]) ||
+                    (incidentStatus && indicator.incidentStatus === incidentStatus) ||
                     (!incidentStatus && indicator.incidentStatus === "ALL")
                 );
             }
             return (
-                ((incidentStatus && indicator.incidentStatus === incidentStatus[0]) ||
+                ((incidentStatus && indicator.incidentStatus === incidentStatus) ||
                     (!incidentStatus && indicator.incidentStatus === "ALL")) &&
                 indicator.disease === "ALL" &&
                 indicator.hazardType === "ALL"
