@@ -24,6 +24,10 @@ import { GetAllProgramIndicatorsUseCase } from "./domain/usecases/GetAllProgramI
 import { AnalyticsD2Repository } from "./data/repositories/AnalyticsD2Repository";
 import { ProgramIndicatorsTestRepository } from "./data/repositories/test/ProgramIndicatorsTestRepository";
 import { GetDiseasesTotalUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
+import { MapConfigRepository } from "./domain/repositories/MapConfigRepository";
+import { MapConfigD2Repository } from "./data/repositories/MapConfigD2Repository";
+import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestRepository";
+import { GetMapConfigUseCase } from "./domain/usecases/GetMapConfigUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -34,6 +38,7 @@ type Repositories = {
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
     analytics: AnalyticsRepository;
+    mapConfigRepository: MapConfigRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -51,6 +56,9 @@ function getCompositionRoot(repositories: Repositories) {
             getProgramIndicators: new GetAllProgramIndicatorsUseCase(repositories),
             getDiseasesTotal: new GetDiseasesTotalUseCase(repositories),
         },
+        maps: {
+            getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
+        },
     };
 }
 
@@ -62,6 +70,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         analytics: new AnalyticsD2Repository(api),
+        mapConfigRepository: new MapConfigD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -75,6 +84,7 @@ export function getTestCompositionRoot() {
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
         analytics: new ProgramIndicatorsTestRepository(),
+        mapConfigRepository: new MapConfigTestRepository(),
     };
 
     return getCompositionRoot(repositories);

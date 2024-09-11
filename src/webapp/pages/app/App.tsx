@@ -14,14 +14,16 @@ import { muiTheme } from "./themes/dhis2.theme";
 import { Router } from "../Router";
 import Share from "../../components/share/Share";
 import { HeaderBar } from "../../components/layout/header-bar/HeaderBar";
+import { D2Api } from "../../../types/d2-api";
 import "./App.css";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
+    api: D2Api;
 }
 
 function App(props: AppProps) {
-    const { compositionRoot } = props;
+    const { compositionRoot, api } = props;
     const [showShareButton, setShowShareButton] = useState(false);
     const [loading, setLoading] = useState(true);
     const [appContext, setAppContext] = useState<AppContextState | null>(null);
@@ -32,12 +34,13 @@ function App(props: AppProps) {
             const currentUser = await compositionRoot.users.getCurrent.execute().toPromise();
             if (!currentUser) throw new Error("User not logged in");
 
-            setAppContext({ currentUser, compositionRoot });
+            const isDev = process.env.NODE_ENV === "development";
+            setAppContext({ currentUser, compositionRoot, isDev, api });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
         }
         setup();
-    }, [compositionRoot]);
+    }, [api, compositionRoot]);
 
     if (loading) return null;
 

@@ -13,9 +13,11 @@ import { Id } from "@eyeseetea/d2-api";
 import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useFilters } from "./useFilters";
+import { MapSection } from "./map/MapSection";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const { filters, filterOptions, setFilters } = useFilters();
+
     const {
         columns,
         dataPerformanceOverview,
@@ -109,6 +111,9 @@ export const DashboardPage: React.FC = React.memo(() => {
                             />
                         ))}
                 </GridWrapper>
+            </Section>
+            <Section title={i18n.t("All public health events")}>
+                <MapSection mapKey="dashboard" filters={filters} />
             </Section>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>

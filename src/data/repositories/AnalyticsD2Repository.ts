@@ -164,11 +164,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             }: Record<string, AnalyticsResponse>) => {
                 const cases = this.calculateTotals(nbOfCasesByDiseaseFuture, NB_OF_CASES);
                 const deaths = this.calculateTotals(nbOfDeathsByDiseaseFuture, NB_OF_DEATHS);
-                console.log({
-                    indicatorsProgramFuture,
-                    nbOfCasesByDiseaseFuture,
-                    nbOfDeathsByDiseaseFuture,
-                });
+
                 return (
                     indicatorsProgramFuture?.rows.map((row: string[]) => {
                         return this.mapRowToIndicator(
@@ -213,10 +209,14 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
 
             if (!key) return acc;
 
+            // TODO: FIXME Fix TypeScript, do not use any
             if (key === "suspectedDisease") {
                 acc[key] =
-                    Object.values(metaData.items).find(item => item.code === row[index])?.name ||
-                    "";
+                    (
+                        Object.values(metaData.items).find(
+                            (item: any) => item.code === row[index]
+                        ) as any
+                    )?.name || "";
                 acc.cases = cases[acc.suspectedDisease]?.toString() || "";
                 acc.deaths = deaths[acc.suspectedDisease]?.toString() || "";
             } else if (key === "eventDetectionDate") {
