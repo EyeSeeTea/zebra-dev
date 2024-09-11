@@ -201,26 +201,44 @@ function getFilteredMapProgramIndicator(
     if (!singleSelectFilters || Object.values(singleSelectFilters).every(value => !value)) {
         return getMainMapProgramIndicator(programIndicators);
     } else {
-        const { disease, hazardType, incidentStatus } = singleSelectFilters;
+        const {
+            disease: diseaseFilterValue,
+            hazard: hazardFilterValue,
+            incidentStatus: incidentStatusFilterValue,
+        } = singleSelectFilters;
 
         return programIndicators.find(indicator => {
-            if (disease && indicator.disease === disease) {
+            const isIndicatorDisease =
+                diseaseFilterValue && indicator.disease === diseaseFilterValue;
+            const isIndicatorHazardType =
+                hazardFilterValue && indicator.hazardType === hazardFilterValue;
+            const isIndicatorIncidentStatus =
+                incidentStatusFilterValue && indicator.incidentStatus === incidentStatusFilterValue;
+
+            const isAllIncidentStatusIndicator = indicator.incidentStatus === "ALL";
+            const isAllDiseaseIndicator = indicator.disease === "ALL";
+            const isAllHazardTypeIndicator = indicator.hazardType === "ALL";
+
+            if (isIndicatorDisease) {
                 return (
-                    (incidentStatus && indicator.incidentStatus === incidentStatus) ||
-                    (!incidentStatus && indicator.incidentStatus === "ALL")
+                    isIndicatorIncidentStatus ||
+                    (!incidentStatusFilterValue && isAllIncidentStatusIndicator)
                 );
-            } else if (hazardType && indicator.hazardType === hazardType) {
+            } else if (isIndicatorHazardType) {
                 return (
-                    (incidentStatus && indicator.incidentStatus === incidentStatus) ||
-                    (!incidentStatus && indicator.incidentStatus === "ALL")
+                    isIndicatorIncidentStatus ||
+                    (!incidentStatusFilterValue && isAllIncidentStatusIndicator)
+                );
+            } else if (isIndicatorIncidentStatus) {
+                return (
+                    (!hazardFilterValue && !diseaseFilterValue && isAllDiseaseIndicator) ||
+                    (!hazardFilterValue && !diseaseFilterValue && isAllHazardTypeIndicator) ||
+                    isIndicatorDisease ||
+                    isIndicatorHazardType
                 );
             }
-            return (
-                ((incidentStatus && indicator.incidentStatus === incidentStatus) ||
-                    (!incidentStatus && indicator.incidentStatus === "ALL")) &&
-                indicator.disease === "ALL" &&
-                indicator.hazardType === "ALL"
-            );
+
+            return false;
         });
     }
 }
