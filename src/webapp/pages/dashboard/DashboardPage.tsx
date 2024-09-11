@@ -107,12 +107,8 @@ export const DashboardPage: React.FC = React.memo(() => {
                                 label={i18n.t(label)}
                                 placeholder={i18n.t(placeholder)}
                                 selected={singleSelectFilters[id] || ""}
-                                onChange={(value: string) =>
-                                    setSingleSelectFilters({
-                                        ...singleSelectFilters,
-                                        [id]: value,
-                                    })
-                                }
+                                onChange={(value: string) => setSingleSelectFilters(id, value)}
+                                allowClear
                             />
                         )
                     )}

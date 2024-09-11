@@ -38,18 +38,21 @@ export function useAlertsActiveVerifiedFilters() {
         );
     }, [compositionRoot.orgUnits.getProvinces]);
 
-    const handleSetSingleSelectFilters = useCallback((newFilters: Record<string, string>) => {
-        const cleanFilters = Object.keys(newFilters).reduce((acc, key) => {
-            if (key === "disease" && !!newFilters[key]) {
-                return { ...acc, hazard: "" };
-            } else if (key === "hazard" && !!newFilters[key]) {
-                return { ...acc, disease: "" };
-            }
-            return acc;
-        }, newFilters);
+    const handleSetSingleSelectFilters = useCallback(
+        (id: string, value: string) => {
+            const newFilters = { ...singleSelectFilters, [id]: value };
 
-        setSingleSelectsFilters(cleanFilters);
-    }, []);
+            const cleanFilters =
+                id === "disease" && !!value
+                    ? { ...newFilters, hazard: "" }
+                    : id === "hazard" && !!value
+                    ? { ...newFilters, disease: "" }
+                    : newFilters;
+
+            setSingleSelectsFilters(cleanFilters);
+        },
+        [singleSelectFilters]
+    );
 
     // Initialize filter options based on diseasesTotal
     useEffect(() => {

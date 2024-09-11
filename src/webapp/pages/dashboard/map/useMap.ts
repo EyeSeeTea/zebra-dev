@@ -68,19 +68,37 @@ export function useMap(
             );
 
             if (mapProgramIndicator?.id === mapConfigState.data.programIndicatorId) {
-                if (multiSelectFilters && multiSelectFilters?.province?.length) {
+                if (
+                    multiSelectFilters &&
+                    multiSelectFilters?.province?.length &&
+                    provincesHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
+                ) {
+                    setMapConfigState({ kind: "loading" });
+
                     setMapConfigState({
                         kind: "loaded",
                         data: {
                             ...mapConfigState.data,
-                            programIndicatorId: mapProgramIndicator.id,
-                            programIndicatorName: mapProgramIndicator.name,
                             orgUnits: multiSelectFilters.province,
                         },
                     });
-                } else {
+                    return;
+                } else if (
+                    !multiSelectFilters?.province?.length &&
+                    provincesHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
+                ) {
+                    setMapConfigState({ kind: "loading" });
+
+                    setMapConfigState({
+                        kind: "loaded",
+                        data: {
+                            ...mapConfigState.data,
+                            orgUnits: allOrgUnitsIds,
+                        },
+                    });
                     return;
                 }
+                return;
             }
             setMapConfigState({ kind: "loading" });
 
@@ -205,4 +223,12 @@ function getFilteredMapProgramIndicator(
             );
         });
     }
+}
+
+function provincesHaveChanged(provincesFilter: string[], currentOrgUnits: string[]): boolean {
+    if (provincesFilter.length !== currentOrgUnits.length) {
+        return true;
+    }
+
+    return !provincesFilter.every((value, index) => value === currentOrgUnits[index]);
 }
