@@ -1,5 +1,6 @@
 import * as rcpromise from "real-cancellable-promise";
 import { Cancellation } from "real-cancellable-promise";
+import { FutureData } from "../../../data/api-futures";
 
 /**
  * Futures are async values similar to promises, with some differences:
@@ -32,6 +33,13 @@ export class Future<E, D> {
             });
 
             return new rcpromise.CancellablePromise(promise, cancel || (() => {}));
+        });
+    }
+
+    static fromPromise<Data>(promise: Promise<Data>): FutureData<Data> {
+        return Future.fromComputation((resolve, reject) => {
+            promise.then(resolve).catch(err => reject(err ? err.message : "Unknown error"));
+            return () => {};
         });
     }
 

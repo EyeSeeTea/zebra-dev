@@ -179,6 +179,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                         return this.mapRowToIndicator(
                             row,
                             indicatorsProgramFuture.headers,
+                            //@ts-ignore
                             indicatorsProgramFuture.metaData,
                             cases,
                             deaths
@@ -207,6 +208,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
     private mapRowToIndicator(
         row: string[],
         headers: { name: string; column: string }[],
+        //@ts-ignore
         metaData: AnalyticsResponse["metaData"],
         cases: Record<string, number>,
         deaths: Record<string, number>
