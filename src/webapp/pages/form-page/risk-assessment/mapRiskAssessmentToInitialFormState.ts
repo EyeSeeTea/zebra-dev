@@ -53,7 +53,7 @@ export function mapRiskGradingToInitialFormState(
         subtitleDescripton: getDateAsLocaleDateTimeString(
             riskFormaData.eventTrackerDetails.lastUpdated
         ),
-        saveButtonLabel: "Next",
+        saveButtonLabel: "Save",
         isValid: false,
         sections: [
             {
@@ -257,7 +257,7 @@ export function mapRiskAssessmentSummaryToInitialFormState(
 
     //SNEHA TO DO : Create this form by iterating over Object Keys
     return {
-        id: "",
+        id: riskAssessmentSummary?.id ?? "",
         title: "Risk Assessment Summary",
         subtitle: riskFormaData.eventTrackerDetails.name,
         titleDescripton: "Last updated",
@@ -265,7 +265,7 @@ export function mapRiskAssessmentSummaryToInitialFormState(
             riskFormaData.eventTrackerDetails.lastUpdated
         ),
         saveButtonLabel: "Next",
-        isValid: false,
+        isValid: riskAssessmentSummary ? true : false,
         sections: [
             {
                 title: "Risk Assessment Date",
@@ -620,10 +620,8 @@ export function mapRiskAssessmentQuestionnaireToInitialFormState(
         id: riskAssessmentQuestionnaire?.id ?? "",
         title: "Risk Assessment Questionnaire",
         subtitle: riskFormaData.eventTrackerDetails.name,
-        titleDescripton: "Last updated",
-        subtitleDescripton: "TO DO SNEHA",
         saveButtonLabel: "Next",
-        isValid: false,
+        isValid: riskAssessmentQuestionnaire ? true : false,
         sections: [
             potentialRiskForHumanHealthSection,
             riskOfEventSpreadingSection,
