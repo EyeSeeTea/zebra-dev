@@ -2,14 +2,7 @@ import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
 import { D2TrackerEvent, DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
-import {
-    RTSL_ZEBRA_ORG_UNIT_ID,
-    RTSL_ZEBRA_PROGRAM_ID,
-    RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID,
-    RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
-    RTSL_ZEBRA_RISK_ASSESSMENT_SUMMARY_PROGRAM_STAGE_ID,
-} from "../consts/DiseaseOutbreakConstants";
-
+import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "../consts/DiseaseOutbreakConstants";
 import { Id } from "../../../domain/entities/Ref";
 import {
     getValueFromRiskAssessmentGrading,
@@ -20,7 +13,6 @@ import {
     isStringInRiskAssessmentSummaryCodes,
     RiskAssessmentGradingCodes,
     RiskAssessmentGradingKeyCode,
-    riskAssessmentQuestionnaireCodes,
     RiskAssessmentQuestionnaireCodes,
     RiskAssessmentQuestionnaireKeyCode,
     RiskAssessmentSummaryCodes,

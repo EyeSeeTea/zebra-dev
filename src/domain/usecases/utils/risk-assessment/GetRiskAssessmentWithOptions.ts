@@ -27,7 +27,6 @@ import {
     MediumWeightedOption,
     RiskAssessmentGrading,
 } from "../../../entities/risk-assessment/RiskAssessmentGrading";
-import { RiskAssessmentQuestionnaire } from "../../../entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { OptionsRepository } from "../../../repositories/OptionsRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
