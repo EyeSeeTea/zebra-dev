@@ -96,6 +96,9 @@ export const DashboardPage: React.FC = React.memo(() => {
                         ))}
                 </GridWrapper>
             </Section>
+            <Section title={i18n.t("All public health events")}>
+                <MapSection mapKey="dashboard" filters={filters} />
+            </Section>
             <Section title={i18n.t("7-1-7 performance")}>
                 <GridWrapper>
                     {performances &&
@@ -111,9 +114,6 @@ export const DashboardPage: React.FC = React.memo(() => {
                             />
                         ))}
                 </GridWrapper>
-            </Section>
-            <Section title={i18n.t("All public health events")}>
-                <MapSection mapKey="dashboard" filters={filters} />
             </Section>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>
