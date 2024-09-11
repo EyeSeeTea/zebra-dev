@@ -48,6 +48,12 @@ msgstr ""
 msgid "Available at national with support required from international"
 msgstr ""
 
+msgid "Capability 1"
+msgstr ""
+
+msgid "Capability 2"
+msgstr ""
+
 msgid "Grade 1"
 msgstr ""
 
@@ -120,10 +126,16 @@ msgstr ""
 msgid "Event Tracker"
 msgstr ""
 
+msgid "Create Risk Assessment"
+msgstr ""
+
 msgid "Add new Assessment"
 msgstr ""
 
-msgid "Page Not Found"
+msgid "N/A"
+msgstr ""
+
+msgid "Add another"
 msgstr ""
 
 msgid "Create Event form cannot be loaded"
@@ -132,7 +144,13 @@ msgstr ""
 msgid "Disease Outbreak saved successfully"
 msgstr ""
 
-msgid "N/A"
+msgid "Risk Assessment Grading saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Summary saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
 msgid "Incident Action Plan"

@@ -1,5 +1,4 @@
-import React, { useMemo } from "react";
-
+import React, { useEffect, useMemo } from "react";
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
@@ -15,6 +14,7 @@ import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
 import { MapSection } from "./map/MapSection";
 import { Selector } from "../../components/selector/Selector";
+import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -38,6 +38,12 @@ export const DashboardPage: React.FC = React.memo(() => {
     const { diseasesTotal } = useDiseasesTotal(singleSelectFilters, multiSelectFilters);
 
     const { goTo } = useRoutes();
+    const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
+
+    useEffect(() => {
+        //On navigating to the dashboard page, reset the current event tracker id
+        resetCurrentEventTrackerId();
+    });
 
     const goToEvent = (id: Maybe<Id>) => {
         if (!id) return;

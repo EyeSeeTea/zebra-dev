@@ -81,7 +81,7 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     areasAffectedProvinces: OrgUnit[];
     areasAffectedDistricts: OrgUnit[];
     incidentManager: Maybe<TeamMember>; //TO DO : make mandatory once form rules applied.
-    riskAssessments: Maybe<RiskAssessment[]>;
+    riskAssessment: Maybe<RiskAssessment>;
     incidentActionPlan: Maybe<IncidentActionPlan>;
     incidentManagementTeam: Maybe<IncidentManagementTeam>;
 };
