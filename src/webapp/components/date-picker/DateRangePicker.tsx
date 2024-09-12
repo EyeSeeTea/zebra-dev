@@ -1,12 +1,11 @@
 import i18n from "../../../utils/i18n";
-import React, { useState, useEffect } from "react";
-import { Popover, InputAdornment } from "@material-ui/core";
+import React, { useState, useEffect, useMemo } from "react";
+import { Popover, InputAdornment, TextField, InputLabel } from "@material-ui/core";
 import moment from "moment";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "./DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { IconCalendar24 } from "@dhis2/ui";
-import { TextInput } from "../text-input/TextInput";
 import { Button } from "../button/Button";
 import styled from "styled-components";
 
@@ -20,10 +19,16 @@ type DateRangePickerProps = {
 export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
     ({ label = "", value, placeholder = "", onChange }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-        const [startDate, setStartDate] = useState<Date | null>(
-            moment(value[0]).startOf("month").toDate()
-        );
-        const [endDate, setEndDate] = useState<Date | null>(moment(value[1]).toDate());
+        const [startDate, setStartDate] = useState<Date | null>(null);
+        const [endDate, setEndDate] = useState<Date | null>(null);
+        const id = "date-range-picker";
+
+        useEffect(() => {
+            if (!value || value.length !== 2) {
+                setStartDate(moment().startOf("month").toDate());
+                setEndDate(moment().toDate());
+            }
+        }, [value]);
 
         // Adjust startDate if endDate < startDate
         useEffect(() => {
@@ -40,21 +45,18 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
             setAnchorEl(null);
         };
 
-        const handleStartDateChange = (date: Date | null) => {
-            setStartDate(date);
-        };
+        const formatDurationValue = useMemo(() => {
+            if (!value || value.length !== 2) {
+                return placeholder;
+            }
 
-        const handleEndDateChange = (date: Date | null) => {
-            setEndDate(date);
-        };
-
-        const formatDuration = (startDate: Date | null, endDate: Date | null) => {
             return `${moment(startDate).format("DD/MM/yyyy")} — ${moment(endDate).format(
                 "DD/MM/yyyy"
             )}`;
-        };
+        }, [startDate, endDate, placeholder, value]);
 
-        const onCancel = () => {
+        const onReset = () => {
+            onChange([]);
             setAnchorEl(null);
         };
 
@@ -70,20 +72,22 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
 
         return (
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <TextInput
-                    id="date-range-picker"
-                    value={`${value.length ? formatDuration(startDate, endDate) : placeholder}`}
-                    label={label}
-                    onChange={() => {}}
-                    onClick={handleOpen}
-                    inputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconCalendar24 />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                <TextFieldContainer>
+                    {label && <Label htmlFor={id}>{label}</Label>}
+                    <StyledTextField
+                        id={id}
+                        value={formatDurationValue}
+                        onClick={handleOpen}
+                        variant="outlined"
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconCalendar24 />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </TextFieldContainer>
                 <Popover
                     id="date-range-picker-popover"
                     open={!!anchorEl}
@@ -104,18 +108,18 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
                                 id="start-date"
                                 label="Start Date"
                                 value={startDate}
-                                onChange={handleStartDateChange}
+                                onChange={date => setStartDate(date)}
                             />
                             <DatePicker
                                 id="end-date"
                                 label="End Date"
                                 value={endDate}
-                                onChange={handleEndDateChange}
+                                onChange={date => setEndDate(date)}
                             />
                         </Container>
                         <Container>
-                            <Button onClick={onCancel} variant="outlined" color="secondary">
-                                {i18n.t("Cancel")}
+                            <Button onClick={onReset} variant="outlined" color="secondary">
+                                {i18n.t("Reset")}
                             </Button>
                             <Button onClick={onSave}>{i18n.t("Save")}</Button>
                         </Container>
@@ -125,14 +129,50 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
         );
     }
 );
+
 const PopoverContainer = styled.div`
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
 `;
+
 const Container = styled.div`
     width: 100%;
     display: flex;
     justify-content: space-between;
+`;
+
+const TextFieldContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+`;
+
+const Label = styled(InputLabel)`
+    display: inline-block;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: ${props => props.theme.palette.text.primary};
+    margin-block-end: 8px;
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
+    }
+`;
+
+const StyledTextField = styled(TextField)`
+    height: 40px;
+    .MuiOutlinedInput-root {
+        height: 40px;
+    }
+    .MuiFormHelperText-root {
+        color: ${props => props.theme.palette.common.grey700};
+    }
+    .MuiInputBase-input {
+        padding-inline: 12px;
+        padding-block: 10px;
+    }
 `;

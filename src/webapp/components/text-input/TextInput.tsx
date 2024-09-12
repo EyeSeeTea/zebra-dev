@@ -8,13 +8,11 @@ type TextInputProps = {
     label?: string;
     value: string;
     onChange: (newValue: string) => void;
-    onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     helperText?: string;
     errorText?: string;
     required?: boolean;
     disabled?: boolean;
     error?: boolean;
-    inputProps?: any;
 };
 
 export const TextInput: React.FC<TextInputProps> = React.memo(
@@ -23,13 +21,11 @@ export const TextInput: React.FC<TextInputProps> = React.memo(
         label,
         value,
         onChange,
-        onClick,
         helperText = "",
         errorText = "",
         required = false,
         disabled = false,
         error = false,
-        inputProps = {},
     }) => {
         const [textFieldValue, setTextFieldValue] = useState<string>(value || "");
         const debouncedTextFieldValue = useDebounce(textFieldValue);
@@ -52,13 +48,11 @@ export const TextInput: React.FC<TextInputProps> = React.memo(
                     id={id}
                     value={textFieldValue}
                     onChange={event => setTextFieldValue(event.target.value)}
-                    onClick={event => (onClick ? onClick(event) : undefined)}
                     helperText={error && !!errorText ? errorText : helperText}
                     error={error}
                     disabled={disabled}
                     required={required}
                     variant="outlined"
-                    InputProps={inputProps}
                 />
             </Container>
         );
