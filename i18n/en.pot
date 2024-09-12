@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-04T07:57:22.036Z\n"
-"PO-Revision-Date: 2024-09-04T07:57:22.036Z\n"
+"POT-Creation-Date: 2024-09-12T09:42:24.289Z\n"
+"PO-Revision-Date: 2024-09-12T09:42:24.289Z\n"
 
 msgid "Low"
 msgstr ""
@@ -63,16 +63,16 @@ msgstr ""
 msgid "Add new option"
 msgstr ""
 
-msgid "There is an error in this field"
-msgstr ""
-
-msgid "Indicates required"
-msgstr ""
-
 msgid "Cancel"
 msgstr ""
 
 msgid "Save"
+msgstr ""
+
+msgid "There is an error in this field"
+msgstr ""
+
+msgid "Indicates required"
 msgstr ""
 
 msgid "Create Event"
@@ -100,6 +100,12 @@ msgid "Dashboard"
 msgstr ""
 
 msgid "Respond, alert, watch"
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid "7-1-7 performance"
 msgstr ""
 
 msgid "Performance overview"
