@@ -124,7 +124,7 @@ export function useMap(params: {
             if (!mapProgramIndicator) {
                 setMapConfigState({
                     kind: "error",
-                    message: i18n.t("Map not found."),
+                    message: i18n.t("The map with these filters could not be found."),
                 });
                 return;
             } else {
@@ -158,6 +158,10 @@ export function useMap(params: {
     ]);
 
     useEffect(() => {
+        if (mapKey === "event_tracker" && !eventDiseaseCode && !eventHazardCode) {
+            return;
+        }
+
         compositionRoot.maps.getConfig.execute(mapKey).run(
             config => {
                 setMapProgramIndicators(config.programIndicators);
@@ -178,8 +182,6 @@ export function useMap(params: {
                     });
                     return;
                 }
-                console.log("mapProgramIndicator?.name", mapProgramIndicator?.name);
-                console.log("allOrgUnitsIds", allOrgUnitsIds);
 
                 setMapConfigState({
                     kind: "loaded",
