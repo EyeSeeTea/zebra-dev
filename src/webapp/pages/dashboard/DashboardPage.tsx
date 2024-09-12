@@ -15,6 +15,7 @@ import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
 import { MapSection } from "./map/MapSection";
 import { Selector } from "../../components/selector/Selector";
+import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -104,6 +105,14 @@ export const DashboardPage: React.FC = React.memo(() => {
                             />
                         )
                     )}
+                    <DateRangePicker
+                        value={multiSelectFilters.duration || []}
+                        onChange={(dates: string[]) =>
+                            setMultiSelectFilters({ ...multiSelectFilters, duration: dates })
+                        }
+                        placeholder={i18n.t("Select duration")}
+                        label={i18n.t("Duration")}
+                    />
                 </Container>
                 <GridWrapper>
                     {diseasesTotal &&

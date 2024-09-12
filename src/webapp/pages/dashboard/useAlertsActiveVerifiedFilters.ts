@@ -23,6 +23,7 @@ export function useAlertsActiveVerifiedFilters() {
     });
     const [multiSelectFilters, setMultiSelectFilters] = useState<Record<string, string[]>>({
         province: [],
+        duration: [],
     });
     const [provincesOptions, setProvincesOptions] = useState<Option[]>([]);
     const [filtersConfig, setFiltersConfig] = useState<FiltersConfig[]>([]);

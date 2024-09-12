@@ -11,13 +11,14 @@ import { Button } from "../button/Button";
 import styled from "styled-components";
 
 type DateRangePickerProps = {
+    label?: string;
     value: string[];
     onChange: (dates: string[]) => void;
     placeholder?: string;
 };
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
-    ({ value, placeholder = "", onChange }) => {
+    ({ label = "", value, placeholder = "", onChange }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
         const [startDate, setStartDate] = useState<Date | null>(
             moment(value[0]).startOf("month").toDate()
@@ -72,6 +73,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
                 <TextInput
                     id="date-range-picker"
                     value={`${value.length ? formatDuration(startDate, endDate) : placeholder}`}
+                    label={label}
                     onChange={() => {}}
                     onClick={handleOpen}
                     inputProps={{

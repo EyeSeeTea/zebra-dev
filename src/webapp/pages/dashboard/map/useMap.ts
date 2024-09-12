@@ -67,65 +67,56 @@ export function useMap(params: {
     });
 
     useEffect(() => {
-        if (
+        const isDashboardMapAndThereAreFilters =
             mapKey === "dashboard" &&
             mapConfigState.kind === "loaded" &&
             allOrgUnitsIds.length &&
-            (!!singleSelectFilters || !!multiSelectFilters)
-        ) {
+            (!!singleSelectFilters || !!multiSelectFilters);
+
+        if (isDashboardMapAndThereAreFilters) {
             const mapProgramIndicator = getFilteredActiveVerifiedMapProgramIndicator(
                 mapProgramIndicators,
                 singleSelectFilters
             );
-
-            if (mapProgramIndicator?.id === mapConfigState.data.programIndicatorId) {
-                if (
-                    multiSelectFilters &&
-                    multiSelectFilters?.province?.length &&
-                    orgUnitsHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
-                ) {
-                    const provinceFilterValues = multiSelectFilters.province;
-                    setMapConfigState(prevMapConfigState => {
-                        if (prevMapConfigState.kind === "loaded") {
-                            return {
-                                kind: "loaded",
-                                data: {
-                                    ...prevMapConfigState.data,
-                                    orgUnits: provinceFilterValues,
-                                },
-                            };
-                        } else {
-                            return prevMapConfigState;
-                        }
-                    });
-                    return;
-                } else if (
-                    !multiSelectFilters?.province?.length &&
-                    orgUnitsHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
-                ) {
-                    setMapConfigState(prevMapConfigState => {
-                        if (prevMapConfigState.kind === "loaded") {
-                            return {
-                                kind: "loaded",
-                                data: {
-                                    ...prevMapConfigState.data,
-                                    orgUnits: allOrgUnitsIds,
-                                },
-                            };
-                        } else {
-                            return prevMapConfigState;
-                        }
-                    });
-                    return;
-                }
-                return;
-            }
 
             if (!mapProgramIndicator) {
                 setMapConfigState({
                     kind: "error",
                     message: i18n.t("The map with these filters could not be found."),
                 });
+                return;
+            }
+
+            const newMapIndicator =
+                mapProgramIndicator?.id !== mapConfigState.data.programIndicatorId
+                    ? mapProgramIndicator
+                    : null;
+
+            const newOrgUnits =
+                multiSelectFilters &&
+                multiSelectFilters?.province?.length &&
+                orgUnitsHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
+                    ? multiSelectFilters.province
+                    : !multiSelectFilters?.province?.length &&
+                      orgUnitsHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
+                    ? allOrgUnitsIds
+                    : null;
+
+            const newStartDate =
+                multiSelectFilters?.duration?.length &&
+                multiSelectFilters.duration[0] &&
+                multiSelectFilters.duration[0] !== mapConfigState.data.startDate
+                    ? multiSelectFilters.duration[0]
+                    : null;
+
+            const newEndDate =
+                multiSelectFilters?.duration?.length &&
+                multiSelectFilters.duration[1] &&
+                multiSelectFilters.duration[1] !== mapConfigState.data.endDate
+                    ? multiSelectFilters.duration[1]
+                    : null;
+
+            if (!newMapIndicator && !newOrgUnits && !newStartDate && !newEndDate) {
                 return;
             } else {
                 setMapConfigState(prevMapConfigState => {
@@ -134,12 +125,19 @@ export function useMap(params: {
                             kind: "loaded",
                             data: {
                                 ...prevMapConfigState.data,
-                                programIndicatorId: mapProgramIndicator.id,
-                                programIndicatorName: mapProgramIndicator.name,
-                                orgUnits:
-                                    multiSelectFilters && multiSelectFilters?.province?.length
-                                        ? multiSelectFilters?.province
-                                        : allOrgUnitsIds,
+                                programIndicatorId: newMapIndicator
+                                    ? newMapIndicator.id
+                                    : prevMapConfigState.data.programIndicatorId,
+                                programIndicatorName: newMapIndicator
+                                    ? newMapIndicator.name
+                                    : prevMapConfigState.data.programIndicatorName,
+                                orgUnits: newOrgUnits
+                                    ? newOrgUnits
+                                    : prevMapConfigState.data.orgUnits,
+                                startDate: newStartDate
+                                    ? newStartDate
+                                    : prevMapConfigState.data.startDate,
+                                endDate: newEndDate ? newEndDate : prevMapConfigState.data.endDate,
                             },
                         };
                     } else {
