@@ -12,6 +12,7 @@ import {
     NB_OF_DEATHS,
 } from "./consts/AnalyticsConstants";
 import moment from "moment";
+import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type ProgramIndicatorBaseAttrs = {
     id: string;
@@ -105,7 +106,9 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
         });
     }
 
-    getProgramIndicators(): FutureData<ProgramIndicatorBaseAttrs[]> {
+    getProgramIndicators(
+        diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
+    ): FutureData<ProgramIndicatorBaseAttrs[]> {
         const fetchEnrollmentsQuery = (): FutureData<AnalyticsResponse> =>
             apiToFuture(
                 this.api.get<AnalyticsResponse>(
@@ -164,22 +167,26 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             }: Record<string, AnalyticsResponse>) => {
                 const cases = this.calculateTotals(nbOfCasesByDiseaseFuture, NB_OF_CASES);
                 const deaths = this.calculateTotals(nbOfDeathsByDiseaseFuture, NB_OF_DEATHS);
-                console.log({
-                    indicatorsProgramFuture,
-                    nbOfCasesByDiseaseFuture,
-                    nbOfDeathsByDiseaseFuture,
-                });
-                return (
-                    indicatorsProgramFuture?.rows.map((row: string[]) => {
-                        return this.mapRowToIndicator(
+                const mappedIndicators =
+                    indicatorsProgramFuture?.rows.map((row: string[]) =>
+                        this.mapRowToBaseIndicator(
                             row,
                             indicatorsProgramFuture.headers,
-                            indicatorsProgramFuture.metaData,
-                            cases,
-                            deaths
+                            indicatorsProgramFuture.metaData
+                        )
+                    ) || [];
+
+                return diseaseOutbreakEvents
+                    .map(event => {
+                        const baseIndicator = mappedIndicators.find(
+                            indicator => indicator.id === event.id
                         );
-                    }) || []
-                );
+
+                        if (!baseIndicator) return undefined;
+
+                        return this.addCasesAndDeathsToIndicators(baseIndicator, cases, deaths);
+                    })
+                    .filter(Boolean);
             }
         );
     }
@@ -199,13 +206,11 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
         );
     }
 
-    private mapRowToIndicator(
+    private mapRowToBaseIndicator(
         row: string[],
         headers: { name: string; column: string }[],
-        metaData: AnalyticsResponse["metaData"],
-        cases: Record<string, number>,
-        deaths: Record<string, number>
-    ): ProgramIndicatorBaseAttrs {
+        metaData: AnalyticsResponse["metaData"]
+    ): Partial<ProgramIndicatorBaseAttrs> {
         return headers.reduce((acc, header, index) => {
             const key = Object.keys(IndicatorsId).find(
                 key => IndicatorsId[key as keyof typeof IndicatorsId] === header.name
@@ -217,16 +222,27 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 acc[key] =
                     Object.values(metaData.items).find(item => item.code === row[index])?.name ||
                     "";
-                acc.cases = cases[acc.suspectedDisease]?.toString() || "";
-                acc.deaths = deaths[acc.suspectedDisease]?.toString() || "";
             } else if (key === "eventDetectionDate") {
                 acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
-                acc[key] = moment(row[index]).format("YYYY-MM-DD"); // Keep the original date formatted
+                acc[key] = moment(row[index]).format("YYYY-MM-DD");
             } else {
                 acc[key] = row[index] || "";
             }
 
             return acc;
-        }, {} as ProgramIndicatorBaseAttrs);
+        }, {} as Partial<ProgramIndicatorBaseAttrs>);
+    }
+
+    private addCasesAndDeathsToIndicators(
+        baseIndicator: Partial<ProgramIndicatorBaseAttrs>,
+        cases: Record<string, number>,
+        deaths: Record<string, number>
+    ): ProgramIndicatorBaseAttrs {
+        const { suspectedDisease } = baseIndicator;
+        return {
+            ...baseIndicator,
+            cases: suspectedDisease ? cases[suspectedDisease]?.toString() || "" : "",
+            deaths: suspectedDisease ? deaths[suspectedDisease]?.toString() || "" : "",
+        } as ProgramIndicatorBaseAttrs;
     }
 }
