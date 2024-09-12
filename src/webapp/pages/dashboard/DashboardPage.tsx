@@ -13,6 +13,7 @@ import { Id } from "@eyeseetea/d2-api";
 import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useFilters } from "./useFilters";
+import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const { filters, filterOptions, setFilters } = useFilters();
@@ -81,6 +82,11 @@ export const DashboardPage: React.FC = React.memo(() => {
                             disabled={disabled}
                         />
                     ))}
+                    <DateRangePicker
+                        value={filters.duration || []}
+                        onChange={(dates: string[]) => setFilters({ ...filters, duration: dates })}
+                        placeholder={i18n.t("Duration")}
+                    />
                 </Container>
                 <GridWrapper>
                     {diseasesTotal &&
