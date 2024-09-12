@@ -16,6 +16,7 @@ export function getTestContext() {
         currentUser: createAdminUser(),
         compositionRoot: getTestCompositionRoot(),
         api: {} as D2Api,
+        orgUnits: [],
         isDev: true,
     };
 

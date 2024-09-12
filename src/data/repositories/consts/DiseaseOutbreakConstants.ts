@@ -10,6 +10,9 @@ import { getDateAsIsoString } from "../utils/DateTimeHelper";
 export const RTSL_ZEBRA_PROGRAM_ID = "qkOTdxkte8V";
 export const RTSL_ZEBRA_ORG_UNIT_ID = "PS5JpkoHHio";
 export const RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID = "lIzNjLOUAKA";
+export const RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID = "swh2ZukmkDk";
+export const RTSL_ZEBRA_RISK_ASSESSMENT_SUMMARY_PROGRAM_STAGE_ID = "jBjvgjSgf9d";
+export const RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID = "Ltmf2awDAkS";
 
 export const RTSL_ZEBRA_ALERTS_PROGRAM_ID = "MQtbs8UkBxy";
 export const RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID = "Pq1drzz2HJk";
@@ -74,9 +77,10 @@ export const diseaseOutbreakCodes = {
 
 export type DiseaseOutbreakCode = GetValue<typeof diseaseOutbreakCodes>;
 
-export type KeyCode = (typeof diseaseOutbreakCodes)[keyof typeof diseaseOutbreakCodes];
+export type DiseaseOutbreakKeyCode =
+    (typeof diseaseOutbreakCodes)[keyof typeof diseaseOutbreakCodes];
 
-export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
+export function isStringInDiseaseOutbreakCodes(code: string): code is DiseaseOutbreakKeyCode {
     return (Object.values(diseaseOutbreakCodes) as string[]).includes(code);
 }
 

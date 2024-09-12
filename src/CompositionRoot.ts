@@ -18,8 +18,11 @@ import { OptionsTestRepository } from "./data/repositories/test/OptionsTestRepos
 import { TeamMemberTestRepository } from "./data/repositories/test/TeamMemberTestRepository";
 import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepository";
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
-import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
-import { GetDiseaseOutbreakWithOptionsUseCase } from "./domain/usecases/GetDiseaseOutbreakWithOptionsUseCase";
+import { GetEntityWithOptionsUseCase } from "./domain/usecases/GetEntityWithOptionsUseCase";
+import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
+import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
+import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
+import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
 import { AnalyticsRepository } from "./domain/repositories/AnalyticsRepository";
 import { GetAllProgramIndicatorsUseCase } from "./domain/usecases/GetAllProgramIndicatorsUseCase";
 import { AnalyticsD2Repository } from "./data/repositories/AnalyticsD2Repository";
@@ -36,6 +39,7 @@ import { AlertSyncDataStoreRepository } from "./data/repositories/AlertSyncDataS
 import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/AlertSyncDataStoreTestRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
 import { GetProvincesOrgUnits } from "./domain/usecases/GetProvincesOrgUnits";
+import { GetAllOrgUnits } from "./domain/usecases/GetAllOrgUnits";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -47,20 +51,24 @@ type Repositories = {
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
+    riskAssessmentRepository: RiskAssessmentRepository;
     analytics: AnalyticsRepository;
     mapConfigRepository: MapConfigRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
     return {
+        getWithOptions: new GetEntityWithOptionsUseCase(repositories),
+        save: new SaveEntityUseCase(
+            repositories.diseaseOutbreakEventRepository,
+            repositories.riskAssessmentRepository
+        ),
         users: {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
         },
         diseaseOutbreakEvent: {
             get: new GetDiseaseOutbreakByIdUseCase(repositories),
-            getWithOptions: new GetDiseaseOutbreakWithOptionsUseCase(repositories),
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
-            save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
             mapDiseaseOutbreakEventToAlerts: new MapDiseaseOutbreakToAlertsUseCase(
                 repositories.alertRepository,
                 repositories.alertSyncRepository,
@@ -75,6 +83,7 @@ function getCompositionRoot(repositories: Repositories) {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
         },
         orgUnits: {
+            getAll: new GetAllOrgUnits(repositories.orgUnitRepository),
             getProvinces: new GetProvincesOrgUnits(repositories.orgUnitRepository),
         },
     };
@@ -89,6 +98,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
+        riskAssessmentRepository: new RiskAssessmentD2Repository(api),
         analytics: new AnalyticsD2Repository(api),
         mapConfigRepository: new MapConfigD2Repository(api),
     };
@@ -105,6 +115,7 @@ export function getTestCompositionRoot() {
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
+        riskAssessmentRepository: new RiskAssessmentTestRepository(),
         analytics: new ProgramIndicatorsTestRepository(),
         mapConfigRepository: new MapConfigTestRepository(),
     };

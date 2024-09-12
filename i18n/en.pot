@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-11T12:04:20.691Z\n"
-"PO-Revision-Date: 2024-09-11T12:04:20.691Z\n"
+"POT-Creation-Date: 2024-09-12T06:22:44.023Z\n"
+"PO-Revision-Date: 2024-09-12T06:22:44.023Z\n"
 
 msgid "Low"
 msgstr ""
@@ -46,6 +46,12 @@ msgid "Available within the province with minimal support from national level"
 msgstr ""
 
 msgid "Available at national with support required from international"
+msgstr ""
+
+msgid "Capability 1"
+msgstr ""
+
+msgid "Capability 2"
 msgstr ""
 
 msgid "Grade 1"
@@ -120,10 +126,19 @@ msgstr ""
 msgid "Event Tracker"
 msgstr ""
 
+msgid "Districts Affected"
+msgstr ""
+
+msgid "Create Risk Assessment"
+msgstr ""
+
 msgid "Add new Assessment"
 msgstr ""
 
-msgid "Page Not Found"
+msgid "N/A"
+msgstr ""
+
+msgid "Add another"
 msgstr ""
 
 msgid "Create Event form cannot be loaded"
@@ -132,7 +147,13 @@ msgstr ""
 msgid "Disease Outbreak saved successfully"
 msgstr ""
 
-msgid "N/A"
+msgid "Risk Assessment Grading saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Summary saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
 msgid "Incident Action Plan"
