@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-11T12:04:20.691Z\n"
-"PO-Revision-Date: 2024-09-11T12:04:20.691Z\n"
+"POT-Creation-Date: 2024-09-12T06:22:44.023Z\n"
+"PO-Revision-Date: 2024-09-12T06:22:44.023Z\n"
 
 msgid "Low"
 msgstr ""
@@ -124,6 +124,9 @@ msgid "Map not found."
 msgstr ""
 
 msgid "Event Tracker"
+msgstr ""
+
+msgid "Districts Affected"
 msgstr ""
 
 msgid "Create Risk Assessment"
