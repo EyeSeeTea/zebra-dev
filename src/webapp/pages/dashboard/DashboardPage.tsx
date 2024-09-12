@@ -13,7 +13,7 @@ import { Id } from "@eyeseetea/d2-api";
 import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
-import { MapSection } from "./map/MapSection";
+import { MapSection } from "../../components/map/MapSection";
 import { Selector } from "../../components/selector/Selector";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 

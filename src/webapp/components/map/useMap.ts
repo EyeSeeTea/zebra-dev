@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useAppContext } from "../../../contexts/app-context";
+import { useAppContext } from "../../contexts/app-context";
 import {
     MapKey,
     MapProgramIndicator,
     MapProgramIndicatorsDatastoreKey,
-} from "../../../../domain/entities/MapConfig";
-import i18n from "../../../../utils/i18n";
-import { Maybe } from "../../../../utils/ts-utils";
+} from "../../../domain/entities/MapConfig";
+import i18n from "../../../utils/i18n";
+import { Maybe } from "../../../utils/ts-utils";
 
 type LoadingState = {
     kind: "loading";
@@ -67,9 +67,24 @@ export function useMap(params: {
     });
 
     useEffect(() => {
+        if (mapConfigState.kind !== "loaded") return;
+
+        const newStartDate =
+            multiSelectFilters?.duration?.length &&
+            multiSelectFilters.duration[0] &&
+            multiSelectFilters.duration[0] !== mapConfigState.data.startDate
+                ? multiSelectFilters.duration[0]
+                : null;
+
+        const newEndDate =
+            multiSelectFilters?.duration?.length &&
+            multiSelectFilters.duration[1] &&
+            multiSelectFilters.duration[1] !== mapConfigState.data.endDate
+                ? multiSelectFilters.duration[1]
+                : null;
+
         const isDashboardMapAndThereAreFilters =
             mapKey === "dashboard" &&
-            mapConfigState.kind === "loaded" &&
             allOrgUnitsIds.length &&
             (!!singleSelectFilters || !!multiSelectFilters);
 
@@ -102,20 +117,6 @@ export function useMap(params: {
                     ? allOrgUnitsIds
                     : null;
 
-            const newStartDate =
-                multiSelectFilters?.duration?.length &&
-                multiSelectFilters.duration[0] &&
-                multiSelectFilters.duration[0] !== mapConfigState.data.startDate
-                    ? multiSelectFilters.duration[0]
-                    : null;
-
-            const newEndDate =
-                multiSelectFilters?.duration?.length &&
-                multiSelectFilters.duration[1] &&
-                multiSelectFilters.duration[1] !== mapConfigState.data.endDate
-                    ? multiSelectFilters.duration[1]
-                    : null;
-
             if (!newMapIndicator && !newOrgUnits && !newStartDate && !newEndDate) {
                 return;
             } else {
@@ -146,8 +147,33 @@ export function useMap(params: {
                 });
             }
         }
+
+        if (
+            mapKey === "event_tracker" &&
+            (eventDiseaseCode || eventHazardCode) &&
+            (newStartDate || newEndDate)
+        ) {
+            setMapConfigState(prevMapConfigState => {
+                if (prevMapConfigState.kind === "loaded") {
+                    return {
+                        kind: "loaded",
+                        data: {
+                            ...prevMapConfigState.data,
+                            startDate: newStartDate
+                                ? newStartDate
+                                : prevMapConfigState.data.startDate,
+                            endDate: newEndDate ? newEndDate : prevMapConfigState.data.endDate,
+                        },
+                    };
+                } else {
+                    return prevMapConfigState;
+                }
+            });
+        }
     }, [
         allOrgUnitsIds,
+        eventDiseaseCode,
+        eventHazardCode,
         mapConfigState,
         mapKey,
         mapProgramIndicators,

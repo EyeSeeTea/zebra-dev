@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useAppContext } from "../../contexts/app-context";
-import { FilteredMapConfig } from "../../pages/dashboard/map/useMap";
+import { FilteredMapConfig } from "./useMap";
 import LoaderContainer from "../loader/LoaderContainer";
 
 type MapProps = {
