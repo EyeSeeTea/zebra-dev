@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-12T09:42:24.289Z\n"
+"POT-Creation-Date: 2024-09-12T13:31:21.959Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -74,16 +74,22 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-msgid "Edit Details"
-msgstr ""
-
 msgid "There is an error in this field"
 msgstr ""
 
 msgid "Indicates required"
 msgstr ""
 
+msgid "Edit Details"
+msgstr ""
+
 msgid "Create Event"
+msgstr ""
+
+msgid "The map with these filters could not be found."
+msgstr ""
+
+msgid "Map not found."
 msgstr ""
 
 msgid "Close"
@@ -110,22 +116,19 @@ msgstr ""
 msgid "Respond, alert, watch"
 msgstr ""
 
-msgid "All public health events"
+msgid "Select duration"
 msgstr ""
 
 msgid "Duration"
+msgstr ""
+
+msgid "All public health events"
 msgstr ""
 
 msgid "7-1-7 performance"
 msgstr ""
 
 msgid "Performance overview"
-msgstr ""
-
-msgid "The map with these filters could not be found."
-msgstr ""
-
-msgid "Map not found."
 msgstr ""
 
 msgid "Event Tracker"
