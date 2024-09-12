@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-12T09:27:06.047Z\n"
-"PO-Revision-Date: 2024-09-12T09:27:06.047Z\n"
+"POT-Creation-Date: 2024-09-12T09:42:24.289Z\n"
+"PO-Revision-Date: 2024-09-12T09:42:24.289Z\n"
 
 msgid "Low"
 msgstr ""
@@ -69,12 +69,6 @@ msgstr ""
 msgid "Add new option"
 msgstr ""
 
-msgid "There is an error in this field"
-msgstr ""
-
-msgid "Indicates required"
-msgstr ""
-
 msgid "Cancel"
 msgstr ""
 
@@ -82,6 +76,12 @@ msgid "Save"
 msgstr ""
 
 msgid "Edit Details"
+msgstr ""
+
+msgid "There is an error in this field"
+msgstr ""
+
+msgid "Indicates required"
 msgstr ""
 
 msgid "Create Event"
@@ -112,6 +112,9 @@ msgid "Respond, alert, watch"
 msgstr ""
 
 msgid "All public health events"
+msgstr ""
+
+msgid "Duration"
 msgstr ""
 
 msgid "7-1-7 performance"
