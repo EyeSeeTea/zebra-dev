@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-12T06:22:44.023Z\n"
-"PO-Revision-Date: 2024-09-12T06:22:44.023Z\n"
+"POT-Creation-Date: 2024-09-12T09:27:06.047Z\n"
+"PO-Revision-Date: 2024-09-12T09:27:06.047Z\n"
 
 msgid "Low"
 msgstr ""
@@ -118,6 +118,9 @@ msgid "7-1-7 performance"
 msgstr ""
 
 msgid "Performance overview"
+msgstr ""
+
+msgid "The map with these filters could not be found."
 msgstr ""
 
 msgid "Map not found."
