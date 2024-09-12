@@ -69,7 +69,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             >
                 <LoaderContainer
                     loading={
-                        !getCurrentEventTracker()?.suspectedDiseaseCode ||
+                        !getCurrentEventTracker()?.suspectedDiseaseCode &&
                         !getCurrentEventTracker()?.hazardType
                     }
                 >
