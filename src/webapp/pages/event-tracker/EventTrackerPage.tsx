@@ -13,6 +13,7 @@ import { useDiseaseOutbreakEvent } from "./useDiseaseOutbreakEvent";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import { MapSection } from "../dashboard/map/MapSection";
+import LoaderContainer from "../../components/loader/LoaderContainer";
 
 // TODO: Add every section here
 export type VisualizationTypes =
@@ -66,11 +67,18 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 hasSeparator
                 lastUpdated={lastUpdated}
             >
-                <MapSection
-                    mapKey="event_tracker"
-                    eventDiseaseCode={getCurrentEventTracker()?.suspectedDiseaseCode}
-                    eventHazardCode={getCurrentEventTracker()?.hazardType}
-                />
+                <LoaderContainer
+                    loading={
+                        !getCurrentEventTracker()?.suspectedDiseaseCode ||
+                        !getCurrentEventTracker()?.hazardType
+                    }
+                >
+                    <MapSection
+                        mapKey="event_tracker"
+                        eventDiseaseCode={getCurrentEventTracker()?.suspectedDiseaseCode}
+                        eventHazardCode={getCurrentEventTracker()?.hazardType}
+                    />
+                </LoaderContainer>
             </Section>
             <Section
                 title="Risk Assessment"
