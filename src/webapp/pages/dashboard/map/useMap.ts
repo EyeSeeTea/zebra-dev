@@ -46,7 +46,7 @@ type MapState = {
 
 export function useMap(params: {
     mapKey: MapKey;
-    allOrgUnitsIds: Maybe<string[]>;
+    allOrgUnitsIds: string[];
     eventDiseaseCode?: string;
     eventHazardCode?: string;
     singleSelectFilters?: Record<string, string>;
@@ -70,7 +70,7 @@ export function useMap(params: {
         if (
             mapKey === "dashboard" &&
             mapConfigState.kind === "loaded" &&
-            allOrgUnitsIds?.length &&
+            allOrgUnitsIds.length &&
             (!!singleSelectFilters || !!multiSelectFilters)
         ) {
             const mapProgramIndicator = getFilteredActiveVerifiedMapProgramIndicator(
@@ -82,7 +82,7 @@ export function useMap(params: {
                 if (
                     multiSelectFilters &&
                     multiSelectFilters?.province?.length &&
-                    provincesHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
+                    orgUnitsHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
                 ) {
                     const provinceFilterValues = multiSelectFilters.province;
                     setMapConfigState(prevMapConfigState => {
@@ -101,7 +101,7 @@ export function useMap(params: {
                     return;
                 } else if (
                     !multiSelectFilters?.province?.length &&
-                    provincesHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
+                    orgUnitsHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
                 ) {
                     setMapConfigState(prevMapConfigState => {
                         if (prevMapConfigState.kind === "loaded") {
@@ -171,7 +171,7 @@ export function useMap(params: {
                               eventHazardCode
                           );
 
-                if (!mapProgramIndicator || !allOrgUnitsIds || allOrgUnitsIds.length === 0) {
+                if (!mapProgramIndicator || allOrgUnitsIds.length === 0) {
                     setMapConfigState({
                         kind: "error",
                         message: i18n.t("Map not found."),
@@ -282,7 +282,7 @@ function getFilteredActiveVerifiedMapProgramIndicator(
     }
 }
 
-function provincesHaveChanged(provincesFilter: string[], currentOrgUnits: string[]): boolean {
+function orgUnitsHaveChanged(provincesFilter: string[], currentOrgUnits: string[]): boolean {
     if (provincesFilter.length !== currentOrgUnits.length) {
         return true;
     }

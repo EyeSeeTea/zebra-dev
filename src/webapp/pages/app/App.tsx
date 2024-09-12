@@ -34,9 +34,9 @@ function App(props: AppProps) {
             const isShareButtonVisible = appConfig.appearance.showShareButton;
             const currentUser = await compositionRoot.users.getCurrent.execute().toPromise();
             if (!currentUser) throw new Error("User not logged in");
-
+            const orgUnits = await compositionRoot.orgUnits.getAll.execute().toPromise();
             const isDev = process.env.NODE_ENV === "development";
-            setAppContext({ currentUser, compositionRoot, isDev, api });
+            setAppContext({ currentUser, compositionRoot, isDev, api, orgUnits });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
         }

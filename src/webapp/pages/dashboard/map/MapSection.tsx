@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
@@ -6,33 +6,32 @@ import { Map } from "../../../components/map/Map";
 import { useMap } from "./useMap";
 import { MapKey } from "../../../../domain/entities/MapConfig";
 import LoaderContainer from "../../../components/loader/LoaderContainer";
-import { Maybe } from "../../../../utils/ts-utils";
+import { useAppContext } from "../../../contexts/app-context";
 
 type MapSectionProps = {
     mapKey: MapKey;
     singleSelectFilters?: Record<string, string>;
     multiSelectFilters?: Record<string, string[]>;
-    allProvinces: Maybe<string[]>;
     eventDiseaseCode?: string;
     eventHazardCode?: string;
 };
 
 export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
-    const {
-        mapKey,
-        singleSelectFilters,
-        multiSelectFilters,
-        allProvinces,
-        eventDiseaseCode,
-        eventHazardCode,
-    } = props;
+    const { mapKey, singleSelectFilters, multiSelectFilters, eventDiseaseCode, eventHazardCode } =
+        props;
+    const { orgUnits } = useAppContext();
     const snackbar = useSnackbar();
 
+    const allProvincesIds = useMemo(
+        () => orgUnits.filter(orgUnit => orgUnit.level === "Province").map(orgUnit => orgUnit.id),
+        [orgUnits]
+    );
+
     const { mapConfigState } = useMap({
-        mapKey,
-        allOrgUnitsIds: allProvinces,
-        singleSelectFilters,
-        multiSelectFilters,
+        mapKey: mapKey,
+        allOrgUnitsIds: allProvincesIds,
+        singleSelectFilters: singleSelectFilters,
+        multiSelectFilters: multiSelectFilters,
         eventDiseaseCode: eventDiseaseCode,
         eventHazardCode: eventHazardCode,
     });
@@ -50,9 +49,9 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
     return (
         <MapContainer>
             <LoaderContainer
-                loading={mapConfigState.kind === "loading" || allProvinces?.length === 0}
+                loading={mapConfigState.kind === "loading" || allProvincesIds.length === 0}
             >
-                {mapConfigState.kind === "loaded" && allProvinces?.length !== 0 ? (
+                {mapConfigState.kind === "loaded" && allProvincesIds.length !== 0 ? (
                     <Map
                         key={`${JSON.stringify(singleSelectFilters)}_${JSON.stringify(
                             multiSelectFilters

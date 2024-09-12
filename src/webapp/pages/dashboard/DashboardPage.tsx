@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
@@ -71,14 +71,6 @@ export const DashboardPage: React.FC = React.memo(() => {
         },
     ];
 
-    const allProvinceOptionsIds = useMemo(
-        () =>
-            filtersConfig
-                .find(filter => filter.id === "province")
-                ?.options.map(option => option.value),
-        [filtersConfig]
-    );
-
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>
@@ -130,7 +122,6 @@ export const DashboardPage: React.FC = React.memo(() => {
                     mapKey="dashboard"
                     singleSelectFilters={singleSelectFilters}
                     multiSelectFilters={multiSelectFilters}
-                    allProvinces={allProvinceOptionsIds}
                 />
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>

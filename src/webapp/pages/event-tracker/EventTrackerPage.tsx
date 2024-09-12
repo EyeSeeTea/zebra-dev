@@ -68,18 +68,6 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             >
                 <MapSection
                     mapKey="event_tracker"
-                    allProvinces={[
-                        "AWn3s2RqgAN",
-                        "utIjliUdjp8",
-                        "J7PQPWAeRUk",
-                        "KozcEjeTyuD",
-                        "B1u1bVtIA92",
-                        "dbTLdTi7s8F",
-                        "SwwuteU1Ajk",
-                        "q5hODNmn021",
-                        "oPLMrarKeEY",
-                        "g1bv2xjtV0w",
-                    ]}
                     eventDiseaseCode={getCurrentEventTracker()?.suspectedDiseaseCode}
                     eventHazardCode={getCurrentEventTracker()?.hazardType}
                 />
