@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-12T09:42:24.289Z\n"
+"POT-Creation-Date: 2024-09-12T14:10:04.460Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -62,7 +62,7 @@ msgstr ""
 msgid "Add new option"
 msgstr ""
 
-msgid "Cancel"
+msgid "Reset"
 msgstr ""
 
 msgid "Save"
@@ -72,6 +72,9 @@ msgid "There is an error in this field"
 msgstr ""
 
 msgid "Indicates required"
+msgstr ""
+
+msgid "Cancel"
 msgstr ""
 
 msgid "Create Event"

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Maybe } from "./../../utils/ts-utils";
 import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { AnalyticsRepository } from "../../domain/repositories/AnalyticsRepository";

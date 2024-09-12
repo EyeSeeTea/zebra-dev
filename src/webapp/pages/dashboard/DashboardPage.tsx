@@ -87,6 +87,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                         onChange={(dates: string[]) => setFilters({ ...filters, duration: dates })}
                         placeholder={i18n.t("Duration")}
                     />
+                    {JSON.stringify(filters)}
                 </Container>
                 <GridWrapper>
                     {diseasesTotal &&
