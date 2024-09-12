@@ -12,6 +12,7 @@ import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/
 import { useDiseaseOutbreakEvent } from "./useDiseaseOutbreakEvent";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
+import { MapSection } from "../dashboard/map/MapSection";
 
 // TODO: Add every section here
 export type VisualizationTypes =
@@ -43,7 +44,8 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { goTo } = useRoutes();
     const { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails } =
         useDiseaseOutbreakEvent(id);
-    const { changeCurrentEventTracker: changeCurrentEventTrackerId } = useCurrentEventTracker();
+    const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
+        useCurrentEventTracker();
 
     useEffect(() => {
         if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
@@ -58,11 +60,30 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 formSummary={formSummary}
                 summaryError={summaryError}
             />
-            <Visualisation
-                type="EVENT_TRACKER_AREAS_AFFECTED_MAP"
-                title="Districts Affected"
-                hasSeparator={true}
-            />
+            <Section
+                title={i18n.t("Districts Affected")}
+                titleVariant="secondary"
+                hasSeparator
+                lastUpdated={lastUpdated}
+            >
+                <MapSection
+                    mapKey="event_tracker"
+                    allProvinces={[
+                        "AWn3s2RqgAN",
+                        "utIjliUdjp8",
+                        "J7PQPWAeRUk",
+                        "KozcEjeTyuD",
+                        "B1u1bVtIA92",
+                        "dbTLdTi7s8F",
+                        "SwwuteU1Ajk",
+                        "q5hODNmn021",
+                        "oPLMrarKeEY",
+                        "g1bv2xjtV0w",
+                    ]}
+                    eventDiseaseCode={getCurrentEventTracker()?.suspectedDiseaseCode}
+                    eventHazardCode={getCurrentEventTracker()?.hazardType}
+                />
+            </Section>
             <Section
                 title="Risk Assessment"
                 hasSeparator={true}

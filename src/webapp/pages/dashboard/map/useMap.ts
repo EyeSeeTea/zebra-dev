@@ -44,12 +44,22 @@ type MapState = {
     mapConfigState: MapConfigState;
 };
 
-export function useMap(
-    mapKey: MapKey,
-    allOrgUnitsIds: Maybe<string[]>,
-    singleSelectFilters?: Record<string, string>,
-    multiSelectFilters?: Record<string, string[]>
-): MapState {
+export function useMap(params: {
+    mapKey: MapKey;
+    allOrgUnitsIds: Maybe<string[]>;
+    eventDiseaseCode?: string;
+    eventHazardCode?: string;
+    singleSelectFilters?: Record<string, string>;
+    multiSelectFilters?: Record<string, string[]>;
+}): MapState {
+    const {
+        mapKey,
+        allOrgUnitsIds,
+        eventDiseaseCode,
+        eventHazardCode,
+        singleSelectFilters,
+        multiSelectFilters,
+    } = params;
     const { compositionRoot } = useAppContext();
     const [mapProgramIndicators, setMapProgramIndicators] = useState<MapProgramIndicator[]>([]);
     const [mapConfigState, setMapConfigState] = useState<MapConfigState>({
@@ -58,11 +68,12 @@ export function useMap(
 
     useEffect(() => {
         if (
+            mapKey === "dashboard" &&
             mapConfigState.kind === "loaded" &&
             allOrgUnitsIds?.length &&
             (!!singleSelectFilters || !!multiSelectFilters)
         ) {
-            const mapProgramIndicator = getFilteredMapProgramIndicator(
+            const mapProgramIndicator = getFilteredActiveVerifiedMapProgramIndicator(
                 mapProgramIndicators,
                 singleSelectFilters
             );
@@ -140,6 +151,7 @@ export function useMap(
     }, [
         allOrgUnitsIds,
         mapConfigState,
+        mapKey,
         mapProgramIndicators,
         multiSelectFilters,
         singleSelectFilters,
@@ -150,17 +162,20 @@ export function useMap(
             config => {
                 setMapProgramIndicators(config.programIndicators);
 
-                const mapProgramIndicator = getMainMapProgramIndicator(config.programIndicators);
+                const mapProgramIndicator =
+                    mapKey === "dashboard"
+                        ? getMainActiveVerifiedMapProgramIndicator(config.programIndicators)
+                        : getCasesMapProgramIndicator(
+                              config.programIndicators,
+                              eventDiseaseCode,
+                              eventHazardCode
+                          );
 
-                if (!mapProgramIndicator) {
+                if (!mapProgramIndicator || !allOrgUnitsIds || allOrgUnitsIds.length === 0) {
                     setMapConfigState({
                         kind: "error",
                         message: i18n.t("Map not found."),
                     });
-                    return;
-                }
-
-                if (!allOrgUnitsIds || allOrgUnitsIds.length === 0) {
                     return;
                 }
 
@@ -190,14 +205,14 @@ export function useMap(
                 });
             }
         );
-    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds]);
+    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds, eventDiseaseCode, eventHazardCode]);
 
     return {
         mapConfigState,
     };
 }
 
-function getMainMapProgramIndicator(
+function getMainActiveVerifiedMapProgramIndicator(
     programIndicators: MapProgramIndicator[]
 ): Maybe<MapProgramIndicator> {
     return programIndicators.find(
@@ -208,12 +223,22 @@ function getMainMapProgramIndicator(
     );
 }
 
-function getFilteredMapProgramIndicator(
+function getCasesMapProgramIndicator(
+    programIndicators: MapProgramIndicator[],
+    disease: Maybe<string>,
+    hazardType: Maybe<string>
+): Maybe<MapProgramIndicator> {
+    return programIndicators.find(
+        indicator => indicator.disease === disease || indicator.hazardType === hazardType
+    );
+}
+
+function getFilteredActiveVerifiedMapProgramIndicator(
     programIndicators: MapProgramIndicator[],
     singleSelectFilters?: Record<string, string>
 ): Maybe<MapProgramIndicator> {
     if (!singleSelectFilters || Object.values(singleSelectFilters).every(value => !value)) {
-        return getMainMapProgramIndicator(programIndicators);
+        return getMainActiveVerifiedMapProgramIndicator(programIndicators);
     } else {
         const {
             disease: diseaseFilterValue,

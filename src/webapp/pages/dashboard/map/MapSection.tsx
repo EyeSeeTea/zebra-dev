@@ -13,18 +13,29 @@ type MapSectionProps = {
     singleSelectFilters?: Record<string, string>;
     multiSelectFilters?: Record<string, string[]>;
     allProvinces: Maybe<string[]>;
+    eventDiseaseCode?: string;
+    eventHazardCode?: string;
 };
 
 export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
-    const { mapKey, singleSelectFilters, multiSelectFilters, allProvinces } = props;
+    const {
+        mapKey,
+        singleSelectFilters,
+        multiSelectFilters,
+        allProvinces,
+        eventDiseaseCode,
+        eventHazardCode,
+    } = props;
     const snackbar = useSnackbar();
 
-    const { mapConfigState } = useMap(
+    const { mapConfigState } = useMap({
         mapKey,
-        allProvinces,
+        allOrgUnitsIds: allProvinces,
         singleSelectFilters,
-        multiSelectFilters
-    );
+        multiSelectFilters,
+        eventDiseaseCode: eventDiseaseCode,
+        eventHazardCode: eventHazardCode,
+    });
 
     useEffect(() => {
         if (mapConfigState.kind === "error") {
