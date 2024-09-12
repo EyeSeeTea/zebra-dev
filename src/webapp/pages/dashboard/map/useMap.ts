@@ -178,6 +178,8 @@ export function useMap(params: {
                     });
                     return;
                 }
+                console.log("mapProgramIndicator?.name", mapProgramIndicator?.name);
+                console.log("allOrgUnitsIds", allOrgUnitsIds);
 
                 setMapConfigState({
                     kind: "loaded",
