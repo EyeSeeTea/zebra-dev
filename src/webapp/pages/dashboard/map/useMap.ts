@@ -44,12 +44,13 @@ type MapState = {
     mapConfigState: MapConfigState;
 };
 
-export function useMap(
-    mapKey: MapKey,
-    allOrgUnitsIds: Maybe<string[]>,
-    singleSelectFilters?: Record<string, string>,
-    multiSelectFilters?: Record<string, string[]>
-): MapState {
+export function useMap(params: {
+    mapKey: MapKey;
+    allOrgUnitsIds: string[];
+    singleSelectFilters?: Record<string, string>;
+    multiSelectFilters?: Record<string, string[]>;
+}): MapState {
+    const { mapKey, allOrgUnitsIds, singleSelectFilters, multiSelectFilters } = params;
     const { compositionRoot } = useAppContext();
     const [mapProgramIndicators, setMapProgramIndicators] = useState<MapProgramIndicator[]>([]);
     const [mapConfigState, setMapConfigState] = useState<MapConfigState>({
@@ -59,7 +60,7 @@ export function useMap(
     useEffect(() => {
         if (
             mapConfigState.kind === "loaded" &&
-            allOrgUnitsIds?.length &&
+            allOrgUnitsIds.length &&
             (!!singleSelectFilters || !!multiSelectFilters)
         ) {
             const mapProgramIndicator = getFilteredMapProgramIndicator(
@@ -71,7 +72,7 @@ export function useMap(
                 if (
                     multiSelectFilters &&
                     multiSelectFilters?.province?.length &&
-                    provincesHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
+                    orgUnitsHaveChanged(multiSelectFilters?.province, mapConfigState.data.orgUnits)
                 ) {
                     const provinceFilterValues = multiSelectFilters.province;
                     setMapConfigState(prevMapConfigState => {
@@ -90,7 +91,7 @@ export function useMap(
                     return;
                 } else if (
                     !multiSelectFilters?.province?.length &&
-                    provincesHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
+                    orgUnitsHaveChanged(allOrgUnitsIds, mapConfigState.data.orgUnits)
                 ) {
                     setMapConfigState(prevMapConfigState => {
                         if (prevMapConfigState.kind === "loaded") {
@@ -152,15 +153,11 @@ export function useMap(
 
                 const mapProgramIndicator = getMainMapProgramIndicator(config.programIndicators);
 
-                if (!mapProgramIndicator) {
+                if (!mapProgramIndicator || allOrgUnitsIds.length === 0) {
                     setMapConfigState({
                         kind: "error",
                         message: i18n.t("Map not found."),
                     });
-                    return;
-                }
-
-                if (!allOrgUnitsIds || allOrgUnitsIds.length === 0) {
                     return;
                 }
 
@@ -257,7 +254,7 @@ function getFilteredMapProgramIndicator(
     }
 }
 
-function provincesHaveChanged(provincesFilter: string[], currentOrgUnits: string[]): boolean {
+function orgUnitsHaveChanged(provincesFilter: string[], currentOrgUnits: string[]): boolean {
     if (provincesFilter.length !== currentOrgUnits.length) {
         return true;
     }
