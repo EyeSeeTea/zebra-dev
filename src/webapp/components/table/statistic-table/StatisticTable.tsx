@@ -17,9 +17,9 @@ import { useTableCell } from "./useTableCell";
 import { useStatisticCalculations } from "./useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
+import { Id } from "../../../../domain/entities/Ref";
 import { Order } from "../../../pages/dashboard/usePerformanceOverview";
 import { Option } from "../../utils/option";
-import { Id } from "@eyeseetea/d2-api";
 import { Maybe } from "../../../../utils/ts-utils";
 
 export type TableColumn = {

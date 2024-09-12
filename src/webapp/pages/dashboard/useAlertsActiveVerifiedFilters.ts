@@ -38,21 +38,17 @@ export function useAlertsActiveVerifiedFilters() {
         );
     }, [compositionRoot.orgUnits.getProvinces]);
 
-    const handleSetSingleSelectFilters = useCallback(
-        (id: string, value: string) => {
-            const newFilters = { ...singleSelectFilters, [id]: value };
+    const handleSetSingleSelectFilters = useCallback((id: string, value: string) => {
+        setSingleSelectsFilters(prevSingleSelectFilters => {
+            const newFilters = { ...prevSingleSelectFilters, [id]: value };
 
-            const cleanFilters =
-                id === "disease" && !!value
-                    ? { ...newFilters, hazard: "" }
-                    : id === "hazard" && !!value
-                    ? { ...newFilters, disease: "" }
-                    : newFilters;
-
-            setSingleSelectsFilters(cleanFilters);
-        },
-        [singleSelectFilters]
-    );
+            return id === "disease" && !!value
+                ? { ...newFilters, hazard: "" }
+                : id === "hazard" && !!value
+                ? { ...newFilters, disease: "" }
+                : newFilters;
+        });
+    }, []);
 
     // Initialize filter options based on diseasesTotal
     useEffect(() => {
