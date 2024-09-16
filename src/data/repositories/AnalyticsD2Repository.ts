@@ -57,7 +57,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
     ): FutureData<any> {
         const transformData = (data: string[][], activeVerified: typeof NB_OF_ACTIVE_VERIFIED) => {
             return data
-                .flatMap(([id, _period, _orgUnit, total]) => {
+                .flatMap(([id, _orgUnit, total]) => {
                     const indicator = activeVerified.find(d => d.id === id);
                     if (!indicator || !total) {
                         return [];
