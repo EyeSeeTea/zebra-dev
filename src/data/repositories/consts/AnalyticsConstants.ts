@@ -79,6 +79,23 @@ export const NB_OF_CASES = [
         id: "yD6Rl5hHMg5",
         disease: "Zika fever",
     },
+    {
+        id: "aYztCKYUy3o",
+        disease: "Animal type",
+    },
+    {
+        id: "iJhV5JhqUh3",
+        disease: "Human type",
+    },
+    {
+        id: "NQCfq7qVNqD",
+        disease: "Human and Animal type",
+    },
+
+    {
+        id: "KTPFFaddRMq",
+        disease: "Environmental type",
+    },
 ];
 
 export const NB_OF_DEATHS = [
