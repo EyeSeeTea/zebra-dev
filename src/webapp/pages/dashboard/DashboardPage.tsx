@@ -6,7 +6,7 @@ import { Section } from "../../components/section/Section";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
 import { usePerformanceOverview } from "./usePerformanceOverview";
 import { useDiseasesTotal } from "./useDiseasesTotal";
-import { StatsCard, StatsCardProps } from "../../components/stats-card/StatsCard";
+import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
 import { Id } from "@eyeseetea/d2-api";
@@ -36,32 +36,6 @@ export const DashboardPage: React.FC = React.memo(() => {
         goTo(RouteName.EVENT_TRACKER, { id });
     };
 
-    const performances: StatsCardProps[] = [
-        {
-            title: "Detection",
-            stat: "57",
-            pretitle: "4 events",
-            color: "green",
-        },
-        {
-            title: "Notification",
-            stat: "43",
-            pretitle: "3 events",
-            color: "red",
-        },
-        {
-            title: "Response",
-            stat: "57",
-            pretitle: "4 events",
-            color: "green",
-        },
-        {
-            title: "All targets",
-            stat: "14",
-            pretitle: "1 events",
-            color: "grey",
-        },
-    ];
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>
@@ -87,7 +61,6 @@ export const DashboardPage: React.FC = React.memo(() => {
                         onChange={(dates: string[]) => setFilters({ ...filters, duration: dates })}
                         placeholder={i18n.t("Duration")}
                     />
-                    {JSON.stringify(filters)}
                 </Container>
                 <GridWrapper>
                     {diseasesTotal &&
@@ -101,22 +74,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                         ))}
                 </GridWrapper>
             </Section>
-            <Section title={i18n.t("7-1-7 performance")}>
-                <GridWrapper>
-                    {performances &&
-                        performances.map((per, index) => (
-                            <StatsCard
-                                key={index}
-                                stat={per.stat}
-                                title={per.title}
-                                pretitle={per.pretitle}
-                                color={per.color}
-                                fillParent
-                                isPercentage
-                            />
-                        ))}
-                </GridWrapper>
-            </Section>
+            <Section title={i18n.t("7-1-7 performance")}>TBD</Section>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>
                     <StatisticTable
