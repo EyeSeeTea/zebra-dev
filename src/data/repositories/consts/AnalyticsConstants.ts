@@ -1,5 +1,6 @@
 export enum IndicatorsId {
     suspectedDisease = "jLvbkuvPdZ6",
+    hazardType = "Dzrw3Tf0ukB",
     event = "fyrLOW9Iwwv",
     era1 = "Ylmo2fEijff",
     era2 = "w4FOvRAyjEE",
@@ -12,7 +13,6 @@ export enum IndicatorsId {
     notify1d = "HDa3nE7Elxj",
     respond7d = "yxVOW4lj4xP",
     province = "ouname",
-    manager = "createdbydisplayname",
     creationDate = "lastupdated",
     id = "tei",
     eventDetectionDate = "enrollmentdate",

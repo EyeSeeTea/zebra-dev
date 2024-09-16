@@ -34,6 +34,7 @@ export type ProgramIndicatorBaseAttrs = {
     respond7d: string;
     creationDate: string;
     suspectedDisease: string;
+    hazardType: string;
     eventDetectionDate: string;
 };
 
@@ -132,6 +133,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                         enrollmentDate: "LAST_12_MONTHS,THIS_MONTH",
                         dimension: [
                             IndicatorsId.suspectedDisease,
+                            IndicatorsId.hazardType,
                             IndicatorsId.event,
                             IndicatorsId.era1,
                             IndicatorsId.era2,
@@ -199,7 +201,12 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
 
                         if (!baseIndicator) return undefined;
 
-                        return this.addCasesAndDeathsToIndicators(baseIndicator, cases, deaths);
+                        return this.addCasesAndDeathsToIndicators(
+                            event,
+                            baseIndicator,
+                            cases,
+                            deaths
+                        );
                     })
                     .filter(Boolean);
             }
@@ -249,15 +256,18 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
     }
 
     private addCasesAndDeathsToIndicators(
+        event: DiseaseOutbreakEventBaseAttrs,
         baseIndicator: Partial<ProgramIndicatorBaseAttrs>,
         cases: Record<string, number>,
         deaths: Record<string, number>
     ): ProgramIndicatorBaseAttrs {
-        const { suspectedDisease } = baseIndicator;
+        const { suspectedDisease, hazardType } = baseIndicator;
+        const diseaseOrHazard = suspectedDisease || hazardType;
         return {
             ...baseIndicator,
-            cases: suspectedDisease ? cases[suspectedDisease]?.toString() || "" : "",
-            deaths: suspectedDisease ? deaths[suspectedDisease]?.toString() || "" : "",
+            manager: event.incidentManagerName,
+            cases: diseaseOrHazard ? cases[diseaseOrHazard]?.toString() || "" : "",
+            deaths: diseaseOrHazard ? deaths[diseaseOrHazard]?.toString() || "" : "",
         } as ProgramIndicatorBaseAttrs;
     }
 }

@@ -95,7 +95,7 @@ export function usePerformanceOverview(): State {
     ): ProgramIndicatorBaseAttrs => {
         return {
             ...programIndicator,
-            event: programIndicator.event + " (" + programIndicator.suspectedDisease + ")",
+            event: programIndicator.event,
         };
     };
 
