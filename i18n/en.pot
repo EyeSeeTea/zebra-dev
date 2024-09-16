@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-12T14:10:04.460Z\n"
-"PO-Revision-Date: 2024-09-12T14:10:04.460Z\n"
+"POT-Creation-Date: 2024-09-16T13:53:55.684Z\n"
+"PO-Revision-Date: 2024-09-16T13:53:55.684Z\n"
 
 msgid "Low"
 msgstr ""
@@ -109,6 +109,9 @@ msgid "Duration"
 msgstr ""
 
 msgid "7-1-7 performance"
+msgstr ""
+
+msgid "events"
 msgstr ""
 
 msgid "Performance overview"
