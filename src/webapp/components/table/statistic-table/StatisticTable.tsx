@@ -19,7 +19,7 @@ import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
 import { Order } from "../../../pages/dashboard/usePerformanceOverview";
 import { Option } from "../../utils/option";
-import { Id } from "@eyeseetea/d2-api";
+import { Id } from "../../../../domain/entities/Ref";
 import { Maybe } from "../../../../utils/ts-utils";
 
 export type TableColumn = {
@@ -148,8 +148,8 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                             />
                                         ) : (
                                             <StyledTableCell
-                                                key={`${rowIndex}-${column.value}`}
                                                 onClick={() => goToEvent(row.id)}
+                                                key={`${rowIndex}-${column.value}`}
                                                 $link={columnIndex === 0}
                                             >
                                                 {row[column.value] || ""}

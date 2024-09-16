@@ -17,6 +17,7 @@ type State = {
 };
 
 export type Order = { name: string; direction: "asc" | "desc" };
+
 export function usePerformanceOverview(): State {
     const { compositionRoot } = useAppContext();
 

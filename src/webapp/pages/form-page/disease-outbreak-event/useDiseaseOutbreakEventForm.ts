@@ -70,7 +70,10 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                 setFormLabels(diseaseOutbreakEventWithOptionsData.labels);
                 setFormState({
                     kind: "loaded",
-                    data: mapEntityToInitialFormState(diseaseOutbreakEventWithOptionsData),
+                    data: mapEntityToInitialFormState(
+                        diseaseOutbreakEventWithOptionsData,
+                        !!diseaseOutbreakEventId
+                    ),
                 });
             },
             error => {
@@ -117,7 +120,6 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
             return;
 
         setIsLoading(true);
-        setIsSaved(false);
 
         try {
             const diseaseOutbreakEventData = mapFormStateToEntityData(
@@ -135,6 +137,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
                         .run(
                             () => {
                                 setIsLoading(false);
+                                goTo(RouteName.EVENT_TRACKER, { id: diseaseOutbreakEventId });
                             },
                             err => {
                                 console.error({ err });
@@ -165,7 +168,7 @@ export function useDiseaseOutbreakEventForm(diseaseOutbreakEventId?: Id): State 
             setIsSaved(false);
             return;
         }
-    }, [compositionRoot, currentUser.username, diseaseOutbreakEventWithOptions, formState]);
+    }, [compositionRoot, currentUser.username, diseaseOutbreakEventWithOptions, formState, goTo]);
 
     const onCancelForm = useCallback(() => {
         goTo(RouteName.DASHBOARD);

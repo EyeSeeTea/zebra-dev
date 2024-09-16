@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-12T14:10:04.460Z\n"
-"PO-Revision-Date: 2024-09-12T14:10:04.460Z\n"
+"POT-Creation-Date: 2024-09-16T15:12:17.095Z\n"
+"PO-Revision-Date: 2024-09-16T15:12:17.095Z\n"
 
 msgid "Low"
 msgstr ""
@@ -78,6 +78,9 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+msgid "Edit Details"
+msgstr ""
+
 msgid "Create Event"
 msgstr ""
 
@@ -115,6 +118,9 @@ msgid "Performance overview"
 msgstr ""
 
 msgid "Event Tracker"
+msgstr ""
+
+msgid "Add new Assessment"
 msgstr ""
 
 msgid "Page Not Found"

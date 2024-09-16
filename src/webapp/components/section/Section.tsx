@@ -8,7 +8,7 @@ type SectionProps = {
     title?: string;
     lastUpdated?: string;
     children: React.ReactNode;
-    headerButtom?: React.ReactNode;
+    headerButton?: React.ReactNode;
     hasSeparator?: boolean;
     titleVariant?: "primary" | "secondary";
 };
@@ -17,7 +17,7 @@ export const Section: React.FC<SectionProps> = React.memo(
     ({
         title = "",
         lastUpdated = "",
-        headerButtom,
+        headerButton,
         hasSeparator = false,
         children,
         titleVariant = "primary",
@@ -40,7 +40,7 @@ export const Section: React.FC<SectionProps> = React.memo(
                         ) : null}
                     </TitleContainer>
 
-                    {headerButtom ? <div>{headerButtom}</div> : null}
+                    {headerButton ? <div>{headerButton}</div> : null}
                 </Header>
 
                 <Content>{children}</Content>
