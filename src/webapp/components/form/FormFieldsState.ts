@@ -1,6 +1,6 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { validateFieldRequired, validateFieldRequiredWithNotApplicable } from "./validations";
-import { UserOption } from "../user-selector/UserSelector";
+import { User } from "../user-selector/UserSelector";
 import { Option } from "../utils/option";
 import { ValidationError, ValidationErrorKey } from "../../../domain/entities/ValidationError";
 import { FormSectionState } from "./FormSectionsState";
@@ -52,7 +52,7 @@ export type FormDateFieldState = FormFieldStateBase<Date | null> & {
 
 export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
     type: "user";
-    options: UserOption[];
+    options: User[];
 };
 
 export type FormFieldState =

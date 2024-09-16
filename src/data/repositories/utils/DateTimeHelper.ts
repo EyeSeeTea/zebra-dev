@@ -5,5 +5,28 @@ export function getCurrentTimeString(): string {
 }
 
 export function getDateAsIsoString(date: Maybe<Date>): string {
-    return date ? date.toISOString() : "";
+    try {
+        return date ? date.toISOString() : "";
+    } catch (e) {
+        console.debug(e);
+        return "";
+    }
+}
+
+export function getDateAsMonthYearString(date: Date): string {
+    try {
+        return date.toLocaleString("default", { month: "long", year: "numeric" });
+    } catch (e) {
+        console.debug(e);
+        return "";
+    }
+}
+
+export function getDateAsLocaleDateTimeString(date: Date): string {
+    try {
+        return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    } catch (e) {
+        console.debug(e);
+        return "";
+    }
 }

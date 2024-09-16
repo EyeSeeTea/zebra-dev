@@ -21,7 +21,7 @@ const formType = `:formType(${join(formTypes, "|")})` as const;
 export const routes: Record<RouteName, string> = {
     [RouteName.CREATE_FORM]: `/create/${formType}`,
     [RouteName.EDIT_FORM]: `/edit/${formType}/:id`,
-    [RouteName.EVENT_TRACKER]: "/event-tracker",
+    [RouteName.EVENT_TRACKER]: "/event-tracker/:id",
     [RouteName.IM_TEAM_BUILDER]: "/incident-management-team-builder",
     [RouteName.INCIDENT_ACTION_PLAN]: "/incident-action-plan",
     [RouteName.RESOURCES]: "/resources",
@@ -31,7 +31,7 @@ export const routes: Record<RouteName, string> = {
 type RouteParams = {
     [RouteName.CREATE_FORM]: { formType: FormType };
     [RouteName.EDIT_FORM]: { formType: FormType; id: string };
-    [RouteName.EVENT_TRACKER]: undefined;
+    [RouteName.EVENT_TRACKER]: { id: string };
     [RouteName.IM_TEAM_BUILDER]: undefined;
     [RouteName.INCIDENT_ACTION_PLAN]: undefined;
     [RouteName.RESOURCES]: undefined;
