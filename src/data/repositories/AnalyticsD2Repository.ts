@@ -36,6 +36,17 @@ export type ProgramIndicatorBaseAttrs = {
     eventDetectionDate: string;
 };
 
+const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
+};
+
+const DEFAULT_END_DATE: string = formatDate(new Date());
+
+const DEFAULT_START_DATE = "2000-01-01";
+
 export class AnalyticsD2Repository implements AnalyticsRepository {
     constructor(private api: D2Api) {}
 
@@ -83,13 +94,20 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 this.api.analytics.get({
                     dimension: [
                         `dx:${NB_OF_ACTIVE_VERIFIED.map(({ id }) => id).join(";")}`,
-                        "pe:THIS_YEAR",
                         `ou:${
                             multiSelectFilters && multiSelectFilters?.province?.length
                                 ? multiSelectFilters.province.join(";")
                                 : allProvincesIds.join(";")
                         }`,
                     ],
+                    startDate:
+                        multiSelectFilters?.duration?.length && multiSelectFilters?.duration[0]
+                            ? multiSelectFilters?.duration[0]
+                            : DEFAULT_START_DATE,
+                    endDate:
+                        multiSelectFilters?.duration?.length && multiSelectFilters?.duration[1]
+                            ? multiSelectFilters?.duration[1]
+                            : DEFAULT_END_DATE,
                     includeMetadataDetails: true,
                 })
             );

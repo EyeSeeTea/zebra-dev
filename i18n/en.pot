@@ -69,6 +69,12 @@ msgstr ""
 msgid "Add new option"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
 msgid "There is an error in this field"
 msgstr ""
 
@@ -78,13 +84,16 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-msgid "Save"
-msgstr ""
-
 msgid "Edit Details"
 msgstr ""
 
 msgid "Create Event"
+msgstr ""
+
+msgid "The map with these filters could not be found."
+msgstr ""
+
+msgid "Map not found."
 msgstr ""
 
 msgid "Close"
@@ -109,6 +118,12 @@ msgid "Dashboard"
 msgstr ""
 
 msgid "Respond, alert, watch"
+msgstr ""
+
+msgid "Select duration"
+msgstr ""
+
+msgid "Duration"
 msgstr ""
 
 msgid "All public health events"

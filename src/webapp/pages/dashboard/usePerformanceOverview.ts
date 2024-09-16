@@ -28,13 +28,13 @@ export function usePerformanceOverview(): State {
 
     useEffect(() => {
         if (dataPerformanceOverview) {
-            setDataPerformanceOverview(
-                _(dataPerformanceOverview)
+            setDataPerformanceOverview(newDataPerformanceOverview =>
+                _(newDataPerformanceOverview)
                     .orderBy([
                         [
-                            (dataPerformanceOverviewdata: ProgramIndicatorBaseAttrs) => {
+                            (dataPerformanceOverviewData: ProgramIndicatorBaseAttrs) => {
                                 const value =
-                                    dataPerformanceOverviewdata[
+                                    dataPerformanceOverviewData[
                                         (order?.name as keyof ProgramIndicatorBaseAttrs) ||
                                             "creationDate"
                                     ];

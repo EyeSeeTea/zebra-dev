@@ -12,9 +12,10 @@ import { Id } from "@eyeseetea/d2-api";
 import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
-import { MapSection } from "./map/MapSection";
+import { MapSection } from "../../components/map/MapSection";
 import { Selector } from "../../components/selector/Selector";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
+import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -110,6 +111,14 @@ export const DashboardPage: React.FC = React.memo(() => {
                             />
                         )
                     )}
+                    <DateRangePicker
+                        value={multiSelectFilters.duration || []}
+                        onChange={(dates: string[]) =>
+                            setMultiSelectFilters({ ...multiSelectFilters, duration: dates })
+                        }
+                        placeholder={i18n.t("Select duration")}
+                        label={i18n.t("Duration")}
+                    />
                 </Container>
                 <GridWrapper>
                     {diseasesTotal &&

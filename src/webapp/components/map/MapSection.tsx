@@ -2,11 +2,11 @@ import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
-import { Map } from "../../../components/map/Map";
+import { Map } from "./Map";
 import { useMap } from "./useMap";
-import { MapKey } from "../../../../domain/entities/MapConfig";
-import LoaderContainer from "../../../components/loader/LoaderContainer";
-import { useAppContext } from "../../../contexts/app-context";
+import { MapKey } from "../../../domain/entities/MapConfig";
+import LoaderContainer from "../loader/LoaderContainer";
+import { useAppContext } from "../../contexts/app-context";
 
 type MapSectionProps = {
     mapKey: MapKey;
