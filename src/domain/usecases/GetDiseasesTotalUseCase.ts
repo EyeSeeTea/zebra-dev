@@ -4,6 +4,7 @@ import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { AnalyticsRepository } from "../repositories/AnalyticsRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { DiseaseTotalAttrs } from "../../data/repositories/AnalyticsD2Repository";
 
 export class GetDiseasesTotalUseCase {
     constructor(
@@ -16,7 +17,7 @@ export class GetDiseasesTotalUseCase {
         }
     ) {}
 
-    public execute(filters?: Record<string, string[]>): FutureData<any> {
+    public execute(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]> {
         return this.options.analytics.getDiseasesTotal(filters);
     }
 }

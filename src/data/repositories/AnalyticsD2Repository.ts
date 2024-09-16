@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Maybe } from "./../../utils/ts-utils";
 import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { AnalyticsRepository } from "../../domain/repositories/AnalyticsRepository";
@@ -38,10 +37,22 @@ export type ProgramIndicatorBaseAttrs = {
     eventDetectionDate: string;
 };
 
+interface DiseaseEntry {
+    disease: string;
+    total: number;
+}
+
+interface HazardEntry {
+    hazard: string;
+    total: number;
+}
+
+export type DiseaseTotalAttrs = DiseaseEntry | HazardEntry;
+
 export class AnalyticsD2Repository implements AnalyticsRepository {
     constructor(private api: D2Api) {}
 
-    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<any> {
+    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]> {
         const transformData = (data: string[][], activeVerified: typeof NB_OF_ACTIVE_VERIFIED) => {
             return data
                 .flatMap(([id, , total]) => {
@@ -97,12 +108,15 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     }
 
                     const existingEntry =
-                        acc[name] || (disease ? { disease, total: 0 } : { hazard, total: 0 });
+                        acc[name] ||
+                        (disease
+                            ? { disease: disease as string, total: 0 }
+                            : { hazard: hazard as string, total: 0 });
+
                     existingEntry.total += total;
-                    // @ts-ignore
                     acc[name] = existingEntry;
                     return acc;
-                }, {} as Record<string, { disease: string; total: number } | { hazard: string; total: number }>)
+                }, {} as Record<string, DiseaseEntry | HazardEntry>)
             );
         });
     }

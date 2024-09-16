@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
+import { DiseaseTotalAttrs } from "../../../data/repositories/AnalyticsD2Repository";
 
 type State = {
     diseasesTotal: any[];
@@ -12,7 +13,7 @@ export type Order = { name: string; direction: "asc" | "desc" };
 export function useDiseasesTotal(filters: Record<string, string[]>): State {
     const { compositionRoot } = useAppContext();
 
-    const [diseasesTotal, setDiseasesTotal] = useState<any[]>([]);
+    const [diseasesTotal, setDiseasesTotal] = useState<DiseaseTotalAttrs[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
