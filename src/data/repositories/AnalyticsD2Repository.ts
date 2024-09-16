@@ -7,6 +7,7 @@ import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
+    INDICATORS_717_PERFORMANCE,
     IndicatorsId,
     NB_OF_ACTIVE_VERIFIED,
     NB_OF_CASES,
@@ -36,6 +37,12 @@ export type ProgramIndicatorBaseAttrs = {
     creationDate: string;
     suspectedDisease: string;
     eventDetectionDate: string;
+};
+export type Indicator717PerformanceBaseAttrs = {
+    id: string;
+    name: string;
+    type: "count" | "percent";
+    value: number;
 };
 
 export class AnalyticsD2Repository implements AnalyticsRepository {
@@ -104,6 +111,65 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     return acc;
                 }, {} as Record<string, { disease: string; total: number } | { hazard: string; total: number }>)
             );
+        });
+    }
+
+    get717Performance(
+        filters?: Record<string, string[]>
+    ): FutureData<Indicator717PerformanceBaseAttrs[]> {
+        const transformData = (
+            data: string[][],
+            indicators717Performance: typeof INDICATORS_717_PERFORMANCE
+        ): Indicator717PerformanceBaseAttrs[] => {
+            return data
+                .flatMap(([id, , value]) => {
+                    const indicator = indicators717Performance.find(d => d.id === id);
+                    if (!indicator || !value) {
+                        return [];
+                    }
+
+                    // Ensure the type is either 'count' or 'percent'
+                    const type: "count" | "percent" =
+                        indicator.type === "count" || indicator.type === "percent"
+                            ? indicator.type
+                            : "count"; // Default to 'count' if type is not valid
+
+                    return [
+                        {
+                            ...indicator,
+                            value: parseFloat(value),
+                            type, // Set the valid type here with narrowed types
+                        },
+                    ];
+                })
+                .filter(item => {
+                    if (!item) {
+                        return false;
+                    }
+                    if (filters) {
+                        return Object.entries(filters).every(([key, values]) => {
+                            if (!values.length) {
+                                return true;
+                            }
+                            if (item[key as keyof typeof item]) {
+                                return values.includes(item[key as keyof typeof item] as string);
+                            }
+                        });
+                    }
+                    return true;
+                });
+        };
+
+        return apiToFuture(
+            this.api.analytics.get({
+                dimension: [
+                    `dx:${INDICATORS_717_PERFORMANCE.map(({ id }) => id).join(";")}`,
+                    "pe:THIS_YEAR",
+                ],
+                includeMetadataDetails: true,
+            })
+        ).map(res => {
+            return transformData(res.rows, INDICATORS_717_PERFORMANCE) || [];
         });
     }
 

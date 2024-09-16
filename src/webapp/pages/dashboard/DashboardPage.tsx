@@ -1,12 +1,11 @@
 import React from "react";
-
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
 import { usePerformanceOverview } from "./usePerformanceOverview";
 import { useDiseasesTotal } from "./useDiseasesTotal";
-import { StatsCard, StatsCardProps } from "../../components/stats-card/StatsCard";
+import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
 import { Id } from "@eyeseetea/d2-api";
@@ -14,6 +13,7 @@ import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useFilters } from "./useFilters";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
+import { PerformanceIndicator717, use717Performance } from "./use717Performance";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const { filters, filterOptions, setFilters } = useFilters();
@@ -28,7 +28,7 @@ export const DashboardPage: React.FC = React.memo(() => {
     } = usePerformanceOverview();
 
     const { diseasesTotal } = useDiseasesTotal(filters);
-
+    const { performanceIndicators } = use717Performance(filters); // Add default value as an empty array
     const { goTo } = useRoutes();
 
     const goToEvent = (id: Maybe<Id>) => {
@@ -36,32 +36,6 @@ export const DashboardPage: React.FC = React.memo(() => {
         goTo(RouteName.EVENT_TRACKER, { id });
     };
 
-    const performances: StatsCardProps[] = [
-        {
-            title: "Detection",
-            stat: "57",
-            pretitle: "4 events",
-            color: "green",
-        },
-        {
-            title: "Notification",
-            stat: "43",
-            pretitle: "3 events",
-            color: "red",
-        },
-        {
-            title: "Response",
-            stat: "57",
-            pretitle: "4 events",
-            color: "green",
-        },
-        {
-            title: "All targets",
-            stat: "14",
-            pretitle: "1 events",
-            color: "grey",
-        },
-    ];
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>
@@ -103,18 +77,22 @@ export const DashboardPage: React.FC = React.memo(() => {
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>
                 <GridWrapper>
-                    {performances &&
-                        performances.map((per, index) => (
+                    {performanceIndicators.map(
+                        (
+                            per: PerformanceIndicator717["performanceIndicators"][0],
+                            index: number
+                        ) => (
                             <StatsCard
                                 key={index}
-                                stat={per.stat}
+                                stat={`${per.percent}`}
                                 title={per.title}
-                                pretitle={per.pretitle}
+                                pretitle={`${per.count} ${i18n.t("events")}`}
                                 color={per.color}
                                 fillParent
                                 isPercentage
                             />
-                        ))}
+                        )
+                    )}
                 </GridWrapper>
             </Section>
             <Section title={i18n.t("Performance overview")}>

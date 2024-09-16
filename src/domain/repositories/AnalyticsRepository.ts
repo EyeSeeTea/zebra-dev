@@ -1,5 +1,8 @@
 import { FutureData } from "../../data/api-futures";
-import { ProgramIndicatorBaseAttrs } from "../../data/repositories/AnalyticsD2Repository";
+import {
+    Indicator717PerformanceBaseAttrs,
+    ProgramIndicatorBaseAttrs,
+} from "../../data/repositories/AnalyticsD2Repository";
 import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export interface AnalyticsRepository {
@@ -7,4 +10,7 @@ export interface AnalyticsRepository {
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<ProgramIndicatorBaseAttrs[]>;
     getDiseasesTotal(filters?: Record<string, string[]>): FutureData<any>;
+    get717Performance(
+        filters?: Record<string, string[]>
+    ): FutureData<Indicator717PerformanceBaseAttrs[]>;
 }

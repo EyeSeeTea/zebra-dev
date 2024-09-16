@@ -28,6 +28,7 @@ import { GetDiseasesTotalUseCase } from "./domain/usecases/GetDiseasesTotalUseCa
 import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
+import { Get717PerformanceUseCase } from "./domain/usecases/Get717PerformanceUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -58,6 +59,7 @@ function getCompositionRoot(repositories: Repositories) {
         analytics: {
             getProgramIndicators: new GetAllProgramIndicatorsUseCase(repositories),
             getDiseasesTotal: new GetDiseasesTotalUseCase(repositories),
+            get717Performance: new Get717PerformanceUseCase(repositories),
         },
     };
 }

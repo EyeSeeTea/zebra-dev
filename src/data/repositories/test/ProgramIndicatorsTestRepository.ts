@@ -6,6 +6,9 @@ export class ProgramIndicatorsTestRepository implements AnalyticsRepository {
     getDiseasesTotal(): FutureData<any> {
         return Future.success(0);
     }
+    get717Performance(): FutureData<any> {
+        return Future.success(0);
+    }
     getProgramIndicators(): FutureData<any[]> {
         return Future.success([
             {
