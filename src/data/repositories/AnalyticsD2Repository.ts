@@ -211,7 +211,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             if (!data) return Future.success({ cases: 0, deaths: 0 });
             const casesDeaths = data.alerts.reduce(
                 (acc, alert) => {
-                    acc.cases += parseInt(alert.confirmedCases) || 0;
+                    acc.cases += parseInt(alert.suspectedCases) || 0;
                     acc.deaths += parseInt(alert.deaths) || 0;
                     return acc;
                 },
