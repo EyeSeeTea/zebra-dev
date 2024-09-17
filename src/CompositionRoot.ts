@@ -28,6 +28,7 @@ import { GetDiseasesTotalUseCase } from "./domain/usecases/GetDiseasesTotalUseCa
 import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
+import { DataStoreClient } from "./data/DataStoreClient";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -63,6 +64,7 @@ function getCompositionRoot(repositories: Repositories) {
 }
 
 export function getWebappCompositionRoot(api: D2Api) {
+    const dataStoreClient = new DataStoreClient(api);
     const repositories: Repositories = {
         usersRepository: new UserD2Repository(api),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(api),
@@ -70,7 +72,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
-        analytics: new AnalyticsD2Repository(api),
+        analytics: new AnalyticsD2Repository(api, dataStoreClient),
     };
 
     return getCompositionRoot(repositories);
