@@ -15,7 +15,6 @@ export enum IndicatorsId {
     province = "ouname",
     creationDate = "lastupdated",
     id = "tei",
-    eventDetectionDate = "enrollmentdate",
 }
 
 export const NB_OF_CASES = [

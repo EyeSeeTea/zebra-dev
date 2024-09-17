@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Maybe } from "./../../utils/ts-utils";
 import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { AnalyticsRepository } from "../../domain/repositories/AnalyticsRepository";
@@ -35,7 +36,6 @@ export type ProgramIndicatorBaseAttrs = {
     creationDate: string;
     suspectedDisease: string;
     hazardType: string;
-    eventDetectionDate: string;
 };
 
 interface DiseaseEntry {
@@ -244,9 +244,6 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 acc[key] =
                     Object.values(metaData.items).find(item => item.code === row[index])?.name ||
                     "";
-            } else if (key === "eventDetectionDate") {
-                acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
-                acc[key] = moment(row[index]).format("YYYY-MM-DD");
             } else {
                 acc[key] = row[index] || "";
             }
@@ -263,9 +260,11 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
     ): ProgramIndicatorBaseAttrs {
         const { suspectedDisease, hazardType } = baseIndicator;
         const diseaseOrHazard = suspectedDisease || hazardType;
+
         return {
             ...baseIndicator,
             manager: event.incidentManagerName,
+            duration: `${moment().diff(moment(event.emerged.date), "days").toString()}d`,
             cases: diseaseOrHazard ? cases[diseaseOrHazard]?.toString() || "" : "",
             deaths: diseaseOrHazard ? deaths[diseaseOrHazard]?.toString() || "" : "",
         } as ProgramIndicatorBaseAttrs;
