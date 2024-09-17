@@ -17,6 +17,10 @@ export class GetAllProgramIndicatorsUseCase {
     ) {}
 
     public execute(): FutureData<any> {
-        return this.options.analytics.getProgramIndicators();
+        return this.options.diseaseOutbreakEventRepository
+            .getAll()
+            .flatMap(diseaseOutbreakEvents => {
+                return this.options.analytics.getProgramIndicators(diseaseOutbreakEvents);
+            });
     }
 }

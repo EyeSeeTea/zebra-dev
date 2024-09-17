@@ -1,5 +1,6 @@
 export enum IndicatorsId {
     suspectedDisease = "jLvbkuvPdZ6",
+    hazardType = "Dzrw3Tf0ukB",
     event = "fyrLOW9Iwwv",
     era1 = "Ylmo2fEijff",
     era2 = "w4FOvRAyjEE",

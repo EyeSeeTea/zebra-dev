@@ -1,8 +1,11 @@
 import { FutureData } from "../../data/api-futures";
 import { ProgramIndicatorBaseAttrs } from "../../data/repositories/AnalyticsD2Repository";
+import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export interface AnalyticsRepository {
-    getProgramIndicators(): FutureData<ProgramIndicatorBaseAttrs[]>;
+    getProgramIndicators(
+        diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
+    ): FutureData<ProgramIndicatorBaseAttrs[]>;
     getDiseasesTotal(
         allProvincesIds: string[],
         singleSelectFilters?: Record<string, string>,

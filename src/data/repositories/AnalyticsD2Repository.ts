@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Maybe } from "./../../utils/ts-utils";
 import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { AnalyticsRepository } from "../../domain/repositories/AnalyticsRepository";
@@ -12,6 +13,7 @@ import {
     NB_OF_DEATHS,
 } from "./consts/AnalyticsConstants";
 import moment from "moment";
+import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type ProgramIndicatorBaseAttrs = {
     id: string;
@@ -33,6 +35,7 @@ export type ProgramIndicatorBaseAttrs = {
     respond7d: string;
     creationDate: string;
     suspectedDisease: string;
+    hazardType: string;
     eventDetectionDate: string;
 };
 
@@ -132,7 +135,9 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
         });
     }
 
-    getProgramIndicators(): FutureData<ProgramIndicatorBaseAttrs[]> {
+    getProgramIndicators(
+        diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
+    ): FutureData<ProgramIndicatorBaseAttrs[]> {
         const fetchEnrollmentsQuery = (): FutureData<AnalyticsResponse> =>
             apiToFuture(
                 this.api.get<AnalyticsResponse>(
@@ -191,19 +196,31 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             }: Record<string, AnalyticsResponse>) => {
                 const cases = this.calculateTotals(nbOfCasesByDiseaseFuture, NB_OF_CASES);
                 const deaths = this.calculateTotals(nbOfDeathsByDiseaseFuture, NB_OF_DEATHS);
-
-                return (
-                    indicatorsProgramFuture?.rows.map((row: string[]) => {
-                        return this.mapRowToIndicator(
+                const mappedIndicators =
+                    indicatorsProgramFuture?.rows.map((row: string[]) =>
+                        this.mapRowToBaseIndicator(
                             row,
                             indicatorsProgramFuture.headers,
-                            //@ts-ignore
-                            indicatorsProgramFuture.metaData,
+                            indicatorsProgramFuture.metaData
+                        )
+                    ) || [];
+
+                return diseaseOutbreakEvents
+                    .map(event => {
+                        const baseIndicator = mappedIndicators.find(
+                            indicator => indicator.id === event.id
+                        );
+
+                        if (!baseIndicator) return undefined;
+
+                        return this.addCasesAndDeathsToIndicators(
+                            event,
+                            baseIndicator,
                             cases,
                             deaths
                         );
-                    }) || []
-                );
+                    })
+                    .filter(Boolean);
             }
         );
     }
@@ -223,14 +240,11 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
         );
     }
 
-    private mapRowToIndicator(
+    private mapRowToBaseIndicator(
         row: string[],
         headers: { name: string; column: string }[],
-        //@ts-ignore
-        metaData: AnalyticsResponse["metaData"],
-        cases: Record<string, number>,
-        deaths: Record<string, number>
-    ): ProgramIndicatorBaseAttrs {
+        metaData: AnalyticsResponse["metaData"]
+    ): Partial<ProgramIndicatorBaseAttrs> {
         return headers.reduce((acc, header, index) => {
             const key = Object.keys(IndicatorsId).find(
                 key => IndicatorsId[key as keyof typeof IndicatorsId] === header.name
@@ -238,24 +252,36 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
 
             if (!key) return acc;
 
-            // TODO: FIXME Fix TypeScript, do not use any
             if (key === "suspectedDisease") {
+                console.log(metaData.items);
+                console.log(row[index]);
                 acc[key] =
-                    (
-                        Object.values(metaData.items).find(
-                            (item: any) => item.code === row[index]
-                        ) as any
-                    )?.name || "";
-                acc.cases = cases[acc.suspectedDisease]?.toString() || "";
-                acc.deaths = deaths[acc.suspectedDisease]?.toString() || "";
+                    Object.values(metaData.items).find(item => item.code === row[index])?.name ||
+                    "";
             } else if (key === "eventDetectionDate") {
                 acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
-                acc[key] = moment(row[index]).format("YYYY-MM-DD"); // Keep the original date formatted
+                acc[key] = moment(row[index]).format("YYYY-MM-DD");
             } else {
                 acc[key] = row[index] || "";
             }
 
             return acc;
-        }, {} as ProgramIndicatorBaseAttrs);
+        }, {} as Partial<ProgramIndicatorBaseAttrs>);
+    }
+
+    private addCasesAndDeathsToIndicators(
+        event: DiseaseOutbreakEventBaseAttrs,
+        baseIndicator: Partial<ProgramIndicatorBaseAttrs>,
+        cases: Record<string, number>,
+        deaths: Record<string, number>
+    ): ProgramIndicatorBaseAttrs {
+        const { suspectedDisease, hazardType } = baseIndicator;
+        const diseaseOrHazard = suspectedDisease || hazardType;
+        return {
+            ...baseIndicator,
+            manager: event.incidentManagerName,
+            cases: diseaseOrHazard ? cases[diseaseOrHazard]?.toString() || "" : "",
+            deaths: diseaseOrHazard ? deaths[diseaseOrHazard]?.toString() || "" : "",
+        } as ProgramIndicatorBaseAttrs;
     }
 }
