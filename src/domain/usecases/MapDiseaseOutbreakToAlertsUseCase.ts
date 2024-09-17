@@ -7,6 +7,7 @@ import { Future } from "../entities/generic/Future";
 import { hazardTypeCodeMap } from "../../data/repositories/consts/DiseaseOutbreakConstants";
 import { AlertSyncRepository } from "../repositories/AlertSyncRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
+import { Alert } from "../entities/alert/Alert";
 
 type DiseaseOutbreakEventData = Pick<
     DiseaseOutbreakEventBaseAttrs,
@@ -40,7 +41,7 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                 incidentStatus: incidentStatus,
                 suspectedDiseaseCode: suspectedDiseaseCode,
             })
-            .flatMap(alerts =>
+            .flatMap((alerts: Alert[]) =>
                 Future.joinObj({
                     hazardTypes: this.optionsRepository.getHazardTypesByCode(),
                     suspectedDiseases: this.optionsRepository.getSuspectedDiseases(),

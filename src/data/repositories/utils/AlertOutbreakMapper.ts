@@ -44,8 +44,6 @@ export function mapTrackedEntityAttributesToAlertOptions(
     return diseaseOutbreak;
 }
 
-export function mapAlertOutbreakToTrackedEntity() {}
-
 export function getAlertValueFromMap(
     key: keyof typeof alertOutbreakCodes,
     trackedEntity: D2TrackerTrackedEntity
