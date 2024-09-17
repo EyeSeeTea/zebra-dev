@@ -40,6 +40,7 @@ import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRe
 import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
 import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
 import { GetAllOrgUnits } from "./domain/usecases/GetAllOrgUnits";
+import { DataStoreClient } from "./data/DataStoreClient";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -90,6 +91,7 @@ function getCompositionRoot(repositories: Repositories) {
 }
 
 export function getWebappCompositionRoot(api: D2Api) {
+    const dataStoreClient = new DataStoreClient(api);
     const repositories: Repositories = {
         usersRepository: new UserD2Repository(api),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(api),
@@ -99,7 +101,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
-        analytics: new AnalyticsD2Repository(api),
+        analytics: new AnalyticsD2Repository(api, dataStoreClient),
         mapConfigRepository: new MapConfigD2Repository(api),
     };
 
