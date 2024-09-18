@@ -13,10 +13,8 @@ export enum IndicatorsId {
     notify1d = "HDa3nE7Elxj",
     respond7d = "yxVOW4lj4xP",
     province = "ouname",
-    manager = "createdbydisplayname",
     creationDate = "lastupdated",
     id = "tei",
-    eventDetectionDate = "enrollmentdate",
 }
 
 export const NB_OF_CASES = [
@@ -79,6 +77,23 @@ export const NB_OF_CASES = [
     {
         id: "yD6Rl5hHMg5",
         disease: "Zika fever",
+    },
+    {
+        id: "aYztCKYUy3o",
+        disease: "Animal type",
+    },
+    {
+        id: "iJhV5JhqUh3",
+        disease: "Human type",
+    },
+    {
+        id: "NQCfq7qVNqD",
+        disease: "Human and Animal type",
+    },
+
+    {
+        id: "KTPFFaddRMq",
+        disease: "Environmental type",
     },
 ];
 

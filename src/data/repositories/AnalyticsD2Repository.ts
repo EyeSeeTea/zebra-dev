@@ -36,7 +36,7 @@ export type ProgramIndicatorBaseAttrs = {
     respond7d: string;
     creationDate: string;
     suspectedDisease: string;
-    eventDetectionDate: string;
+    hazardType: string;
 };
 export type Indicator717PerformanceBaseAttrs = {
     id: string;
@@ -45,10 +45,22 @@ export type Indicator717PerformanceBaseAttrs = {
     value: number;
 };
 
+interface DiseaseEntry {
+    disease: string;
+    total: number;
+}
+
+interface HazardEntry {
+    hazard: string;
+    total: number;
+}
+
+export type DiseaseTotalAttrs = DiseaseEntry | HazardEntry;
+
 export class AnalyticsD2Repository implements AnalyticsRepository {
     constructor(private api: D2Api) {}
 
-    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<any> {
+    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]> {
         const transformData = (data: string[][], activeVerified: typeof NB_OF_ACTIVE_VERIFIED) => {
             return data
                 .flatMap(([id, , total]) => {
@@ -104,12 +116,15 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     }
 
                     const existingEntry =
-                        acc[name] || (disease ? { disease, total: 0 } : { hazard, total: 0 });
+                        acc[name] ||
+                        (disease
+                            ? { disease: disease as string, total: 0 }
+                            : { hazard: hazard as string, total: 0 });
+
                     existingEntry.total += total;
-                    // @ts-ignore
                     acc[name] = existingEntry;
                     return acc;
-                }, {} as Record<string, { disease: string; total: number } | { hazard: string; total: number }>)
+                }, {} as Record<string, DiseaseEntry | HazardEntry>)
             );
         });
     }
@@ -184,6 +199,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                         enrollmentDate: "LAST_12_MONTHS,THIS_MONTH",
                         dimension: [
                             IndicatorsId.suspectedDisease,
+                            IndicatorsId.hazardType,
                             IndicatorsId.event,
                             IndicatorsId.era1,
                             IndicatorsId.era2,
@@ -251,7 +267,12 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
 
                         if (!baseIndicator) return undefined;
 
-                        return this.addCasesAndDeathsToIndicators(baseIndicator, cases, deaths);
+                        return this.addCasesAndDeathsToIndicators(
+                            event,
+                            baseIndicator,
+                            cases,
+                            deaths
+                        );
                     })
                     .filter(Boolean);
             }
@@ -289,9 +310,6 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 acc[key] =
                     Object.values(metaData.items).find(item => item.code === row[index])?.name ||
                     "";
-            } else if (key === "eventDetectionDate") {
-                acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
-                acc[key] = moment(row[index]).format("YYYY-MM-DD");
             } else {
                 acc[key] = row[index] || "";
             }
@@ -301,15 +319,20 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
     }
 
     private addCasesAndDeathsToIndicators(
+        event: DiseaseOutbreakEventBaseAttrs,
         baseIndicator: Partial<ProgramIndicatorBaseAttrs>,
         cases: Record<string, number>,
         deaths: Record<string, number>
     ): ProgramIndicatorBaseAttrs {
-        const { suspectedDisease } = baseIndicator;
+        const { suspectedDisease, hazardType } = baseIndicator;
+        const diseaseOrHazard = suspectedDisease || hazardType;
+
         return {
             ...baseIndicator,
-            cases: suspectedDisease ? cases[suspectedDisease]?.toString() || "" : "",
-            deaths: suspectedDisease ? deaths[suspectedDisease]?.toString() || "" : "",
+            manager: event.incidentManagerName,
+            duration: `${moment().diff(moment(event.emerged.date), "days").toString()}d`,
+            cases: diseaseOrHazard ? cases[diseaseOrHazard]?.toString() || "" : "",
+            deaths: diseaseOrHazard ? deaths[diseaseOrHazard]?.toString() || "" : "",
         } as ProgramIndicatorBaseAttrs;
     }
 }
