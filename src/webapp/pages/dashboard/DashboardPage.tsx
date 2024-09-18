@@ -28,7 +28,7 @@ export const DashboardPage: React.FC = React.memo(() => {
     } = usePerformanceOverview();
 
     const { diseasesTotal } = useDiseasesTotal(filters);
-    const { performanceIndicators } = use717Performance(filters); // Add default value as an empty array
+    const { performanceIndicators } = use717Performance(filters);
     const { goTo } = useRoutes();
 
     const goToEvent = (id: Maybe<Id>) => {

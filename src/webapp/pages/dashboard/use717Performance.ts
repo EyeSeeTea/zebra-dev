@@ -26,9 +26,9 @@ export function use717Performance(filters: Record<string, string[]>): Performanc
     const transformData = (performanceIndicators: Indicator717PerformanceBaseAttrs[]) => {
         const performanceIndicatorsByName = _(performanceIndicators).reduce(
             (acc: Record<string, typeof performanceIndicators>, indicator) => {
-                const key = indicator.name; // Grouping by 'name' property
-                const existingGroup = acc[key] || []; // Get the existing group or an empty array if it doesn't exist
-                acc[key] = [...existingGroup, indicator]; // Create a new HashMap with the updated group
+                const key = indicator.name;
+                const existingGroup = acc[key] || [];
+                acc[key] = [...existingGroup, indicator];
                 return acc;
             },
             {} as Record<string, typeof performanceIndicators>
@@ -41,12 +41,12 @@ export function use717Performance(filters: Record<string, string[]>): Performanc
             const count = countObj ? countObj.value : 0;
 
             let color: "green" | "red" | "grey" | "normal" | undefined;
-            if (percent >= 50) {
+            if (key === "allTargets") {
+                color = "grey";
+            } else if (percent >= 50) {
                 color = "green";
             } else if (percent > 0) {
                 color = "red";
-            } else {
-                color = "grey";
             }
 
             const title = key

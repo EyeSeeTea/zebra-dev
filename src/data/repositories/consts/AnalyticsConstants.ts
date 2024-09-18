@@ -234,7 +234,8 @@ export const INDICATORS_717_PERFORMANCE = [
     { id: "FbPj6kekXBj", name: "allTargets", type: "count" },
 ];
 
-const INDICATORS_717 = [
+// TODO To be updated with allTargets and event count
+export const INDICATORS_717_PERFORMANCE_WIP = [
     {
         id: "SnlZWWmSnev",
         name: "% of number of alerts notified to public health authorities within 1 day of detection",
