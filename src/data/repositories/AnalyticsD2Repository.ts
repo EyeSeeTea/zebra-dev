@@ -88,7 +88,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 });
         };
 
-        const fetchCasesAnalytics = (): FutureData<AnalyticsResponse> =>
+        const fetchActiveVerifiedAnalytics = (): FutureData<AnalyticsResponse> =>
             apiToFuture(
                 this.api.analytics.get({
                     dimension: [
@@ -98,7 +98,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     includeMetadataDetails: true,
                 })
             );
-        return fetchCasesAnalytics().map(res => {
+        return fetchActiveVerifiedAnalytics().map(res => {
             const rows = transformData(res.rows, NB_OF_ACTIVE_VERIFIED) || [];
 
             return Object.values(
