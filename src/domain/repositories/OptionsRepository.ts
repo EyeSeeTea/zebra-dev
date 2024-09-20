@@ -8,6 +8,7 @@ export interface OptionsRepository {
     getNotificationSource(optionCode: Code): FutureData<Option>;
     getDataSources(): FutureData<Option[]>;
     getHazardTypes(): FutureData<Option[]>;
+    getHazardTypesByCode(): FutureData<Option[]>;
     getMainSyndromes(): FutureData<Option[]>;
     getSuspectedDiseases(): FutureData<Option[]>;
     getNotificationSources(): FutureData<Option[]>;
