@@ -14,11 +14,32 @@ import {
 } from "./consts/AnalyticsConstants";
 import moment from "moment";
 import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { Id } from "../../domain/entities/Ref";
+import { OrgUnit } from "../../domain/entities/OrgUnit";
+
+type Disease =
+    | "AFP"
+    | "Acute VHF"
+    | "Acute respiratory"
+    | "Anthrax"
+    | "Bacterial meningitis"
+    | "COVID19"
+    | "Cholera"
+    | "Diarrhoea with blood"
+    | "Measles"
+    | "Monkeypox"
+    | "Neonatal tetanus"
+    | "Plague"
+    | "SARIs"
+    | "Typhoid fever"
+    | "Zika fever";
+
+type Hazard = "Animal type" | "Human type" | "Human and Animal type" | "Environmental type";
 
 export type ProgramIndicatorBaseAttrs = {
-    id: string;
+    id: Id;
     event: string;
-    province: string;
+    province: OrgUnit[];
     duration: string;
     manager: string;
     cases: string;
@@ -34,17 +55,17 @@ export type ProgramIndicatorBaseAttrs = {
     notify1d: string;
     respond7d: string;
     creationDate: string;
-    suspectedDisease: string;
-    hazardType: string;
+    suspectedDisease: Disease;
+    hazardType: Hazard;
 };
 
 interface DiseaseEntry {
-    disease: string;
+    disease: Disease;
     total: number;
 }
 
 interface HazardEntry {
-    hazard: string;
+    hazard: Hazard;
     total: number;
 }
 
@@ -111,8 +132,8 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                     const existingEntry =
                         acc[name] ||
                         (disease
-                            ? { disease: disease as string, total: 0 }
-                            : { hazard: hazard as string, total: 0 });
+                            ? { disease: disease as Disease, total: 0 }
+                            : { hazard: hazard as Hazard, total: 0 });
 
                     existingEntry.total += total;
                     acc[name] = existingEntry;
@@ -196,7 +217,8 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 return diseaseOutbreakEvents
                     .map(event => {
                         const baseIndicator = mappedIndicators.find(
-                            indicator => indicator.id === event.id
+                            (indicator: Partial<ProgramIndicatorBaseAttrs>) =>
+                                indicator.id === event.id
                         );
 
                         if (!baseIndicator) return undefined;
@@ -208,7 +230,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                             deaths
                         );
                     })
-                    .filter(Boolean);
+                    .filter((item): item is ProgramIndicatorBaseAttrs => Boolean(item));
             }
         );
     }
@@ -241,15 +263,48 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             if (!key) return acc;
 
             if (key === "suspectedDisease") {
-                acc[key] =
-                    Object.values(metaData.items).find(item => item.code === row[index])?.name ||
-                    "";
+                const foundItem = Object.values<{
+                    code: string;
+                    name:
+                        | ProgramIndicatorBaseAttrs["suspectedDisease"]
+                        | ProgramIndicatorBaseAttrs["hazardType"];
+                }>(metaData.items).find(item => item.code === row[index]);
+
+                if (foundItem && this.isSuspectedDisease(foundItem.name)) {
+                    acc[key] = foundItem.name;
+                }
             } else {
-                acc[key] = row[index] || "";
+                acc[key] = row[index] as (Hazard & OrgUnit[]) | undefined;
             }
 
             return acc;
         }, {} as Partial<ProgramIndicatorBaseAttrs>);
+    }
+
+    private isSuspectedDisease(
+        name:
+            | ProgramIndicatorBaseAttrs["suspectedDisease"]
+            | ProgramIndicatorBaseAttrs["hazardType"]
+    ): name is ProgramIndicatorBaseAttrs["suspectedDisease"] {
+        const suspectedDiseases: ProgramIndicatorBaseAttrs["suspectedDisease"][] = [
+            "AFP",
+            "Acute VHF",
+            "Acute respiratory",
+            "Anthrax",
+            "Bacterial meningitis",
+            "COVID19",
+            "Cholera",
+            "Diarrhoea with blood",
+            "Measles",
+            "Monkeypox",
+            "Neonatal tetanus",
+            "Plague",
+            "SARIs",
+            "Typhoid fever",
+            "Zika fever",
+        ];
+
+        return suspectedDiseases.includes(name as ProgramIndicatorBaseAttrs["suspectedDisease"]);
     }
 
     private addCasesAndDeathsToIndicators(

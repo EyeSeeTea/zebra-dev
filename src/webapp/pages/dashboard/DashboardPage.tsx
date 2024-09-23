@@ -9,7 +9,7 @@ import { useDiseasesTotal } from "./useDiseasesTotal";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
-import { Id } from "@eyeseetea/d2-api";
+import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useFilters } from "./useFilters";
