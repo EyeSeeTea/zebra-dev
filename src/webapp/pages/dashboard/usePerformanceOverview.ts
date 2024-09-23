@@ -47,7 +47,7 @@ export function usePerformanceOverview(): State {
                     .value()
             );
         }
-    }, [order]);
+    }, [order, dataPerformanceOverview]);
 
     useEffect(() => {
         setIsLoading(true);
