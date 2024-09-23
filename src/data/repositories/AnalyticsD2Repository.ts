@@ -114,6 +114,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 this.api.analytics.get({
                     dimension: [
                         `dx:${NB_OF_ACTIVE_VERIFIED.map(({ id }) => id).join(";")}`,
+                        "ou:LEVEL-2",
                         "pe:THIS_YEAR",
                     ],
                     includeMetadataDetails: true,
