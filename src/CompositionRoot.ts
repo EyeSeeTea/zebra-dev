@@ -28,6 +28,9 @@ import { GetDiseasesTotalUseCase } from "./domain/usecases/GetDiseasesTotalUseCa
 import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
+import { AlertSyncDataStoreRepository } from "./data/repositories/AlertSyncDataStoreRepository";
+import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/AlertSyncDataStoreTestRepository";
+import { AlertSyncRepository } from "./domain/repositories/AlertSyncRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -35,6 +38,7 @@ type Repositories = {
     usersRepository: UserRepository;
     diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     alertRepository: AlertRepository;
+    alertSyncRepository: AlertSyncRepository;
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
@@ -52,7 +56,9 @@ function getCompositionRoot(repositories: Repositories) {
             getAll: new GetAllDiseaseOutbreaksUseCase(repositories.diseaseOutbreakEventRepository),
             save: new SaveDiseaseOutbreakUseCase(repositories.diseaseOutbreakEventRepository),
             mapDiseaseOutbreakEventToAlerts: new MapDiseaseOutbreakToAlertsUseCase(
-                repositories.alertRepository
+                repositories.alertRepository,
+                repositories.alertSyncRepository,
+                repositories.optionsRepository
             ),
         },
         analytics: {
@@ -67,6 +73,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         usersRepository: new UserD2Repository(api),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(api),
         alertRepository: new AlertD2Repository(api),
+        alertSyncRepository: new AlertSyncDataStoreRepository(api),
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
@@ -81,6 +88,7 @@ export function getTestCompositionRoot() {
         usersRepository: new UserTestRepository(),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventTestRepository(),
         alertRepository: new AlertTestRepository(),
+        alertSyncRepository: new AlertSyncDataStoreTestRepository(),
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
