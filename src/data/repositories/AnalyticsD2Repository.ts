@@ -56,7 +56,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
     getDiseasesTotal(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]> {
         const transformData = (data: string[][], activeVerified: typeof NB_OF_ACTIVE_VERIFIED) => {
             return data
-                .flatMap(([id, , total]) => {
+                .flatMap(([id, _period, _orgUnit, total]) => {
                     const indicator = activeVerified.find(d => d.id === id);
                     if (!indicator || !total) {
                         return [];
