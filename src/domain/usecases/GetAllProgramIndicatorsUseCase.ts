@@ -4,6 +4,7 @@ import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { AnalyticsRepository } from "../repositories/AnalyticsRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { ProgramIndicatorBaseAttrs } from "../../data/repositories/AnalyticsD2Repository";
 
 export class GetAllProgramIndicatorsUseCase {
     constructor(
@@ -16,7 +17,7 @@ export class GetAllProgramIndicatorsUseCase {
         }
     ) {}
 
-    public execute(): FutureData<any> {
+    public execute(): FutureData<ProgramIndicatorBaseAttrs[]> {
         return this.options.diseaseOutbreakEventRepository
             .getAll()
             .flatMap(diseaseOutbreakEvents => {
