@@ -79,7 +79,7 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    private async getTrackedEntitiesByTEACodeAsync(options: {
+    async getTrackedEntitiesByTEACodeAsync(options: {
         program: Id;
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
