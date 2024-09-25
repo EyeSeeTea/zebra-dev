@@ -4,7 +4,7 @@ import _ from "../../../domain/entities/generic/Collection";
 import { DiseaseTotalAttrs } from "../../../data/repositories/AnalyticsD2Repository";
 
 type State = {
-    diseasesTotal: any[];
+    diseasesTotal: DiseaseTotalAttrs[];
     isLoading: boolean;
 };
 

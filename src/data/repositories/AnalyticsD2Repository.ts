@@ -39,7 +39,7 @@ type Hazard = "Animal type" | "Human type" | "Human and Animal type" | "Environm
 export type ProgramIndicatorBaseAttrs = {
     id: Id;
     event: string;
-    province: OrgUnit[];
+    province: string;
     duration: string;
     manager: string;
     cases: string;

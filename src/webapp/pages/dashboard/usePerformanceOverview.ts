@@ -7,7 +7,7 @@ import { ProgramIndicatorBaseAttrs } from "../../../data/repositories/AnalyticsD
 
 type State = {
     columns: TableColumn[];
-    dataPerformanceOverview: any[];
+    dataPerformanceOverview: ProgramIndicatorBaseAttrs[];
     columnRules: { [key: string]: number };
     editRiskAssessmentColumns: string[];
     filters: FiltersConfig[];

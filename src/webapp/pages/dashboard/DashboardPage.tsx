@@ -67,8 +67,8 @@ export const DashboardPage: React.FC = React.memo(() => {
                         diseasesTotal.map((disease, index) => (
                             <StatsCard
                                 key={index}
-                                stat={disease.total}
-                                title={disease.disease || disease.hazard}
+                                stat={disease.total.toString()}
+                                title={"disease" in disease ? disease.disease : disease.hazard}
                                 fillParent
                             />
                         ))}
