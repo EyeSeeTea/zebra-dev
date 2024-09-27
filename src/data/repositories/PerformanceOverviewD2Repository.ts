@@ -6,16 +6,11 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
-import {
-    IndicatorsId,
-    NB_OF_ACTIVE_VERIFIED,
-    NB_OF_CASES,
-    NB_OF_DEATHS,
-} from "./consts/AnalyticsConstants";
+import { IndicatorsId, NB_OF_ACTIVE_VERIFIED } from "./consts/AnalyticsConstants";
 import moment from "moment";
 import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DataStoreClient } from "../DataStoreClient";
 import { Id } from "../../domain/entities/Ref";
-import { OrgUnit } from "../../domain/entities/OrgUnit";
 
 type Disease =
     | "AFP"
@@ -72,7 +67,7 @@ interface HazardEntry {
 export type DiseaseTotalAttrs = DiseaseEntry | HazardEntry;
 
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
-    constructor(private api: D2Api) {}
+    constructor(private api: D2Api, private datastore: DataStoreClient) {}
 
     getDiseasesTotal(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]> {
         const transformData = (data: string[][], activeVerified: typeof NB_OF_ACTIVE_VERIFIED) => {
@@ -172,83 +167,61 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                 )
             );
 
-        const fetchCasesAnalytics = (): FutureData<AnalyticsResponse> =>
-            apiToFuture(
-                this.api.analytics.get({
-                    dimension: [
-                        `dx:${NB_OF_CASES.map(({ id }) => id).join(";")}`,
-                        "pe:LAST_30_DAYS",
-                    ],
-                    includeMetadataDetails: true,
-                })
-            );
+        return fetchEnrollmentsQuery().flatMap(indicatorsProgramFuture => {
+            const mappedIndicators =
+                indicatorsProgramFuture?.rows.map((row: string[]) =>
+                    this.mapRowToBaseIndicator(
+                        row,
+                        indicatorsProgramFuture.headers,
+                        indicatorsProgramFuture.metaData
+                    )
+                ) || [];
 
-        const fetchDeathsAnalytics = (): FutureData<AnalyticsResponse> =>
-            apiToFuture(
-                this.api.analytics.get({
-                    dimension: [
-                        `dx:${NB_OF_DEATHS.map(({ id }) => id).join(";")}`,
-                        "pe:LAST_30_DAYS",
-                    ],
-                    includeMetadataDetails: true,
-                })
-            );
+            const something = diseaseOutbreakEvents.map(event => {
+                const baseIndicator = mappedIndicators.find(indicator => indicator.id === event.id);
 
-        return Future.joinObj({
-            indicatorsProgramFuture: fetchEnrollmentsQuery(),
-            nbOfCasesByDiseaseFuture: fetchCasesAnalytics(),
-            nbOfDeathsByDiseaseFuture: fetchDeathsAnalytics(),
-        }).map(
-            ({
-                indicatorsProgramFuture,
-                nbOfCasesByDiseaseFuture,
-                nbOfDeathsByDiseaseFuture,
-            }: Record<string, AnalyticsResponse>) => {
-                const cases = this.calculateTotals(nbOfCasesByDiseaseFuture, NB_OF_CASES);
-                const deaths = this.calculateTotals(nbOfDeathsByDiseaseFuture, NB_OF_DEATHS);
-                const mappedIndicators =
-                    indicatorsProgramFuture?.rows.map((row: string[]) =>
-                        this.mapRowToBaseIndicator(
-                            row,
-                            indicatorsProgramFuture.headers,
-                            indicatorsProgramFuture.metaData
-                        )
-                    ) || [];
+                const key = baseIndicator?.suspectedDisease || baseIndicator?.hazardType;
 
-                return diseaseOutbreakEvents
-                    .map(event => {
-                        const baseIndicator = mappedIndicators.find(
-                            (indicator: Partial<PerformanceOverviewMetrics>) =>
-                                indicator.id === event.id
-                        );
+                return this.getCasesAndDeathsFromDatastore(key).map(casesAndDeaths => {
+                    if (!baseIndicator) {
+                        return {
+                            id: event.id,
+                            event: event.name,
+                            manager: event.incidentManagerName,
+                            cases: casesAndDeaths.cases.toString(),
+                            deaths: casesAndDeaths.deaths.toString(),
+                        } as ProgramIndicatorBaseAttrs;
+                    }
+                    return {
+                        ...baseIndicator,
+                        manager: event.incidentManagerName,
+                        cases: casesAndDeaths.cases.toString(),
+                        deaths: casesAndDeaths.deaths.toString(),
+                    } as ProgramIndicatorBaseAttrs;
+                });
+            });
 
-                        if (!baseIndicator) return undefined;
-
-                        return this.addCasesAndDeathsToIndicators(
-                            event,
-                            baseIndicator,
-                            cases,
-                            deaths
-                        );
-                    })
-                    .filter((item): item is PerformanceOverviewMetrics => Boolean(item));
-            }
-        );
+            return Future.sequential(something);
+        });
     }
 
-    private calculateTotals(
-        response: Maybe<AnalyticsResponse>,
-        indicators: typeof NB_OF_CASES | typeof NB_OF_DEATHS
-    ): Record<string, number> {
-        return (
-            response?.rows.reduce((acc: Record<string, number>, [key, , value]: string[]) => {
-                const name = indicators.find(({ id }) => id === key)?.disease;
-                if (name && value) {
-                    acc[name] = (acc[name] || 0) + parseFloat(value);
-                }
-                return acc;
-            }, {}) || {}
-        );
+    private getCasesAndDeathsFromDatastore(
+        key: string | undefined
+    ): FutureData<{ cases: number; deaths: number }> {
+        if (!key) return Future.success({ cases: 0, deaths: 0 });
+        return this.datastore.getObject<AlertSynchronizationData>(key).flatMap(data => {
+            if (!data) return Future.success({ cases: 0, deaths: 0 });
+            const casesDeaths = data.alerts.reduce(
+                (acc, alert) => {
+                    acc.cases += parseInt(alert.suspectedCases) || 0;
+                    acc.deaths += parseInt(alert.deaths) || 0;
+                    return acc;
+                },
+                { cases: 0, deaths: 0 }
+            );
+
+            return Future.success(casesDeaths);
+        });
     }
 
     private mapRowToBaseIndicator(
@@ -264,16 +237,16 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             if (!key) return acc;
 
             if (key === "suspectedDisease") {
-                const foundItem = Object.values<{
-                    code: string;
-                    name:
-                        | PerformanceOverviewMetrics["suspectedDisease"]
-                        | PerformanceOverviewMetrics["hazardType"];
-                }>(metaData.items).find(item => item.code === row[index]);
-
-                if (foundItem && this.isSuspectedDisease(foundItem.name)) {
-                    acc[key] = foundItem.name;
-                }
+                acc[key] =
+                    Object.values(metaData.items).find(item => item.code === row[index])?.name ||
+                    "";
+            } else if (key === "hazardType") {
+                acc[key] =
+                    Object.values(metaData.items).find(item => item.code === row[index])?.name ||
+                    "";
+            } else if (key === "eventDetectionDate") {
+                acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
+                acc[key] = moment(row[index]).format("YYYY-MM-DD");
             } else {
                 acc[key] = row[index] as (Hazard & OrgUnit[]) | undefined;
             }
@@ -306,23 +279,5 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         ];
 
         return suspectedDiseases.includes(name as PerformanceOverviewMetrics["suspectedDisease"]);
-    }
-
-    private addCasesAndDeathsToIndicators(
-        event: DiseaseOutbreakEventBaseAttrs,
-        baseIndicator: Partial<PerformanceOverviewMetrics>,
-        cases: Record<string, number>,
-        deaths: Record<string, number>
-    ): PerformanceOverviewMetrics {
-        const { suspectedDisease, hazardType } = baseIndicator;
-        const diseaseOrHazard = suspectedDisease || hazardType;
-
-        return {
-            ...baseIndicator,
-            manager: event.incidentManagerName,
-            duration: `${moment().diff(moment(event.emerged.date), "days").toString()}d`,
-            cases: diseaseOrHazard ? cases[diseaseOrHazard]?.toString() || "" : "",
-            deaths: diseaseOrHazard ? deaths[diseaseOrHazard]?.toString() || "" : "",
-        } as PerformanceOverviewMetrics;
     }
 }
