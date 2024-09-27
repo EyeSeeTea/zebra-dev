@@ -1,5 +1,6 @@
 import { FutureData } from "../../data/api-futures";
 import {
+    RiskAssessmentQuestionnaireBaseDataValues,
     RiskAssessmentQuestionnaireDataValues,
     RiskAssessmentSummaryDataValues,
 } from "../../data/repositories/RiskAssessmentD2Repository";

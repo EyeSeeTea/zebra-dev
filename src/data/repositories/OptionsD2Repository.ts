@@ -23,6 +23,7 @@ import {
     MediumWeightedOption,
     RiskAssessmentGrading,
 } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
+import { Future } from "../../domain/entities/generic/Future";
 
 const MAIN_SYNDROME_OPTION_SET_CODE = "AGENTS";
 const SUSPECTED_DISEASE_OPTION_SET_CODE = "RTSL_ZEB_OS_DISEASE";
@@ -30,6 +31,9 @@ const NOTIFICATION_SOURCE_OPTION_SET_CODE = "RTSL_ZEB_OS_SOURCE";
 
 export class OptionsD2Repository implements OptionsRepository {
     constructor(private api: D2Api) {}
+    private likelihoodOptions: Map<string, Option> = new Map();
+    private consequencesOptions: Map<string, Option> = new Map();
+    private lowMediumHighOptions: Map<string, Option> = new Map();
 
     getMainSyndrome(optionCode: Code): FutureData<Option> {
         return this.get(optionCode, MAIN_SYNDROME_OPTION_SET_CODE);
@@ -167,6 +171,10 @@ export class OptionsD2Repository implements OptionsRepository {
         return this.getOptionSetByCode("RTSL_ZEB_OS_LMH");
     }
     getLowMediumHighOption(optionCode: Code): FutureData<Option> {
+        if (this.lowMediumHighOptions.has(optionCode)) {
+            const cachedOption = this.lowMediumHighOptions.get(optionCode);
+            if (cachedOption) return Future.success(cachedOption);
+        }
         return this.get(optionCode, "RTSL_ZEB_OS_LMH");
     }
 
@@ -174,6 +182,10 @@ export class OptionsD2Repository implements OptionsRepository {
         return this.getOptionSetByCode("RTSL_ZEB_OS_LIKELIHOOD");
     }
     getLikelihoodOption(optionCode: Code): FutureData<Option> {
+        if (this.likelihoodOptions.has(optionCode)) {
+            const cachedOption = this.likelihoodOptions.get(optionCode);
+            if (cachedOption) return Future.success(cachedOption);
+        }
         return this.get(optionCode, "RTSL_ZEB_OS_LIKELIHOOD");
     }
 
@@ -181,6 +193,10 @@ export class OptionsD2Repository implements OptionsRepository {
         return this.getOptionSetByCode("RTSL_ZEB_OS_CONSEQUENCES");
     }
     getConsequencesOption(optionCode: Code): FutureData<Option> {
+        if (this.consequencesOptions.has(optionCode)) {
+            const cachedOption = this.consequencesOptions.get(optionCode);
+            if (cachedOption) return Future.success(cachedOption);
+        }
         return this.get(optionCode, "RTSL_ZEB_OS_CONSEQUENCES");
     }
 

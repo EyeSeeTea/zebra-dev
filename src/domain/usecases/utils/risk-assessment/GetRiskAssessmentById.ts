@@ -5,7 +5,10 @@ import _c from "../../../entities/generic/Collection";
 import { Future } from "../../../entities/generic/Future";
 import { Id } from "../../../entities/Ref";
 import { RiskAssessment } from "../../../entities/risk-assessment/RiskAssessment";
-import { RiskAssessmentQuestionnaire } from "../../../entities/risk-assessment/RiskAssessmentQuestionnaire";
+import {
+    RiskAssessmentQuestion,
+    RiskAssessmentQuestionnaire,
+} from "../../../entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { RiskAssessmentSummary } from "../../../entities/risk-assessment/RiskAssessmentSummary";
 import { OptionsRepository } from "../../../repositories/OptionsRepository";
 import { RiskAssessmentRepository } from "../../../repositories/RiskAssessmentRepository";
@@ -48,14 +51,6 @@ export function getAll(
                                     overallConfidenceRegional,
                                 } = summaryResponse;
 
-                                // if (!summaryDataValues) {
-                                //     const riskAssessment: RiskAssessment = new RiskAssessment({
-                                //         grading: gradings,
-                                //         summary: undefined,
-                                //     });
-                                //     return Future.success(riskAssessment);
-                                // }
-
                                 const summary = new RiskAssessmentSummary({
                                     id: summaryDataValues?.id ?? "",
                                     riskAssessmentDate: summaryDataValues?.riskAssessmentDate
@@ -82,49 +77,49 @@ export function getAll(
                                 });
 
                                 return Future.joinObj({
-                                    likelihood1: questionnaireDataValues?.likelihood1
+                                    likelihood1: questionnaireDataValues?.stdSummary?.likelihood1
                                         ? optionsRepository.getLikelihoodOption(
-                                              questionnaireDataValues.likelihood1
+                                              questionnaireDataValues.stdSummary?.likelihood1
                                           )
                                         : Future.success({ id: "", name: "" }),
-                                    likelihood2: questionnaireDataValues?.likelihood2
+                                    likelihood2: questionnaireDataValues?.stdSummary?.likelihood2
                                         ? optionsRepository.getLikelihoodOption(
-                                              questionnaireDataValues.likelihood2
+                                              questionnaireDataValues.stdSummary?.likelihood2
                                           )
                                         : Future.success({ id: "", name: "" }),
-                                    likelihood3: questionnaireDataValues?.likelihood3
+                                    likelihood3: questionnaireDataValues?.stdSummary?.likelihood3
                                         ? optionsRepository.getLikelihoodOption(
-                                              questionnaireDataValues.likelihood3
+                                              questionnaireDataValues.stdSummary?.likelihood3
                                           )
                                         : Future.success({ id: "", name: "" }),
-                                    consequence1: questionnaireDataValues?.consequence1
+                                    consequence1: questionnaireDataValues?.stdSummary?.consequence1
                                         ? optionsRepository.getConsequencesOption(
-                                              questionnaireDataValues.consequence1
+                                              questionnaireDataValues.stdSummary?.consequence1
                                           )
                                         : Future.success({ id: "", name: "" }),
-                                    consequence2: questionnaireDataValues?.consequence2
+                                    consequence2: questionnaireDataValues?.stdSummary?.consequence2
                                         ? optionsRepository.getConsequencesOption(
-                                              questionnaireDataValues.consequence2
+                                              questionnaireDataValues.stdSummary?.consequence2
                                           )
                                         : Future.success({ id: "", name: "" }),
-                                    consequence3: questionnaireDataValues?.consequence3
+                                    consequence3: questionnaireDataValues?.stdSummary?.consequence3
                                         ? optionsRepository.getConsequencesOption(
-                                              questionnaireDataValues.consequence3
+                                              questionnaireDataValues.stdSummary?.consequence3
                                           )
                                         : Future.success({ id: "", name: "" }),
-                                    risk1: questionnaireDataValues?.risk1
+                                    risk1: questionnaireDataValues?.stdSummary?.risk1
                                         ? optionsRepository.getLowMediumHighOption(
-                                              questionnaireDataValues.risk1
+                                              questionnaireDataValues.stdSummary?.risk1
                                           )
                                         : Future.success({ id: "", name: "" }),
-                                    risk2: questionnaireDataValues?.risk2
+                                    risk2: questionnaireDataValues?.stdSummary?.risk2
                                         ? optionsRepository.getLowMediumHighOption(
-                                              questionnaireDataValues.risk2
+                                              questionnaireDataValues.stdSummary?.risk2
                                           )
                                         : Future.success({ id: "", name: "" }),
-                                    risk3: questionnaireDataValues?.risk3
+                                    risk3: questionnaireDataValues?.stdSummary?.risk3
                                         ? optionsRepository.getLowMediumHighOption(
-                                              questionnaireDataValues.risk3
+                                              questionnaireDataValues.stdSummary?.risk3
                                           )
                                         : Future.success({ id: "", name: "" }),
                                 }).flatMap(questionnaireResponse => {
@@ -140,37 +135,90 @@ export function getAll(
                                         risk3,
                                     } = questionnaireResponse;
 
-                                    const questionnaire = new RiskAssessmentQuestionnaire({
-                                        id: questionnaireDataValues?.id ?? "",
-                                        potentialRiskForHumanHealth: {
-                                            likelihood: likelihood1,
-                                            consequences: consequence1,
-                                            risk: risk1,
-                                            rational: questionnaireDataValues?.rationale1 ?? "",
-                                        },
-                                        riskOfEventSpreading: {
-                                            likelihood: likelihood2,
-                                            consequences: consequence2,
-                                            risk: risk2,
-                                            rational: questionnaireDataValues?.rationale2 ?? "",
-                                        },
-                                        riskOfInsufficientCapacities: {
-                                            likelihood: likelihood3,
-                                            consequences: consequence3,
-                                            risk: risk3,
-                                            rational: questionnaireDataValues?.rationale3 ?? "",
-                                        },
-                                        addtionalQuestions: [],
-                                    });
+                                    const additionalQuestions =
+                                        questionnaireDataValues?.customSummary.map(
+                                            customQuestionDataValues => {
+                                                const likelihood =
+                                                    customQuestionDataValues.likelihood
+                                                        ? optionsRepository.getLikelihoodOption(
+                                                              customQuestionDataValues.likelihood
+                                                          )
+                                                        : Future.success({ id: "", name: "" });
+                                                const consequence =
+                                                    customQuestionDataValues.consequence
+                                                        ? optionsRepository.getConsequencesOption(
+                                                              customQuestionDataValues.consequence
+                                                          )
+                                                        : Future.success({ id: "", name: "" });
+                                                const risk = customQuestionDataValues.risk
+                                                    ? optionsRepository.getLowMediumHighOption(
+                                                          customQuestionDataValues.risk
+                                                      )
+                                                    : Future.success({ id: "", name: "" });
 
-                                    const riskAssessment: RiskAssessment = new RiskAssessment({
-                                        grading: gradings,
-                                        summary: summaryDataValues ? summary : undefined,
-                                        questionnaire: questionnaireDataValues
-                                            ? questionnaire
-                                            : undefined,
+                                                return Future.joinObj({
+                                                    likelihood,
+                                                    consequence,
+                                                    risk,
+                                                }).flatMap(customQuestionResponse => {
+                                                    const customQuestion: RiskAssessmentQuestion = {
+                                                        question: customQuestionDataValues.question,
+                                                        likelihood:
+                                                            customQuestionResponse.likelihood,
+                                                        consequences:
+                                                            customQuestionResponse.consequence,
+                                                        risk: customQuestionResponse.risk,
+                                                        rational:
+                                                            customQuestionDataValues.rationale,
+                                                    };
+                                                    return Future.success(customQuestion);
+                                                });
+                                            }
+                                        );
+
+                                    const customQuestions = additionalQuestions
+                                        ? Future.sequential(additionalQuestions)
+                                        : Future.success([]);
+
+                                    return customQuestions.flatMap(customQuestions => {
+                                        const questionnaire = new RiskAssessmentQuestionnaire({
+                                            id: questionnaireDataValues?.stdSummary?.id ?? "",
+                                            potentialRiskForHumanHealth: {
+                                                likelihood: likelihood1,
+                                                consequences: consequence1,
+                                                risk: risk1,
+                                                rational:
+                                                    questionnaireDataValues?.stdSummary
+                                                        ?.rationale1 ?? "",
+                                            },
+                                            riskOfEventSpreading: {
+                                                likelihood: likelihood2,
+                                                consequences: consequence2,
+                                                risk: risk2,
+                                                rational:
+                                                    questionnaireDataValues?.stdSummary
+                                                        ?.rationale2 ?? "",
+                                            },
+                                            riskOfInsufficientCapacities: {
+                                                likelihood: likelihood3,
+                                                consequences: consequence3,
+                                                risk: risk3,
+                                                rational:
+                                                    questionnaireDataValues?.stdSummary
+                                                        ?.rationale3 ?? "",
+                                            },
+                                            additionalQuestions: customQuestions,
+                                        });
+
+                                        const riskAssessment: RiskAssessment = new RiskAssessment({
+                                            grading: gradings,
+                                            summary: summaryDataValues ? summary : undefined,
+                                            questionnaire: questionnaireDataValues
+                                                ? questionnaire
+                                                : undefined,
+                                        });
+                                        return Future.success(riskAssessment);
                                     });
-                                    return Future.success(riskAssessment);
                                 });
                             });
                     });

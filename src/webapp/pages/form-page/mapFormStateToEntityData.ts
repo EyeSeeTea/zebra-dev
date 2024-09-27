@@ -435,7 +435,7 @@ function mapFormStateToRiskAssessmentQuestionnaire(
             potentialRiskForHumanHealth: questions[0],
             riskOfEventSpreading: questions[1],
             riskOfInsufficientCapacities: questions[2],
-            addtionalQuestions: [],
+            additionalQuestions: [],
         });
     return riskAssessmentQuestionnaire;
 }

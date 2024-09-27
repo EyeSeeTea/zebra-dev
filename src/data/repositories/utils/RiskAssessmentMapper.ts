@@ -3,7 +3,7 @@ import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/
 import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
 import { D2TrackerEvent, DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
 import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "../consts/DiseaseOutbreakConstants";
-import { Id } from "../../../domain/entities/Ref";
+import { Code, Id } from "../../../domain/entities/Ref";
 import {
     getValueFromRiskAssessmentGrading,
     getValueFromRiskAssessmentQuestionnaire,
@@ -19,9 +19,10 @@ import {
     RiskAssessmentSummaryKeyCode,
 } from "../consts/RiskAssessmentConstants";
 import {
+    riskAssessmentCustomQuestionnaireIds,
     riskAssessmentGradingIds,
-    RiskAssessmentQuestionnaireDataValues,
-    riskAssessmentQuestionnaireIds,
+    RiskAssessmentQuestionnaireBaseDataValues,
+    riskAssessmentStdQuestionnaireIds,
     RiskAssessmentSummaryDataValues,
     riskAssessmentSummaryIds,
 } from "../RiskAssessmentD2Repository";
@@ -317,27 +318,54 @@ export function mapDataElementsToRiskAssessmentSummary(
     return summary;
 }
 
-export function mapDataElementsToRiskAssessmentQuestionnaire(
+export function mapDataElementsToStdRiskAssessmentQuestionnaire(
     id: Id,
     dataValues: DataValue[]
-): RiskAssessmentQuestionnaireDataValues {
-    const summary: RiskAssessmentQuestionnaireDataValues = {
+): RiskAssessmentQuestionnaireBaseDataValues {
+    const summary: RiskAssessmentQuestionnaireBaseDataValues = {
         id: id,
-        rationale1: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational1) ?? "",
-        rationale2: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational2) ?? "",
-        rationale3: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational3) ?? "",
-        likelihood1: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood1) ?? "",
-        likelihood2: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood2) ?? "",
-        likelihood3: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood3) ?? "",
-        consequence1: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences1) ?? "",
-        consequence2: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences2) ?? "",
-        consequence3: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences3) ?? "",
-        risk1: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk1) ?? "",
-        risk2: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk2) ?? "",
-        risk3: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk3) ?? "",
+        rationale1: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.rational1) ?? "",
+        rationale2: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.rational2) ?? "",
+        rationale3: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.rational3) ?? "",
+        likelihood1: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.likelihood1) ?? "",
+        likelihood2: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.likelihood2) ?? "",
+        likelihood3: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.likelihood3) ?? "",
+        consequence1:
+            getValueById(dataValues, riskAssessmentStdQuestionnaireIds.consequences1) ?? "",
+        consequence2:
+            getValueById(dataValues, riskAssessmentStdQuestionnaireIds.consequences2) ?? "",
+        consequence3:
+            getValueById(dataValues, riskAssessmentStdQuestionnaireIds.consequences3) ?? "",
+        risk1: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.risk1) ?? "",
+        risk2: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.risk2) ?? "",
+        risk3: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.risk3) ?? "",
     };
 
     return summary;
+}
+
+export function mapDataElementsToCustomRiskAssessmentQuestionnaire(
+    id: Id,
+    dataValues: DataValue[]
+): {
+    id: Id;
+    question: string;
+    likelihood: Code;
+    consequence: Code;
+    risk: Code;
+    rationale: Code;
+} {
+    const customQuestion = {
+        id: id,
+        question: getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.question) ?? "",
+        rationale: getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.rational) ?? "",
+        likelihood: getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.likelihood) ?? "",
+        consequence:
+            getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.consequences) ?? "",
+        risk: getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.risk) ?? "",
+    };
+
+    return customQuestion;
 }
 
 function getValueById(dataValues: DataValue[], dataElement: string): Maybe<string> {

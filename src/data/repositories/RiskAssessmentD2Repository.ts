@@ -10,15 +10,17 @@ import {
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_RISK_ASSESSMENT_GRADING_PROGRAM_STAGE_ID,
+    RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_CUSTOM_PROGRAM_STAGE_ID,
     RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
     RTSL_ZEBRA_RISK_ASSESSMENT_SUMMARY_PROGRAM_STAGE_ID,
 } from "./consts/DiseaseOutbreakConstants";
 import { getProgramStage } from "./utils/MetadataHelper";
 import {
     mapDataElementsToRiskAssessmentGrading,
-    mapDataElementsToRiskAssessmentQuestionnaire,
+    mapDataElementsToStdRiskAssessmentQuestionnaire,
     mapDataElementsToRiskAssessmentSummary,
     mapRiskAssessmentToDataElements,
+    mapDataElementsToCustomRiskAssessmentQuestionnaire,
 } from "./utils/RiskAssessmentMapper";
 import {
     RiskAssessmentGradingFormData,
@@ -61,7 +63,7 @@ export const riskAssessmentSummaryIds = {
     overallConfidenceGlobal: "ms1psJdoFD3",
 } as const;
 
-export const riskAssessmentQuestionnaireIds = {
+export const riskAssessmentStdQuestionnaireIds = {
     question: "NMU8ZbBPPRS",
     likelihood1: "rEtL93VEx8t",
     consequences1: "MC4qXnd8bF6",
@@ -78,6 +80,15 @@ export const riskAssessmentQuestionnaireIds = {
     riskId: "gpf85UvsOf9",
     riskId2: "vt0XBS2egab",
     riskId3: "i4eXktJiTs5",
+} as const;
+
+export const riskAssessmentCustomQuestionnaireIds = {
+    id: "AgUlw358eBZ",
+    question: "NMU8ZbBPPRS",
+    likelihood: "z7viVU7U07z",
+    consequences: "xJbWWMR6GYq",
+    risk: "UHBneaaWTA7",
+    rational: "sNPFIGXZQve",
 } as const;
 
 export type RiskAssessmentSummaryDataValues = {
@@ -101,7 +112,7 @@ export type RiskAssessmentSummaryDataValues = {
     overallConfidenceGlobal: Code;
 };
 
-export type RiskAssessmentQuestionnaireDataValues = {
+export type RiskAssessmentQuestionnaireBaseDataValues = {
     id: Id;
     rationale1: Code;
     rationale2: Code;
@@ -115,6 +126,18 @@ export type RiskAssessmentQuestionnaireDataValues = {
     consequence1: Code;
     consequence2: Code;
     consequence3: Code;
+};
+
+export type RiskAssessmentQuestionnaireDataValues = {
+    stdSummary: RiskAssessmentQuestionnaireBaseDataValues | undefined;
+    customSummary: {
+        id: Id;
+        question: string;
+        likelihood: Code;
+        consequence: Code;
+        risk: Code;
+        rationale: Code;
+    }[];
 };
 
 export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
@@ -174,31 +197,60 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
 
     getRiskAssessmentQuestionnaire(
         diseaseOutbreakId: Id
-    ): FutureData<Maybe<RiskAssessmentQuestionnaireDataValues>> {
-        return apiToFuture(
-            this.api.tracker.events.get({
-                program: RTSL_ZEBRA_PROGRAM_ID,
-                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                trackedEntity: diseaseOutbreakId,
-                programStage: RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
-                fields: {
-                    event: true,
-                    dataValues: {
-                        dataElement: { id: true, code: true },
-                        value: true,
+    ): FutureData<RiskAssessmentQuestionnaireDataValues> {
+        return Future.joinObj({
+            standardQuestions: apiToFuture(
+                this.api.tracker.events.get({
+                    program: RTSL_ZEBRA_PROGRAM_ID,
+                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                    trackedEntity: diseaseOutbreakId,
+                    programStage: RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
+                    fields: {
+                        event: true,
+                        dataValues: {
+                            dataElement: { id: true, code: true },
+                            value: true,
+                        },
+                        trackedEntity: true,
                     },
-                    trackedEntity: true,
-                },
-            })
-        ).map(events => {
-            if (!events.instances[0]?.event) return undefined;
+                })
+            ),
+            customQuestions: apiToFuture(
+                this.api.tracker.events.get({
+                    program: RTSL_ZEBRA_PROGRAM_ID,
+                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                    trackedEntity: diseaseOutbreakId,
+                    programStage: RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_CUSTOM_PROGRAM_STAGE_ID,
+                    fields: {
+                        event: true,
+                        dataValues: {
+                            dataElement: { id: true, code: true },
+                            value: true,
+                        },
+                        trackedEntity: true,
+                    },
+                })
+            ),
+        }).flatMap(({ standardQuestions, customQuestions }) => {
+            const stdQuestionnaire = standardQuestions.instances[0]
+                ? mapDataElementsToStdRiskAssessmentQuestionnaire(
+                      standardQuestions.instances[0].event,
+                      standardQuestions.instances[0].dataValues
+                  )
+                : undefined;
 
-            const summary: RiskAssessmentQuestionnaireDataValues =
-                mapDataElementsToRiskAssessmentQuestionnaire(
-                    events.instances[0].event,
-                    events.instances[0].dataValues
+            const customQuestionnaire = customQuestions.instances.map(event => {
+                return mapDataElementsToCustomRiskAssessmentQuestionnaire(
+                    event.event,
+                    event.dataValues
                 );
-            return summary;
+            });
+
+            const questionnaire: RiskAssessmentQuestionnaireDataValues = {
+                stdSummary: stdQuestionnaire,
+                customSummary: customQuestionnaire,
+            };
+            return Future.success(questionnaire);
         });
     }
 

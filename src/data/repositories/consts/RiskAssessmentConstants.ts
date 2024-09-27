@@ -86,6 +86,9 @@ export const riskAssessmentQuestionnaireCodes = {
     riskId2: "RTSL_ZEB_DET_RISK_ID_RAQ2",
     riskId3: "RTSL_ZEB_DET_RISK_ID_RAQ3",
 } as const;
+
+
+
 export type RiskAssessmentQuestionnaireCodes = GetValue<typeof riskAssessmentQuestionnaireCodes>;
 
 export function isStringInRiskAssessmentGradingOptionCodes(

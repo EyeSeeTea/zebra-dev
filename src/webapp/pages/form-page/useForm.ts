@@ -12,6 +12,7 @@ import { FormType } from "./FormPage";
 import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
 import { mapEntityToFormState } from "./mapEntityToFormState";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
+import { getRiskAssessmentCustomQuestionSection } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
 
 export type GlobalMessage = {
     text: string;
@@ -80,6 +81,55 @@ export function useForm(formType: FormType, id?: Id): State {
             }
         );
     }, [compositionRoot.getWithOptions, currentEventTracker, formType, id]);
+
+    const handleAddNew = useCallback(() => {
+        if (formState.kind !== "loaded" || !configurableForm) return;
+        switch (configurableForm.type) {
+            case "risk-assessment-questionnaire": {
+                setFormState(prevState => {
+                    if (prevState.kind === "loaded") {
+                        const customQuestionSections = prevState.data.sections.filter(section =>
+                            section.id.startsWith("additionalQuestions")
+                        );
+
+                        const newCustomQuestionSection = getRiskAssessmentCustomQuestionSection(
+                            "Custom Question",
+                            customQuestionSections.length,
+                            {
+                                riskAssessmentQuestionnaire: undefined,
+                                likelihoodOptions:
+                                    customQuestionSections[0]?.fields[0]?.type === "select"
+                                        ? customQuestionSections[0].fields[0].options
+                                        : [],
+                                consequencesOptions:
+                                    customQuestionSections[0]?.fields[1]?.type === "select"
+                                        ? customQuestionSections[0].fields[1].options
+                                        : [],
+                                riskOptions:
+                                    customQuestionSections[0]?.fields[2]?.type === "select"
+                                        ? customQuestionSections[0].fields[2].options
+                                        : [],
+                            }
+                        );
+                        const updatedData = {
+                            ...prevState.data,
+                            sections: [...prevState.data.sections, newCustomQuestionSection],
+                        };
+
+                        return {
+                            kind: "loaded",
+                            data: updatedData,
+                        };
+                    } else {
+                        return prevState;
+                    }
+                });
+                break;
+            }
+            default:
+                break;
+        }
+    }, [configurableForm, formState.kind]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {

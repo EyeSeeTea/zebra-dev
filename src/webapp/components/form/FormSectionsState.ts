@@ -8,6 +8,7 @@ import {
     updateFields,
     validateField,
     hideFieldsAndSetToEmpty,
+    AddNewFieldState,
 } from "./FormFieldsState";
 import { FormState } from "./FormState";
 
@@ -22,6 +23,9 @@ export type FormSectionState = {
     onClickInfo?: (id: string) => void;
 };
 
+export type FormAddNewOptionSectionState = FormSectionState & {
+    addNewField: AddNewFieldState;
+};
 // HELPERS:
 
 function hasSectionAFieldWithNotApplicable(sectionsState: FormSectionState) {
