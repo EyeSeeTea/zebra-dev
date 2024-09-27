@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Maybe } from "../../utils/ts-utils";
 import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { PerformanceOverviewRepository } from "../../domain/repositories/PerformanceOverviewRepository";
@@ -6,74 +5,27 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
-import { IndicatorsId, NB_OF_ACTIVE_VERIFIED } from "./consts/AnalyticsConstants";
+import { EvenTrackerCountsIndicatorMap, IndicatorsId } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
 import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DataStoreClient } from "../DataStoreClient";
-import { Id } from "../../domain/entities/Ref";
-
-type Disease =
-    | "AFP"
-    | "Acute VHF"
-    | "Acute respiratory"
-    | "Anthrax"
-    | "Bacterial meningitis"
-    | "COVID19"
-    | "Cholera"
-    | "Diarrhoea with blood"
-    | "Measles"
-    | "Monkeypox"
-    | "Neonatal tetanus"
-    | "Plague"
-    | "SARIs"
-    | "Typhoid fever"
-    | "Zika fever";
-
-type Hazard = "Animal type" | "Human type" | "Human and Animal type" | "Environmental type";
-
-export type PerformanceOverviewMetrics = {
-    id: Id;
-    event: string;
-    province: string;
-    duration: string;
-    manager: string;
-    cases: string;
-    deaths: string;
-    era1: string;
-    era2: string;
-    era3: string;
-    era4: string;
-    era5: string;
-    era6: string;
-    era7: string;
-    detect7d: string;
-    notify1d: string;
-    respond7d: string;
-    creationDate: string;
-    suspectedDisease: Disease;
-    hazardType: Hazard;
-};
-
-interface DiseaseEntry {
-    disease: Disease;
-    total: number;
-}
-
-interface HazardEntry {
-    hazard: Hazard;
-    total: number;
-}
-
-export type DiseaseTotalAttrs = DiseaseEntry | HazardEntry;
+import {
+    DiseaseNames,
+    EventTrackerCounts,
+    HazardNames,
+    PerformanceOverviewMetrics,
+} from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
+import { OrgUnit } from "../../domain/entities/OrgUnit";
 
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
     constructor(private api: D2Api, private datastore: DataStoreClient) {}
 
-    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]> {
-        const transformData = (data: string[][], activeVerified: typeof NB_OF_ACTIVE_VERIFIED) => {
+    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<EventTrackerCounts[]> {
+        const transformData = (data: string[][]) => {
             return data
                 .flatMap(([id, _period, _orgUnit, total]) => {
-                    const indicator = activeVerified.find(d => d.id === id);
+                    const indicator = EvenTrackerCountsIndicatorMap.find(d => d.id === id);
                     if (!indicator || !total) {
                         return [];
                     }
@@ -108,7 +60,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             apiToFuture(
                 this.api.analytics.get({
                     dimension: [
-                        `dx:${NB_OF_ACTIVE_VERIFIED.map(({ id }) => id).join(";")}`,
+                        `dx:${EvenTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
                         "ou:LEVEL-2",
                         "pe:THIS_YEAR",
                     ],
@@ -116,7 +68,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                 })
             );
         return fetchActiveVerifiedAnalytics().map(res => {
-            const rows = transformData(res.rows, NB_OF_ACTIVE_VERIFIED) || [];
+            const rows = transformData(res.rows) || [];
 
             return Object.values(
                 rows.reduce((acc, { disease, hazard, total }) => {
@@ -128,13 +80,13 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     const existingEntry =
                         acc[name] ||
                         (disease
-                            ? { disease: disease as Disease, total: 0 }
-                            : { hazard: hazard as Hazard, total: 0 });
+                            ? { name: disease as DiseaseNames, type: "disease", total: 0 }
+                            : { name: hazard as HazardNames, type: "hazard", total: 0 });
 
                     existingEntry.total += total;
                     acc[name] = existingEntry;
                     return acc;
-                }, {} as Record<string, DiseaseEntry | HazardEntry>)
+                }, {} as Record<string, EventTrackerCounts>)
             );
         });
     }
@@ -173,6 +125,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     this.mapRowToBaseIndicator(
                         row,
                         indicatorsProgramFuture.headers,
+                        //@ts-ignore
                         indicatorsProgramFuture.metaData
                     )
                 ) || [];
@@ -190,14 +143,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             manager: event.incidentManagerName,
                             cases: casesAndDeaths.cases.toString(),
                             deaths: casesAndDeaths.deaths.toString(),
-                        } as ProgramIndicatorBaseAttrs;
+                        } as PerformanceOverviewMetrics;
                     }
                     return {
                         ...baseIndicator,
                         manager: event.incidentManagerName,
                         cases: casesAndDeaths.cases.toString(),
                         deaths: casesAndDeaths.deaths.toString(),
-                    } as ProgramIndicatorBaseAttrs;
+                    } as PerformanceOverviewMetrics;
                 });
             });
 
@@ -227,6 +180,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     private mapRowToBaseIndicator(
         row: string[],
         headers: { name: string; column: string }[],
+        //@ts-ignore
         metaData: AnalyticsResponse["metaData"]
     ): Partial<PerformanceOverviewMetrics> {
         return headers.reduce((acc, header, index) => {
@@ -238,17 +192,22 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
             if (key === "suspectedDisease") {
                 acc[key] =
+                    //@ts-ignore
                     Object.values(metaData.items).find(item => item.code === row[index])?.name ||
                     "";
             } else if (key === "hazardType") {
                 acc[key] =
+                    //@ts-ignore
                     Object.values(metaData.items).find(item => item.code === row[index])?.name ||
                     "";
-            } else if (key === "eventDetectionDate") {
+            }
+            //@ts-ignore
+            else if (key === "eventDetectionDate") {
                 acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
+                //@ts-ignore
                 acc[key] = moment(row[index]).format("YYYY-MM-DD");
             } else {
-                acc[key] = row[index] as (Hazard & OrgUnit[]) | undefined;
+                acc[key] = row[index] as (HazardNames & OrgUnit[]) | undefined;
             }
 
             return acc;

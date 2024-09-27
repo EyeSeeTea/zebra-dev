@@ -1,10 +1,9 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
-
 import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
-import { PerformanceOverviewMetrics } from "../../../data/repositories/PerformanceOverviewD2Repository";
 import { Maybe } from "../../../utils/ts-utils";
+import { PerformanceOverviewMetrics } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 type State = {
     columns: TableColumn[];
@@ -53,7 +52,7 @@ export function usePerformanceOverview(): State {
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.analytics.getPerformanceOverviewMetrics.execute().run(
+        compositionRoot.performanceOverview.getPerformanceOverviewMetrics.execute().run(
             programIndicators => {
                 setDataPerformanceOverview(
                     programIndicators.map((data: PerformanceOverviewMetrics) =>
@@ -67,7 +66,7 @@ export function usePerformanceOverview(): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.analytics.getPerformanceOverviewMetrics]);
+    }, [compositionRoot.performanceOverview.getPerformanceOverviewMetrics]);
 
     const columns: TableColumn[] = [
         { label: "Event", value: "event" },

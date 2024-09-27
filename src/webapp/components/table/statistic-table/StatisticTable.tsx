@@ -21,7 +21,7 @@ import { Order } from "../../../pages/dashboard/usePerformanceOverview";
 import { Option } from "../../utils/option";
 import { Id } from "../../../../domain/entities/Ref";
 import { Maybe } from "../../../../utils/ts-utils";
-import { PerformanceOverviewMetrics } from "../../../../data/repositories/PerformanceOverviewD2Repository";
+import { PerformanceOverviewMetrics } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type TableColumn = {
     value: string;

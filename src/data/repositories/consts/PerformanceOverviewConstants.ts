@@ -1,3 +1,9 @@
+import {
+    DiseaseNames,
+    HazardNames,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { Id } from "../../../domain/entities/Ref";
+
 export enum IndicatorsId {
     suspectedDisease = "jLvbkuvPdZ6",
     hazardType = "Dzrw3Tf0ukB",
@@ -160,7 +166,29 @@ export const NB_OF_DEATHS = [
     },
 ];
 
-export const NB_OF_ACTIVE_VERIFIED = [
+type EventTrackerCountIndicatorBase = {
+    id: Id;
+    type: "disease" | "hazard";
+    name: DiseaseNames | HazardNames;
+    incidentStatus: "Watch" | "Alert" | "Respond";
+    count?: number;
+};
+
+export type EventTrackerCountDiseaseIndicator = EventTrackerCountIndicatorBase & {
+    type: "disease";
+    name: DiseaseNames;
+};
+
+export type EventTrackerCountHazardIndicator = EventTrackerCountIndicatorBase & {
+    type: "hazard";
+    name: HazardNames;
+};
+
+export type EventTrackerCountIndicator =
+    | EventTrackerCountDiseaseIndicator
+    | EventTrackerCountHazardIndicator;
+
+export const EvenTrackerCountsIndicatorMap: EventTrackerCountIndicator[] = [
     { id: "SGGbbu0AKUv", type: "disease", name: "Acute respiratory", incidentStatus: "Watch" },
     { id: "QnhsQnEsp1p", type: "disease", name: "Acute respiratory", incidentStatus: "Alert" },
     { id: "Rt5KNVqBEO7", type: "disease", name: "Acute respiratory", incidentStatus: "Respond" },

@@ -1,13 +1,13 @@
 import { FutureData } from "../../data/api-futures";
-import {
-    DiseaseTotalAttrs,
-    PerformanceOverviewMetrics,
-} from "../../data/repositories/PerformanceOverviewD2Repository";
 import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    EventTrackerCounts,
+    PerformanceOverviewMetrics,
+} from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export interface PerformanceOverviewRepository {
     getPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]>;
-    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]>;
+    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<EventTrackerCounts[]>;
 }

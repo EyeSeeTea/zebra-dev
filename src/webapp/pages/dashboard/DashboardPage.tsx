@@ -5,7 +5,7 @@ import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
 import { usePerformanceOverview } from "./usePerformanceOverview";
-import { useDiseasesTotal } from "./useDiseasesTotal";
+import { useEventTrackerCounts } from "./useDiseasesTotal";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
@@ -27,7 +27,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         editRiskAssessmentColumns,
     } = usePerformanceOverview();
 
-    const { diseasesTotal } = useDiseasesTotal(filters);
+    const { eventTrackerCounts } = useEventTrackerCounts(filters);
 
     const { goTo } = useRoutes();
 
@@ -63,15 +63,14 @@ export const DashboardPage: React.FC = React.memo(() => {
                     />
                 </Container>
                 <GridWrapper>
-                    {diseasesTotal &&
-                        diseasesTotal.map((disease, index) => (
-                            <StatsCard
-                                key={index}
-                                stat={disease.total.toString()}
-                                title={"disease" in disease ? disease.disease : disease.hazard}
-                                fillParent
-                            />
-                        ))}
+                    {eventTrackerCounts.map((eventTrackerCount, index) => (
+                        <StatsCard
+                            key={index}
+                            stat={eventTrackerCount.total.toString()}
+                            title={i18n.t(eventTrackerCount.name)}
+                            fillParent
+                        />
+                    ))}
                 </GridWrapper>
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>TBD</Section>

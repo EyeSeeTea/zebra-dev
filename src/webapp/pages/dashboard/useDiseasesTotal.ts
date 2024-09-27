@@ -1,26 +1,20 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
-import { DiseaseTotalAttrs } from "../../../data/repositories/PerformanceOverviewD2Repository";
-
-type State = {
-    diseasesTotal: DiseaseTotalAttrs[];
-    isLoading: boolean;
-};
+import { EventTrackerCounts } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type Order = { name: string; direction: "asc" | "desc" };
 
-export function useDiseasesTotal(filters: Record<string, string[]>): State {
+export function useEventTrackerCounts(filters: Record<string, string[]>) {
     const { compositionRoot } = useAppContext();
-
-    const [diseasesTotal, setDiseasesTotal] = useState<DiseaseTotalAttrs[]>([]);
+    const [eventTrackerCounts, setEventTrackerCounts] = useState<EventTrackerCounts[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.analytics.getDiseasesTotal.execute(filters).run(
+        compositionRoot.performanceOverview.getEventTrackerCounts.execute(filters).run(
             diseasesTotal => {
-                setDiseasesTotal(diseasesTotal);
+                setEventTrackerCounts(diseasesTotal);
                 setIsLoading(false);
             },
             error => {
@@ -28,10 +22,10 @@ export function useDiseasesTotal(filters: Record<string, string[]>): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.analytics.getDiseasesTotal, filters]);
+    }, [compositionRoot.performanceOverview.getEventTrackerCounts, filters]);
 
     return {
-        diseasesTotal,
+        eventTrackerCounts,
         isLoading,
     };
 }

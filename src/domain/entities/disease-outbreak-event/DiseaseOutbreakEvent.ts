@@ -8,6 +8,7 @@ import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
 
+
 export const hazardTypes = [
     "Biological:Human",
     "Biological:Animal",

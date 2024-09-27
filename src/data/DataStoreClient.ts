@@ -1,7 +1,7 @@
 import { D2Api, DataStore } from "@eyeseetea/d2-api/2.36";
 import { apiToFuture, FutureData } from "./api-futures";
 
-export const dataStoreNamespace = "zebra";
+const dataStoreNamespace = "zebra";
 
 export class DataStoreClient {
     private dataStore: DataStore;

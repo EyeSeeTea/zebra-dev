@@ -43,7 +43,7 @@ type Repositories = {
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
-    analytics: PerformanceOverviewRepository;
+    performanceOverviewRepository: PerformanceOverviewRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -62,11 +62,13 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.optionsRepository
             ),
         },
-        analytics: {
+        performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
                 repositories
             ),
-            getDiseasesTotal: new GetDiseasesTotalUseCase(repositories),
+            getEventTrackerCounts: new GetDiseasesTotalUseCase(
+                repositories.performanceOverviewRepository
+            ),
         },
     };
 }
@@ -81,7 +83,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
-        analytics: new PerformanceOverviewD2Repository(api, dataStoreClient),
+        performanceOverviewRepository: new PerformanceOverviewD2Repository(api, dataStoreClient),
     };
 
     return getCompositionRoot(repositories);
@@ -96,7 +98,7 @@ export function getTestCompositionRoot() {
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
-        analytics: new PerformanceOverviewTestRepository(),
+        performanceOverviewRepository: new PerformanceOverviewTestRepository(),
     };
 
     return getCompositionRoot(repositories);

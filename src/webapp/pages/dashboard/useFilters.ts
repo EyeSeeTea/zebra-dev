@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiltersConfig } from "../../components/table/statistic-table/StatisticTable";
-import { NB_OF_ACTIVE_VERIFIED } from "../../../data/repositories/consts/AnalyticsConstants";
+import { EvenTrackerCountsIndicatorMap } from "../../../data/repositories/consts/PerformanceOverviewConstants";
 import _c from "../../../domain/entities/generic/Collection";
 
 export function useFilters() {
@@ -9,7 +9,7 @@ export function useFilters() {
 
     const buildFilterOptions = (): FiltersConfig[] => {
         const createOptions = (key: "disease" | "hazard") =>
-            _c(NB_OF_ACTIVE_VERIFIED)
+            _c(EvenTrackerCountsIndicatorMap)
                 .filter(value => value.type === key)
                 .uniqBy(value => value.name)
                 .map(value => ({
