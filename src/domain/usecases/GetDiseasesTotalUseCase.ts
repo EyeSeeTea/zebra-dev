@@ -2,9 +2,9 @@ import { FutureData } from "../../data/api-futures";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
-import { AnalyticsRepository } from "../repositories/AnalyticsRepository";
+import { PerformanceOverviewRepository } from "../repositories/PerformanceOverviewRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
-import { DiseaseTotalAttrs } from "../../data/repositories/AnalyticsD2Repository";
+import { DiseaseTotalAttrs } from "../../data/repositories/PerformanceOverviewD2Repository";
 
 export class GetDiseasesTotalUseCase {
     constructor(
@@ -13,7 +13,7 @@ export class GetDiseasesTotalUseCase {
             optionsRepository: OptionsRepository;
             teamMemberRepository: TeamMemberRepository;
             orgUnitRepository: OrgUnitRepository;
-            analytics: AnalyticsRepository;
+            analytics: PerformanceOverviewRepository;
         }
     ) {}
 

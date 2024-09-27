@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { Maybe } from "./../../utils/ts-utils";
+import { Maybe } from "../../utils/ts-utils";
 import { AnalyticsResponse, D2Api } from "../../types/d2-api";
-import { AnalyticsRepository } from "../../domain/repositories/AnalyticsRepository";
+import { PerformanceOverviewRepository } from "../../domain/repositories/PerformanceOverviewRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
@@ -36,7 +36,7 @@ type Disease =
 
 type Hazard = "Animal type" | "Human type" | "Human and Animal type" | "Environmental type";
 
-export type ProgramIndicatorBaseAttrs = {
+export type PerformanceOverviewMetrics = {
     id: Id;
     event: string;
     province: string;
@@ -71,7 +71,7 @@ interface HazardEntry {
 
 export type DiseaseTotalAttrs = DiseaseEntry | HazardEntry;
 
-export class AnalyticsD2Repository implements AnalyticsRepository {
+export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
     constructor(private api: D2Api) {}
 
     getDiseasesTotal(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]> {
@@ -144,9 +144,9 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
         });
     }
 
-    getProgramIndicators(
+    getPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
-    ): FutureData<ProgramIndicatorBaseAttrs[]> {
+    ): FutureData<PerformanceOverviewMetrics[]> {
         const fetchEnrollmentsQuery = (): FutureData<AnalyticsResponse> =>
             apiToFuture(
                 this.api.get<AnalyticsResponse>(
@@ -218,7 +218,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 return diseaseOutbreakEvents
                     .map(event => {
                         const baseIndicator = mappedIndicators.find(
-                            (indicator: Partial<ProgramIndicatorBaseAttrs>) =>
+                            (indicator: Partial<PerformanceOverviewMetrics>) =>
                                 indicator.id === event.id
                         );
 
@@ -231,7 +231,7 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                             deaths
                         );
                     })
-                    .filter((item): item is ProgramIndicatorBaseAttrs => Boolean(item));
+                    .filter((item): item is PerformanceOverviewMetrics => Boolean(item));
             }
         );
     }
@@ -255,11 +255,11 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
         row: string[],
         headers: { name: string; column: string }[],
         metaData: AnalyticsResponse["metaData"]
-    ): Partial<ProgramIndicatorBaseAttrs> {
+    ): Partial<PerformanceOverviewMetrics> {
         return headers.reduce((acc, header, index) => {
             const key = Object.keys(IndicatorsId).find(
                 key => IndicatorsId[key as keyof typeof IndicatorsId] === header.name
-            ) as Maybe<keyof ProgramIndicatorBaseAttrs>;
+            ) as Maybe<keyof PerformanceOverviewMetrics>;
 
             if (!key) return acc;
 
@@ -267,8 +267,8 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
                 const foundItem = Object.values<{
                     code: string;
                     name:
-                        | ProgramIndicatorBaseAttrs["suspectedDisease"]
-                        | ProgramIndicatorBaseAttrs["hazardType"];
+                        | PerformanceOverviewMetrics["suspectedDisease"]
+                        | PerformanceOverviewMetrics["hazardType"];
                 }>(metaData.items).find(item => item.code === row[index]);
 
                 if (foundItem && this.isSuspectedDisease(foundItem.name)) {
@@ -279,15 +279,15 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             }
 
             return acc;
-        }, {} as Partial<ProgramIndicatorBaseAttrs>);
+        }, {} as Partial<PerformanceOverviewMetrics>);
     }
 
     private isSuspectedDisease(
         name:
-            | ProgramIndicatorBaseAttrs["suspectedDisease"]
-            | ProgramIndicatorBaseAttrs["hazardType"]
-    ): name is ProgramIndicatorBaseAttrs["suspectedDisease"] {
-        const suspectedDiseases: ProgramIndicatorBaseAttrs["suspectedDisease"][] = [
+            | PerformanceOverviewMetrics["suspectedDisease"]
+            | PerformanceOverviewMetrics["hazardType"]
+    ): name is PerformanceOverviewMetrics["suspectedDisease"] {
+        const suspectedDiseases: PerformanceOverviewMetrics["suspectedDisease"][] = [
             "AFP",
             "Acute VHF",
             "Acute respiratory",
@@ -305,15 +305,15 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             "Zika fever",
         ];
 
-        return suspectedDiseases.includes(name as ProgramIndicatorBaseAttrs["suspectedDisease"]);
+        return suspectedDiseases.includes(name as PerformanceOverviewMetrics["suspectedDisease"]);
     }
 
     private addCasesAndDeathsToIndicators(
         event: DiseaseOutbreakEventBaseAttrs,
-        baseIndicator: Partial<ProgramIndicatorBaseAttrs>,
+        baseIndicator: Partial<PerformanceOverviewMetrics>,
         cases: Record<string, number>,
         deaths: Record<string, number>
-    ): ProgramIndicatorBaseAttrs {
+    ): PerformanceOverviewMetrics {
         const { suspectedDisease, hazardType } = baseIndicator;
         const diseaseOrHazard = suspectedDisease || hazardType;
 
@@ -323,6 +323,6 @@ export class AnalyticsD2Repository implements AnalyticsRepository {
             duration: `${moment().diff(moment(event.emerged.date), "days").toString()}d`,
             cases: diseaseOrHazard ? cases[diseaseOrHazard]?.toString() || "" : "",
             deaths: diseaseOrHazard ? deaths[diseaseOrHazard]?.toString() || "" : "",
-        } as ProgramIndicatorBaseAttrs;
+        } as PerformanceOverviewMetrics;
     }
 }

@@ -1,60 +1,62 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 
 import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
-import { ProgramIndicatorBaseAttrs } from "../../../data/repositories/AnalyticsD2Repository";
+import { PerformanceOverviewMetrics } from "../../../data/repositories/PerformanceOverviewD2Repository";
+import { Maybe } from "../../../utils/ts-utils";
 
 type State = {
     columns: TableColumn[];
-    dataPerformanceOverview: ProgramIndicatorBaseAttrs[];
+    dataPerformanceOverview: PerformanceOverviewMetrics[];
     columnRules: { [key: string]: number };
     editRiskAssessmentColumns: string[];
     filters: FiltersConfig[];
-    order?: Order;
-    setOrder: (order: Order) => void;
+    order: Maybe<Order>;
+    setOrder: Dispatch<SetStateAction<Maybe<Order>>>;
     isLoading: boolean;
 };
 
-export type Order = { name: string; direction: "asc" | "desc" };
+export type Order = { name: keyof PerformanceOverviewMetrics; direction: "asc" | "desc" };
 
 export function usePerformanceOverview(): State {
     const { compositionRoot } = useAppContext();
 
     const [dataPerformanceOverview, setDataPerformanceOverview] = useState<
-        ProgramIndicatorBaseAttrs[]
+        PerformanceOverviewMetrics[]
     >([]);
     const [isLoading, setIsLoading] = useState(false);
     const [order, setOrder] = useState<Order>();
 
     useEffect(() => {
         if (dataPerformanceOverview) {
-            setDataPerformanceOverview(newDataPerformanceOverview =>
-                _(newDataPerformanceOverview)
-                    .orderBy([
-                        [
-                            (dataPerformanceOverviewData: ProgramIndicatorBaseAttrs) => {
-                                const value =
-                                    dataPerformanceOverviewData[
-                                        (order?.name as keyof ProgramIndicatorBaseAttrs) ||
-                                            "creationDate"
-                                    ];
-                                return Number.isNaN(Number(value)) ? value : Number(value);
-                            },
-                            order?.direction || "asc",
-                        ],
-                    ])
-                    .value()
+            setDataPerformanceOverview(
+                (prevDataPerformanceOverview: PerformanceOverviewMetrics[]) => {
+                    const newDataPerformanceOverview = _(prevDataPerformanceOverview)
+                        .orderBy([
+                            [
+                                (dataPerformanceOverviewData: PerformanceOverviewMetrics) => {
+                                    const value =
+                                        dataPerformanceOverviewData[order?.name || "creationDate"];
+                                    return Number.isNaN(Number(value)) ? value : Number(value);
+                                },
+                                order?.direction || "asc",
+                            ],
+                        ])
+                        .value();
+
+                    return newDataPerformanceOverview;
+                }
             );
         }
     }, [order, dataPerformanceOverview]);
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.analytics.getProgramIndicators.execute().run(
+        compositionRoot.analytics.getPerformanceOverviewMetrics.execute().run(
             programIndicators => {
                 setDataPerformanceOverview(
-                    programIndicators.map((data: ProgramIndicatorBaseAttrs) =>
+                    programIndicators.map((data: PerformanceOverviewMetrics) =>
                         mapEntityToTableData(data)
                     )
                 );
@@ -65,7 +67,7 @@ export function usePerformanceOverview(): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.analytics.getProgramIndicators]);
+    }, [compositionRoot.analytics.getPerformanceOverviewMetrics]);
 
     const columns: TableColumn[] = [
         { label: "Event", value: "event" },
@@ -92,8 +94,8 @@ export function usePerformanceOverview(): State {
         respond7d: 7,
     };
     const mapEntityToTableData = (
-        programIndicator: ProgramIndicatorBaseAttrs
-    ): ProgramIndicatorBaseAttrs => {
+        programIndicator: PerformanceOverviewMetrics
+    ): PerformanceOverviewMetrics => {
         return {
             ...programIndicator,
             event: programIndicator.event,

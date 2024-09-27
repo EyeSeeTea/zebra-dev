@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
-import { DiseaseTotalAttrs } from "../../../data/repositories/AnalyticsD2Repository";
+import { DiseaseTotalAttrs } from "../../../data/repositories/PerformanceOverviewD2Repository";
 
 type State = {
     diseasesTotal: DiseaseTotalAttrs[];

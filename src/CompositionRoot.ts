@@ -20,10 +20,10 @@ import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepos
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
 import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
 import { GetDiseaseOutbreakWithOptionsUseCase } from "./domain/usecases/GetDiseaseOutbreakWithOptionsUseCase";
-import { AnalyticsRepository } from "./domain/repositories/AnalyticsRepository";
-import { GetAllProgramIndicatorsUseCase } from "./domain/usecases/GetAllProgramIndicatorsUseCase";
-import { AnalyticsD2Repository } from "./data/repositories/AnalyticsD2Repository";
-import { ProgramIndicatorsTestRepository } from "./data/repositories/test/ProgramIndicatorsTestRepository";
+import { PerformanceOverviewRepository } from "./domain/repositories/PerformanceOverviewRepository";
+import { GetAllPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllPerformanceOverviewMetricsUseCase";
+import { PerformanceOverviewD2Repository } from "./data/repositories/PerformanceOverviewD2Repository";
+import { PerformanceOverviewTestRepository } from "./data/repositories/test/PerformanceOverviewTestRepository";
 import { GetDiseasesTotalUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
 import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
@@ -42,7 +42,7 @@ type Repositories = {
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
-    analytics: AnalyticsRepository;
+    analytics: PerformanceOverviewRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -62,7 +62,9 @@ function getCompositionRoot(repositories: Repositories) {
             ),
         },
         analytics: {
-            getProgramIndicators: new GetAllProgramIndicatorsUseCase(repositories),
+            getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
+                repositories
+            ),
             getDiseasesTotal: new GetDiseasesTotalUseCase(repositories),
         },
     };
@@ -77,7 +79,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
-        analytics: new AnalyticsD2Repository(api),
+        analytics: new PerformanceOverviewD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -92,7 +94,7 @@ export function getTestCompositionRoot() {
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
-        analytics: new ProgramIndicatorsTestRepository(),
+        analytics: new PerformanceOverviewTestRepository(),
     };
 
     return getCompositionRoot(repositories);
