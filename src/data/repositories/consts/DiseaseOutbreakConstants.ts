@@ -2,7 +2,7 @@ import {
     DataSource,
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
-    IncidentStatus,
+    NationalIncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { GetValue, Maybe } from "../../../utils/ts-utils";
 import { getDateAsIsoString } from "../utils/DateTimeHelper";
@@ -26,12 +26,13 @@ export const hazardTypeCodeMap: Record<HazardType, string> = {
     Unknown: "RTSL_ZEB_OS_HAZARD_TYPE_UNKNOWN",
 };
 
-export const incidentStatusMap: Record<string, IncidentStatus> = {
-    RTSL_ZEB_OS_INCIDENT_STATUS_WATCH: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
-    RTSL_ZEB_OS_INCIDENT_STATUS_ALERT: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT,
-    RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND,
-    RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED,
-    RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED,
+export const incidentStatusMap: Record<string, NationalIncidentStatus> = {
+    RTSL_ZEB_OS_INCIDENT_STATUS_WATCH: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
+    RTSL_ZEB_OS_INCIDENT_STATUS_ALERT: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT,
+    RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND,
+    RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED,
+    RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED:
+        NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED,
 };
 
 export const dataSourceMap: Record<string, DataSource> = {

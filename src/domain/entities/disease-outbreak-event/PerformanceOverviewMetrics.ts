@@ -1,4 +1,5 @@
 import { Id } from "../Ref";
+import { NationalIncidentStatus } from "./DiseaseOutbreakEvent";
 
 export type DiseaseNames =
     | "AFP"
@@ -44,11 +45,15 @@ export type PerformanceOverviewMetrics = {
     creationDate: string;
     suspectedDisease: DiseaseNames;
     hazardType: HazardNames;
+    nationalIncidentStatus: NationalIncidentStatus;
 };
+
+export type IncidentStatus = "Watch" | "Alert" | "Respond";
 
 type BaseCounts = {
     name: DiseaseNames | HazardNames;
     total: number;
+    incidentStatus: IncidentStatus;
     type: "disease" | "hazard";
 };
 
@@ -62,4 +67,4 @@ type HazardCounts = BaseCounts & {
     type: "hazard";
 };
 
-export type EventTrackerCounts = DiseaseCounts | HazardCounts;
+export type TotalCardCounts = DiseaseCounts | HazardCounts;

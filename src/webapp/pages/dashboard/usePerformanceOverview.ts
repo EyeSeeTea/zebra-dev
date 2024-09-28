@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
@@ -50,15 +50,23 @@ export function usePerformanceOverview(): State {
         }
     }, [order, dataPerformanceOverview]);
 
+    const mapEntityToTableData = useCallback(
+        (programIndicator: PerformanceOverviewMetrics): PerformanceOverviewMetrics => {
+            return {
+                ...programIndicator,
+                event: programIndicator.event,
+            };
+        },
+        []
+    );
     useEffect(() => {
         setIsLoading(true);
         compositionRoot.performanceOverview.getPerformanceOverviewMetrics.execute().run(
             programIndicators => {
-                setDataPerformanceOverview(
-                    programIndicators.map((data: PerformanceOverviewMetrics) =>
-                        mapEntityToTableData(data)
-                    )
+                const mappedData = programIndicators.map((data: PerformanceOverviewMetrics) =>
+                    mapEntityToTableData(data)
                 );
+                setDataPerformanceOverview(mappedData);
                 setIsLoading(false);
             },
             error => {
@@ -66,7 +74,7 @@ export function usePerformanceOverview(): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.performanceOverview.getPerformanceOverviewMetrics]);
+    }, [compositionRoot.performanceOverview.getPerformanceOverviewMetrics, mapEntityToTableData]);
 
     const columns: TableColumn[] = [
         { label: "Event", value: "event" },
@@ -91,14 +99,6 @@ export function usePerformanceOverview(): State {
         detect7d: 7,
         notify1d: 1,
         respond7d: 7,
-    };
-    const mapEntityToTableData = (
-        programIndicator: PerformanceOverviewMetrics
-    ): PerformanceOverviewMetrics => {
-        return {
-            ...programIndicator,
-            event: programIndicator.event,
-        };
     };
 
     const filters: FiltersConfig[] = [

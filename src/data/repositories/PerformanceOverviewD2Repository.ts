@@ -5,13 +5,15 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
-import { EvenTrackerCountsIndicatorMap, IndicatorsId } from "./consts/PerformanceOverviewConstants";
+import { evenTrackerCountsIndicatorMap, IndicatorsId } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
-import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DiseaseOutbreakEventBaseAttrs,
+    NationalIncidentStatus,
+} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DataStoreClient } from "../DataStoreClient";
 import {
-    DiseaseNames,
-    EventTrackerCounts,
+    TotalCardCounts,
     HazardNames,
     PerformanceOverviewMetrics,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
@@ -21,75 +23,86 @@ import { OrgUnit } from "../../domain/entities/OrgUnit";
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
     constructor(private api: D2Api, private datastore: DataStoreClient) {}
 
-    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<EventTrackerCounts[]> {
-        const transformData = (data: string[][]) => {
-            return data
-                .flatMap(([id, _period, _orgUnit, total]) => {
-                    const indicator = EvenTrackerCountsIndicatorMap.find(d => d.id === id);
-                    if (!indicator || !total) {
-                        return [];
-                    }
-                    return [
-                        {
-                            id,
-                            [indicator.type]: indicator.name,
-                            incidentStatus: indicator.incidentStatus,
-                            total: parseFloat(total),
-                        },
-                    ];
-                })
-                .filter(item => {
-                    if (!item) {
-                        return false;
-                    }
-                    if (filters) {
-                        return Object.entries(filters).every(([key, values]) => {
-                            if (!values.length) {
-                                return true;
-                            }
-                            if (item[key as keyof typeof item]) {
-                                return values.includes(item[key as keyof typeof item] as string);
-                            }
-                        });
-                    }
-                    return true;
-                });
-        };
+    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<TotalCardCounts[]> {
+        return apiToFuture(
+            this.api.analytics.get({
+                dimension: [
+                    `dx:${evenTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
+                    "ou:LEVEL-2",
+                    "pe:THIS_YEAR",
+                ],
+            })
+        ).map(analyticsResponse => {
+            const totalCardCounts =
+                this.mapAnalyticsRowsToTotalCardCounts(analyticsResponse.rows, filters) || [];
 
-        const fetchActiveVerifiedAnalytics = (): FutureData<AnalyticsResponse> =>
-            apiToFuture(
-                this.api.analytics.get({
-                    dimension: [
-                        `dx:${EvenTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
-                        "ou:LEVEL-2",
-                        "pe:THIS_YEAR",
-                    ],
-                    includeMetadataDetails: true,
-                })
-            );
-        return fetchActiveVerifiedAnalytics().map(res => {
-            const rows = transformData(res.rows) || [];
+            const uniqueTotalCardCounts = totalCardCounts.reduce((acc, totalCardCount) => {
+                const existingEntry = acc[totalCardCount.name];
 
-            return Object.values(
-                rows.reduce((acc, { disease, hazard, total }) => {
-                    const name = (disease || hazard) as string;
-                    if (!name) {
-                        return acc;
-                    }
+                if (existingEntry) {
+                    existingEntry.total += totalCardCount.total;
+                    acc[totalCardCount.name] = existingEntry;
+                } else {
+                    acc[totalCardCount.name] = totalCardCount;
+                }
+                return acc;
+            }, {} as Record<string, TotalCardCounts>);
 
-                    const existingEntry =
-                        acc[name] ||
-                        (disease
-                            ? { name: disease as DiseaseNames, type: "disease", total: 0 }
-                            : { name: hazard as HazardNames, type: "hazard", total: 0 });
-
-                    existingEntry.total += total;
-                    acc[name] = existingEntry;
-                    return acc;
-                }, {} as Record<string, EventTrackerCounts>)
-            );
+            return Object.values(uniqueTotalCardCounts);
         });
     }
+    mapAnalyticsRowsToTotalCardCounts = (
+        rowData: string[][],
+        filters?: Record<string, string[]>
+    ): TotalCardCounts[] => {
+        const counts: TotalCardCounts[] = _(
+            rowData.map(([id, _orgUnit, _period, total]) => {
+                const indicator = evenTrackerCountsIndicatorMap.find(d => d.id === id);
+                if (!indicator || !total) {
+                    return null;
+                }
+
+                if (indicator.type === "hazard") {
+                    const hazardCount = {
+                        id: id,
+                        name: indicator.name,
+                        type: indicator.type,
+                        incidentStatus: indicator.incidentStatus,
+                        total: parseFloat(total),
+                    };
+                    return hazardCount;
+                } else {
+                    const diseaseCount = {
+                        id: id,
+                        name: indicator.name,
+                        type: indicator.type,
+                        incidentStatus: indicator.incidentStatus,
+                        total: parseFloat(total),
+                    };
+                    return diseaseCount;
+                }
+            })
+        )
+            .compact()
+            .value();
+
+        const filteredCounts: TotalCardCounts[] = counts.filter(item => {
+            if (filters && Object.entries(filters).length) {
+                return Object.entries(filters).every(([key, values]) => {
+                    if (!values.length) {
+                        return true;
+                    }
+                    if (key === "incidentStatus") {
+                        return values.includes(item.incidentStatus as string);
+                    } else if (key === "disease" || key === "hazard") {
+                        return values.includes(item.name as string);
+                    }
+                });
+            }
+            return true;
+        });
+        return filteredCounts;
+    };
 
     getPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
@@ -141,12 +154,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             id: event.id,
                             event: event.name,
                             manager: event.incidentManagerName,
+                            nationalIncidentStatus: event.incidentStatus,
                             cases: casesAndDeaths.cases.toString(),
                             deaths: casesAndDeaths.deaths.toString(),
                         } as PerformanceOverviewMetrics;
                     }
                     return {
                         ...baseIndicator,
+                        nationalIncidentStatus: event.incidentStatus,
                         manager: event.incidentManagerName,
                         cases: casesAndDeaths.cases.toString(),
                         deaths: casesAndDeaths.deaths.toString(),
@@ -200,43 +215,17 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     //@ts-ignore
                     Object.values(metaData.items).find(item => item.code === row[index])?.name ||
                     "";
-            }
-            //@ts-ignore
-            else if (key === "eventDetectionDate") {
+            } else if (key === "creationDate") {
                 acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
-                //@ts-ignore
+
                 acc[key] = moment(row[index]).format("YYYY-MM-DD");
+            } else if (key === "nationalIncidentStatus") {
+                acc[key] = row[index] as NationalIncidentStatus;
             } else {
                 acc[key] = row[index] as (HazardNames & OrgUnit[]) | undefined;
             }
 
             return acc;
         }, {} as Partial<PerformanceOverviewMetrics>);
-    }
-
-    private isSuspectedDisease(
-        name:
-            | PerformanceOverviewMetrics["suspectedDisease"]
-            | PerformanceOverviewMetrics["hazardType"]
-    ): name is PerformanceOverviewMetrics["suspectedDisease"] {
-        const suspectedDiseases: PerformanceOverviewMetrics["suspectedDisease"][] = [
-            "AFP",
-            "Acute VHF",
-            "Acute respiratory",
-            "Anthrax",
-            "Bacterial meningitis",
-            "COVID19",
-            "Cholera",
-            "Diarrhoea with blood",
-            "Measles",
-            "Monkeypox",
-            "Neonatal tetanus",
-            "Plague",
-            "SARIs",
-            "Typhoid fever",
-            "Zika fever",
-        ];
-
-        return suspectedDiseases.includes(name as PerformanceOverviewMetrics["suspectedDisease"]);
     }
 }

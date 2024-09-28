@@ -5,7 +5,7 @@ import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
 import { usePerformanceOverview } from "./usePerformanceOverview";
-import { useEventTrackerCounts } from "./useDiseasesTotal";
+import { useCardCounts } from "./useCardCounts";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
@@ -27,7 +27,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         editRiskAssessmentColumns,
     } = usePerformanceOverview();
 
-    const { eventTrackerCounts } = useEventTrackerCounts(filters);
+    const { cardCounts } = useCardCounts(filters);
 
     const { goTo } = useRoutes();
 
@@ -63,11 +63,11 @@ export const DashboardPage: React.FC = React.memo(() => {
                     />
                 </Container>
                 <GridWrapper>
-                    {eventTrackerCounts.map((eventTrackerCount, index) => (
+                    {cardCounts.map((cardCount, index) => (
                         <StatsCard
                             key={index}
-                            stat={eventTrackerCount.total.toString()}
-                            title={i18n.t(eventTrackerCount.name)}
+                            stat={cardCount.total.toString()}
+                            title={i18n.t(cardCount.name)}
                             fillParent
                         />
                     ))}

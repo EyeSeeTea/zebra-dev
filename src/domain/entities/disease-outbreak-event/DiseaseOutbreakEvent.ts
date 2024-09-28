@@ -8,7 +8,6 @@ import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
 
-
 export const hazardTypes = [
     "Biological:Human",
     "Biological:Animal",
@@ -20,7 +19,7 @@ export const hazardTypes = [
 
 export type HazardType = (typeof hazardTypes)[number];
 
-export enum IncidentStatus {
+export enum NationalIncidentStatus {
     RTSL_ZEB_OS_INCIDENT_STATUS_WATCH = "RTSL_ZEB_OS_INCIDENT_STATUS_WATCH",
     RTSL_ZEB_OS_INCIDENT_STATUS_ALERT = "RTSL_ZEB_OS_INCIDENT_STATUS_ALERT",
     RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND = "RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND",
@@ -65,7 +64,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     notificationSourceCode: Code;
     areasAffectedProvinceIds: Id[];
     areasAffectedDistrictIds: Id[];
-    incidentStatus: IncidentStatus;
+    incidentStatus: NationalIncidentStatus;
     emerged: DateWithNarrative;
     detected: DateWithNarrative;
     notified: DateWithNarrative;

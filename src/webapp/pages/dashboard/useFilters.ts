@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiltersConfig } from "../../components/table/statistic-table/StatisticTable";
-import { EvenTrackerCountsIndicatorMap } from "../../../data/repositories/consts/PerformanceOverviewConstants";
+import { evenTrackerCountsIndicatorMap } from "../../../data/repositories/consts/PerformanceOverviewConstants";
 import _c from "../../../domain/entities/generic/Collection";
 
 export function useFilters() {
     const [filters, setFilters] = useState<Record<string, string[]>>({});
     const [filterOptions, setFilterOptions] = useState<FiltersConfig[]>([]);
 
-    const buildFilterOptions = (): FiltersConfig[] => {
+    const buildFilterOptions = useCallback((): FiltersConfig[] => {
         const createOptions = (key: "disease" | "hazard") =>
-            _c(EvenTrackerCountsIndicatorMap)
+            _c(evenTrackerCountsIndicatorMap)
                 .filter(value => value.type === key)
                 .uniqBy(value => value.name)
                 .map(value => ({
@@ -18,6 +18,9 @@ export function useFilters() {
                 }))
 
                 .value();
+
+        const diseaseOptions = createOptions("disease");
+        const hazardOptions = createOptions("hazard");
 
         return [
             {
@@ -34,16 +37,16 @@ export function useFilters() {
                 value: "disease",
                 label: "Disease",
                 type: "multiselector",
-                options: createOptions("disease"),
+                options: diseaseOptions,
             },
             {
                 value: "hazard",
                 label: "Hazard Type",
                 type: "multiselector",
-                options: createOptions("hazard"),
+                options: hazardOptions,
             },
         ];
-    };
+    }, []);
 
     const handleSetFilters = useCallback(
         (newFilters: Record<string, string[]>) => {
@@ -67,7 +70,7 @@ export function useFilters() {
     // Initialize filter options based on diseasesTotal
     useEffect(() => {
         setFilterOptions(buildFilterOptions());
-    }, []);
+    }, [buildFilterOptions]);
 
     return { filters, filterOptions, setFilters: handleSetFilters };
 }
