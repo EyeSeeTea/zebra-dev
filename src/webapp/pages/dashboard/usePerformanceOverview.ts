@@ -28,21 +28,20 @@ export function usePerformanceOverview(): State {
     const [order, setOrder] = useState<Order>();
 
     useEffect(() => {
-        if (dataPerformanceOverview) {
+        if (dataPerformanceOverview.length && order) {
             setDataPerformanceOverview(
                 (prevDataPerformanceOverview: PerformanceOverviewMetrics[]) => {
                     const newDataPerformanceOverview = _(prevDataPerformanceOverview)
                         .orderBy([
                             [
-                                (dataPerformanceOverviewData: PerformanceOverviewMetrics) => {
-                                    const value =
-                                        dataPerformanceOverviewData[order?.name || "creationDate"];
-                                    return Number.isNaN(Number(value)) ? value : Number(value);
-                                },
-                                order?.direction || "asc",
+                                item =>
+                                    Number.isNaN(Number(item[order.name]))
+                                        ? item[order.name]
+                                        : Number(item[order.name]),
+                                order.direction,
                             ],
                         ])
-                        .value();
+                        .toArray();
 
                     return newDataPerformanceOverview;
                 }
