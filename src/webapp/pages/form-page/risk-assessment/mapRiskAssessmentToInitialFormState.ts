@@ -14,10 +14,7 @@ import { User } from "../../../components/user-selector/UserSelector";
 import { Option as UIOption } from "../../../components/utils/option";
 import { mapTeamMemberToUser, mapToPresentationOptions } from "../mapEntityToFormState";
 import { getDateAsLocaleDateTimeString } from "../../../../data/repositories/utils/DateTimeHelper";
-import {
-    FormAddNewOptionSectionState,
-    FormSectionState,
-} from "../../../components/form/FormSectionsState";
+import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { RiskAssessmentQuestionnaire } from "../../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { Maybe } from "../../../../utils/ts-utils";
 
@@ -623,8 +620,9 @@ export function mapRiskAssessmentQuestionnaireToInitialFormState(
             return getRiskAssessmentCustomQuestionSection("Custom Question", index, sectionOptions);
         }) ?? [];
 
-    const addNewOptionSection: FormAddNewOptionSectionState = {
+    const addNewOptionSection: FormSectionState = {
         id: "addNewOptionSection",
+        isVisible: true,
         fields: [],
         addNewField: {
             id: "addNewOption",

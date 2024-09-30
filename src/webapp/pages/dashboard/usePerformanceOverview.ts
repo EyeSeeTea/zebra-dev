@@ -75,7 +75,7 @@ export function usePerformanceOverview(): State {
                 event: programIndicator.event,
             };
         },
-        []
+        [getNationalIncidentStatusString]
     );
     useEffect(() => {
         setIsLoading(true);

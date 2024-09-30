@@ -21,11 +21,9 @@ export type FormSectionState = {
     fields: FormFieldState[];
     subsections?: FormSectionState[];
     onClickInfo?: (id: string) => void;
+    addNewField?: AddNewFieldState;
 };
 
-export type FormAddNewOptionSectionState = FormSectionState & {
-    addNewField: AddNewFieldState;
-};
 // HELPERS:
 
 function hasSectionAFieldWithNotApplicable(sectionsState: FormSectionState) {

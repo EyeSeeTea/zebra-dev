@@ -43,6 +43,7 @@ type State = {
     handleFormChange: (updatedField: FormFieldState) => void;
     onPrimaryButtonClick: () => void;
     onCancelForm: () => void;
+    handleAddNew: () => void;
 };
 
 export function useForm(formType: FormType, id?: Id): State {
@@ -249,5 +250,6 @@ export function useForm(formType: FormType, id?: Id): State {
         handleFormChange,
         onPrimaryButtonClick,
         onCancelForm,
+        handleAddNew,
     };
 }
