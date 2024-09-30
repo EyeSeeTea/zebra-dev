@@ -12,7 +12,7 @@ export function useCardCounts(filters: Record<string, string[]>) {
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.performanceOverview.getEventTrackerCounts.execute(filters).run(
+        compositionRoot.performanceOverview.getTotalCardCounts.execute(filters).run(
             diseasesTotal => {
                 setCardCounts(diseasesTotal);
                 setIsLoading(false);

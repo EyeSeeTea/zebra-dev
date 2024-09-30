@@ -24,7 +24,7 @@ import { PerformanceOverviewRepository } from "./domain/repositories/Performance
 import { GetAllPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllPerformanceOverviewMetricsUseCase";
 import { PerformanceOverviewD2Repository } from "./data/repositories/PerformanceOverviewD2Repository";
 import { PerformanceOverviewTestRepository } from "./data/repositories/test/PerformanceOverviewTestRepository";
-import { GetDiseasesTotalUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
+import { GetTotalCardCountsUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
 import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
@@ -66,7 +66,7 @@ function getCompositionRoot(repositories: Repositories) {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
                 repositories
             ),
-            getEventTrackerCounts: new GetDiseasesTotalUseCase(
+            getTotalCardCounts: new GetTotalCardCountsUseCase(
                 repositories.performanceOverviewRepository
             ),
         },

@@ -23,7 +23,7 @@ import { OrgUnit } from "../../domain/entities/OrgUnit";
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
     constructor(private api: D2Api, private datastore: DataStoreClient) {}
 
-    getDiseasesTotal(filters?: Record<string, string[]>): FutureData<TotalCardCounts[]> {
+    getTotalCardCounts(filters?: Record<string, string[]>): FutureData<TotalCardCounts[]> {
         return apiToFuture(
             this.api.analytics.get({
                 dimension: [
@@ -107,32 +107,29 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     getPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]> {
-        const fetchEnrollmentsQuery = (): FutureData<AnalyticsResponse> =>
-            apiToFuture(
-                this.api.get<AnalyticsResponse>(
-                    `/analytics/enrollments/query/${RTSL_ZEBRA_PROGRAM_ID}`,
-                    {
-                        enrollmentDate: "LAST_12_MONTHS,THIS_MONTH",
-                        dimension: [
-                            IndicatorsId.suspectedDisease,
-                            IndicatorsId.hazardType,
-                            IndicatorsId.event,
-                            IndicatorsId.era1,
-                            IndicatorsId.era2,
-                            IndicatorsId.era3,
-                            IndicatorsId.era4,
-                            IndicatorsId.era5,
-                            IndicatorsId.era6,
-                            IndicatorsId.era7,
-                            IndicatorsId.detect7d,
-                            IndicatorsId.notify1d,
-                            IndicatorsId.respond7d,
-                        ],
-                    }
-                )
-            );
-
-        return fetchEnrollmentsQuery().flatMap(indicatorsProgramFuture => {
+        return apiToFuture(
+            this.api.get<AnalyticsResponse>(
+                `/analytics/enrollments/query/${RTSL_ZEBRA_PROGRAM_ID}`,
+                {
+                    enrollmentDate: "LAST_12_MONTHS,THIS_MONTH",
+                    dimension: [
+                        IndicatorsId.suspectedDisease,
+                        IndicatorsId.hazardType,
+                        IndicatorsId.event,
+                        IndicatorsId.era1,
+                        IndicatorsId.era2,
+                        IndicatorsId.era3,
+                        IndicatorsId.era4,
+                        IndicatorsId.era5,
+                        IndicatorsId.era6,
+                        IndicatorsId.era7,
+                        IndicatorsId.detect7d,
+                        IndicatorsId.notify1d,
+                        IndicatorsId.respond7d,
+                    ],
+                }
+            )
+        ).flatMap(indicatorsProgramFuture => {
             const mappedIndicators =
                 indicatorsProgramFuture?.rows.map((row: string[]) =>
                     this.mapRowToBaseIndicator(
@@ -143,20 +140,20 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     )
                 ) || [];
 
-            const something = diseaseOutbreakEvents.map(event => {
+            const performanceOverviewMetrics = diseaseOutbreakEvents.map(event => {
                 const baseIndicator = mappedIndicators.find(indicator => indicator.id === event.id);
-
                 const key = baseIndicator?.suspectedDisease || baseIndicator?.hazardType;
 
                 return this.getCasesAndDeathsFromDatastore(key).map(casesAndDeaths => {
+                    const duration = `${moment()
+                        .diff(moment(event.emerged.date), "days")
+                        .toString()}d`;
                     if (!baseIndicator) {
                         return {
                             id: event.id,
                             event: event.name,
                             manager: event.incidentManagerName,
-                            duration: `${moment()
-                                .diff(moment(event.emerged.date), "days")
-                                .toString()}d`,
+                            duration: duration,
                             nationalIncidentStatus: event.incidentStatus,
                             cases: casesAndDeaths.cases.toString(),
                             deaths: casesAndDeaths.deaths.toString(),
@@ -166,16 +163,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         ...baseIndicator,
                         nationalIncidentStatus: event.incidentStatus,
                         manager: event.incidentManagerName,
-                        duration: `${moment()
-                            .diff(moment(event.emerged.date), "days")
-                            .toString()}d`,
+                        duration: duration,
                         cases: casesAndDeaths.cases.toString(),
                         deaths: casesAndDeaths.deaths.toString(),
                     } as PerformanceOverviewMetrics;
                 });
             });
 
-            return Future.sequential(something);
+            return Future.sequential(performanceOverviewMetrics);
         });
     }
 

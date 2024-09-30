@@ -3,7 +3,7 @@ import { PerformanceOverviewRepository } from "../../../domain/repositories/Perf
 import { FutureData } from "../../api-futures";
 
 export class PerformanceOverviewTestRepository implements PerformanceOverviewRepository {
-    getDiseasesTotal(): FutureData<any> {
+    getTotalCardCounts(): FutureData<any> {
         return Future.success(0);
     }
     getPerformanceOverviewMetrics(): FutureData<any[]> {
