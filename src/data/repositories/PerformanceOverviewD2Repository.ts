@@ -16,6 +16,7 @@ import {
     TotalCardCounts,
     HazardNames,
     PerformanceOverviewMetrics,
+    DiseaseNames,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
@@ -135,7 +136,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     this.mapRowToBaseIndicator(
                         row,
                         indicatorsProgramFuture.headers,
-                        //@ts-ignore
                         indicatorsProgramFuture.metaData
                     )
                 ) || [];
@@ -196,7 +196,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     private mapRowToBaseIndicator(
         row: string[],
         headers: { name: string; column: string }[],
-        //@ts-ignore
         metaData: AnalyticsResponse["metaData"]
     ): Partial<PerformanceOverviewMetrics> {
         return headers.reduce((acc, header, index) => {
@@ -208,14 +207,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
             if (key === "suspectedDisease") {
                 acc[key] =
-                    //@ts-ignore
-                    Object.values(metaData.items).find(item => item.code === row[index])?.name ||
-                    "";
+                    (Object.values(metaData.items).find(item => item.code === row[index])
+                        ?.name as DiseaseNames) || "";
             } else if (key === "hazardType") {
                 acc[key] =
-                    //@ts-ignore
-                    Object.values(metaData.items).find(item => item.code === row[index])?.name ||
-                    "";
+                    (Object.values(metaData.items).find(item => item.code === row[index])
+                        ?.name as HazardNames) || "";
             } else if (key === "nationalIncidentStatus") {
                 acc[key] = row[index] as NationalIncidentStatus;
             } else {

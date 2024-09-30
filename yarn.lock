@@ -3419,10 +3419,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.0.tgz#a5417ae8427873f1dd08b70b3574b453e67b5f7f"
   integrity sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==
 
-"@eyeseetea/d2-api@1.16.0-beta.9":
-  version "1.16.0-beta.9"
-  resolved "https://registry.yarnpkg.com/@eyeseetea/d2-api/-/d2-api-1.16.0-beta.9.tgz#bd318b62d8c94ea4e490c8e9b90461869f748c25"
-  integrity sha512-ASOcekMZoOOAZ9+Aq4I34qkiHW4sZFWoB5V8V51WAgYTv0ONoS8uLdFpmc1kFXJ5jsWC7IgSnE79rkLLZ9h9mg==
+"@eyeseetea/d2-api@1.16.0-beta.12":
+  version "1.16.0-beta.12"
+  resolved "https://registry.yarnpkg.com/@eyeseetea/d2-api/-/d2-api-1.16.0-beta.12.tgz#02fd26e7a28f2debf7d890364a077020e4eab7b7"
+  integrity sha512-5VlaiWPrpuIHlCKGB75H4ndd7W0s203CR7qBSmfcqAMhmKnybPI7tTB97DJxF+VnIxwRvfsZ0g8ATKVlUTz0Vg==
   dependencies:
     "@babel/runtime" "^7.5.4"
     "@dhis2/d2-i18n" "^1.0.5"
