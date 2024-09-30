@@ -4,6 +4,7 @@ import _ from "../../../domain/entities/generic/Collection";
 import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
 import { Maybe } from "../../../utils/ts-utils";
 import { PerformanceOverviewMetrics } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { NationalIncidentStatus } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type State = {
     columns: TableColumn[];
@@ -49,10 +50,28 @@ export function usePerformanceOverview(): State {
         }
     }, [order, dataPerformanceOverview]);
 
+    const getNationalIncidentStatusString = useCallback((status: string): string => {
+        switch (status as NationalIncidentStatus) {
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT:
+                return "Alert";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED:
+                return "Closed";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED:
+                return "Discarded";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND:
+                return "Respond";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH:
+                return "Watch";
+        }
+    }, []);
+
     const mapEntityToTableData = useCallback(
         (programIndicator: PerformanceOverviewMetrics): PerformanceOverviewMetrics => {
             return {
                 ...programIndicator,
+                nationalIncidentStatus: getNationalIncidentStatusString(
+                    programIndicator.nationalIncidentStatus
+                ),
                 event: programIndicator.event,
             };
         },
@@ -92,6 +111,7 @@ export function usePerformanceOverview(): State {
         { label: "ERA6", value: "era6" },
         { label: "ERA7", value: "era7" },
         { label: "Respond 7d", dark: true, value: "respond7d" },
+        { label: "Incident Status", value: "nationalIncidentStatus" },
     ];
     const editRiskAssessmentColumns = ["era1", "era2", "era3", "era4", "era5", "era6", "era7"];
     const columnRules: { [key: string]: number } = {
