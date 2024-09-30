@@ -89,6 +89,10 @@ export class OptionsTestRepository implements OptionsRepository {
         return Future.success([{ id: "1", name: "Test Hazard Type" }]);
     }
 
+    getHazardTypesByCode(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test Hazard Type" }]);
+    }
+
     getMainSyndromes(): FutureData<Option[]> {
         return Future.success([{ id: "1", name: "Test Main Syndrome" }]);
     }

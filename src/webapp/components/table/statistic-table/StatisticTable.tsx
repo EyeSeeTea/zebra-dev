@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction, useCallback } from "react";
 import styled from "styled-components";
 import i18n from "../../../../utils/i18n";
 import {
@@ -8,6 +8,7 @@ import {
     TableHead,
     TableRow,
     TableContainer,
+    TableSortLabel,
 } from "@material-ui/core";
 import { SearchInput } from "../../search-input/SearchInput";
 import { MultipleSelector } from "../../selector/MultipleSelector";
@@ -16,8 +17,11 @@ import { useTableCell } from "./useTableCell";
 import { useStatisticCalculations } from "./useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
+import { Order } from "../../../pages/dashboard/usePerformanceOverview";
+import { Option } from "../../utils/option";
 import { Id } from "../../../../domain/entities/Ref";
 import { Maybe } from "../../../../utils/ts-utils";
+import { PerformanceOverviewMetrics } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type TableColumn = {
     value: string;
@@ -25,10 +29,12 @@ export type TableColumn = {
     dark?: boolean;
 };
 
-export type FilterType = {
+export type FiltersConfig = {
     value: TableColumn["value"];
     label: TableColumn["label"];
     type: "multiselector" | "datepicker";
+    options?: Option<string>[];
+    disabled?: boolean;
 };
 
 export type FiltersValuesType = {
@@ -44,7 +50,9 @@ export type StatisticTableProps = {
     rows: {
         [key: TableColumn["value"]]: string;
     }[];
-    filters: FilterType[];
+    filters: FiltersConfig[];
+    order: Maybe<Order>;
+    setOrder: Dispatch<SetStateAction<Maybe<Order>>>;
     goToEvent: (id: Maybe<Id>) => void;
 };
 
@@ -55,6 +63,8 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         columnRules,
         editRiskAssessmentColumns,
         filters: filtersConfig,
+        order,
+        setOrder,
         goToEvent,
     }) => {
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
@@ -65,6 +75,23 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         const { calculateMedian, calculatePercentTargetMet } = useStatisticCalculations(
             filteredRows,
             columnRules
+        );
+
+        const onOrderBy = useCallback(
+            (value: string) => {
+                setOrder(prevOrder => {
+                    return {
+                        name: value as keyof PerformanceOverviewMetrics,
+                        direction:
+                            prevOrder?.name === value
+                                ? order?.direction === "asc"
+                                    ? "desc"
+                                    : "asc"
+                                : "asc",
+                    };
+                });
+            },
+            [order, setOrder]
         );
 
         return (
@@ -85,12 +112,26 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                     <SearchInput value={searchTerm} onChange={value => setSearchTerm(value)} />
                 </Container>
                 <StyledTableContainer>
-                    <Table size="small">
+                    <Table>
                         <TableHead>
                             <TableRow>
                                 {columns.map(({ value, label, dark = false }) => (
-                                    <HeadTableCell key={value} $dark={dark}>
-                                        {label}
+                                    <HeadTableCell
+                                        key={value}
+                                        $dark={dark}
+                                        sortDirection={
+                                            order?.name === value ? order.direction : false
+                                        }
+                                    >
+                                        <TableSortLabel
+                                            active={order?.name === value}
+                                            direction={
+                                                order?.name === value ? order?.direction : "asc"
+                                            }
+                                            onClick={() => onOrderBy(value)}
+                                        >
+                                            {label}
+                                        </TableSortLabel>
                                     </HeadTableCell>
                                 ))}
                             </TableRow>
@@ -112,7 +153,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                             <StyledTableCell
                                                 onClick={() => goToEvent(row.id)}
                                                 key={`${rowIndex}-${column.value}`}
-                                                boldUnderline={columnIndex === 0}
+                                                $link={columnIndex === 0}
                                             >
                                                 {row[column.value] || ""}
                                             </StyledTableCell>
@@ -171,9 +212,10 @@ const HeadTableCell = styled(TableCell)<{ $dark?: boolean }>`
     font-weight: 600;
 `;
 
-const StyledTableCell = styled(TableCell)<{ boldUnderline?: boolean }>`
-    text-decoration: ${props => (props.boldUnderline ? "underline" : "none")};
-    font-weight: ${props => (props.boldUnderline ? "600" : "initial")};
+const StyledTableCell = styled(TableCell)<{ $link?: boolean }>`
+    text-decoration: ${props => (props.$link ? "underline" : "none")};
+    cursor: ${props => (props.$link ? "pointer" : "initial")};
+    font-weight: ${props => (props.$link ? "600" : "initial")};
 `;
 
 const Container = styled.div`

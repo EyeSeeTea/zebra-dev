@@ -1,53 +1,90 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
-
-import { FilterType, TableColumn } from "../../components/table/statistic-table/StatisticTable";
-import { Id } from "../../../domain/entities/Ref";
+import _ from "../../../domain/entities/generic/Collection";
+import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
+import { Maybe } from "../../../utils/ts-utils";
+import { PerformanceOverviewMetrics } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { NationalIncidentStatus } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type State = {
     columns: TableColumn[];
-    dataPerformanceOverview: any[];
+    dataPerformanceOverview: PerformanceOverviewMetrics[];
     columnRules: { [key: string]: number };
     editRiskAssessmentColumns: string[];
-    filters: FilterType[];
+    filters: FiltersConfig[];
+    order: Maybe<Order>;
+    setOrder: Dispatch<SetStateAction<Maybe<Order>>>;
     isLoading: boolean;
 };
 
-type PerformanceOverviewData = {
-    id: Id;
-    event: string;
-    location: string;
-    cases: string;
-    deaths: string;
-    duration: string;
-    manager: string;
-    detect7d: string;
-    notify1d: string;
-    era1: string;
-    era2: string;
-    era3: string;
-    era4: string;
-    era5: string;
-    era6: string;
-    era7: string;
-    eri: string;
-    respond7d: string;
-};
+export type Order = { name: keyof PerformanceOverviewMetrics; direction: "asc" | "desc" };
+
 export function usePerformanceOverview(): State {
     const { compositionRoot } = useAppContext();
 
     const [dataPerformanceOverview, setDataPerformanceOverview] = useState<
-        PerformanceOverviewData[]
+        PerformanceOverviewMetrics[]
     >([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [order, setOrder] = useState<Order>();
 
     useEffect(() => {
+        if (dataPerformanceOverview.length && order) {
+            setDataPerformanceOverview(
+                (prevDataPerformanceOverview: PerformanceOverviewMetrics[]) => {
+                    const newDataPerformanceOverview = _(prevDataPerformanceOverview)
+                        .orderBy([
+                            [
+                                item =>
+                                    Number.isNaN(Number(item[order.name]))
+                                        ? item[order.name]
+                                        : Number(item[order.name]),
+                                order.direction,
+                            ],
+                        ])
+                        .toArray();
+
+                    return newDataPerformanceOverview;
+                }
+            );
+        }
+    }, [order, dataPerformanceOverview]);
+
+    const getNationalIncidentStatusString = useCallback((status: string): string => {
+        switch (status as NationalIncidentStatus) {
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT:
+                return "Alert";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED:
+                return "Closed";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED:
+                return "Discarded";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND:
+                return "Respond";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH:
+                return "Watch";
+        }
+    }, []);
+
+    const mapEntityToTableData = useCallback(
+        (programIndicator: PerformanceOverviewMetrics): PerformanceOverviewMetrics => {
+            return {
+                ...programIndicator,
+                nationalIncidentStatus: getNationalIncidentStatusString(
+                    programIndicator.nationalIncidentStatus
+                ),
+                event: programIndicator.event,
+            };
+        },
+        []
+    );
+    useEffect(() => {
         setIsLoading(true);
-        compositionRoot.diseaseOutbreakEvent.getAll.execute().run(
-            diseaseOutbreakEvent => {
-                setDataPerformanceOverview(
-                    diseaseOutbreakEvent.map((data, i) => mapEntityToTableData(data, !i))
+        compositionRoot.performanceOverview.getPerformanceOverviewMetrics.execute().run(
+            programIndicators => {
+                const mappedData = programIndicators.map((data: PerformanceOverviewMetrics) =>
+                    mapEntityToTableData(data)
                 );
+                setDataPerformanceOverview(mappedData);
                 setIsLoading(false);
             },
             error => {
@@ -55,11 +92,11 @@ export function usePerformanceOverview(): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.diseaseOutbreakEvent.getAll]);
+    }, [compositionRoot.performanceOverview.getPerformanceOverviewMetrics, mapEntityToTableData]);
 
     const columns: TableColumn[] = [
         { label: "Event", value: "event" },
-        { label: "Location", value: "location" },
+        { label: "Province", value: "province" },
         { label: "Cases", value: "cases" },
         { label: "Deaths", value: "deaths" },
         { label: "Duration", value: "duration" },
@@ -73,57 +110,26 @@ export function usePerformanceOverview(): State {
         { label: "ERA5", value: "era5" },
         { label: "ERA6", value: "era6" },
         { label: "ERA7", value: "era7" },
-        { label: "ERI", value: "eri" },
         { label: "Respond 7d", dark: true, value: "respond7d" },
+        { label: "Incident Status", value: "nationalIncidentStatus" },
     ];
-    const editRiskAssessmentColumns = [
-        "era1",
-        "era2",
-        "era3",
-        "era4",
-        "era5",
-        "era6",
-        "era7",
-        "eri",
-    ];
+    const editRiskAssessmentColumns = ["era1", "era2", "era3", "era4", "era5", "era6", "era7"];
     const columnRules: { [key: string]: number } = {
         detect7d: 7,
         notify1d: 1,
         respond7d: 7,
     };
-    const mapEntityToTableData = (diseaseOutbreakEvent: any, blank = false) => {
-        const getRandom = (max: number) => Math.floor(Math.random() * max).toString();
 
-        return {
-            id: diseaseOutbreakEvent.id,
-            event: diseaseOutbreakEvent.name,
-            location: "TBD",
-            cases: "TBD",
-            deaths: "TBD",
-            duration: "TBD",
-            manager: diseaseOutbreakEvent.createdByName || "TBD",
-            detect7d: getRandom(12),
-            notify1d: getRandom(7),
-            era1: getRandom(14),
-            era2: blank ? "" : getRandom(14),
-            era3: blank ? "" : getRandom(14),
-            era4: blank ? "" : getRandom(14),
-            era5: blank ? "" : getRandom(14),
-            era6: blank ? "" : getRandom(14),
-            era7: blank ? "" : getRandom(14),
-            eri: blank ? "" : getRandom(14),
-            respond7d: getRandom(14),
-        };
-    };
-
-    const filters: FilterType[] = [
+    const filters: FiltersConfig[] = [
         { value: "event", label: "Event", type: "multiselector" },
-        { value: "location", label: "Location", type: "multiselector" },
+        { value: "province", label: "Province", type: "multiselector" },
     ];
 
     return {
         dataPerformanceOverview,
         filters,
+        order,
+        setOrder,
         columnRules,
         editRiskAssessmentColumns,
         columns,

@@ -42,7 +42,7 @@ function getPopulatedDiseaseOutbreakEventWithOptions(
         suspectedDiseases: options.optionsRepository.getSuspectedDiseases(),
         notificationSources: options.optionsRepository.getNotificationSources(),
         incidentStatus: options.optionsRepository.getIncidentStatus(),
-        teamMembers: options.teamMemberRepository.getAll(),
+        incidentManagers: options.teamMemberRepository.getIncidentManagers(),
     }).flatMap(
         ({
             dataSources,
@@ -51,14 +51,14 @@ function getPopulatedDiseaseOutbreakEventWithOptions(
             suspectedDiseases,
             notificationSources,
             incidentStatus,
-            teamMembers,
+            incidentManagers,
         }) => {
             const diseaseOutbreakEventWithOptions: ConfigurableForm = {
                 type: "disease-outbreak-event",
                 entity: diseaseOutbreakEventBase,
                 options: {
                     dataSources,
-                    teamMembers,
+                    incidentManagers,
                     hazardTypes,
                     mainSyndromes,
                     suspectedDiseases,
