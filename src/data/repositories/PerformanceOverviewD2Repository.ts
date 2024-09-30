@@ -154,6 +154,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             id: event.id,
                             event: event.name,
                             manager: event.incidentManagerName,
+                            duration: `${moment()
+                                .diff(moment(event.emerged.date), "days")
+                                .toString()}d`,
                             nationalIncidentStatus: event.incidentStatus,
                             cases: casesAndDeaths.cases.toString(),
                             deaths: casesAndDeaths.deaths.toString(),

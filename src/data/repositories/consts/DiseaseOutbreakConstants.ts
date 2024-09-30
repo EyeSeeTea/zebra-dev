@@ -4,6 +4,7 @@ import {
     HazardType,
     NationalIncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import _c from "../../../domain/entities/generic/Collection";
 import { GetValue, Maybe } from "../../../utils/ts-utils";
 import { getDateAsIsoString } from "../utils/DateTimeHelper";
 
@@ -66,6 +67,7 @@ export const diseaseOutbreakCodes = {
     initiatePublicHealthCounterMeasuresDate: "RTSL_ZEB_TEA_SPECIFY_DATE3",
     initiateRiskCommunicationNA: "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION_NA",
     initiateRiskCommunicationDate: "RTSL_ZEB_TEA_SPECIFY_DATE4",
+    earliestRespondDate: "RTSL_ZEB_TEA_EARLIEST_RESPOND_DATE",
     establishCoordination: "RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM",
     responseNarrative: "RTSL_ZEB_TEA_RESPONSE_NARRATIVE",
     incidentManager: "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER",
@@ -84,6 +86,20 @@ export function isStringInDiseaseOutbreakCodes(code: string): code is KeyCode {
 export function getValueFromDiseaseOutbreak(
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs
 ): Record<DiseaseOutbreakCode, string> {
+    //Set Earliest Respond Date as the earliest of all early response action dates.
+    const responseActionDates: number[] = _c([
+        diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.getTime(),
+        diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis.getTime(),
+        diseaseOutbreak.earlyResponseActions.initiateInvestigation.getTime(),
+        diseaseOutbreak.earlyResponseActions.establishCoordination.getTime(),
+        diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.getTime(),
+        diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.getTime(),
+        diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date?.getTime(),
+    ])
+        .compact()
+        .value();
+
+    const earliestRespondDate: Date = new Date(Math.min(...responseActionDates));
     return {
         RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
         RTSL_ZEB_TEA_DATA_SOURCE: diseaseOutbreak.dataSource,
@@ -141,6 +157,7 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM: getDateAsIsoString(
             diseaseOutbreak.earlyResponseActions.establishCoordination
         ),
+        RTSL_ZEB_TEA_EARLIEST_RESPOND_DATE: getDateAsIsoString(earliestRespondDate),
         RTSL_ZEB_TEA_RESPONSE_NARRATIVE: diseaseOutbreak.earlyResponseActions.responseNarrative,
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
