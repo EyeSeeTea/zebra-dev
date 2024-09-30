@@ -1,5 +1,4 @@
 import { Id } from "../Ref";
-import { NationalIncidentStatus } from "./DiseaseOutbreakEvent";
 
 export type DiseaseNames =
     | "AFP"

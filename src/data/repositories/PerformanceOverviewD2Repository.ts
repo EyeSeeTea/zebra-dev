@@ -163,6 +163,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         ...baseIndicator,
                         nationalIncidentStatus: event.incidentStatus,
                         manager: event.incidentManagerName,
+                        duration: `${moment()
+                            .diff(moment(event.emerged.date), "days")
+                            .toString()}d`,
                         cases: casesAndDeaths.cases.toString(),
                         deaths: casesAndDeaths.deaths.toString(),
                     } as PerformanceOverviewMetrics;
@@ -215,10 +218,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     //@ts-ignore
                     Object.values(metaData.items).find(item => item.code === row[index])?.name ||
                     "";
-            } else if (key === "creationDate") {
-                acc.duration = `${moment().diff(moment(row[index]), "days").toString()}d`;
-
-                acc[key] = moment(row[index]).format("YYYY-MM-DD");
             } else if (key === "nationalIncidentStatus") {
                 acc[key] = row[index] as NationalIncidentStatus;
             } else {
