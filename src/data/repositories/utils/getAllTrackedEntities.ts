@@ -30,6 +30,9 @@ export async function getAllTrackedEntitiesAsync(
                         orgUnit: true,
                         trackedEntity: true,
                         trackedEntityType: true,
+                        enrollments: {
+                            status: true,
+                        },
                     },
                 })
                 .getData();

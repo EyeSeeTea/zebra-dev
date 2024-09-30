@@ -13,6 +13,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs> {
         return Future.success({
             id: id,
+            status: "ACTIVE",
             name: "Disease Outbreak 1",
             dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
             created: new Date(),
@@ -46,6 +47,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
         return Future.success([
             {
                 id: "1",
+                status: "ACTIVE",
                 name: "Disease Outbreak 1",
                 dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
                 created: new Date(),
@@ -76,6 +78,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             },
             {
                 id: "2",
+                status: "ACTIVE",
                 name: "Disease Outbreak 2",
                 dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                 created: new Date(),

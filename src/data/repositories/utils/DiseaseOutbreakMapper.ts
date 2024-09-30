@@ -44,6 +44,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
+        status: trackedEntity.enrollments?.[0]?.status ?? "ACTIVE", //Zebra Outbreak has only one enrollment
         name: fromMap("name"),
         dataSource: dataSource,
         created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : new Date(),
