@@ -12,7 +12,7 @@ export type DiseaseOutbreakEventOptions = {
     suspectedDiseases: Option[];
     notificationSources: Option[];
     incidentStatus: Option[];
-    teamMembers: TeamMember[];
+    incidentManagers: TeamMember[];
 };
 
 export type DiseaseOutbreakEventLabels = {
