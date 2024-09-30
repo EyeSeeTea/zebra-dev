@@ -12,7 +12,10 @@ import { FormType } from "./FormPage";
 import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
 import { mapEntityToFormState } from "./mapEntityToFormState";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
-import { getRiskAssessmentCustomQuestionSection } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
+import {
+    addNewCustomQuestionSection,
+    getAnotherOptionSection,
+} from "./risk-assessment/mapRiskAssessmentToInitialFormState";
 
 export type GlobalMessage = {
     text: string;
@@ -89,37 +92,40 @@ export function useForm(formType: FormType, id?: Id): State {
             case "risk-assessment-questionnaire": {
                 setFormState(prevState => {
                     if (prevState.kind === "loaded") {
-                        const customQuestionSections = prevState.data.sections.filter(section =>
-                            section.id.startsWith("additionalQuestions")
+                        const otherSections = prevState.data.sections.filter(
+                            section => section.id !== "addNewOptionSection"
+                        );
+                        const addAnotherSection = getAnotherOptionSection();
+
+                        const newCustomQuestionSection = addNewCustomQuestionSection(
+                            prevState.data.sections
                         );
 
-                        const newCustomQuestionSection = getRiskAssessmentCustomQuestionSection(
-                            "Custom Question",
-                            customQuestionSections.length,
-                            {
-                                riskAssessmentQuestionnaire: undefined,
-                                likelihoodOptions:
-                                    customQuestionSections[0]?.fields[0]?.type === "select"
-                                        ? customQuestionSections[0].fields[0].options
-                                        : [],
-                                consequencesOptions:
-                                    customQuestionSections[0]?.fields[1]?.type === "select"
-                                        ? customQuestionSections[0].fields[1].options
-                                        : [],
-                                riskOptions:
-                                    customQuestionSections[0]?.fields[2]?.type === "select"
-                                        ? customQuestionSections[0].fields[2].options
-                                        : [],
-                            }
-                        );
                         const updatedData = {
                             ...prevState.data,
-                            sections: [...prevState.data.sections, newCustomQuestionSection],
+                            sections: [
+                                ...otherSections,
+                                newCustomQuestionSection,
+                                addAnotherSection,
+                            ],
                         };
+
+                        const allNewFields = newCustomQuestionSection.fields;
+
+                        const updatedAndValidatedData = allNewFields.reduce(
+                            (acc, updatedFields) => {
+                                return updateAndValidateFormState(
+                                    acc,
+                                    updatedFields,
+                                    configurableForm
+                                );
+                            },
+                            updatedData
+                        );
 
                         return {
                             kind: "loaded",
-                            data: updatedData,
+                            data: updatedAndValidatedData,
                         };
                     } else {
                         return prevState;
