@@ -7,6 +7,7 @@ import { Future } from "../../../domain/entities/generic/Future";
 import { Id } from "../../../domain/entities/Ref";
 import { RiskAssessment } from "../../../domain/entities/risk-assessment/RiskAssessment";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
+import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
 import { RiskAssessmentRepository } from "../../../domain/repositories/RiskAssessmentRepository";
 import { Maybe } from "../../../utils/ts-utils";
@@ -57,6 +58,29 @@ export class RiskAssessmentTestRepository implements RiskAssessmentRepository {
                     overallConfidenceRegional: { id: "1", name: "Low" },
                     overallConfidenceGlobal: { id: "1", name: "Low" },
                     riskId: "1",
+                }),
+                questionnaire: new RiskAssessmentQuestionnaire({
+                    id: "1",
+                    potentialRiskForHumanHealth: {
+                        likelihood: { id: "1", name: "likelihood1" },
+                        consequences: { id: "1", name: "consequences1" },
+                        risk: { id: "1", name: "risk1" },
+                        rational: "rational1",
+                    },
+                    riskOfEventSpreading: {
+                        likelihood: { id: "1", name: "likelihood1" },
+                        consequences: { id: "1", name: "consequences1" },
+                        risk: { id: "1", name: "risk1" },
+                        rational: "rational1",
+                    },
+                    riskOfInsufficientCapacities: {
+                        likelihood: { id: "1", name: "likelihood1" },
+                        consequences: { id: "1", name: "consequences1" },
+                        risk: { id: "1", name: "risk1" },
+                        rational: "rational1",
+                    },
+                    //custom questions added by user
+                    additionalQuestions: [],
                 }),
             })
         );
