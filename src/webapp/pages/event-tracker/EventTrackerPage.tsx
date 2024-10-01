@@ -31,6 +31,7 @@ export type VisualizationTypes =
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
+    { value: "riskAssessmentDate", label: "Assessment Date", type: "text" },
     { value: "grade", label: "Grade", type: "text" },
     { value: "populationRisk", label: "Population at risk", type: "text" },
     { value: "attackRate", label: "Attack rate", type: "text" },

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
+import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
 import { MapSection } from "../../components/map/MapSection";
@@ -39,6 +40,12 @@ export const DashboardPage: React.FC = React.memo(() => {
     const { cardCounts } = useCardCounts(singleSelectFilters, multiSelectFilters);
 
     const { goTo } = useRoutes();
+    const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
+
+    useEffect(() => {
+        //On navigating to the dashboard page, reset the current event tracker id
+        resetCurrentEventTrackerId();
+    });
 
     const goToEvent = (id: Maybe<Id>) => {
         if (!id) return;

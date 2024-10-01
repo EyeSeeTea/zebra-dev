@@ -19,13 +19,13 @@ import {
     DiseaseOutbreakEventFormData,
     RiskAssessmentGradingFormData,
     RiskAssessmentQuestionnaireFormData,
+    RiskAssessmentQuestionnaireOptions,
     RiskAssessmentSummaryFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import {
     riskAssessmentGradingCodes,
-    riskAssessmentQuestionnaireCodes,
     riskAssessmentSummaryCodes,
 } from "../../../data/repositories/consts/RiskAssessmentConstants";
 import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
@@ -394,39 +394,39 @@ function mapFormStateToRiskAssessmentQuestionnaire(
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
     const indexes = ["1", "2", "3"] as const;
-    const questions = indexes.map(index => {
-        const likelihood = allFields.find(field =>
-            field.id.includes(riskAssessmentQuestionnaireCodes[`likelihood${index}`])
-        )?.value as string;
-        const likelihoodOption = formData.options.likelihood.find(
-            option => option.id === likelihood
-        );
-        if (!likelihoodOption) throw new Error("Likelihood not found");
-
-        const consequences = allFields.find(field =>
-            field.id.includes(riskAssessmentQuestionnaireCodes[`consequences${index}`])
-        )?.value as string;
-        const consequencesOption = formData.options.consequences.find(
-            option => option.id === consequences
-        );
-        if (!consequencesOption) throw new Error("Consequences not found");
-
-        const risk = allFields.find(field =>
-            field.id.includes(riskAssessmentQuestionnaireCodes[`risk${index}`])
-        )?.value as string;
-        const riskOption = formData.options.risk.find(option => option.id === risk);
-        if (!riskOption) throw new Error("Risk  not found");
-
-        const question: RiskAssessmentQuestion = {
+    const questions = indexes.map((index): RiskAssessmentQuestion => {
+        const { likelihoodOption, consequencesOption, riskOption } =
+            getRiskAssessmentQuestionsWithOption("std", allFields, formData.options, index);
+        return {
             likelihood: likelihoodOption,
             consequences: consequencesOption,
             risk: riskOption,
-            rational: allFields.find(field =>
-                field.id.includes(riskAssessmentQuestionnaireCodes[`rational${index}`])
-            )?.value as string,
+            rational: allFields.find(field => field.id.includes(`std-rational${index}`))
+                ?.value as string,
         };
-        return question;
     });
+
+    const additionalQuestions = formState.sections
+        .filter(section => section.id.startsWith("additionalQuestions"))
+        .map((customSection, index): RiskAssessmentQuestion => {
+            const { likelihoodOption, consequencesOption, riskOption } =
+                getRiskAssessmentQuestionsWithOption(
+                    "custom",
+                    allFields,
+                    formData.options,
+                    index.toString()
+                );
+            return {
+                id: customSection.id.replace("additionalQuestions", ""),
+                question: allFields.find(field => field.id.includes(`custom-question${index}`))
+                    ?.value as string,
+                likelihood: likelihoodOption,
+                consequences: consequencesOption,
+                risk: riskOption,
+                rational: allFields.find(field => field.id.includes(`custom-rational${index}`))
+                    ?.value as string,
+            };
+        });
 
     if (!questions[0] || !questions[1] || !questions[2]) throw new Error("Questions not found");
 
@@ -436,7 +436,33 @@ function mapFormStateToRiskAssessmentQuestionnaire(
             potentialRiskForHumanHealth: questions[0],
             riskOfEventSpreading: questions[1],
             riskOfInsufficientCapacities: questions[2],
-            addtionalQuestions: [],
+            additionalQuestions: additionalQuestions,
         });
     return riskAssessmentQuestionnaire;
+}
+
+function getRiskAssessmentQuestionsWithOption(
+    questionType: "std" | "custom",
+    allFields: FormFieldState[],
+    options: RiskAssessmentQuestionnaireOptions,
+    index: string
+) {
+    const likelihood = allFields.find(field =>
+        field.id.includes(`${questionType}-likelihood${index}`)
+    )?.value as string;
+    const likelihoodOption = options.likelihood.find(option => option.id === likelihood);
+    if (!likelihoodOption) throw new Error("Likelihood not found");
+
+    const consequences = allFields.find(field =>
+        field.id.includes(`${questionType}-consequences${index}`)
+    )?.value as string;
+    const consequencesOption = options.consequences.find(option => option.id === consequences);
+    if (!consequencesOption) throw new Error("Consequences not found");
+
+    const risk = allFields.find(field => field.id.includes(`${questionType}-risk${index}`))
+        ?.value as string;
+    const riskOption = options.risk.find(option => option.id === risk);
+    if (!riskOption) throw new Error("Risk  not found");
+
+    return { likelihoodOption, consequencesOption, riskOption };
 }

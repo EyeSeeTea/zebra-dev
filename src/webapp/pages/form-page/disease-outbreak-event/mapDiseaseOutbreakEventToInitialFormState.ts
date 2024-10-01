@@ -2,7 +2,6 @@ import i18n from "@eyeseetea/d2-ui-components/locales";
 import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
 import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { TeamMember } from "../../../../domain/entities/incident-management-team/TeamMember";
-
 import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";
@@ -87,7 +86,7 @@ export function mapDiseaseOutbreakEventToInitialFormState(
     const { entity: diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
         dataSources,
-        teamMembers,
+        incidentManagers,
         hazardTypes,
         mainSyndromes,
         suspectedDiseases,
@@ -95,7 +94,7 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         incidentStatus,
     } = options;
 
-    const teamMemberOptions: User[] = teamMembers.map(tm => mapTeamMemberToUser(tm));
+    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
 
     const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
     const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);

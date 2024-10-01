@@ -19,6 +19,21 @@ export class TeamMemberTestRepository implements TeamMemberRepository {
 
         return Future.success([teamMember]);
     }
+    getRiskAssessors(): FutureData<TeamMember[]> {
+        const teamMember: TeamMember = new TeamMember({
+            id: "riskAssessor",
+            username: "riskAssessor",
+            name: `Team Member Name test`,
+            email: `email@email.com`,
+            phone: `121-1234`,
+            role: { id: "1", name: "role" },
+            status: "Available",
+            photo: new URL("https://www.example.com"),
+        });
+
+        return Future.success([teamMember]);
+    }
+
     getAll(): FutureData<TeamMember[]> {
         const teamMember: TeamMember = new TeamMember({
             id: "test",

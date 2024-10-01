@@ -90,6 +90,9 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+msgid "Notes"
+msgstr ""
+
 msgid "Create Event"
 msgstr ""
 

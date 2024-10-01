@@ -2,6 +2,7 @@ import { Id, NamedRef } from "../Ref";
 import { Struct } from "../generic/Struct";
 
 export type RiskAssessmentQuestion = {
+    id?: Id;
     question?: string;
     likelihood: NamedRef;
     consequences: NamedRef;
@@ -16,7 +17,7 @@ interface RiskAssessmentQuestionnaireAttrs {
     riskOfEventSpreading: RiskAssessmentQuestion;
     riskOfInsufficientCapacities: RiskAssessmentQuestion;
     //custom questions added by user
-    addtionalQuestions: RiskAssessmentQuestion[];
+    additionalQuestions: RiskAssessmentQuestion[];
 }
 
 export class RiskAssessmentQuestionnaire extends Struct<RiskAssessmentQuestionnaireAttrs>() {}

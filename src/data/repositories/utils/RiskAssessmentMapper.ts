@@ -2,26 +2,35 @@ import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
 import { D2TrackerEvent, DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
-import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "../consts/DiseaseOutbreakConstants";
-import { Id } from "../../../domain/entities/Ref";
+import {
+    RTSL_ZEBRA_ORG_UNIT_ID,
+    RTSL_ZEBRA_PROGRAM_ID,
+    RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
+} from "../consts/DiseaseOutbreakConstants";
+import { Code, Id } from "../../../domain/entities/Ref";
 import {
     getValueFromRiskAssessmentGrading,
-    getValueFromRiskAssessmentQuestionnaire,
+    getValueFromRiskAssessmentStdQuestionnaire,
     getValueFromRiskAssessmentSummary,
     isStringInRiskAssessmentGradingCodes,
-    isStringInRiskAssessmentQuestionnaireCodes,
+    isStringInRiskAssessmentStdQuestionnaireCodes,
     isStringInRiskAssessmentSummaryCodes,
     RiskAssessmentGradingCodes,
     RiskAssessmentGradingKeyCode,
-    RiskAssessmentQuestionnaireCodes,
-    RiskAssessmentQuestionnaireKeyCode,
+    RiskAssessmentStdQuestionnaireCodes,
+    RiskAssessmentStdQuestionnaireKeyCode,
     RiskAssessmentSummaryCodes,
     RiskAssessmentSummaryKeyCode,
+    getValueFromRiskAssessmentCustomQuestionnaire,
+    RiskAssessmentCustomQuestionnaireCodes,
+    isStringInRiskAssessmentCustomQuestionnaireCodes,
+    RiskAssessmentCustomQuestionnaireKeyCode,
 } from "../consts/RiskAssessmentConstants";
 import {
+    riskAssessmentCustomQuestionnaireIds,
     riskAssessmentGradingIds,
-    RiskAssessmentQuestionnaireDataValues,
-    riskAssessmentQuestionnaireIds,
+    RiskAssessmentQuestionnaireBaseDataValues,
+    riskAssessmentStdQuestionnaireIds,
     RiskAssessmentSummaryDataValues,
     riskAssessmentSummaryIds,
 } from "../RiskAssessmentD2Repository";
@@ -55,26 +64,30 @@ export function mapRiskAssessmentToDataElements(
     teiId: Id,
     enrollmentId: Id,
     programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
-): D2TrackerEvent {
+): D2TrackerEvent[] {
     if (!formData.entity) throw new Error("No form data found");
     switch (formData.type) {
         case "risk-assessment-grading":
-            return mapRiskAssessmentGradingToDataElements(
-                programStageId,
-                teiId,
-                enrollmentId,
-                formData.entity,
-                programStageDataElementsMetadata
-            );
+            return [
+                mapRiskAssessmentGradingToDataElements(
+                    programStageId,
+                    teiId,
+                    enrollmentId,
+                    formData.entity,
+                    programStageDataElementsMetadata
+                ),
+            ];
         case "risk-assessment-summary":
             if (!formData.entity) throw new Error("No form data found");
-            return mapRiskAssessmentSummaryToDataElements(
-                programStageId,
-                teiId,
-                enrollmentId,
-                formData.entity,
-                programStageDataElementsMetadata
-            );
+            return [
+                mapRiskAssessmentSummaryToDataElements(
+                    programStageId,
+                    teiId,
+                    enrollmentId,
+                    formData.entity,
+                    programStageDataElementsMetadata
+                ),
+            ];
         case "risk-assessment-questionnaire":
             return mapRiskAssessmentQuestionnaireToDataElements(
                 programStageId,
@@ -148,26 +161,63 @@ function mapRiskAssessmentQuestionnaireToDataElements(
     enrollmentId: Id,
     riskAssessmentQuestionnaire: RiskAssessmentQuestionnaire,
     programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
-): D2TrackerEvent {
-    const dataElementValues: Record<RiskAssessmentQuestionnaireCodes, string> =
-        getValueFromRiskAssessmentQuestionnaire(riskAssessmentQuestionnaire);
+): D2TrackerEvent[] {
+    if (programStageId === RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID) {
+        const dataElementValues: Record<RiskAssessmentStdQuestionnaireCodes, string> =
+            getValueFromRiskAssessmentStdQuestionnaire(riskAssessmentQuestionnaire);
 
-    const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
-        if (!isStringInRiskAssessmentQuestionnaireCodes(programStage.dataElement.code)) {
-            throw new Error(
-                `DataElement code ${programStage.dataElement.code}  not found in Risk Assessment Questionnaire Codes`
+        const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
+            if (!isStringInRiskAssessmentStdQuestionnaireCodes(programStage.dataElement.code)) {
+                throw new Error(
+                    `DataElement code ${programStage.dataElement.code}  not found in Risk Assessment Questionnaire Codes`
+                );
+            }
+            const typedCode: RiskAssessmentStdQuestionnaireKeyCode = programStage.dataElement.code;
+            return getPopulatedDataElement(
+                programStage.dataElement.id,
+                dataElementValues[typedCode]
             );
-        }
-        const typedCode: RiskAssessmentQuestionnaireKeyCode = programStage.dataElement.code;
-        return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
-    });
-    return getRiskAssessmentTrackerEvent(
-        programStageId,
-        riskAssessmentQuestionnaire.id,
-        enrollmentId,
-        dataValues,
-        teiId
-    );
+        });
+        return [
+            getRiskAssessmentTrackerEvent(
+                programStageId,
+                riskAssessmentQuestionnaire.id,
+                enrollmentId,
+                dataValues,
+                teiId
+            ),
+        ];
+    } else {
+        const customEvents = riskAssessmentQuestionnaire.additionalQuestions.map(customQuestion => {
+            const dataElementValues: Record<RiskAssessmentCustomQuestionnaireCodes, string> =
+                getValueFromRiskAssessmentCustomQuestionnaire(customQuestion);
+
+            const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
+                if (
+                    !isStringInRiskAssessmentCustomQuestionnaireCodes(programStage.dataElement.code)
+                ) {
+                    throw new Error(
+                        `DataElement code ${programStage.dataElement.code}  not found in Custom Risk Assessment Questionnaire Codes`
+                    );
+                }
+                const typedCode: RiskAssessmentCustomQuestionnaireKeyCode =
+                    programStage.dataElement.code;
+                return getPopulatedDataElement(
+                    programStage.dataElement.id,
+                    dataElementValues[typedCode]
+                );
+            });
+            return getRiskAssessmentTrackerEvent(
+                programStageId,
+                customQuestion.id,
+                enrollmentId,
+                dataValues,
+                teiId
+            );
+        });
+
+        return customEvents;
+    }
 }
 
 function getPopulatedDataElement(dataElement: Id, value: Maybe<string>): DataValue {
@@ -317,27 +367,54 @@ export function mapDataElementsToRiskAssessmentSummary(
     return summary;
 }
 
-export function mapDataElementsToRiskAssessmentQuestionnaire(
+export function mapDataElementsToStdRiskAssessmentQuestionnaire(
     id: Id,
     dataValues: DataValue[]
-): RiskAssessmentQuestionnaireDataValues {
-    const summary: RiskAssessmentQuestionnaireDataValues = {
+): RiskAssessmentQuestionnaireBaseDataValues {
+    const summary: RiskAssessmentQuestionnaireBaseDataValues = {
         id: id,
-        rationale1: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational1) ?? "",
-        rationale2: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational2) ?? "",
-        rationale3: getValueById(dataValues, riskAssessmentQuestionnaireIds.rational3) ?? "",
-        likelihood1: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood1) ?? "",
-        likelihood2: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood2) ?? "",
-        likelihood3: getValueById(dataValues, riskAssessmentQuestionnaireIds.likelihood3) ?? "",
-        consequence1: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences1) ?? "",
-        consequence2: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences2) ?? "",
-        consequence3: getValueById(dataValues, riskAssessmentQuestionnaireIds.consequences3) ?? "",
-        risk1: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk1) ?? "",
-        risk2: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk2) ?? "",
-        risk3: getValueById(dataValues, riskAssessmentQuestionnaireIds.risk3) ?? "",
+        rationale1: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.rational1) ?? "",
+        rationale2: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.rational2) ?? "",
+        rationale3: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.rational3) ?? "",
+        likelihood1: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.likelihood1) ?? "",
+        likelihood2: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.likelihood2) ?? "",
+        likelihood3: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.likelihood3) ?? "",
+        consequence1:
+            getValueById(dataValues, riskAssessmentStdQuestionnaireIds.consequences1) ?? "",
+        consequence2:
+            getValueById(dataValues, riskAssessmentStdQuestionnaireIds.consequences2) ?? "",
+        consequence3:
+            getValueById(dataValues, riskAssessmentStdQuestionnaireIds.consequences3) ?? "",
+        risk1: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.risk1) ?? "",
+        risk2: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.risk2) ?? "",
+        risk3: getValueById(dataValues, riskAssessmentStdQuestionnaireIds.risk3) ?? "",
     };
 
     return summary;
+}
+
+export function mapDataElementsToCustomRiskAssessmentQuestionnaire(
+    id: Id,
+    dataValues: DataValue[]
+): {
+    id: Id;
+    question: string;
+    likelihood: Code;
+    consequence: Code;
+    risk: Code;
+    rationale: Code;
+} {
+    const customQuestion = {
+        id: id,
+        question: getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.question) ?? "",
+        rationale: getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.rational) ?? "",
+        likelihood: getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.likelihood) ?? "",
+        consequence:
+            getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.consequences) ?? "",
+        risk: getValueById(dataValues, riskAssessmentCustomQuestionnaireIds.risk) ?? "",
+    };
+
+    return customQuestion;
 }
 
 function getValueById(dataValues: DataValue[], dataElement: string): Maybe<string> {

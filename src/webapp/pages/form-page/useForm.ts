@@ -12,6 +12,10 @@ import { FormType } from "./FormPage";
 import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
 import { mapEntityToFormState } from "./mapEntityToFormState";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
+import {
+    addNewCustomQuestionSection,
+    getAnotherOptionSection,
+} from "./risk-assessment/mapRiskAssessmentToInitialFormState";
 
 export type GlobalMessage = {
     text: string;
@@ -42,6 +46,7 @@ type State = {
     handleFormChange: (updatedField: FormFieldState) => void;
     onPrimaryButtonClick: () => void;
     onCancelForm: () => void;
+    handleAddNew: () => void;
 };
 
 export function useForm(formType: FormType, id?: Id): State {
@@ -80,6 +85,58 @@ export function useForm(formType: FormType, id?: Id): State {
             }
         );
     }, [compositionRoot.getWithOptions, currentEventTracker, formType, id]);
+
+    const handleAddNew = useCallback(() => {
+        if (formState.kind !== "loaded" || !configurableForm) return;
+        switch (configurableForm.type) {
+            case "risk-assessment-questionnaire": {
+                setFormState(prevState => {
+                    if (prevState.kind === "loaded") {
+                        const otherSections = prevState.data.sections.filter(
+                            section => section.id !== "addNewOptionSection"
+                        );
+                        const addAnotherSection = getAnotherOptionSection();
+
+                        const newCustomQuestionSection = addNewCustomQuestionSection(
+                            prevState.data.sections
+                        );
+
+                        const updatedData = {
+                            ...prevState.data,
+                            sections: [
+                                ...otherSections,
+                                newCustomQuestionSection,
+                                addAnotherSection,
+                            ],
+                        };
+
+                        const allNewFields = newCustomQuestionSection.fields;
+
+                        const updatedAndValidatedData = allNewFields.reduce(
+                            (acc, updatedFields) => {
+                                return updateAndValidateFormState(
+                                    acc,
+                                    updatedFields,
+                                    configurableForm
+                                );
+                            },
+                            updatedData
+                        );
+
+                        return {
+                            kind: "loaded",
+                            data: updatedAndValidatedData,
+                        };
+                    } else {
+                        return prevState;
+                    }
+                });
+                break;
+            }
+            default:
+                break;
+        }
+    }, [configurableForm, formState.kind]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {
@@ -199,5 +256,6 @@ export function useForm(formType: FormType, id?: Id): State {
         handleFormChange,
         onPrimaryButtonClick,
         onCancelForm,
+        handleAddNew,
     };
 }

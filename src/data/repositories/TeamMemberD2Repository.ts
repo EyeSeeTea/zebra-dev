@@ -6,7 +6,8 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
 
-const RTSL_ZEBRA_INCIDENTMANAGER = "UOd3K79040G";
+const RTSL_ZEBRA_INCIDENTMANAGER = "RTSL_ZEBRA_INCIDENTMANAGER";
+const RTSL_ZEBRA_RISKASSESSOR = "RTSL_ZEBRA_RISKASSESSOR";
 
 export class TeamMemberD2Repository implements TeamMemberRepository {
     constructor(private api: D2Api) {}
@@ -29,11 +30,19 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
             });
     }
     getIncidentManagers(): FutureData<TeamMember[]> {
+        return this.getTeamMembersByUserGroup(RTSL_ZEBRA_INCIDENTMANAGER);
+    }
+
+    getRiskAssessors(): FutureData<TeamMember[]> {
+        return this.getTeamMembersByUserGroup(RTSL_ZEBRA_RISKASSESSOR);
+    }
+
+    private getTeamMembersByUserGroup(userGroupCode: string): FutureData<TeamMember[]> {
         return apiToFuture(
             this.api.metadata.get({
                 users: {
                     fields: d2UserFields,
-                    filter: { "userGroups.id": { in: [RTSL_ZEBRA_INCIDENTMANAGER] } },
+                    filter: { "userGroups.code": { in: [userGroupCode] } },
                 },
             })
         )
