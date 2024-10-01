@@ -1,12 +1,12 @@
 import { Future } from "../../../domain/entities/generic/Future";
-import { AnalyticsRepository } from "../../../domain/repositories/AnalyticsRepository";
+import { PerformanceOverviewRepository } from "../../../domain/repositories/PerformanceOverviewRepository";
 import { FutureData } from "../../api-futures";
 
-export class ProgramIndicatorsTestRepository implements AnalyticsRepository {
-    getDiseasesTotal(): FutureData<any> {
+export class PerformanceOverviewTestRepository implements PerformanceOverviewRepository {
+    getTotalCardCounts(): FutureData<any> {
         return Future.success(0);
     }
-    getProgramIndicators(): FutureData<any[]> {
+    getPerformanceOverviewMetrics(): FutureData<any[]> {
         return Future.success([
             {
                 id: "JPenxAnjdhY",

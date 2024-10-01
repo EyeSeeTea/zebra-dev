@@ -19,7 +19,7 @@ export const hazardTypes = [
 
 export type HazardType = (typeof hazardTypes)[number];
 
-export enum IncidentStatus {
+export enum NationalIncidentStatus {
     RTSL_ZEB_OS_INCIDENT_STATUS_WATCH = "RTSL_ZEB_OS_INCIDENT_STATUS_WATCH",
     RTSL_ZEB_OS_INCIDENT_STATUS_ALERT = "RTSL_ZEB_OS_INCIDENT_STATUS_ALERT",
     RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND = "RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND",
@@ -54,6 +54,7 @@ type EarlyResponseActions = {
 };
 
 export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
+    status: "ACTIVE" | "COMPLETED" | "CANCELLED";
     created: Date;
     lastUpdated: Date;
     createdByName: Maybe<string>;
@@ -64,7 +65,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     notificationSourceCode: Code;
     areasAffectedProvinceIds: Id[];
     areasAffectedDistrictIds: Id[];
-    incidentStatus: IncidentStatus;
+    incidentStatus: NationalIncidentStatus;
     emerged: DateWithNarrative;
     detected: DateWithNarrative;
     notified: DateWithNarrative;

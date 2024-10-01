@@ -27,6 +27,7 @@ export type FormSummaryData = {
     subTitle: string;
     summary: LabelWithValue[];
     incidentManager: Maybe<User>;
+    notes: string;
 };
 export function useDiseaseOutbreakEvent(id: Id) {
     const { compositionRoot } = useAppContext();
@@ -92,6 +93,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
             incidentManager: diseaseOutbreakEvent.incidentManager
                 ? mapTeamMemberToUser(diseaseOutbreakEvent.incidentManager)
                 : undefined,
+            notes: diseaseOutbreakEvent.notes || "",
         };
     };
 

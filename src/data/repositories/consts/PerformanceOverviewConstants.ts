@@ -1,5 +1,13 @@
+import {
+    DiseaseNames,
+    HazardNames,
+    IncidentStatus,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { Id } from "../../../domain/entities/Ref";
+
 export enum IndicatorsId {
     suspectedDisease = "jLvbkuvPdZ6",
+    hazardType = "Dzrw3Tf0ukB",
     event = "fyrLOW9Iwwv",
     era1 = "Ylmo2fEijff",
     era2 = "w4FOvRAyjEE",
@@ -12,10 +20,9 @@ export enum IndicatorsId {
     notify1d = "HDa3nE7Elxj",
     respond7d = "yxVOW4lj4xP",
     province = "ouname",
-    manager = "createdbydisplayname",
     creationDate = "lastupdated",
     id = "tei",
-    eventDetectionDate = "enrollmentdate",
+    nationalIncidentStatus = "incidentStatus",
 }
 
 export const NB_OF_CASES = [
@@ -78,6 +85,23 @@ export const NB_OF_CASES = [
     {
         id: "yD6Rl5hHMg5",
         disease: "Zika fever",
+    },
+    {
+        id: "aYztCKYUy3o",
+        disease: "Animal type",
+    },
+    {
+        id: "iJhV5JhqUh3",
+        disease: "Human type",
+    },
+    {
+        id: "NQCfq7qVNqD",
+        disease: "Human and Animal type",
+    },
+
+    {
+        id: "KTPFFaddRMq",
+        disease: "Environmental type",
     },
 ];
 
@@ -144,7 +168,29 @@ export const NB_OF_DEATHS = [
     },
 ];
 
-export const NB_OF_ACTIVE_VERIFIED = [
+type EventTrackerCountIndicatorBase = {
+    id: Id;
+    type: "disease" | "hazard";
+    name: DiseaseNames | HazardNames;
+    incidentStatus: IncidentStatus;
+    count?: number;
+};
+
+export type EventTrackerCountDiseaseIndicator = EventTrackerCountIndicatorBase & {
+    type: "disease";
+    name: DiseaseNames;
+};
+
+export type EventTrackerCountHazardIndicator = EventTrackerCountIndicatorBase & {
+    type: "hazard";
+    name: HazardNames;
+};
+
+export type EventTrackerCountIndicator =
+    | EventTrackerCountDiseaseIndicator
+    | EventTrackerCountHazardIndicator;
+
+export const evenTrackerCountsIndicatorMap: EventTrackerCountIndicator[] = [
     { id: "SGGbbu0AKUv", type: "disease", name: "Acute respiratory", incidentStatus: "Watch" },
     { id: "QnhsQnEsp1p", type: "disease", name: "Acute respiratory", incidentStatus: "Alert" },
     { id: "Rt5KNVqBEO7", type: "disease", name: "Acute respiratory", incidentStatus: "Respond" },

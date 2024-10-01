@@ -5,11 +5,11 @@ import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
 import { usePerformanceOverview } from "./usePerformanceOverview";
-import { useDiseasesTotal } from "./useDiseasesTotal";
-import { StatsCard, StatsCardProps } from "../../components/stats-card/StatsCard";
+import { useCardCounts } from "./useCardCounts";
+import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
-import { Id } from "@eyeseetea/d2-api";
+import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
@@ -36,7 +36,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         editRiskAssessmentColumns,
     } = usePerformanceOverview();
 
-    const { diseasesTotal } = useDiseasesTotal(singleSelectFilters, multiSelectFilters);
+    const { cardCounts } = useCardCounts(singleSelectFilters, multiSelectFilters);
 
     const { goTo } = useRoutes();
 
@@ -44,33 +44,6 @@ export const DashboardPage: React.FC = React.memo(() => {
         if (!id) return;
         goTo(RouteName.EVENT_TRACKER, { id });
     };
-
-    const performances: StatsCardProps[] = [
-        {
-            title: "Detection",
-            stat: "57",
-            pretitle: "4 events",
-            color: "green",
-        },
-        {
-            title: "Notification",
-            stat: "43",
-            pretitle: "3 events",
-            color: "red",
-        },
-        {
-            title: "Response",
-            stat: "57",
-            pretitle: "4 events",
-            color: "green",
-        },
-        {
-            title: "All targets",
-            stat: "14",
-            pretitle: "1 events",
-            color: "grey",
-        },
-    ];
 
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
@@ -85,12 +58,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                                 label={i18n.t(label)}
                                 placeholder={i18n.t(placeholder)}
                                 options={options || []}
-                                onChange={(values: string[]) =>
-                                    setMultiSelectFilters({
-                                        ...multiSelectFilters,
-                                        [id]: values,
-                                    })
-                                }
+                                onChange={(values: string[]) => setMultiSelectFilters(id, values)}
                             />
                         ) : (
                             <Selector
@@ -107,23 +75,20 @@ export const DashboardPage: React.FC = React.memo(() => {
                     )}
                     <DateRangePicker
                         value={multiSelectFilters.duration || []}
-                        onChange={(dates: string[]) =>
-                            setMultiSelectFilters({ ...multiSelectFilters, duration: dates })
-                        }
+                        onChange={(dates: string[]) => setMultiSelectFilters("duration", dates)}
                         placeholder={i18n.t("Select duration")}
                         label={i18n.t("Duration")}
                     />
                 </Container>
                 <GridWrapper>
-                    {diseasesTotal &&
-                        diseasesTotal.map((disease, index) => (
-                            <StatsCard
-                                key={index}
-                                stat={disease.total}
-                                title={disease.disease || disease.hazard}
-                                fillParent
-                            />
-                        ))}
+                    {cardCounts.map((cardCount, index) => (
+                        <StatsCard
+                            key={index}
+                            stat={cardCount.total.toString()}
+                            title={i18n.t(cardCount.name)}
+                            fillParent
+                        />
+                    ))}
                 </GridWrapper>
             </Section>
             <Section title={i18n.t("All public health events")}>
@@ -133,22 +98,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                     multiSelectFilters={multiSelectFilters}
                 />
             </Section>
-            <Section title={i18n.t("7-1-7 performance")}>
-                <GridWrapper>
-                    {performances &&
-                        performances.map((per, index) => (
-                            <StatsCard
-                                key={index}
-                                stat={per.stat}
-                                title={per.title}
-                                pretitle={per.pretitle}
-                                color={per.color}
-                                fillParent
-                                isPercentage
-                            />
-                        ))}
-                </GridWrapper>
-            </Section>
+            <Section title={i18n.t("7-1-7 performance")}>TBD</Section>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>
                     <StatisticTable

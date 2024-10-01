@@ -1,30 +1,25 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
-
-type State = {
-    diseasesTotal: any[];
-    isLoading: boolean;
-};
+import { TotalCardCounts } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type Order = { name: string; direction: "asc" | "desc" };
 
-export function useDiseasesTotal(
+export function useCardCounts(
     singleSelectFilters: Record<string, string>,
     multiSelectFilters: Record<string, string[]>
-): State {
+) {
     const { compositionRoot } = useAppContext();
-
-    const [diseasesTotal, setDiseasesTotal] = useState<any[]>([]);
+    const [cardCounts, setCardCounts] = useState<TotalCardCounts[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.analytics.getDiseasesTotal
+        compositionRoot.performanceOverview.getTotalCardCounts
             .execute(singleSelectFilters, multiSelectFilters)
             .run(
                 diseasesTotal => {
-                    setDiseasesTotal(diseasesTotal);
+                    setCardCounts(diseasesTotal);
                     setIsLoading(false);
                 },
                 error => {
@@ -32,10 +27,10 @@ export function useDiseasesTotal(
                     setIsLoading(false);
                 }
             );
-    }, [compositionRoot.analytics.getDiseasesTotal, multiSelectFilters, singleSelectFilters]);
+    }, [compositionRoot, singleSelectFilters, multiSelectFilters]);
 
     return {
-        diseasesTotal,
+        cardCounts,
         isLoading,
     };
 }

@@ -15,7 +15,11 @@ export function getDateAsIsoString(date: Maybe<Date>): string {
 
 export function getDateAsMonthYearString(date: Date): string {
     try {
-        return date.toLocaleString("default", { month: "long", year: "numeric" });
+        return date.toLocaleString("default", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
     } catch (e) {
         console.debug(e);
         return "";

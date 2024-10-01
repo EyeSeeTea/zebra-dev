@@ -1,62 +1,90 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
-
 import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
-import { ProgramIndicatorBaseAttrs } from "../../../data/repositories/AnalyticsD2Repository";
+import { Maybe } from "../../../utils/ts-utils";
+import { PerformanceOverviewMetrics } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { NationalIncidentStatus } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type State = {
     columns: TableColumn[];
-    dataPerformanceOverview: any[];
+    dataPerformanceOverview: PerformanceOverviewMetrics[];
     columnRules: { [key: string]: number };
     editRiskAssessmentColumns: string[];
     filters: FiltersConfig[];
-    order?: Order;
-    setOrder: (order: Order) => void;
+    order: Maybe<Order>;
+    setOrder: Dispatch<SetStateAction<Maybe<Order>>>;
     isLoading: boolean;
 };
 
-export type Order = { name: string; direction: "asc" | "desc" };
+export type Order = { name: keyof PerformanceOverviewMetrics; direction: "asc" | "desc" };
+
 export function usePerformanceOverview(): State {
     const { compositionRoot } = useAppContext();
 
     const [dataPerformanceOverview, setDataPerformanceOverview] = useState<
-        ProgramIndicatorBaseAttrs[]
+        PerformanceOverviewMetrics[]
     >([]);
     const [isLoading, setIsLoading] = useState(false);
     const [order, setOrder] = useState<Order>();
 
     useEffect(() => {
-        if (dataPerformanceOverview) {
-            setDataPerformanceOverview(newDataPerformanceOverview =>
-                _(newDataPerformanceOverview)
-                    .orderBy([
-                        [
-                            (dataPerformanceOverviewData: ProgramIndicatorBaseAttrs) => {
-                                const value =
-                                    dataPerformanceOverviewData[
-                                        (order?.name as keyof ProgramIndicatorBaseAttrs) ||
-                                            "creationDate"
-                                    ];
-                                return Number.isNaN(Number(value)) ? value : Number(value);
-                            },
-                            order?.direction || "asc",
-                        ],
-                    ])
-                    .value()
+        if (dataPerformanceOverview.length && order) {
+            setDataPerformanceOverview(
+                (prevDataPerformanceOverview: PerformanceOverviewMetrics[]) => {
+                    const newDataPerformanceOverview = _(prevDataPerformanceOverview)
+                        .orderBy([
+                            [
+                                item =>
+                                    Number.isNaN(Number(item[order.name]))
+                                        ? item[order.name]
+                                        : Number(item[order.name]),
+                                order.direction,
+                            ],
+                        ])
+                        .toArray();
+
+                    return newDataPerformanceOverview;
+                }
             );
         }
-    }, [order]);
+    }, [order, dataPerformanceOverview]);
 
+    const getNationalIncidentStatusString = useCallback((status: string): string => {
+        switch (status as NationalIncidentStatus) {
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT:
+                return "Alert";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED:
+                return "Closed";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED:
+                return "Discarded";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND:
+                return "Respond";
+            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH:
+                return "Watch";
+        }
+    }, []);
+
+    const mapEntityToTableData = useCallback(
+        (programIndicator: PerformanceOverviewMetrics): PerformanceOverviewMetrics => {
+            return {
+                ...programIndicator,
+                nationalIncidentStatus: getNationalIncidentStatusString(
+                    programIndicator.nationalIncidentStatus
+                ),
+                event: programIndicator.event,
+            };
+        },
+        [getNationalIncidentStatusString]
+    );
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.analytics.getProgramIndicators.execute().run(
+        compositionRoot.performanceOverview.getPerformanceOverviewMetrics.execute().run(
             programIndicators => {
-                setDataPerformanceOverview(
-                    programIndicators.map((data: ProgramIndicatorBaseAttrs) =>
-                        mapEntityToTableData(data)
-                    )
+                const mappedData = programIndicators.map((data: PerformanceOverviewMetrics) =>
+                    mapEntityToTableData(data)
                 );
+                setDataPerformanceOverview(mappedData);
                 setIsLoading(false);
             },
             error => {
@@ -64,7 +92,7 @@ export function usePerformanceOverview(): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.analytics.getProgramIndicators]);
+    }, [compositionRoot.performanceOverview.getPerformanceOverviewMetrics, mapEntityToTableData]);
 
     const columns: TableColumn[] = [
         { label: "Event", value: "event" },
@@ -83,20 +111,13 @@ export function usePerformanceOverview(): State {
         { label: "ERA6", value: "era6" },
         { label: "ERA7", value: "era7" },
         { label: "Respond 7d", dark: true, value: "respond7d" },
+        { label: "Incident Status", value: "nationalIncidentStatus" },
     ];
     const editRiskAssessmentColumns = ["era1", "era2", "era3", "era4", "era5", "era6", "era7"];
     const columnRules: { [key: string]: number } = {
         detect7d: 7,
         notify1d: 1,
         respond7d: 7,
-    };
-    const mapEntityToTableData = (
-        programIndicator: ProgramIndicatorBaseAttrs
-    ): ProgramIndicatorBaseAttrs => {
-        return {
-            ...programIndicator,
-            event: programIndicator.event + " (" + programIndicator.suspectedDisease + ")",
-        };
     };
 
     const filters: FiltersConfig[] = [

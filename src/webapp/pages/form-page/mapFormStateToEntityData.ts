@@ -2,7 +2,7 @@ import {
     DataSource,
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
-    IncidentStatus,
+    NationalIncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormState } from "../../components/form/FormState";
 import { diseaseOutbreakEventFieldIds } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
@@ -127,7 +127,7 @@ function mapFormStateToDiseaseOutbreakEvent(
         incidentStatus: getStringFieldValue(
             diseaseOutbreakEventFieldIds.incidentStatus,
             allFields
-        ) as IncidentStatus,
+        ) as NationalIncidentStatus,
         emerged: {
             date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
             narrative: getStringFieldValue(
@@ -216,6 +216,7 @@ function mapFormStateToDiseaseOutbreakEvent(
 
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
+        status: diseaseOutbreakEvent?.status || "ACTIVE",
         created: diseaseOutbreakEvent?.created || new Date(),
         lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,

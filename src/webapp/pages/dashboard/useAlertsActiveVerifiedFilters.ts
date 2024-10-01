@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { NB_OF_ACTIVE_VERIFIED } from "../../../data/repositories/consts/AnalyticsConstants";
 import _c from "../../../domain/entities/generic/Collection";
 import { useAppContext } from "../../contexts/app-context";
 import { OrgUnit } from "../../../domain/entities/OrgUnit";
 import { Option } from "../../components/utils/option";
+import { evenTrackerCountsIndicatorMap } from "../../../data/repositories/consts/PerformanceOverviewConstants";
 
 export type FiltersConfig = {
     id: string;
@@ -51,11 +51,18 @@ export function useAlertsActiveVerifiedFilters() {
         });
     }, []);
 
+    const handleSetMultiSelectFilters = useCallback((id: string, values: string[]) => {
+        setMultiSelectFilters(prevMultiSelectFilters => ({
+            ...prevMultiSelectFilters,
+            [id]: values,
+        }));
+    }, []);
+
     // Initialize filter options based on diseasesTotal
     useEffect(() => {
         const buildFiltersConfig = (): FiltersConfig[] => {
             const createOptions = (key: "disease" | "hazard") =>
-                _c(NB_OF_ACTIVE_VERIFIED)
+                _c(evenTrackerCountsIndicatorMap)
                     .filter(value => value.type === key)
                     .uniqBy(value => value.name)
                     .map(value => ({
@@ -64,6 +71,9 @@ export function useAlertsActiveVerifiedFilters() {
                     }))
 
                     .value();
+
+            const diseaseOptions = createOptions("disease");
+            const hazardOptions = createOptions("hazard");
 
             return [
                 {
@@ -82,14 +92,14 @@ export function useAlertsActiveVerifiedFilters() {
                     label: "Disease",
                     placeholder: "Select Disease",
                     type: "singleselector",
-                    options: createOptions("disease"),
+                    options: diseaseOptions,
                 },
                 {
                     id: "hazard",
                     label: "Hazard Type",
                     placeholder: "Select Hazard Type",
                     type: "singleselector",
-                    options: createOptions("hazard"),
+                    options: hazardOptions,
                 },
                 {
                     id: "province",
@@ -108,7 +118,7 @@ export function useAlertsActiveVerifiedFilters() {
         singleSelectFilters,
         setSingleSelectFilters: handleSetSingleSelectFilters,
         multiSelectFilters,
-        setMultiSelectFilters,
+        setMultiSelectFilters: handleSetMultiSelectFilters,
     };
 }
 

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { Dispatch, SetStateAction, useCallback } from "react";
 import styled from "styled-components";
 import i18n from "../../../../utils/i18n";
 import {
@@ -17,10 +17,11 @@ import { useTableCell } from "./useTableCell";
 import { useStatisticCalculations } from "./useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
-import { Id } from "../../../../domain/entities/Ref";
 import { Order } from "../../../pages/dashboard/usePerformanceOverview";
 import { Option } from "../../utils/option";
+import { Id } from "../../../../domain/entities/Ref";
 import { Maybe } from "../../../../utils/ts-utils";
+import { PerformanceOverviewMetrics } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type TableColumn = {
     value: string;
@@ -50,8 +51,8 @@ export type StatisticTableProps = {
         [key: TableColumn["value"]]: string;
     }[];
     filters: FiltersConfig[];
-    order?: Order;
-    setOrder?: (order: Order) => void;
+    order: Maybe<Order>;
+    setOrder: Dispatch<SetStateAction<Maybe<Order>>>;
     goToEvent: (id: Maybe<Id>) => void;
 };
 
@@ -77,17 +78,19 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         );
 
         const onOrderBy = useCallback(
-            (value: string) =>
-                setOrder &&
-                setOrder({
-                    name: value,
-                    direction:
-                        order?.name === value
-                            ? order?.direction === "asc"
-                                ? "desc"
-                                : "asc"
-                            : "asc",
-                }),
+            (value: string) => {
+                setOrder(prevOrder => {
+                    return {
+                        name: value as keyof PerformanceOverviewMetrics,
+                        direction:
+                            prevOrder?.name === value
+                                ? order?.direction === "asc"
+                                    ? "desc"
+                                    : "asc"
+                                : "asc",
+                    };
+                });
+            },
             [order, setOrder]
         );
 
