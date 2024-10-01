@@ -1,23 +1,26 @@
 import { FutureData } from "../../data/api-futures";
-import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
-import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
-import { AnalyticsRepository } from "../repositories/AnalyticsRepository";
-import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
-import { DiseaseTotalAttrs } from "../../data/repositories/AnalyticsD2Repository";
+import { TotalCardCounts } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { PerformanceOverviewRepository } from "../repositories/PerformanceOverviewRepository";
 
-export class GetDiseasesTotalUseCase {
+export class GetTotalCardCountsUseCase {
     constructor(
         private options: {
-            diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
-            optionsRepository: OptionsRepository;
-            teamMemberRepository: TeamMemberRepository;
             orgUnitRepository: OrgUnitRepository;
-            analytics: AnalyticsRepository;
+            performanceOverviewRepository: PerformanceOverviewRepository;
         }
     ) {}
-
-    public execute(filters?: Record<string, string[]>): FutureData<DiseaseTotalAttrs[]> {
-        return this.options.analytics.getDiseasesTotal(filters);
+    public execute(
+        singleSelectFilters?: Record<string, string>,
+        multiSelectFilters?: Record<string, string[]>
+    ): FutureData<TotalCardCounts[]> {
+        return this.options.orgUnitRepository.getByLevel(2).flatMap(allProvinces => {
+            const allProvincesIds = allProvinces.map(province => province.id);
+            return this.options.performanceOverviewRepository.getTotalCardCounts(
+                allProvincesIds,
+                singleSelectFilters,
+                multiSelectFilters
+            );
+        });
     }
 }

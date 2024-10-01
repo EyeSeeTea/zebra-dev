@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 import { StatsCardProps } from "../../components/stats-card/StatsCard";
-import { Indicator717PerformanceBaseAttrs } from "../../../data/repositories/AnalyticsD2Repository";
+import { Indicator717PerformanceBaseAttrs } from "../../../data/repositories/PerformanceOverviewD2Repository";
 
 export type PerformanceIndicator717 = {
     performanceIndicators: {
@@ -64,7 +64,7 @@ export function use717Performance(filters: Record<string, string[]>): Performanc
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.analytics.get717Performance.execute(filters).run(
+        compositionRoot.performanceOverview.get717Performance.execute().run(
             performanceIndicators => {
                 setPerformanceIndicators(transformData(performanceIndicators));
                 setIsLoading(false);
@@ -74,7 +74,7 @@ export function use717Performance(filters: Record<string, string[]>): Performanc
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.analytics.get717Performance, filters]);
+    }, [compositionRoot.performanceOverview.get717Performance, filters]);
 
     return {
         performanceIndicators,

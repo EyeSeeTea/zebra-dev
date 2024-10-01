@@ -1,3 +1,10 @@
+import {
+    DiseaseNames,
+    HazardNames,
+    IncidentStatus,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { Id } from "../../../domain/entities/Ref";
+
 export enum IndicatorsId {
     suspectedDisease = "jLvbkuvPdZ6",
     hazardType = "Dzrw3Tf0ukB",
@@ -15,6 +22,7 @@ export enum IndicatorsId {
     province = "ouname",
     creationDate = "lastupdated",
     id = "tei",
+    nationalIncidentStatus = "incidentStatus",
 }
 
 export const NB_OF_CASES = [
@@ -160,7 +168,29 @@ export const NB_OF_DEATHS = [
     },
 ];
 
-export const NB_OF_ACTIVE_VERIFIED = [
+type EventTrackerCountIndicatorBase = {
+    id: Id;
+    type: "disease" | "hazard";
+    name: DiseaseNames | HazardNames;
+    incidentStatus: IncidentStatus;
+    count?: number;
+};
+
+export type EventTrackerCountDiseaseIndicator = EventTrackerCountIndicatorBase & {
+    type: "disease";
+    name: DiseaseNames;
+};
+
+export type EventTrackerCountHazardIndicator = EventTrackerCountIndicatorBase & {
+    type: "hazard";
+    name: HazardNames;
+};
+
+export type EventTrackerCountIndicator =
+    | EventTrackerCountDiseaseIndicator
+    | EventTrackerCountHazardIndicator;
+
+export const evenTrackerCountsIndicatorMap: EventTrackerCountIndicator[] = [
     { id: "SGGbbu0AKUv", type: "disease", name: "Acute respiratory", incidentStatus: "Watch" },
     { id: "QnhsQnEsp1p", type: "disease", name: "Acute respiratory", incidentStatus: "Alert" },
     { id: "Rt5KNVqBEO7", type: "disease", name: "Acute respiratory", incidentStatus: "Respond" },
@@ -206,18 +236,33 @@ export const NB_OF_ACTIVE_VERIFIED = [
     { id: "XieBgoffFRd", type: "disease", name: "Zika fever", incidentStatus: "Watch" },
     { id: "tIYANWCiMoR", type: "disease", name: "Zika fever", incidentStatus: "Alert" },
     { id: "qJjRR8EwYgB", type: "disease", name: "Zika fever", incidentStatus: "Respond" },
-    { id: "gMoRiHe1Z0Z", type: "hazard", name: "Animal type", incidentStatus: "Watch" },
-    { id: "tKLdMcWUg9l", type: "hazard", name: "Animal type", incidentStatus: "Alert" },
-    { id: "TJhGnX8E7CP", type: "hazard", name: "Animal type", incidentStatus: "Respond" },
-    { id: "YfkOUZPhCY1", type: "hazard", name: "Human type", incidentStatus: "Watch" },
-    { id: "NzpH7Y76JBw", type: "hazard", name: "Human type", incidentStatus: "Alert" },
-    { id: "jWDbWYr85DP", type: "hazard", name: "Human type", incidentStatus: "Respond" },
-    { id: "kLtsjiyIzer", type: "hazard", name: "Human and Animal type", incidentStatus: "Watch" },
-    { id: "ge4Jwq2MGrF", type: "hazard", name: "Human and Animal type", incidentStatus: "Alert" },
-    { id: "GQ6Yg9ZN4xL", type: "hazard", name: "Human and Animal type", incidentStatus: "Respond" },
-    { id: "Bu4bafAjFXN", type: "hazard", name: "Environmental type", incidentStatus: "Watch" },
-    { id: "z3EbI98pgjG", type: "hazard", name: "Environmental type", incidentStatus: "Alert" },
-    { id: "gRcZNqpKyYg", type: "hazard", name: "Environmental type", incidentStatus: "Respond" },
+    { id: "gMoRiHe1Z0Z", type: "hazard", name: "Biological: Animal", incidentStatus: "Watch" },
+    { id: "tKLdMcWUg9l", type: "hazard", name: "Biological: Animal", incidentStatus: "Alert" },
+    { id: "TJhGnX8E7CP", type: "hazard", name: "Biological: Animal", incidentStatus: "Respond" },
+    { id: "YfkOUZPhCY1", type: "hazard", name: "Biological: Human", incidentStatus: "Watch" },
+    { id: "NzpH7Y76JBw", type: "hazard", name: "Biological: Human", incidentStatus: "Alert" },
+    { id: "jWDbWYr85DP", type: "hazard", name: "Biological: Human", incidentStatus: "Respond" },
+    {
+        id: "kLtsjiyIzer",
+        type: "hazard",
+        name: "Biological: Human and Animal",
+        incidentStatus: "Watch",
+    },
+    {
+        id: "ge4Jwq2MGrF",
+        type: "hazard",
+        name: "Biological: Human and Animal",
+        incidentStatus: "Alert",
+    },
+    {
+        id: "GQ6Yg9ZN4xL",
+        type: "hazard",
+        name: "Biological: Human and Animal",
+        incidentStatus: "Respond",
+    },
+    { id: "Bu4bafAjFXN", type: "hazard", name: "Environmental", incidentStatus: "Watch" },
+    { id: "z3EbI98pgjG", type: "hazard", name: "Environmental", incidentStatus: "Alert" },
+    { id: "gRcZNqpKyYg", type: "hazard", name: "Environmental", incidentStatus: "Respond" },
 ];
 
 export const INDICATORS_717_PERFORMANCE = [

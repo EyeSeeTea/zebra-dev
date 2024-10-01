@@ -35,6 +35,18 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
         });
     }
 
+    getByLevel(level: number): FutureData<OrgUnit[]> {
+        return apiToFuture(
+            this.api.models.organisationUnits.get({
+                fields: d2OrgUnitFields,
+                paging: false,
+                level: level,
+            })
+        ).map(response => {
+            return this.mapD2OrgUnitsToOrgUnits(response.objects);
+        });
+    }
+
     private mapD2OrgUnitsToOrgUnits(d2OrgUnit: D2OrgUnit[]): OrgUnit[] {
         return d2OrgUnit.map(
             (ou): OrgUnit => ({

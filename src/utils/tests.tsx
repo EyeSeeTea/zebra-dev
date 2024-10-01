@@ -9,11 +9,15 @@ import { ThemeProvider } from "styled-components";
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import muiThemeLegacy from "../webapp/pages/app/themes/dhis2-legacy.theme";
 import { muiTheme } from "../webapp/pages/app/themes/dhis2.theme";
+import { D2Api } from "../types/d2-api";
 
 export function getTestContext() {
     const context: AppContextState = {
         currentUser: createAdminUser(),
         compositionRoot: getTestCompositionRoot(),
+        api: {} as D2Api,
+        orgUnits: [],
+        isDev: true,
     };
 
     return context;

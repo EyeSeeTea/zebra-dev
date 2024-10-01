@@ -6,12 +6,34 @@ import { OptionsRepository } from "../../domain/repositories/OptionsRepository";
 import { assertOrError } from "./utils/AssertOrError";
 import { getHazardTypeByCode } from "./consts/DiseaseOutbreakConstants";
 
+import {
+    Capability1,
+    Capability2,
+    HighCapacity,
+    HighGeographicalSpread,
+    HighPopulationAtRisk,
+    HighWeightedOption,
+    LowCapacity,
+    LowGeographicalSpread,
+    LowPopulationAtRisk,
+    LowWeightedOption,
+    MediumCapacity,
+    MediumGeographicalSpread,
+    MediumPopulationAtRisk,
+    MediumWeightedOption,
+    RiskAssessmentGrading,
+} from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
+import { Future } from "../../domain/entities/generic/Future";
+
 const MAIN_SYNDROME_OPTION_SET_CODE = "AGENTS";
 const SUSPECTED_DISEASE_OPTION_SET_CODE = "RTSL_ZEB_OS_DISEASE";
 const NOTIFICATION_SOURCE_OPTION_SET_CODE = "RTSL_ZEB_OS_SOURCE";
 
 export class OptionsD2Repository implements OptionsRepository {
     constructor(private api: D2Api) {}
+    private likelihoodOptions: Map<string, Option> = new Map();
+    private consequencesOptions: Map<string, Option> = new Map();
+    private lowMediumHighOptions: Map<string, Option> = new Map();
 
     getMainSyndrome(optionCode: Code): FutureData<Option> {
         return this.get(optionCode, MAIN_SYNDROME_OPTION_SET_CODE);
@@ -53,8 +75,12 @@ export class OptionsD2Repository implements OptionsRepository {
         return this.getOptionSetByCode("RTSL_ZEB_OS_DATA_SOURCE");
     }
 
+    getHazardTypesByCode(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_HAZARD_TYPE");
+    }
+
     getHazardTypes(): FutureData<Option[]> {
-        return this.getOptionSetByCode("RTSL_ZEB_OS_HAZARD_TYPE").map(hazardTypes => {
+        return this.getHazardTypesByCode().map(hazardTypes => {
             return _(hazardTypes)
                 .compactMap(hazardType => {
                     const hazardTypeId = getHazardTypeByCode(hazardType.id);
@@ -85,6 +111,57 @@ export class OptionsD2Repository implements OptionsRepository {
         return this.getOptionSetByCode("RTSL_ZEB_OS_INCIDENT_STATUS");
     }
 
+    //Risk Assessment Grading Options
+    getPopulationAtRisks(): FutureData<
+        Array<LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk>
+    > {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_POPULATION_AT_RISK").map(
+            populationAtRiskOptions => {
+                return populationAtRiskOptions.map(populationAtRisk => {
+                    return RiskAssessmentGrading.getOptionTypeByCodePopulation(populationAtRisk.id);
+                });
+            }
+        );
+    }
+
+    getLowMediumHighWeightedOptions(): FutureData<
+        Array<LowWeightedOption | MediumWeightedOption | HighWeightedOption>
+    > {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_LMH").map(lowMediumHighOptions => {
+            return lowMediumHighOptions.map(lowMediumHigh => {
+                return RiskAssessmentGrading.getOptionTypeByCodeWeighted(lowMediumHigh.id);
+            });
+        });
+    }
+    getGeographicalSpreads(): FutureData<
+        Array<LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread>
+    > {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_GEOGRAPHICAL_SPREAD").map(
+            geographicalSpreadOptions => {
+                return geographicalSpreadOptions.map(geographicalSpread => {
+                    return RiskAssessmentGrading.getOptionTypeByCodeGeographicalSpread(
+                        geographicalSpread.id
+                    );
+                });
+            }
+        );
+    }
+
+    getCapacities(): FutureData<Array<LowCapacity | MediumCapacity | HighCapacity>> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_CAPACITY").map(capacityOptions => {
+            return capacityOptions.map(capacity => {
+                return RiskAssessmentGrading.getOptionTypeByCodeCapacity(capacity.id);
+            });
+        });
+    }
+    getCapabilities(): FutureData<Array<Capability1 | Capability2>> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_CAPABILITY").map(capabilityOptions => {
+            return capabilityOptions.map(capability => {
+                return RiskAssessmentGrading.getOptionTypeByCodeCapability(capability.id);
+            });
+        });
+    }
+
     private getOptionSetByCode(code: string): FutureData<Option[]> {
         return apiToFuture(
             this.api.metadata.get({
@@ -93,6 +170,38 @@ export class OptionsD2Repository implements OptionsRepository {
         )
             .flatMap(response => assertOrError(response.optionSets[0], `OptionSet ${code}`))
             .map(d2Option => this.mapD2OptionSetToOptions(d2Option));
+    }
+    getLowMediumHighOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_LMH");
+    }
+    getLowMediumHighOption(optionCode: Code): FutureData<Option> {
+        if (this.lowMediumHighOptions.has(optionCode)) {
+            const cachedOption = this.lowMediumHighOptions.get(optionCode);
+            if (cachedOption) return Future.success(cachedOption);
+        }
+        return this.get(optionCode, "RTSL_ZEB_OS_LMH");
+    }
+
+    getLikelihoodOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_LIKELIHOOD");
+    }
+    getLikelihoodOption(optionCode: Code): FutureData<Option> {
+        if (this.likelihoodOptions.has(optionCode)) {
+            const cachedOption = this.likelihoodOptions.get(optionCode);
+            if (cachedOption) return Future.success(cachedOption);
+        }
+        return this.get(optionCode, "RTSL_ZEB_OS_LIKELIHOOD");
+    }
+
+    getConsequencesOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_CONSEQUENCES");
+    }
+    getConsequencesOption(optionCode: Code): FutureData<Option> {
+        if (this.consequencesOptions.has(optionCode)) {
+            const cachedOption = this.consequencesOptions.get(optionCode);
+            if (cachedOption) return Future.success(cachedOption);
+        }
+        return this.get(optionCode, "RTSL_ZEB_OS_CONSEQUENCES");
     }
 
     private mapD2OptionSetToOptions(optionSet: D2OptionSet): Option[] {

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useForm } from "./useForm";
+import { useLocalForm } from "./useLocalForm";
 import { FormState } from "./FormState";
 import { FormLayout } from "./FormLayout";
 import { FormSection } from "./FormSection";
@@ -13,12 +13,13 @@ export type FormProps = {
     onFormChange: (updatedField: FormFieldState) => void;
     onSave: () => void;
     onCancel?: () => void;
+    handleAddNew?: () => void;
 };
 
 export const Form: React.FC<FormProps> = React.memo(props => {
-    const { formState, onFormChange, onSave, onCancel, errorLabels } = props;
+    const { formState, onFormChange, onSave, onCancel, errorLabels, handleAddNew } = props;
 
-    const { formLocalState, handleUpdateFormField } = useForm(formState, onFormChange);
+    const { formLocalState, handleUpdateFormField } = useLocalForm(formState, onFormChange);
 
     return (
         <Layout title={formLocalState.title} subtitle={formLocalState.subtitle} hideSideBarOptions>
@@ -47,6 +48,8 @@ export const Form: React.FC<FormProps> = React.memo(props => {
                             onUpdateField={handleUpdateFormField}
                             onClickInfo={section.onClickInfo}
                             errorLabels={errorLabels}
+                            handleAddNew={handleAddNew}
+                            addNewField={section.addNewField}
                         />
                     );
                 })}

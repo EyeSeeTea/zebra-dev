@@ -8,6 +8,7 @@ import {
     updateFields,
     validateField,
     hideFieldsAndSetToEmpty,
+    AddNewFieldState,
 } from "./FormFieldsState";
 import { FormState } from "./FormState";
 
@@ -20,6 +21,7 @@ export type FormSectionState = {
     fields: FormFieldState[];
     subsections?: FormSectionState[];
     onClickInfo?: (id: string) => void;
+    addNewField?: AddNewFieldState;
 };
 
 // HELPERS:

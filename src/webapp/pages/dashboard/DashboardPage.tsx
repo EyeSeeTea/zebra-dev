@@ -1,22 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
+
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
 import { usePerformanceOverview } from "./usePerformanceOverview";
-import { useDiseasesTotal } from "./useDiseasesTotal";
+import { useCardCounts } from "./useCardCounts";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
-import { Id } from "@eyeseetea/d2-api";
+import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
+import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
-import { useFilters } from "./useFilters";
+import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
+import { MapSection } from "../../components/map/MapSection";
+import { Selector } from "../../components/selector/Selector";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 import { PerformanceIndicator717, use717Performance } from "./use717Performance";
 
 export const DashboardPage: React.FC = React.memo(() => {
-    const { filters, filterOptions, setFilters } = useFilters();
+    const {
+        filtersConfig,
+        singleSelectFilters,
+        setSingleSelectFilters,
+        multiSelectFilters,
+        setMultiSelectFilters,
+    } = useAlertsActiveVerifiedFilters();
+
     const {
         columns,
         dataPerformanceOverview,
@@ -27,9 +38,16 @@ export const DashboardPage: React.FC = React.memo(() => {
         editRiskAssessmentColumns,
     } = usePerformanceOverview();
 
-    const { diseasesTotal } = useDiseasesTotal(filters);
-    const { performanceIndicators } = use717Performance(filters);
+    const { performanceIndicators } = use717Performance(multiSelectFilters);
+    const { cardCounts } = useCardCounts(singleSelectFilters, multiSelectFilters);
+
     const { goTo } = useRoutes();
+    const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
+
+    useEffect(() => {
+        //On navigating to the dashboard page, reset the current event tracker id
+        resetCurrentEventTrackerId();
+    });
 
     const goToEvent = (id: Maybe<Id>) => {
         if (!id) return;
@@ -40,39 +58,54 @@ export const DashboardPage: React.FC = React.memo(() => {
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>
                 <Container>
-                    {filterOptions.map(({ value, label, options, disabled }) => (
-                        <MultipleSelector
-                            id={`filters-${value}`}
-                            key={`filters-${value}`}
-                            selected={filters[value] || []}
-                            placeholder={i18n.t(label)}
-                            options={options || []}
-                            onChange={(values: string[]) =>
-                                setFilters({
-                                    ...filters,
-                                    [value]: values,
-                                })
-                            }
-                            disabled={disabled}
-                        />
-                    ))}
+                    {filtersConfig.map(({ id, label, placeholder, options, type }) =>
+                        type === "multiselector" ? (
+                            <MultipleSelector
+                                id={`filters-${id}`}
+                                key={`filters-${id}`}
+                                selected={multiSelectFilters[id] || []}
+                                label={i18n.t(label)}
+                                placeholder={i18n.t(placeholder)}
+                                options={options || []}
+                                onChange={(values: string[]) => setMultiSelectFilters(id, values)}
+                            />
+                        ) : (
+                            <Selector
+                                id={`filters-${id}`}
+                                key={`filters-${id}`}
+                                options={options || []}
+                                label={i18n.t(label)}
+                                placeholder={i18n.t(placeholder)}
+                                selected={singleSelectFilters[id] || ""}
+                                onChange={(value: string) => setSingleSelectFilters(id, value)}
+                                allowClear
+                            />
+                        )
+                    )}
                     <DateRangePicker
-                        value={filters.duration || []}
-                        onChange={(dates: string[]) => setFilters({ ...filters, duration: dates })}
-                        placeholder={i18n.t("Duration")}
+                        value={multiSelectFilters.duration || []}
+                        onChange={(dates: string[]) => setMultiSelectFilters("duration", dates)}
+                        placeholder={i18n.t("Select duration")}
+                        label={i18n.t("Duration")}
                     />
                 </Container>
                 <GridWrapper>
-                    {diseasesTotal &&
-                        diseasesTotal.map((disease, index) => (
-                            <StatsCard
-                                key={index}
-                                stat={disease.total}
-                                title={disease.disease || disease.hazard}
-                                fillParent
-                            />
-                        ))}
+                    {cardCounts.map((cardCount, index) => (
+                        <StatsCard
+                            key={index}
+                            stat={cardCount.total.toString()}
+                            title={i18n.t(cardCount.name)}
+                            fillParent
+                        />
+                    ))}
                 </GridWrapper>
+            </Section>
+            <Section title={i18n.t("All public health events")}>
+                <MapSection
+                    mapKey="dashboard"
+                    singleSelectFilters={singleSelectFilters}
+                    multiSelectFilters={multiSelectFilters}
+                />
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>
                 <GridWrapper>

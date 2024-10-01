@@ -6,12 +6,13 @@ import {
     DiseaseOutbreakEvent,
 } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { User } from "../../user-selector/UserSelector";
-import { mapTeamMemberToUser } from "../../../pages/form-page/disease-outbreak-event/utils/mapEntityToInitialFormState";
+
 import { Maybe } from "../../../../utils/ts-utils";
 import {
     getDateAsLocaleDateTimeString,
     getDateAsMonthYearString,
 } from "../../../../data/repositories/utils/DateTimeHelper";
+import { mapTeamMemberToUser } from "../../../pages/form-page/mapEntityToFormState";
 
 const EventTypeLabel = "Event type";
 const DiseaseLabel = "Disease";
@@ -24,6 +25,7 @@ type FormSummary = {
     subTitle: string;
     summary: LabelWithValue[];
     incidentManager: Maybe<User>;
+    notes: string;
 };
 export function useFormSummary(id: Id) {
     const { compositionRoot } = useAppContext();
@@ -83,6 +85,7 @@ export function useFormSummary(id: Id) {
             incidentManager: diseaseOutbreakEvent.incidentManager
                 ? mapTeamMemberToUser(diseaseOutbreakEvent.incidentManager)
                 : undefined,
+            notes: diseaseOutbreakEvent.notes ?? "",
         };
     };
 

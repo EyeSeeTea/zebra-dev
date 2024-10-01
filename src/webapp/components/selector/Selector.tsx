@@ -1,10 +1,11 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Select, InputLabel, MenuItem, FormHelperText } from "@material-ui/core";
-import { IconChevronDown24 } from "@dhis2/ui";
+import { IconChevronDown24, IconCross16 } from "@dhis2/ui";
 import { getLabelFromValue } from "./utils/selectorHelper";
 import { Option } from "../utils/option";
 import { SearchInput } from "../search-input/SearchInput";
+import { IconButton } from "../icon-button/IconButton";
 
 type SelectorProps<Value extends string = string> = {
     id: string;
@@ -19,6 +20,7 @@ type SelectorProps<Value extends string = string> = {
     error?: boolean;
     required?: boolean;
     disableSearch?: boolean;
+    allowClear?: boolean;
 };
 
 export function Selector<Value extends string>({
@@ -34,6 +36,7 @@ export function Selector<Value extends string>({
     error = false,
     required = false,
     disableSearch = false,
+    allowClear = false,
 }: SelectorProps<Value>): JSX.Element {
     const [searchTerm, setSearchTerm] = React.useState<string>("");
 
@@ -62,6 +65,16 @@ export function Selector<Value extends string>({
         [filteredOptions, onChange]
     );
 
+    const onClearValue = useCallback(
+        (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+            if (allowClear) {
+                event.stopPropagation();
+                onChange("" as Value);
+            }
+        },
+        [allowClear, onChange]
+    );
+
     return (
         <Container>
             {label && (
@@ -81,9 +94,27 @@ export function Selector<Value extends string>({
                 variant="outlined"
                 IconComponent={IconChevronDown24}
                 error={error}
-                renderValue={(selected: unknown) =>
-                    getLabelFromValue(selected as Value, options) || placeholder
-                }
+                renderValue={(selected: unknown) => {
+                    const value = getLabelFromValue(selected as Value, options);
+                    if (value) {
+                        return (
+                            <div>
+                                {value}
+                                {allowClear ? (
+                                    <StyledIconButton
+                                        className="clear-icon"
+                                        ariaLabel="Clear value"
+                                        icon={<IconCross16 />}
+                                        onClick={event => onClearValue(event)}
+                                        onMouseDown={event => onClearValue(event)}
+                                    />
+                                ) : null}
+                            </div>
+                        );
+                    } else {
+                        return placeholder;
+                    }
+                }}
                 displayEmpty
             >
                 {!disableSearch && (
@@ -159,4 +190,10 @@ const StyledSelect = styled(Select)<{ error?: boolean }>`
             background-color: ${props => props.theme.palette.common.white};
         }
     }
+`;
+
+const StyledIconButton = styled(IconButton)`
+    padding: 3px;
+    margin-inline-start: 4px;
+    background-color: ${props => props.theme.palette.common.grey200};
 `;

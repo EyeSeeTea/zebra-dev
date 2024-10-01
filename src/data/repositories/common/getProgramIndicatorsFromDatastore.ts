@@ -18,14 +18,14 @@ export type ProgramIndicatorsDatastore = {
 export function getProgramIndicatorsFromDatastore(
     dataStoreClient: DataStoreClient,
     programIndicatorsDatastoreKey: ProgramIndicatorsDatastoreKey
-): FutureData<Maybe<ProgramIndicatorsDatastore>> {
+): FutureData<Maybe<ProgramIndicatorsDatastore[]>> {
     switch (programIndicatorsDatastoreKey) {
         case ProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts:
-            return dataStoreClient.getObject<ProgramIndicatorsDatastore>(
+            return dataStoreClient.getObject<ProgramIndicatorsDatastore[]>(
                 programIndicatorsDatastoreKey
             );
         case ProgramIndicatorsDatastoreKey.CasesAlerts:
-            return dataStoreClient.getObject<ProgramIndicatorsDatastore>(
+            return dataStoreClient.getObject<ProgramIndicatorsDatastore[]>(
                 programIndicatorsDatastoreKey
             );
     }

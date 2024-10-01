@@ -1,6 +1,6 @@
 import i18n from "../../../utils/i18n";
 import React, { useState, useEffect, useMemo } from "react";
-import { Popover, InputAdornment, TextField } from "@material-ui/core";
+import { Popover, InputAdornment, TextField, InputLabel } from "@material-ui/core";
 import moment from "moment";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "./DatePicker";
@@ -10,16 +10,18 @@ import { Button } from "../button/Button";
 import styled from "styled-components";
 
 type DateRangePickerProps = {
+    label?: string;
     value: string[];
     onChange: (dates: string[]) => void;
     placeholder?: string;
 };
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
-    ({ value, placeholder = "", onChange }) => {
+    ({ label = "", value, placeholder = "", onChange }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
         const [startDate, setStartDate] = useState<Date | null>(null);
         const [endDate, setEndDate] = useState<Date | null>(null);
+        const id = "date-range-picker";
 
         useEffect(() => {
             if (!value || value.length !== 2) {
@@ -71,7 +73,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
         return (
             <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <TextFieldContainer>
+                    {label && <Label htmlFor={id}>{label}</Label>}
                     <StyledTextField
+                        id={id}
                         value={formatDurationValue}
                         onClick={handleOpen}
                         variant="outlined"
@@ -126,12 +130,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
     }
 );
 
-const TextFieldContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-`;
-
 const PopoverContainer = styled.div`
     padding: 1rem;
     display: flex;
@@ -143,6 +141,26 @@ const Container = styled.div`
     width: 100%;
     display: flex;
     justify-content: space-between;
+`;
+
+const TextFieldContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+`;
+
+const Label = styled(InputLabel)`
+    display: inline-block;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: ${props => props.theme.palette.text.primary};
+    margin-block-end: 8px;
+
+    &.required::after {
+        content: "*";
+        color: ${props => props.theme.palette.common.red};
+        margin-inline-start: 4px;
+    }
 `;
 
 const StyledTextField = styled(TextField)`

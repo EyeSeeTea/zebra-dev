@@ -47,6 +47,12 @@ msgstr ""
 msgid "Available at national with support required from international"
 msgstr ""
 
+msgid "Capability 1"
+msgstr ""
+
+msgid "Capability 2"
+msgstr ""
+
 msgid "Grade 1"
 msgstr ""
 
@@ -77,13 +83,16 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-msgid "Save"
-msgstr ""
-
 msgid "Edit Details"
 msgstr ""
 
 msgid "Create Event"
+msgstr ""
+
+msgid "The map with these filters could not be found."
+msgstr ""
+
+msgid "Map not found."
 msgstr ""
 
 msgid "Close"
@@ -110,13 +119,16 @@ msgstr ""
 msgid "Respond, alert, watch"
 msgstr ""
 
+msgid "Select duration"
+msgstr ""
+
 msgid "Duration"
 msgstr ""
 
-msgid "7-1-7 performance"
+msgid "All public health events"
 msgstr ""
 
-msgid "events"
+msgid "7-1-7 performance"
 msgstr ""
 
 msgid "Performance overview"
@@ -125,10 +137,19 @@ msgstr ""
 msgid "Event Tracker"
 msgstr ""
 
+msgid "Districts Affected"
+msgstr ""
+
+msgid "Create Risk Assessment"
+msgstr ""
+
 msgid "Add new Assessment"
 msgstr ""
 
-msgid "Page Not Found"
+msgid "N/A"
+msgstr ""
+
+msgid "Add another"
 msgstr ""
 
 msgid "Create Event form cannot be loaded"
@@ -137,7 +158,13 @@ msgstr ""
 msgid "Disease Outbreak saved successfully"
 msgstr ""
 
-msgid "N/A"
+msgid "Risk Assessment Grading saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Summary saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
 msgid "Incident Action Plan"

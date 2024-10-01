@@ -8,7 +8,7 @@ type State = {
     handleUpdateFormField: (updatedField: FormFieldState) => void;
 };
 
-export function useForm(
+export function useLocalForm(
     formState: FormState,
     onFormChange: (updatedField: FormFieldState) => void
 ): State {

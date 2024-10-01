@@ -13,10 +13,10 @@ describe("App", () => {
 });
 
 function getView() {
-    const { compositionRoot } = getTestContext();
+    const { compositionRoot, api } = getTestContext();
     return render(
         <Provider config={{ baseUrl: "http://localhost:8080", apiVersion: 30 }}>
-            <App compositionRoot={compositionRoot} />
+            <App compositionRoot={compositionRoot} api={api} />
         </Provider>
     );
 }
