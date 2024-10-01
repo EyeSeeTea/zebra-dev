@@ -57,10 +57,8 @@ function validateFormState(
                 entityValidationErrors = DiseaseOutbreakEvent.validate(configurableForm.entity);
             break;
         }
-
         case "risk-assessment-grading":
             break;
-
         case "risk-assessment-summary":
             break;
         case "risk-assessment-questionnaire":

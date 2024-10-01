@@ -46,7 +46,6 @@ export const riskAssessmentGradingIds = {
 
 export const riskAssessmentSummaryIds = {
     riskAssessmentDate: "bSmNYOatIZr",
-    // riskGrade: "RTSL_ZEB_DET_RAG", //TO DO SNEHA : Do we need this?
     riskAssessor1: "H5MbxkSRf6c",
     addAnotherRiskAssessor1: "CM51mmM6dGs",
     riskAssessor2: "GVB68P2yMs6",
