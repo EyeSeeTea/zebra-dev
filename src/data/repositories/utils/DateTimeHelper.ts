@@ -34,3 +34,12 @@ export function getDateAsLocaleDateTimeString(date: Date): string {
         return "";
     }
 }
+
+export function getDateAsLocaleDateString(date: Date): string {
+    try {
+        return `${date.toLocaleDateString()}`;
+    } catch (e) {
+        console.debug(e);
+        return "";
+    }
+}

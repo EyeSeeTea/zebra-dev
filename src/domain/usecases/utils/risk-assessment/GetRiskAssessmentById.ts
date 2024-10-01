@@ -162,6 +162,7 @@ export function getAll(
                                                     risk,
                                                 }).flatMap(customQuestionResponse => {
                                                     const customQuestion: RiskAssessmentQuestion = {
+                                                        id: customQuestionDataValues.id,
                                                         question: customQuestionDataValues.question,
                                                         likelihood:
                                                             customQuestionResponse.likelihood,

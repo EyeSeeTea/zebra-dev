@@ -2,6 +2,7 @@ import { Id, NamedRef } from "../Ref";
 import { Struct } from "../generic/Struct";
 
 export type RiskAssessmentQuestion = {
+    id?: Id;
     question?: string;
     likelihood: NamedRef;
     consequences: NamedRef;

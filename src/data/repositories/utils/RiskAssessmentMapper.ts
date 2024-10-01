@@ -2,21 +2,29 @@ import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
 import { D2TrackerEvent, DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
-import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "../consts/DiseaseOutbreakConstants";
+import {
+    RTSL_ZEBRA_ORG_UNIT_ID,
+    RTSL_ZEBRA_PROGRAM_ID,
+    RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID,
+} from "../consts/DiseaseOutbreakConstants";
 import { Code, Id } from "../../../domain/entities/Ref";
 import {
     getValueFromRiskAssessmentGrading,
-    getValueFromRiskAssessmentQuestionnaire,
+    getValueFromRiskAssessmentStdQuestionnaire,
     getValueFromRiskAssessmentSummary,
     isStringInRiskAssessmentGradingCodes,
-    isStringInRiskAssessmentQuestionnaireCodes,
+    isStringInRiskAssessmentStdQuestionnaireCodes,
     isStringInRiskAssessmentSummaryCodes,
     RiskAssessmentGradingCodes,
     RiskAssessmentGradingKeyCode,
-    RiskAssessmentQuestionnaireCodes,
-    RiskAssessmentQuestionnaireKeyCode,
+    RiskAssessmentStdQuestionnaireCodes,
+    RiskAssessmentStdQuestionnaireKeyCode,
     RiskAssessmentSummaryCodes,
     RiskAssessmentSummaryKeyCode,
+    getValueFromRiskAssessmentCustomQuestionnaire,
+    RiskAssessmentCustomQuestionnaireCodes,
+    isStringInRiskAssessmentCustomQuestionnaireCodes,
+    RiskAssessmentCustomQuestionnaireKeyCode,
 } from "../consts/RiskAssessmentConstants";
 import {
     riskAssessmentCustomQuestionnaireIds,
@@ -56,26 +64,30 @@ export function mapRiskAssessmentToDataElements(
     teiId: Id,
     enrollmentId: Id,
     programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
-): D2TrackerEvent {
+): D2TrackerEvent[] {
     if (!formData.entity) throw new Error("No form data found");
     switch (formData.type) {
         case "risk-assessment-grading":
-            return mapRiskAssessmentGradingToDataElements(
-                programStageId,
-                teiId,
-                enrollmentId,
-                formData.entity,
-                programStageDataElementsMetadata
-            );
+            return [
+                mapRiskAssessmentGradingToDataElements(
+                    programStageId,
+                    teiId,
+                    enrollmentId,
+                    formData.entity,
+                    programStageDataElementsMetadata
+                ),
+            ];
         case "risk-assessment-summary":
             if (!formData.entity) throw new Error("No form data found");
-            return mapRiskAssessmentSummaryToDataElements(
-                programStageId,
-                teiId,
-                enrollmentId,
-                formData.entity,
-                programStageDataElementsMetadata
-            );
+            return [
+                mapRiskAssessmentSummaryToDataElements(
+                    programStageId,
+                    teiId,
+                    enrollmentId,
+                    formData.entity,
+                    programStageDataElementsMetadata
+                ),
+            ];
         case "risk-assessment-questionnaire":
             return mapRiskAssessmentQuestionnaireToDataElements(
                 programStageId,
@@ -149,26 +161,63 @@ function mapRiskAssessmentQuestionnaireToDataElements(
     enrollmentId: Id,
     riskAssessmentQuestionnaire: RiskAssessmentQuestionnaire,
     programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
-): D2TrackerEvent {
-    const dataElementValues: Record<RiskAssessmentQuestionnaireCodes, string> =
-        getValueFromRiskAssessmentQuestionnaire(riskAssessmentQuestionnaire);
+): D2TrackerEvent[] {
+    if (programStageId === RTSL_ZEBRA_RISK_ASSESSMENT_QUESTIONNAIRE_PROGRAM_STAGE_ID) {
+        const dataElementValues: Record<RiskAssessmentStdQuestionnaireCodes, string> =
+            getValueFromRiskAssessmentStdQuestionnaire(riskAssessmentQuestionnaire);
 
-    const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
-        if (!isStringInRiskAssessmentQuestionnaireCodes(programStage.dataElement.code)) {
-            throw new Error(
-                `DataElement code ${programStage.dataElement.code}  not found in Risk Assessment Questionnaire Codes`
+        const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
+            if (!isStringInRiskAssessmentStdQuestionnaireCodes(programStage.dataElement.code)) {
+                throw new Error(
+                    `DataElement code ${programStage.dataElement.code}  not found in Risk Assessment Questionnaire Codes`
+                );
+            }
+            const typedCode: RiskAssessmentStdQuestionnaireKeyCode = programStage.dataElement.code;
+            return getPopulatedDataElement(
+                programStage.dataElement.id,
+                dataElementValues[typedCode]
             );
-        }
-        const typedCode: RiskAssessmentQuestionnaireKeyCode = programStage.dataElement.code;
-        return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
-    });
-    return getRiskAssessmentTrackerEvent(
-        programStageId,
-        riskAssessmentQuestionnaire.id,
-        enrollmentId,
-        dataValues,
-        teiId
-    );
+        });
+        return [
+            getRiskAssessmentTrackerEvent(
+                programStageId,
+                riskAssessmentQuestionnaire.id,
+                enrollmentId,
+                dataValues,
+                teiId
+            ),
+        ];
+    } else {
+        const customEvents = riskAssessmentQuestionnaire.additionalQuestions.map(customQuestion => {
+            const dataElementValues: Record<RiskAssessmentCustomQuestionnaireCodes, string> =
+                getValueFromRiskAssessmentCustomQuestionnaire(customQuestion);
+
+            const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
+                if (
+                    !isStringInRiskAssessmentCustomQuestionnaireCodes(programStage.dataElement.code)
+                ) {
+                    throw new Error(
+                        `DataElement code ${programStage.dataElement.code}  not found in Custom Risk Assessment Questionnaire Codes`
+                    );
+                }
+                const typedCode: RiskAssessmentCustomQuestionnaireKeyCode =
+                    programStage.dataElement.code;
+                return getPopulatedDataElement(
+                    programStage.dataElement.id,
+                    dataElementValues[typedCode]
+                );
+            });
+            return getRiskAssessmentTrackerEvent(
+                programStageId,
+                customQuestion.id,
+                enrollmentId,
+                dataValues,
+                teiId
+            );
+        });
+
+        return customEvents;
+    }
 }
 
 function getPopulatedDataElement(dataElement: Id, value: Maybe<string>): DataValue {

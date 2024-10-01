@@ -26,7 +26,6 @@ import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import {
     riskAssessmentGradingCodes,
-    riskAssessmentQuestionnaireCodes,
     riskAssessmentSummaryCodes,
 } from "../../../data/repositories/consts/RiskAssessmentConstants";
 import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
@@ -409,7 +408,7 @@ function mapFormStateToRiskAssessmentQuestionnaire(
 
     const additionalQuestions = formState.sections
         .filter(section => section.id.startsWith("additionalQuestions"))
-        .map((_customSection, index): RiskAssessmentQuestion => {
+        .map((customSection, index): RiskAssessmentQuestion => {
             const { likelihoodOption, consequencesOption, riskOption } =
                 getRiskAssessmentQuestionsWithOption(
                     "custom",
@@ -418,10 +417,13 @@ function mapFormStateToRiskAssessmentQuestionnaire(
                     index.toString()
                 );
             return {
+                id: customSection.id.replace("additionalQuestions", ""),
+                question: allFields.find(field => field.id.includes(`custom-question${index}`))
+                    ?.value as string,
                 likelihood: likelihoodOption,
                 consequences: consequencesOption,
                 risk: riskOption,
-                rational: allFields.find(field => field.id.includes(`rational-custom${index}`))
+                rational: allFields.find(field => field.id.includes(`custom-rational${index}`))
                     ?.value as string,
             };
         });

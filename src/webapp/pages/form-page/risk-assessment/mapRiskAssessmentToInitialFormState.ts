@@ -1,7 +1,6 @@
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import {
     riskAssessmentGradingCodes,
-    riskAssessmentQuestionnaireCodes,
     riskAssessmentSummaryCodes,
 } from "../../../../data/repositories/consts/RiskAssessmentConstants";
 import {
@@ -17,6 +16,7 @@ import { getDateAsLocaleDateTimeString } from "../../../../data/repositories/uti
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { RiskAssessmentQuestionnaire } from "../../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { Maybe } from "../../../../utils/ts-utils";
+import { Id } from "../../../../domain/entities/Ref";
 
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapRiskGradingToInitialFormState(
@@ -617,7 +617,12 @@ export function mapRiskAssessmentQuestionnaireToInitialFormState(
 
     const customQuestionSections =
         riskAssessmentQuestionnaire?.additionalQuestions?.map((question, index) => {
-            return getRiskAssessmentCustomQuestionSection("Custom Question", index, sectionOptions);
+            return getRiskAssessmentCustomQuestionSection(
+                "Custom Question",
+                index,
+                sectionOptions,
+                question.id
+            );
         }) ?? [];
 
     const addNewOptionSection: FormSectionState = getAnotherOptionSection();
@@ -750,18 +755,19 @@ function getRiskAssessmentCustomQuestionSection(
         likelihoodOptions: UIOption[];
         consequencesOptions: UIOption[];
         riskOptions: UIOption[];
-    }
+    },
+    questionId?: Id
 ): FormSectionState {
     const id = "additionalQuestions";
     const { riskAssessmentQuestionnaire, likelihoodOptions, consequencesOptions, riskOptions } =
         options;
     const riskAssesssmentQuestionFormSection: FormSectionState = {
         title: title,
-        id: `${id}${index}`,
+        id: questionId ? `${id}${questionId}` : `${id}`,
         isVisible: true,
         fields: [
             {
-                id: `question-custom${index}`,
+                id: `custom-question${index}`,
                 label: "Question",
                 isVisible: true,
                 errors: [],
