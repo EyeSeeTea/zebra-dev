@@ -1,17 +1,19 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 
 export type MapFiltersState = {
-    multiSelectFilters: Record<string, string[]>;
-    setMultiSelectFilters: Dispatch<SetStateAction<Record<string, string[]>>>;
+    dateRangeFilter: {
+        onChange: (value: string[]) => void;
+        value: string[];
+    };
 };
 
 export function useMapFilters(): MapFiltersState {
-    const [multiSelectFilters, setMultiSelectFilters] = useState<Record<string, string[]>>({
-        duration: [],
-    });
+    const [selectedRangeDateFilter, setSelectedRangeDateFilter] = useState<string[]>([]);
 
     return {
-        multiSelectFilters,
-        setMultiSelectFilters,
+        dateRangeFilter: {
+            onChange: setSelectedRangeDateFilter,
+            value: selectedRangeDateFilter,
+        },
     };
 }

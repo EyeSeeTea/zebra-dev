@@ -53,7 +53,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
         useCurrentEventTracker();
 
-    const { multiSelectFilters, setMultiSelectFilters } = useMapFilters();
+    const { dateRangeFilter } = useMapFilters();
 
     useEffect(() => {
         if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
@@ -76,13 +76,8 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             >
                 <DurationFilterContainer>
                     <DateRangePicker
-                        value={multiSelectFilters.duration || []}
-                        onChange={(dates: string[]) =>
-                            setMultiSelectFilters({
-                                ...multiSelectFilters,
-                                duration: dates,
-                            })
-                        }
+                        value={dateRangeFilter.value || []}
+                        onChange={dateRangeFilter.onChange}
                         placeholder={i18n.t("Select duration")}
                         label={i18n.t("Duration")}
                     />
@@ -97,7 +92,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         mapKey="event_tracker"
                         eventDiseaseCode={getCurrentEventTracker()?.suspectedDiseaseCode}
                         eventHazardCode={getCurrentEventTracker()?.hazardType}
-                        multiSelectFilters={multiSelectFilters}
+                        dateRangeFilter={dateRangeFilter.value || []}
                     />
                 </LoaderContainer>
             </Section>

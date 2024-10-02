@@ -12,6 +12,7 @@ export interface PerformanceOverviewRepository {
     getTotalCardCounts(
         allProvincesIds: string[],
         singleSelectFilters?: Record<string, string>,
-        multiSelectFilters?: Record<string, string[]>
+        multiSelectFilters?: Record<string, string[]>,
+        dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]>;
 }

@@ -1,5 +1,5 @@
 import i18n from "../../../utils/i18n";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Popover, InputAdornment, TextField, InputLabel } from "@material-ui/core";
 import moment from "moment";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -16,34 +16,29 @@ type DateRangePickerProps = {
     placeholder?: string;
 };
 
+const ID = "date-range-picker";
+
 export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
     ({ label = "", value, placeholder = "", onChange }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
         const [startDate, setStartDate] = useState<Date | null>(null);
         const [endDate, setEndDate] = useState<Date | null>(null);
-        const id = "date-range-picker";
 
-        useEffect(() => {
-            if (!value || value.length !== 2) {
-                setStartDate(moment().startOf("month").toDate());
-                setEndDate(moment().toDate());
-            }
-        }, [value]);
-
-        // Adjust startDate if endDate < startDate
-        useEffect(() => {
-            if (endDate && startDate && moment(endDate).isBefore(startDate)) {
-                setStartDate(endDate);
-            }
-        }, [startDate, endDate]);
-
-        const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+        const handleOpen = useCallback((event: React.MouseEvent<HTMLElement>) => {
             setAnchorEl(event.currentTarget);
-        };
+        }, []);
 
-        const handleClose = () => {
+        const onCleanValues = useCallback(() => {
+            setStartDate(null);
+            setEndDate(null);
+        }, []);
+
+        const handleClose = useCallback(() => {
             setAnchorEl(null);
-        };
+            if (!value.length) {
+                onCleanValues();
+            }
+        }, [onCleanValues, value.length]);
 
         const formatDurationValue = useMemo(() => {
             if (!value || value.length !== 2) {
@@ -55,12 +50,13 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
             )}`;
         }, [startDate, endDate, placeholder, value]);
 
-        const onReset = () => {
+        const onReset = useCallback(() => {
             onChange([]);
+            onCleanValues();
             setAnchorEl(null);
-        };
+        }, [onChange, onCleanValues]);
 
-        const onSave = () => {
+        const onSave = useCallback(() => {
             if (startDate && endDate) {
                 setAnchorEl(null);
                 onChange([
@@ -68,14 +64,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
                     moment(endDate).format("YYYY-MM-DD"),
                 ]);
             }
-        };
+        }, [endDate, onChange, startDate]);
 
         return (
             <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <TextFieldContainer>
-                    {label && <Label htmlFor={id}>{label}</Label>}
+                    {label && <Label htmlFor={ID}>{label}</Label>}
                     <StyledTextField
-                        id={id}
+                        id={ID}
                         value={formatDurationValue}
                         onClick={handleOpen}
                         variant="outlined"
@@ -109,12 +105,15 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
                                 label="Start Date"
                                 value={startDate}
                                 onChange={date => setStartDate(date)}
+                                maxDate={endDate ?? undefined}
+                                disableFuture
                             />
                             <DatePicker
                                 id="end-date"
                                 label="End Date"
                                 value={endDate}
                                 onChange={date => setEndDate(date)}
+                                disableFuture
                             />
                         </Container>
                         <Container>
@@ -140,6 +139,7 @@ const PopoverContainer = styled.div`
 const Container = styled.div`
     width: 100%;
     display: flex;
+    gap: 5px;
     justify-content: space-between;
 `;
 

@@ -12,13 +12,20 @@ type MapSectionProps = {
     mapKey: MapKey;
     singleSelectFilters?: Record<string, string>;
     multiSelectFilters?: Record<string, string[]>;
+    dateRangeFilter?: string[];
     eventDiseaseCode?: string;
     eventHazardCode?: string;
 };
 
 export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
-    const { mapKey, singleSelectFilters, multiSelectFilters, eventDiseaseCode, eventHazardCode } =
-        props;
+    const {
+        mapKey,
+        singleSelectFilters,
+        multiSelectFilters,
+        dateRangeFilter,
+        eventDiseaseCode,
+        eventHazardCode,
+    } = props;
     const { orgUnits } = useAppContext();
     const snackbar = useSnackbar();
 
@@ -32,6 +39,7 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         allOrgUnitsIds: allProvincesIds,
         singleSelectFilters: singleSelectFilters,
         multiSelectFilters: multiSelectFilters,
+        dateRangeFilter: dateRangeFilter,
         eventDiseaseCode: eventDiseaseCode,
         eventHazardCode: eventHazardCode,
     });
@@ -53,9 +61,9 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
             >
                 {mapConfigState.kind === "loaded" && allProvincesIds.length !== 0 ? (
                     <Map
-                        key={`${JSON.stringify(singleSelectFilters)}_${JSON.stringify(
-                            multiSelectFilters
-                        )}`}
+                        key={`${JSON.stringify(dateRangeFilter)}_${JSON.stringify(
+                            singleSelectFilters
+                        )}_${JSON.stringify(multiSelectFilters)}`}
                         config={mapConfigState.data}
                     />
                 ) : null}

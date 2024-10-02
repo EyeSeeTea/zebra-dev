@@ -7,7 +7,8 @@ export type Order = { name: string; direction: "asc" | "desc" };
 
 export function useCardCounts(
     singleSelectFilters: Record<string, string>,
-    multiSelectFilters: Record<string, string[]>
+    multiSelectFilters: Record<string, string[]>,
+    dateRangeFilter: string[]
 ) {
     const { compositionRoot } = useAppContext();
     const [cardCounts, setCardCounts] = useState<TotalCardCounts[]>([]);
@@ -16,7 +17,7 @@ export function useCardCounts(
     useEffect(() => {
         setIsLoading(true);
         compositionRoot.performanceOverview.getTotalCardCounts
-            .execute(singleSelectFilters, multiSelectFilters)
+            .execute(singleSelectFilters, multiSelectFilters, dateRangeFilter)
             .run(
                 diseasesTotal => {
                     setCardCounts(diseasesTotal);
@@ -27,7 +28,7 @@ export function useCardCounts(
                     setIsLoading(false);
                 }
             );
-    }, [compositionRoot, singleSelectFilters, multiSelectFilters]);
+    }, [compositionRoot, singleSelectFilters, multiSelectFilters, dateRangeFilter]);
 
     return {
         cardCounts,

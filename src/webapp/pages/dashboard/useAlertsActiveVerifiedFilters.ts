@@ -3,9 +3,9 @@ import _c from "../../../domain/entities/generic/Collection";
 import { useAppContext } from "../../contexts/app-context";
 import { OrgUnit } from "../../../domain/entities/OrgUnit";
 import { Option } from "../../components/utils/option";
-import { evenTrackerCountsIndicatorMap } from "../../../data/repositories/consts/PerformanceOverviewConstants";
+import { eventTrackerCountsIndicatorMap } from "../../../data/repositories/consts/PerformanceOverviewConstants";
 
-export type FiltersConfig = {
+export type SelectorFiltersConfig = {
     id: string;
     label: string;
     placeholder: string;
@@ -13,7 +13,19 @@ export type FiltersConfig = {
     options: Option[];
 };
 
-export function useAlertsActiveVerifiedFilters() {
+type State = {
+    selectorFiltersConfig: SelectorFiltersConfig[];
+    singleSelectFilters: Record<string, string>;
+    setSingleSelectFilters: (id: string, value: string) => void;
+    multiSelectFilters: Record<string, string[]>;
+    setMultiSelectFilters: (id: string, values: string[]) => void;
+    dateRangeFilter: {
+        onChange: (value: string[]) => void;
+        value: string[];
+    };
+};
+
+export function useAlertsActiveVerifiedFilters(): State {
     const { compositionRoot } = useAppContext();
 
     const [singleSelectFilters, setSingleSelectsFilters] = useState<Record<string, string>>({
@@ -23,10 +35,13 @@ export function useAlertsActiveVerifiedFilters() {
     });
     const [multiSelectFilters, setMultiSelectFilters] = useState<Record<string, string[]>>({
         province: [],
-        duration: [],
     });
+
     const [provincesOptions, setProvincesOptions] = useState<Option[]>([]);
-    const [filtersConfig, setFiltersConfig] = useState<FiltersConfig[]>([]);
+
+    const [selectedRangeDateFilter, setSelectedRangeDateFilter] = useState<string[]>([]);
+
+    const [selectorFiltersConfig, setSelectorFiltersConfig] = useState<SelectorFiltersConfig[]>([]);
 
     useEffect(() => {
         compositionRoot.orgUnits.getProvinces.execute().run(
@@ -58,11 +73,11 @@ export function useAlertsActiveVerifiedFilters() {
         }));
     }, []);
 
-    // Initialize filter options based on diseasesTotal
+    // Initialize filter options based on eventTrackerCountsIndicatorMap
     useEffect(() => {
-        const buildFiltersConfig = (): FiltersConfig[] => {
+        const buildSelectorFiltersConfig = (): SelectorFiltersConfig[] => {
             const createOptions = (key: "disease" | "hazard") =>
-                _c(evenTrackerCountsIndicatorMap)
+                _c(eventTrackerCountsIndicatorMap)
                     .filter(value => value.type === key)
                     .uniqBy(value => value.name)
                     .map(value => ({
@@ -110,15 +125,20 @@ export function useAlertsActiveVerifiedFilters() {
                 },
             ];
         };
-        setFiltersConfig(buildFiltersConfig());
+
+        setSelectorFiltersConfig(buildSelectorFiltersConfig());
     }, [provincesOptions]);
 
     return {
-        filtersConfig,
+        selectorFiltersConfig,
         singleSelectFilters,
         setSingleSelectFilters: handleSetSingleSelectFilters,
         multiSelectFilters,
         setMultiSelectFilters: handleSetMultiSelectFilters,
+        dateRangeFilter: {
+            onChange: setSelectedRangeDateFilter,
+            value: selectedRangeDateFilter,
+        },
     };
 }
 

@@ -20,11 +20,12 @@ import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
-        filtersConfig,
+        selectorFiltersConfig,
         singleSelectFilters,
         setSingleSelectFilters,
         multiSelectFilters,
         setMultiSelectFilters,
+        dateRangeFilter,
     } = useAlertsActiveVerifiedFilters();
 
     const {
@@ -37,7 +38,11 @@ export const DashboardPage: React.FC = React.memo(() => {
         editRiskAssessmentColumns,
     } = usePerformanceOverview();
 
-    const { cardCounts } = useCardCounts(singleSelectFilters, multiSelectFilters);
+    const { cardCounts } = useCardCounts(
+        singleSelectFilters,
+        multiSelectFilters,
+        dateRangeFilter.value
+    );
 
     const { goTo } = useRoutes();
     const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
@@ -55,41 +60,49 @@ export const DashboardPage: React.FC = React.memo(() => {
     return (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>
-                <Container>
-                    {filtersConfig.map(({ id, label, placeholder, options, type }) =>
-                        type === "multiselector" ? (
-                            <MultipleSelector
-                                id={`filters-${id}`}
-                                key={`filters-${id}`}
-                                selected={multiSelectFilters[id] || []}
-                                label={i18n.t(label)}
-                                placeholder={i18n.t(placeholder)}
-                                options={options || []}
-                                onChange={(values: string[]) => setMultiSelectFilters(id, values)}
-                            />
-                        ) : (
-                            <Selector
-                                id={`filters-${id}`}
-                                key={`filters-${id}`}
-                                options={options || []}
-                                label={i18n.t(label)}
-                                placeholder={i18n.t(placeholder)}
-                                selected={singleSelectFilters[id] || ""}
-                                onChange={(value: string) => setSingleSelectFilters(id, value)}
-                                allowClear
-                            />
-                        )
-                    )}
-                    <DateRangePicker
-                        value={multiSelectFilters.duration || []}
-                        onChange={(dates: string[]) => setMultiSelectFilters("duration", dates)}
-                        placeholder={i18n.t("Select duration")}
-                        label={i18n.t("Duration")}
-                    />
-                </Container>
+                <FiltersContainer>
+                    {selectorFiltersConfig.map(({ id, label, placeholder, options, type }) => {
+                        return (
+                            <FilterContainer key={`filters-${id}`}>
+                                {type === "multiselector" ? (
+                                    <MultipleSelector
+                                        id={`filters-${id}`}
+                                        selected={multiSelectFilters[id] || []}
+                                        label={i18n.t(label)}
+                                        placeholder={i18n.t(placeholder)}
+                                        options={options || []}
+                                        onChange={(values: string[]) =>
+                                            setMultiSelectFilters(id, values)
+                                        }
+                                    />
+                                ) : (
+                                    <Selector
+                                        id={`filters-${id}`}
+                                        options={options || []}
+                                        label={i18n.t(label)}
+                                        placeholder={i18n.t(placeholder)}
+                                        selected={singleSelectFilters[id] || ""}
+                                        onChange={(value: string) =>
+                                            setSingleSelectFilters(id, value)
+                                        }
+                                        allowClear
+                                    />
+                                )}
+                            </FilterContainer>
+                        );
+                    })}
+                    <FilterContainer>
+                        <DateRangePicker
+                            value={dateRangeFilter.value || []}
+                            onChange={dateRangeFilter.onChange}
+                            placeholder={i18n.t("Select duration")}
+                            label={i18n.t("Duration")}
+                        />
+                    </FilterContainer>
+                </FiltersContainer>
                 <GridWrapper>
                     {cardCounts.map((cardCount, index) => (
-                        <StatsCard
+                        <StyledStatsCard
                             key={index}
                             stat={cardCount.total.toString()}
                             title={i18n.t(cardCount.name)}
@@ -103,6 +116,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                     mapKey="dashboard"
                     singleSelectFilters={singleSelectFilters}
                     multiSelectFilters={multiSelectFilters}
+                    dateRangeFilter={dateRangeFilter.value}
                 />
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>TBD</Section>
@@ -127,18 +141,34 @@ export const DashboardPage: React.FC = React.memo(() => {
 const GridWrapper = styled.div`
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+`;
+
+const StyledStatsCard = styled(StatsCard)`
+    width: 220px;
 `;
 
 const StatisticTableWrapper = styled.div`
     display: grid;
 `;
 
-const Container = styled.div`
+const FiltersContainer = styled.div`
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
     margin-bottom: 1rem;
     gap: 1rem;
+`;
+
+const FilterContainer = styled.div`
+    display: flex;
+    width: 250px;
+    max-width: 250px;
+    justify-content: flex-end;
+    @media (max-width: 700px) {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        width: 100%;
+    }
 `;
