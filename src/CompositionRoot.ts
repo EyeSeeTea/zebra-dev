@@ -31,16 +31,16 @@ import { MapConfigD2Repository } from "./data/repositories/MapConfigD2Repository
 import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestRepository";
 import { GetMapConfigUseCase } from "./domain/usecases/GetMapConfigUseCase";
 import { GetProvincesOrgUnits } from "./domain/usecases/GetProvincesOrgUnits";
-import { GetAllOrgUnits } from "./domain/usecases/GetAllOrgUnits";
+import { GetAllOrgUnitsUseCase } from "./domain/usecases/GetAllOrgUnitsUseCase";
 import { PerformanceOverviewRepository } from "./domain/repositories/PerformanceOverviewRepository";
 import { GetAllPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllPerformanceOverviewMetricsUseCase";
 import { PerformanceOverviewD2Repository } from "./data/repositories/PerformanceOverviewD2Repository";
 import { PerformanceOverviewTestRepository } from "./data/repositories/test/PerformanceOverviewTestRepository";
-import { GetTotalCardCountsUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
 import { AlertSyncDataStoreRepository } from "./data/repositories/AlertSyncDataStoreRepository";
 import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/AlertSyncDataStoreTestRepository";
 import { AlertSyncRepository } from "./domain/repositories/AlertSyncRepository";
 import { DataStoreClient } from "./data/DataStoreClient";
+import { GetTotalCardCountsUseCase } from "./domain/usecases/GetTotalCardCountsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -86,7 +86,7 @@ function getCompositionRoot(repositories: Repositories) {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
         },
         orgUnits: {
-            getAll: new GetAllOrgUnits(repositories.orgUnitRepository),
+            getAll: new GetAllOrgUnitsUseCase(repositories.orgUnitRepository),
             getProvinces: new GetProvincesOrgUnits(repositories.orgUnitRepository),
         },
     };
