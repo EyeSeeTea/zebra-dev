@@ -49,6 +49,7 @@ export function useMap(params: {
     allOrgUnitsIds: string[];
     eventDiseaseCode?: string;
     eventHazardCode?: string;
+    dateRangeFilter?: string[];
     singleSelectFilters?: Record<string, string>;
     multiSelectFilters?: Record<string, string[]>;
 }): MapState {
@@ -57,6 +58,7 @@ export function useMap(params: {
         allOrgUnitsIds,
         eventDiseaseCode,
         eventHazardCode,
+        dateRangeFilter,
         singleSelectFilters,
         multiSelectFilters,
     } = params;
@@ -65,23 +67,16 @@ export function useMap(params: {
     const [mapConfigState, setMapConfigState] = useState<MapConfigState>({
         kind: "loading",
     });
+    const [defaultStartDate, setDefaultStartDate] = useState<string>("");
 
     useEffect(() => {
         if (mapConfigState.kind !== "loaded") return;
 
         const newStartDate =
-            multiSelectFilters?.duration?.length &&
-            multiSelectFilters.duration[0] &&
-            multiSelectFilters.duration[0] !== mapConfigState.data.startDate
-                ? multiSelectFilters.duration[0]
-                : null;
+            dateRangeFilter?.length && dateRangeFilter[0] ? dateRangeFilter[0] : defaultStartDate;
 
         const newEndDate =
-            multiSelectFilters?.duration?.length &&
-            multiSelectFilters.duration[1] &&
-            multiSelectFilters.duration[1] !== mapConfigState.data.endDate
-                ? multiSelectFilters.duration[1]
-                : null;
+            dateRangeFilter?.length && dateRangeFilter[1] ? dateRangeFilter[1] : undefined;
 
         const isDashboardMapAndThereAreFilters =
             mapKey === "dashboard" &&
@@ -117,7 +112,12 @@ export function useMap(params: {
                     ? allOrgUnitsIds
                     : null;
 
-            if (!newMapIndicator && !newOrgUnits && !newStartDate && !newEndDate) {
+            if (
+                !newMapIndicator &&
+                !newOrgUnits &&
+                newStartDate === mapConfigState.data.startDate &&
+                newEndDate === mapConfigState.data.endDate
+            ) {
                 return;
             } else {
                 setMapConfigState(prevMapConfigState => {
@@ -135,10 +135,8 @@ export function useMap(params: {
                                 orgUnits: newOrgUnits
                                     ? newOrgUnits
                                     : prevMapConfigState.data.orgUnits,
-                                startDate: newStartDate
-                                    ? newStartDate
-                                    : prevMapConfigState.data.startDate,
-                                endDate: newEndDate ? newEndDate : prevMapConfigState.data.endDate,
+                                startDate: newStartDate,
+                                endDate: newEndDate,
                             },
                         };
                     } else {
@@ -151,7 +149,8 @@ export function useMap(params: {
         if (
             mapKey === "event_tracker" &&
             (eventDiseaseCode || eventHazardCode) &&
-            (newStartDate || newEndDate)
+            (newStartDate !== mapConfigState.data.startDate ||
+                newEndDate !== mapConfigState.data.endDate)
         ) {
             setMapConfigState(prevMapConfigState => {
                 if (prevMapConfigState.kind === "loaded") {
@@ -159,10 +158,8 @@ export function useMap(params: {
                         kind: "loaded",
                         data: {
                             ...prevMapConfigState.data,
-                            startDate: newStartDate
-                                ? newStartDate
-                                : prevMapConfigState.data.startDate,
-                            endDate: newEndDate ? newEndDate : prevMapConfigState.data.endDate,
+                            startDate: newStartDate,
+                            endDate: newEndDate,
                         },
                     };
                 } else {
@@ -179,6 +176,8 @@ export function useMap(params: {
         mapProgramIndicators,
         multiSelectFilters,
         singleSelectFilters,
+        dateRangeFilter,
+        defaultStartDate,
     ]);
 
     useEffect(() => {
@@ -189,6 +188,7 @@ export function useMap(params: {
         compositionRoot.maps.getConfig.execute(mapKey).run(
             config => {
                 setMapProgramIndicators(config.programIndicators);
+                setDefaultStartDate(config.startDate);
 
                 const mapProgramIndicator =
                     mapKey === "dashboard"

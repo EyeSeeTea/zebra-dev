@@ -12,14 +12,16 @@ export class GetTotalCardCountsUseCase {
     ) {}
     public execute(
         singleSelectFilters?: Record<string, string>,
-        multiSelectFilters?: Record<string, string[]>
+        multiSelectFilters?: Record<string, string[]>,
+        dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]> {
         return this.options.orgUnitRepository.getByLevel(2).flatMap(allProvinces => {
             const allProvincesIds = allProvinces.map(province => province.id);
             return this.options.performanceOverviewRepository.getTotalCardCounts(
                 allProvincesIds,
                 singleSelectFilters,
-                multiSelectFilters
+                multiSelectFilters,
+                dateRangeFilter
             );
         });
     }

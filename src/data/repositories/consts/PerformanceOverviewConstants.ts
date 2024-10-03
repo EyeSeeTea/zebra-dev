@@ -190,7 +190,7 @@ export type EventTrackerCountIndicator =
     | EventTrackerCountDiseaseIndicator
     | EventTrackerCountHazardIndicator;
 
-export const evenTrackerCountsIndicatorMap: EventTrackerCountIndicator[] = [
+export const eventTrackerCountsIndicatorMap: EventTrackerCountIndicator[] = [
     { id: "SGGbbu0AKUv", type: "disease", name: "Acute respiratory", incidentStatus: "Watch" },
     { id: "QnhsQnEsp1p", type: "disease", name: "Acute respiratory", incidentStatus: "Alert" },
     { id: "Rt5KNVqBEO7", type: "disease", name: "Acute respiratory", incidentStatus: "Respond" },

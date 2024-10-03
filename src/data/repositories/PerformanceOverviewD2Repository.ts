@@ -6,7 +6,7 @@ import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
-    evenTrackerCountsIndicatorMap,
+    eventTrackerCountsIndicatorMap,
     INDICATORS_717_PERFORMANCE,
     IndicatorsId,
 } from "./consts/PerformanceOverviewConstants";
@@ -49,12 +49,13 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     getTotalCardCounts(
         allProvincesIds: string[],
         singleSelectFilters?: Record<string, string>,
-        multiSelectFilters?: Record<string, string[]>
+        multiSelectFilters?: Record<string, string[]>,
+        dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]> {
         return apiToFuture(
             this.api.analytics.get({
                 dimension: [
-                    `dx:${evenTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
+                    `dx:${eventTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
                     `ou:${
                         multiSelectFilters && multiSelectFilters?.province?.length
                             ? multiSelectFilters.province.join(";")
@@ -62,12 +63,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     }`,
                 ],
                 startDate:
-                    multiSelectFilters?.duration?.length && multiSelectFilters?.duration[0]
-                        ? multiSelectFilters?.duration[0]
+                    dateRangeFilter?.length && dateRangeFilter[0]
+                        ? dateRangeFilter[0]
                         : DEFAULT_START_DATE,
                 endDate:
-                    multiSelectFilters?.duration?.length && multiSelectFilters?.duration[1]
-                        ? multiSelectFilters?.duration[1]
+                    dateRangeFilter?.length && dateRangeFilter[1]
+                        ? dateRangeFilter[1]
                         : DEFAULT_END_DATE,
                 includeMetadataDetails: true,
             })
@@ -99,7 +100,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     ): TotalCardCounts[] => {
         const counts: TotalCardCounts[] = _(
             rowData.map(([id, _orgUnit, total]) => {
-                const indicator = evenTrackerCountsIndicatorMap.find(d => d.id === id);
+                const indicator = eventTrackerCountsIndicatorMap.find(d => d.id === id);
                 if (!indicator || !total) {
                     return null;
                 }

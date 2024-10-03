@@ -72,7 +72,7 @@ export function MultipleSelector<Value extends string>({
                 error={error}
                 renderValue={(selected: unknown) =>
                     (selected as Value[])?.length ? (
-                        <div>
+                        <SelectedContainer>
                             {(selected as Value[]).map(value => (
                                 <SelectedChip
                                     key={value}
@@ -82,7 +82,7 @@ export function MultipleSelector<Value extends string>({
                                     onMouseDown={event => handleDelete(event, value)}
                                 />
                             ))}
-                        </div>
+                        </SelectedContainer>
                     ) : (
                         placeholder
                     )
@@ -130,7 +130,7 @@ const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`
 `;
 
 const StyledSelect = styled(Select)<{ error?: boolean }>`
-    height: 40px;
+    min-height: 40px;
     .MuiOutlinedInput-notchedOutline {
         border-color: ${props =>
             props.error ? props.theme.palette.common.red600 : props.theme.palette.common.grey500};
@@ -138,7 +138,7 @@ const StyledSelect = styled(Select)<{ error?: boolean }>`
     .MuiSelect-root {
         padding-inline-start: 12px;
         padding-inline-end: 6px;
-        padding-block: 10px;
+        padding-block: 1px;
         &:focus {
             background-color: ${props => props.theme.palette.common.white};
         }
@@ -157,4 +157,11 @@ const SelectedChip = styled(Chip)`
             color: ${props => props.theme.palette.common.grey900};
         }
     }
+`;
+
+const SelectedContainer = styled.div`
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
 `;
