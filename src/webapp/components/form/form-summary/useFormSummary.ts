@@ -24,6 +24,7 @@ type FormSummary = {
     subTitle: string;
     summary: LabelWithValue[];
     incidentManager: Maybe<User>;
+    notes: string;
 };
 export function useFormSummary(id: Id) {
     const { compositionRoot } = useAppContext();
@@ -83,6 +84,7 @@ export function useFormSummary(id: Id) {
             incidentManager: diseaseOutbreakEvent.incidentManager
                 ? mapTeamMemberToUser(diseaseOutbreakEvent.incidentManager)
                 : undefined,
+            notes: diseaseOutbreakEvent.notes ?? "",
         };
     };
 

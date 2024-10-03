@@ -86,7 +86,7 @@ export function mapEntityToInitialFormState(
     const { diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
         dataSources,
-        teamMembers,
+        incidentManagers,
         hazardTypes,
         mainSyndromes,
         suspectedDiseases,
@@ -94,7 +94,7 @@ export function mapEntityToInitialFormState(
         incidentStatus,
     } = options;
 
-    const teamMemberOptions: User[] = teamMembers.map(tm => mapTeamMemberToUser(tm));
+    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
 
     const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
     const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);

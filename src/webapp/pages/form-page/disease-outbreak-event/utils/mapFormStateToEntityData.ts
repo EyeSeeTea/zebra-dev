@@ -153,6 +153,7 @@ export function mapFormStateToEntityData(
 
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
+        status: diseaseOutbreakEvent?.status || "ACTIVE",
         created: diseaseOutbreakEvent?.created || new Date(),
         lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,

@@ -20,12 +20,18 @@ import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepos
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
 import { SaveDiseaseOutbreakUseCase } from "./domain/usecases/SaveDiseaseOutbreakUseCase";
 import { GetDiseaseOutbreakWithOptionsUseCase } from "./domain/usecases/GetDiseaseOutbreakWithOptionsUseCase";
+import { PerformanceOverviewRepository } from "./domain/repositories/PerformanceOverviewRepository";
+import { GetAllPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllPerformanceOverviewMetricsUseCase";
+import { PerformanceOverviewD2Repository } from "./data/repositories/PerformanceOverviewD2Repository";
+import { PerformanceOverviewTestRepository } from "./data/repositories/test/PerformanceOverviewTestRepository";
+import { GetTotalCardCountsUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
 import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
 import { AlertSyncDataStoreRepository } from "./data/repositories/AlertSyncDataStoreRepository";
 import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/AlertSyncDataStoreTestRepository";
 import { AlertSyncRepository } from "./domain/repositories/AlertSyncRepository";
+import { DataStoreClient } from "./data/DataStoreClient";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -37,6 +43,7 @@ type Repositories = {
     optionsRepository: OptionsRepository;
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
+    performanceOverviewRepository: PerformanceOverviewRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -55,10 +62,19 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.optionsRepository
             ),
         },
+        performanceOverview: {
+            getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
+                repositories
+            ),
+            getTotalCardCounts: new GetTotalCardCountsUseCase(
+                repositories.performanceOverviewRepository
+            ),
+        },
     };
 }
 
 export function getWebappCompositionRoot(api: D2Api) {
+    const dataStoreClient = new DataStoreClient(api);
     const repositories: Repositories = {
         usersRepository: new UserD2Repository(api),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(api),
@@ -67,6 +83,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         optionsRepository: new OptionsD2Repository(api),
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
+        performanceOverviewRepository: new PerformanceOverviewD2Repository(api, dataStoreClient),
     };
 
     return getCompositionRoot(repositories);
@@ -81,6 +98,7 @@ export function getTestCompositionRoot() {
         optionsRepository: new OptionsTestRepository(),
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
+        performanceOverviewRepository: new PerformanceOverviewTestRepository(),
     };
 
     return getCompositionRoot(repositories);

@@ -41,7 +41,7 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
             suspectedDiseases: this.options.optionsRepository.getSuspectedDiseases(),
             notificationSources: this.options.optionsRepository.getNotificationSources(),
             incidentStatus: this.options.optionsRepository.getIncidentStatus(),
-            teamMembers: this.options.teamMemberRepository.getAll(),
+            incidentManagers: this.options.teamMemberRepository.getIncidentManagers(),
         }).flatMap(
             ({
                 dataSources,
@@ -50,13 +50,13 @@ export class GetDiseaseOutbreakWithOptionsUseCase {
                 suspectedDiseases,
                 notificationSources,
                 incidentStatus,
-                teamMembers,
+                incidentManagers,
             }) => {
                 const diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions = {
                     diseaseOutbreakEvent: diseaseOutbreakEventBase,
                     options: {
                         dataSources,
-                        teamMembers,
+                        incidentManagers,
                         hazardTypes,
                         mainSyndromes,
                         suspectedDiseases,

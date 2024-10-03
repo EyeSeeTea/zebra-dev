@@ -91,6 +91,12 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
                         )}
                     </SummaryColumn>
                 </SummaryContainer>
+                <StyledType>
+                    <Box fontWeight="bold" display="inline">
+                        {i18n.t("Notes")}:
+                    </Box>{" "}
+                    {formSummary.notes}
+                </StyledType>
             </Section>
         </>
     ) : (
@@ -113,4 +119,8 @@ const SummaryColumn = styled.div`
     padding-right: 2rem;
     color: ${props => props.theme.palette.text.hint};
     min-width: fit-content;
+`;
+
+const StyledType = styled(Typography)`
+    color: ${props => props.theme.palette.text.hint};
 `;

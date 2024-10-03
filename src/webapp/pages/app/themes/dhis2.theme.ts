@@ -174,6 +174,7 @@ const palette = {
         green: colors.green,
         red: colors.red,
         normal: colors.green700,
+        grey: colors.grey900,
         title: colors.black,
         subtitle: colors.grey3,
         pretitle: colors.grey3,
