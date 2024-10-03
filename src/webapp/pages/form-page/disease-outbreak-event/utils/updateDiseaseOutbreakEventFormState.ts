@@ -14,21 +14,21 @@ import { applyRulesInFormState } from "./applyRulesInFormState";
 export function updateAndValidateFormState(
     prevFormState: FormState,
     updatedField: FormFieldState,
-    configirableForm: ConfigurableForm
+    configurableForm: ConfigurableForm
 ): FormState {
     const updatedForm = updateFormStateAndApplySideEffects(prevFormState, updatedField);
 
     const hasUpdatedFieldAnyRule =
-        configirableForm.rules.filter(rule => rule.fieldId === updatedField.id).length > 0;
+        configurableForm.rules.filter(rule => rule.fieldId === updatedField.id).length > 0;
 
     const updatedFormWithRulesApplied = hasUpdatedFieldAnyRule
-        ? applyRulesInFormState(updatedForm, updatedField, configirableForm.rules)
+        ? applyRulesInFormState(updatedForm, updatedField, configurableForm.rules)
         : updatedForm;
 
     const fieldValidationErrors = validateFormState(
         updatedFormWithRulesApplied,
         updatedField,
-        configirableForm
+        configurableForm
     );
 
     const updatedFormStateWithErrors = updateFormStateWithFieldErrors(

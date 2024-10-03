@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { Box, Button } from "@material-ui/core";
 import { useParams } from "react-router-dom";
@@ -55,6 +55,12 @@ export const EventTrackerPage: React.FC = React.memo(() => {
 
     const { dateRangeFilter } = useMapFilters();
 
+    const goToRiskSummaryForm = useCallback(() => {
+        goTo(RouteName.CREATE_FORM, {
+            formType: "risk-assessment-summary",
+        });
+    }, [goTo]);
+
     useEffect(() => {
         if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
     }, [changeCurrentEventTrackerId, eventTrackerDetails, id]);
@@ -106,9 +112,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             color="primary"
                             startIcon={<EditOutlined />}
                             onClick={() => {
-                                goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment-summary",
-                                });
+                                goToRiskSummaryForm();
                             }}
                         >
                             {i18n.t("Create Risk Assessment")}
@@ -119,9 +123,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             color="secondary"
                             startIcon={<AddCircleOutline />}
                             onClick={() => {
-                                goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment-summary",
-                                });
+                                goToRiskSummaryForm();
                             }}
                         >
                             {i18n.t("Add new Assessment")}
