@@ -1,17 +1,23 @@
 import React, { useCallback, useEffect } from "react";
+import styled from "styled-components";
+import { Box, Button } from "@material-ui/core";
+import { useParams } from "react-router-dom";
+import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
+
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
-import { useParams } from "react-router-dom";
 import { FormSummary } from "../../components/form/form-summary/FormSummary";
 import { Visualisation } from "../../components/visualisation/Visualisation";
 import { Section } from "../../components/section/Section";
-import { Box, Button } from "@material-ui/core";
-import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
 import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { useDiseaseOutbreakEvent } from "./useDiseaseOutbreakEvent";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
+import { MapSection } from "../../components/map/MapSection";
+import LoaderContainer from "../../components/loader/LoaderContainer";
+import { useMapFilters } from "./useMapFilters";
+import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 
 // TODO: Add every section here
 export type VisualizationTypes =
@@ -44,7 +50,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { goTo } = useRoutes();
     const { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails } =
         useDiseaseOutbreakEvent(id);
-    const { changeCurrentEventTracker: changeCurrentEventTrackerId } = useCurrentEventTracker();
+    const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
+        useCurrentEventTracker();
+
+    const { dateRangeFilter } = useMapFilters();
 
     const goToRiskSummaryForm = useCallback(() => {
         goTo(RouteName.CREATE_FORM, {
@@ -65,11 +74,34 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 formSummary={formSummary}
                 summaryError={summaryError}
             />
-            <Visualisation
-                type="EVENT_TRACKER_AREAS_AFFECTED_MAP"
-                title="Districts Affected"
-                hasSeparator={true}
-            />
+            <Section
+                title={i18n.t("Districts Affected")}
+                titleVariant="secondary"
+                hasSeparator
+                lastUpdated={lastUpdated}
+            >
+                <DurationFilterContainer>
+                    <DateRangePicker
+                        value={dateRangeFilter.value || []}
+                        onChange={dateRangeFilter.onChange}
+                        placeholder={i18n.t("Select duration")}
+                        label={i18n.t("Duration")}
+                    />
+                </DurationFilterContainer>
+                <LoaderContainer
+                    loading={
+                        !getCurrentEventTracker()?.suspectedDiseaseCode &&
+                        !getCurrentEventTracker()?.hazardType
+                    }
+                >
+                    <MapSection
+                        mapKey="event_tracker"
+                        eventDiseaseCode={getCurrentEventTracker()?.suspectedDiseaseCode}
+                        eventHazardCode={getCurrentEventTracker()?.hazardType}
+                        dateRangeFilter={dateRangeFilter.value || []}
+                    />
+                </LoaderContainer>
+            </Section>
             <Section
                 title="Risk Assessment"
                 hasSeparator={true}
@@ -124,3 +156,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         </Layout>
     );
 });
+
+const DurationFilterContainer = styled.div`
+    max-width: 250px;
+`;

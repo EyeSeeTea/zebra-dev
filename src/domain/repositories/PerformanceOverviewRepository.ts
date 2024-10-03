@@ -9,5 +9,10 @@ export interface PerformanceOverviewRepository {
     getPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]>;
-    getTotalCardCounts(filters?: Record<string, string[]>): FutureData<TotalCardCounts[]>;
+    getTotalCardCounts(
+        allProvincesIds: string[],
+        singleSelectFilters?: Record<string, string>,
+        multiSelectFilters?: Record<string, string[]>,
+        dateRangeFilter?: string[]
+    ): FutureData<TotalCardCounts[]>;
 }

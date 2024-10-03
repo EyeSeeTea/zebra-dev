@@ -16,6 +16,8 @@ type DatePickerProps = {
     disabled?: boolean;
     error?: boolean;
     required?: boolean;
+    disableFuture?: boolean;
+    maxDate?: Date;
 };
 
 const slots = { openPickerIcon: IconCalendar24 };
@@ -31,6 +33,8 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
         errorText = "",
         error = false,
         required = false,
+        disableFuture = false,
+        maxDate,
     }) => {
         const notifyChange = useCallback(
             (date: Date | null) => {
@@ -71,6 +75,8 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
                         error={error}
                         disabled={disabled}
                         slotProps={slotProps}
+                        disableFuture={disableFuture}
+                        maxDate={maxDate}
                     />
                 </LocalizationProvider>
             </Container>

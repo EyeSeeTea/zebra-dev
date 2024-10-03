@@ -94,7 +94,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
             incidentManager: diseaseOutbreakEvent.incidentManager
                 ? mapTeamMemberToUser(diseaseOutbreakEvent.incidentManager)
                 : undefined,
-            notes: diseaseOutbreakEvent.notes ?? "",
+            notes: diseaseOutbreakEvent.notes || "",
         };
     };
 

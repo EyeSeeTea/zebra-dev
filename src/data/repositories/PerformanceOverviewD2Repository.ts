@@ -5,7 +5,10 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
-import { evenTrackerCountsIndicatorMap, IndicatorsId } from "./consts/PerformanceOverviewConstants";
+import {
+    eventTrackerCountsIndicatorMap,
+    IndicatorsId,
+} from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
 import {
     DiseaseOutbreakEventBaseAttrs,
@@ -21,21 +24,52 @@ import {
 import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
 
+const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const day = ("0" + date.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
+};
+
+const DEFAULT_END_DATE: string = formatDate(new Date());
+
+const DEFAULT_START_DATE = "2000-01-01";
+
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
     constructor(private api: D2Api, private datastore: DataStoreClient) {}
 
-    getTotalCardCounts(filters?: Record<string, string[]>): FutureData<TotalCardCounts[]> {
+    getTotalCardCounts(
+        allProvincesIds: string[],
+        singleSelectFilters?: Record<string, string>,
+        multiSelectFilters?: Record<string, string[]>,
+        dateRangeFilter?: string[]
+    ): FutureData<TotalCardCounts[]> {
         return apiToFuture(
             this.api.analytics.get({
                 dimension: [
-                    `dx:${evenTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
-                    "ou:LEVEL-2",
-                    "pe:THIS_YEAR",
+                    `dx:${eventTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
+                    `ou:${
+                        multiSelectFilters && multiSelectFilters?.province?.length
+                            ? multiSelectFilters.province.join(";")
+                            : allProvincesIds.join(";")
+                    }`,
                 ],
+                startDate:
+                    dateRangeFilter?.length && dateRangeFilter[0]
+                        ? dateRangeFilter[0]
+                        : DEFAULT_START_DATE,
+                endDate:
+                    dateRangeFilter?.length && dateRangeFilter[1]
+                        ? dateRangeFilter[1]
+                        : DEFAULT_END_DATE,
+                includeMetadataDetails: true,
             })
         ).map(analyticsResponse => {
             const totalCardCounts =
-                this.mapAnalyticsRowsToTotalCardCounts(analyticsResponse.rows, filters) || [];
+                this.mapAnalyticsRowsToTotalCardCounts(
+                    analyticsResponse.rows,
+                    singleSelectFilters
+                ) || [];
 
             const uniqueTotalCardCounts = totalCardCounts.reduce((acc, totalCardCount) => {
                 const existingEntry = acc[totalCardCount.name];
@@ -54,11 +88,11 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
     mapAnalyticsRowsToTotalCardCounts = (
         rowData: string[][],
-        filters?: Record<string, string[]>
+        filters?: Record<string, string>
     ): TotalCardCounts[] => {
         const counts: TotalCardCounts[] = _(
-            rowData.map(([id, _orgUnit, _period, total]) => {
-                const indicator = evenTrackerCountsIndicatorMap.find(d => d.id === id);
+            rowData.map(([id, _orgUnit, total]) => {
+                const indicator = eventTrackerCountsIndicatorMap.find(d => d.id === id);
                 if (!indicator || !total) {
                     return null;
                 }
@@ -89,14 +123,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
         const filteredCounts: TotalCardCounts[] = counts.filter(item => {
             if (filters && Object.entries(filters).length) {
-                return Object.entries(filters).every(([key, values]) => {
-                    if (!values.length) {
+                return Object.entries(filters).every(([key, value]) => {
+                    if (!value) {
                         return true;
                     }
                     if (key === "incidentStatus") {
-                        return values.includes(item.incidentStatus as string);
+                        return value === item.incidentStatus;
                     } else if (key === "disease" || key === "hazard") {
-                        return values.includes(item.name as string);
+                        return value === item.name;
                     }
                 });
             }
@@ -207,12 +241,18 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
             if (key === "suspectedDisease") {
                 acc[key] =
-                    (Object.values(metaData.items).find(item => item.code === row[index])
-                        ?.name as DiseaseNames) || "";
+                    ((
+                        Object.values(metaData.items).find(
+                            item => (item as any).code === row[index]
+                        ) as any
+                    )?.name as DiseaseNames) || "";
             } else if (key === "hazardType") {
                 acc[key] =
-                    (Object.values(metaData.items).find(item => item.code === row[index])
-                        ?.name as HazardNames) || "";
+                    ((
+                        Object.values(metaData.items).find(
+                            item => (item as any).code === row[index]
+                        ) as any
+                    )?.name as HazardNames) || "";
             } else if (key === "nationalIncidentStatus") {
                 acc[key] = row[index] as NationalIncidentStatus;
             } else {

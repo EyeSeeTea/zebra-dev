@@ -18,10 +18,10 @@ export type DiseaseNames =
     | "Zika fever";
 
 export type HazardNames =
-    | "Animal type"
-    | "Human type"
-    | "Human and Animal type"
-    | "Environmental type";
+    | "Biological: Animal"
+    | "Biological: Human"
+    | "Biological: Human and Animal"
+    | "Environmental";
 
 export type PerformanceOverviewMetrics = {
     id: Id;

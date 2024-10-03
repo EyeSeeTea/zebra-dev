@@ -18,23 +18,29 @@ import { OptionsTestRepository } from "./data/repositories/test/OptionsTestRepos
 import { TeamMemberTestRepository } from "./data/repositories/test/TeamMemberTestRepository";
 import { OrgUnitTestRepository } from "./data/repositories/test/OrgUnitTestRepository";
 import { GetAllDiseaseOutbreaksUseCase } from "./domain/usecases/GetAllDiseaseOutbreaksUseCase";
+import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
+import { AlertRepository } from "./domain/repositories/AlertRepository";
+import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
 import { GetEntityWithOptionsUseCase } from "./domain/usecases/GetEntityWithOptionsUseCase";
 import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
 import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
 import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
 import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
+import { MapConfigRepository } from "./domain/repositories/MapConfigRepository";
+import { MapConfigD2Repository } from "./data/repositories/MapConfigD2Repository";
+import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestRepository";
+import { GetMapConfigUseCase } from "./domain/usecases/GetMapConfigUseCase";
+import { GetProvincesOrgUnits } from "./domain/usecases/GetProvincesOrgUnits";
+import { GetAllOrgUnitsUseCase } from "./domain/usecases/GetAllOrgUnitsUseCase";
 import { PerformanceOverviewRepository } from "./domain/repositories/PerformanceOverviewRepository";
 import { GetAllPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllPerformanceOverviewMetricsUseCase";
 import { PerformanceOverviewD2Repository } from "./data/repositories/PerformanceOverviewD2Repository";
 import { PerformanceOverviewTestRepository } from "./data/repositories/test/PerformanceOverviewTestRepository";
-import { GetTotalCardCountsUseCase } from "./domain/usecases/GetDiseasesTotalUseCase";
-import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseOutbreakToAlertsUseCase";
-import { AlertRepository } from "./domain/repositories/AlertRepository";
-import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
 import { AlertSyncDataStoreRepository } from "./data/repositories/AlertSyncDataStoreRepository";
 import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/AlertSyncDataStoreTestRepository";
 import { AlertSyncRepository } from "./domain/repositories/AlertSyncRepository";
 import { DataStoreClient } from "./data/DataStoreClient";
+import { GetTotalCardCountsUseCase } from "./domain/usecases/GetTotalCardCountsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -47,6 +53,7 @@ type Repositories = {
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
     riskAssessmentRepository: RiskAssessmentRepository;
+    mapConfigRepository: MapConfigRepository;
     performanceOverviewRepository: PerformanceOverviewRepository;
 };
 
@@ -73,9 +80,14 @@ function getCompositionRoot(repositories: Repositories) {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
                 repositories
             ),
-            getTotalCardCounts: new GetTotalCardCountsUseCase(
-                repositories.performanceOverviewRepository
-            ),
+            getTotalCardCounts: new GetTotalCardCountsUseCase(repositories),
+        },
+        maps: {
+            getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
+        },
+        orgUnits: {
+            getAll: new GetAllOrgUnitsUseCase(repositories.orgUnitRepository),
+            getProvinces: new GetProvincesOrgUnits(repositories.orgUnitRepository),
         },
     };
 }
@@ -91,6 +103,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
+        mapConfigRepository: new MapConfigD2Repository(api),
         performanceOverviewRepository: new PerformanceOverviewD2Repository(api, dataStoreClient),
     };
 
@@ -107,6 +120,7 @@ export function getTestCompositionRoot() {
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
         riskAssessmentRepository: new RiskAssessmentTestRepository(),
+        mapConfigRepository: new MapConfigTestRepository(),
         performanceOverviewRepository: new PerformanceOverviewTestRepository(),
     };
 

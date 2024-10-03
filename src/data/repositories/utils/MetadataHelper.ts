@@ -26,26 +26,6 @@ export function getProgramTEAsMetadata(api: D2Api, programId: Id) {
     );
 }
 
-export function getProgramStage(api: D2Api, stageId: Id) {
-    return apiToFuture(
-        api.models.programStages.get({
-            fields: {
-                id: true,
-                programStageDataElements: {
-                    dataElement: {
-                        id: true,
-                        valueType: true,
-                        code: true,
-                    },
-                },
-            },
-            filter: {
-                id: { eq: stageId },
-            },
-        })
-    );
-}
-
 export function getUserGroupByCode(api: D2Api, code: string): FutureData<Ref> {
     return apiToFuture(
         api.metadata.get({
@@ -72,4 +52,24 @@ export function getTEAttributeById(
     return trackedEntity.attributes
         .map(attribute => ({ attribute: attribute.attribute, value: attribute.value }))
         .find(attribute => attribute.attribute === attributeId);
+}
+
+export function getProgramStage(api: D2Api, stageId: Id) {
+    return apiToFuture(
+        api.models.programStages.get({
+            fields: {
+                id: true,
+                programStageDataElements: {
+                    dataElement: {
+                        id: true,
+                        valueType: true,
+                        code: true,
+                    },
+                },
+            },
+            filter: {
+                id: { eq: stageId },
+            },
+        })
+    );
 }

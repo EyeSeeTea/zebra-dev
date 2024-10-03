@@ -90,7 +90,16 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+msgid "Notes"
+msgstr ""
+
 msgid "Create Event"
+msgstr ""
+
+msgid "The map with these filters could not be found."
+msgstr ""
+
+msgid "Map not found."
 msgstr ""
 
 msgid "Close"
@@ -117,7 +126,13 @@ msgstr ""
 msgid "Respond, alert, watch"
 msgstr ""
 
+msgid "Select duration"
+msgstr ""
+
 msgid "Duration"
+msgstr ""
+
+msgid "All public health events"
 msgstr ""
 
 msgid "7-1-7 performance"
@@ -127,6 +142,9 @@ msgid "Performance overview"
 msgstr ""
 
 msgid "Event Tracker"
+msgstr ""
+
+msgid "Districts Affected"
 msgstr ""
 
 msgid "Create Risk Assessment"

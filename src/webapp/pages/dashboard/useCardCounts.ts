@@ -5,24 +5,30 @@ import { TotalCardCounts } from "../../../domain/entities/disease-outbreak-event
 
 export type Order = { name: string; direction: "asc" | "desc" };
 
-export function useCardCounts(filters: Record<string, string[]>) {
+export function useCardCounts(
+    singleSelectFilters: Record<string, string>,
+    multiSelectFilters: Record<string, string[]>,
+    dateRangeFilter: string[]
+) {
     const { compositionRoot } = useAppContext();
     const [cardCounts, setCardCounts] = useState<TotalCardCounts[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.performanceOverview.getTotalCardCounts.execute(filters).run(
-            diseasesTotal => {
-                setCardCounts(diseasesTotal);
-                setIsLoading(false);
-            },
-            error => {
-                console.error({ error });
-                setIsLoading(false);
-            }
-        );
-    }, [compositionRoot, filters]);
+        compositionRoot.performanceOverview.getTotalCardCounts
+            .execute(singleSelectFilters, multiSelectFilters, dateRangeFilter)
+            .run(
+                diseasesTotal => {
+                    setCardCounts(diseasesTotal);
+                    setIsLoading(false);
+                },
+                error => {
+                    console.error({ error });
+                    setIsLoading(false);
+                }
+            );
+    }, [compositionRoot, singleSelectFilters, multiSelectFilters, dateRangeFilter]);
 
     return {
         cardCounts,
