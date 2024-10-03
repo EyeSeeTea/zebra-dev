@@ -1,10 +1,17 @@
-import React from "react";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useForm } from "./useForm";
+import { Layout } from "../../components/layout/Layout";
+import { Loader } from "../../components/loader/Loader";
+import { Form } from "../../components/form/Form";
+import styled from "styled-components";
 
-import i18n from "../../../utils/i18n";
-import { DiseaseOutbreakEventForm } from "./disease-outbreak-event/DiseaseOutbreakEventForm";
-
-export type FormType = "disease-outbreak-event";
+export type FormType =
+    | "disease-outbreak-event"
+    | "risk-assessment-grading"
+    | "risk-assessment-questionnaire"
+    | "risk-assessment-summary";
 
 export const FormPage: React.FC = React.memo(() => {
     const { formType, id } = useParams<{
@@ -12,10 +19,45 @@ export const FormPage: React.FC = React.memo(() => {
         id?: string;
     }>();
 
-    switch (formType) {
-        case "disease-outbreak-event":
-            return <DiseaseOutbreakEventForm diseaseOutbreakEventId={id} />;
-        default:
-            return <div>{i18n.t("Page Not Found")}</div>;
-    }
+    const snackbar = useSnackbar();
+    const {
+        formLabels,
+        globalMessage,
+        formState,
+        isLoading,
+        handleFormChange,
+        onPrimaryButtonClick,
+        onCancelForm,
+        handleAddNew,
+    } = useForm(formType, id);
+
+    useEffect(() => {
+        if (!globalMessage) return;
+
+        snackbar[globalMessage.type](globalMessage.text);
+    }, [globalMessage, snackbar]);
+
+    return formState.kind === "loading" || isLoading ? (
+        <Layout hideSideBarOptions>
+            <Loader />
+        </Layout>
+    ) : formState.kind === "loaded" ? (
+        <Form
+            formState={formState.data}
+            onFormChange={handleFormChange}
+            onSave={onPrimaryButtonClick}
+            onCancel={onCancelForm}
+            errorLabels={formLabels?.errors}
+            handleAddNew={handleAddNew}
+        />
+    ) : (
+        formState.message && <ErrorMessageContainer>{formState.message}</ErrorMessageContainer>
+    );
 });
+
+const ErrorMessageContainer = styled.div`
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+`;

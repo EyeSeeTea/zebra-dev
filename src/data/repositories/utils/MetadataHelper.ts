@@ -6,7 +6,7 @@ import { assertOrError } from "./AssertOrError";
 import { Attribute } from "@eyeseetea/d2-api/api/trackedEntityInstances";
 import { Maybe } from "../../../utils/ts-utils";
 
-export function getProgramTEAsMetadata(api: D2Api, programId: string) {
+export function getProgramTEAsMetadata(api: D2Api, programId: Id) {
     return apiToFuture(
         api.models.programs.get({
             fields: {
@@ -21,6 +21,26 @@ export function getProgramTEAsMetadata(api: D2Api, programId: string) {
             },
             filter: {
                 id: { eq: programId },
+            },
+        })
+    );
+}
+
+export function getProgramStage(api: D2Api, stageId: Id) {
+    return apiToFuture(
+        api.models.programStages.get({
+            fields: {
+                id: true,
+                programStageDataElements: {
+                    dataElement: {
+                        id: true,
+                        valueType: true,
+                        code: true,
+                    },
+                },
+            },
+            filter: {
+                id: { eq: stageId },
             },
         })
     );

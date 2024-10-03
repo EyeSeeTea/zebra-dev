@@ -25,12 +25,13 @@ interface SelectorColumn extends BaseColumn {
     options: Option[];
 }
 
+export type TableRowType = {
+    [key: TableColumn["value"]]: string;
+};
 export type TableColumn = TextColumn | LinkColumn | SelectorColumn;
 interface BasicTableProps {
     columns: TableColumn[];
-    rows: {
-        [key: TableColumn["value"]]: string;
-    }[];
+    rows: TableRowType[];
     onChange?: (cell: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => void;
     showRowIndex?: boolean;
 }

@@ -5,8 +5,9 @@ import { IconInfo24 } from "@dhis2/ui";
 import { Separator } from "../separator/Separator";
 import { IconButton } from "../icon-button/IconButton";
 import { FieldWidget } from "./FieldWidget";
-import { FormFieldState } from "./FormFieldsState";
+import { AddNewFieldState, FormFieldState } from "./FormFieldsState";
 import { FormSectionState } from "./FormSectionsState";
+import { AddNewOption } from "../add-new-option/AddNewOption";
 
 type FormSectionProps = {
     id: string;
@@ -19,6 +20,8 @@ type FormSectionProps = {
     fields: FormFieldState[];
     onUpdateField: (updatedField: FormFieldState) => void;
     errorLabels?: Record<string, string>;
+    handleAddNew?: () => void;
+    addNewField?: AddNewFieldState;
 };
 
 export const FormSection: React.FC<FormSectionProps> = React.memo(
@@ -33,6 +36,8 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
         fields,
         onUpdateField,
         errorLabels,
+        handleAddNew,
+        addNewField,
     }) => {
         return (
             <FormSectionContainer>
@@ -53,6 +58,10 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
                                 />
                             )}
                         </TitleContainer>
+                    )}
+
+                    {addNewField && handleAddNew && (
+                        <AddNewOption id="" onAddNewOption={handleAddNew} />
                     )}
 
                     {fields.length && fields.some(f => f.isVisible) ? (

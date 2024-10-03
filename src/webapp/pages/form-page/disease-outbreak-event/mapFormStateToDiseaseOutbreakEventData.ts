@@ -1,8 +1,10 @@
-import _ from "../../../../../domain/entities/generic/Collection";
-import { DiseaseOutbreakEventBaseAttrs } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
-import { FormState } from "../../../../components/form/FormState";
-import { diseaseOutbreakEventFieldIds } from "./mapEntityToInitialFormState";
+import {
+    dataSourceMap,
+    getHazardTypeFromString,
+    incidentStatusMap,
+} from "../../../../data/repositories/consts/DiseaseOutbreakConstants";
+import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
+import { DiseaseOutbreakEventBaseAttrs } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
     FormFieldState,
     getAllFieldsFromSections,
@@ -10,12 +12,9 @@ import {
     getDateFieldValue,
     getMultipleOptionsFieldValue,
     getStringFieldValue,
-} from "../../../../components/form/FormFieldsState";
-import {
-    getHazardTypeFromString,
-    dataSourceMap,
-    incidentStatusMap,
-} from "../../../../../data/repositories/consts/DiseaseOutbreakConstants";
+} from "../../../components/form/FormFieldsState";
+import { FormState } from "../../../components/form/FormState";
+import { diseaseOutbreakEventFieldIds } from "./mapDiseaseOutbreakEventToInitialFormState";
 
 type DateFieldIdsToValidate =
     | "emergedDate"
@@ -25,13 +24,12 @@ type DateFieldIdsToValidate =
     | "conductEpidemiologicalAnalysis"
     | "establishCoordination";
 
-export function mapFormStateToEntityData(
+export function mapFormStateToDiseaseOutbreakEventData(
     formState: FormState,
     currentUserName: string,
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions
+    configurableDiseaseOutbreakEventForm: DiseaseOutbreakEventFormData
 ): DiseaseOutbreakEventBaseAttrs {
-    const { diseaseOutbreakEvent } = diseaseOutbreakEventWithOptions;
-
+    const diseaseOutbreakEvent = configurableDiseaseOutbreakEventForm.entity;
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
     const dataSource =

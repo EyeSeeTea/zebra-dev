@@ -6,7 +6,7 @@ import {
     getHazardTypeByCode,
     getValueFromDiseaseOutbreak,
     isStringInDiseaseOutbreakCodes,
-    KeyCode,
+    DiseaseOutbreakKeyCode,
     dataSourceMap,
     incidentStatusMap,
     RTSL_ZEBRA_ORG_UNIT_ID,
@@ -114,7 +114,7 @@ export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
         if (!isStringInDiseaseOutbreakCodes(attribute.trackedEntityAttribute.code)) {
             throw new Error("Attribute code not found in DiseaseOutbreakCodes");
         }
-        const typedCode: KeyCode = attribute.trackedEntityAttribute.code;
+        const typedCode: DiseaseOutbreakKeyCode = attribute.trackedEntityAttribute.code;
         const populatedAttribute = {
             attribute: attribute.trackedEntityAttribute.id,
             value: attributeValues[typedCode],
