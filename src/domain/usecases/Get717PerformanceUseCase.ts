@@ -1,5 +1,5 @@
 import { FutureData } from "../../data/api-futures";
-import { Indicator717PerformanceBaseAttrs } from "../../data/repositories/PerformanceOverviewD2Repository";
+import { PerformanceMetrics717 } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { PerformanceOverviewRepository } from "../repositories/PerformanceOverviewRepository";
 
 export class Get717PerformanceUseCase {
@@ -9,7 +9,7 @@ export class Get717PerformanceUseCase {
         }
     ) {}
 
-    public execute(): FutureData<Indicator717PerformanceBaseAttrs[]> {
+    public execute(): FutureData<PerformanceMetrics717[]> {
         return this.options.performanceOverviewRepository.get717Performance();
     }
 }

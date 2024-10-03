@@ -67,3 +67,10 @@ type HazardCounts = BaseCounts & {
 };
 
 export type TotalCardCounts = DiseaseCounts | HazardCounts;
+
+export type PerformanceMetrics717 = {
+    id: string;
+    name: string;
+    type: "count" | "percent";
+    value?: number;
+};

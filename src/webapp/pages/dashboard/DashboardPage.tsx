@@ -39,7 +39,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         editRiskAssessmentColumns,
     } = usePerformanceOverview();
 
-    const { performanceIndicators } = use717Performance(multiSelectFilters);
+    const { performanceIndicators } = use717Performance();
     const { cardCounts } = useCardCounts(
         singleSelectFilters,
         multiSelectFilters,

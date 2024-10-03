@@ -1,9 +1,9 @@
 import { FutureData } from "../../data/api-futures";
-import { Indicator717PerformanceBaseAttrs } from "../../data/repositories/PerformanceOverviewD2Repository";
 import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
     TotalCardCounts,
     PerformanceOverviewMetrics,
+    PerformanceMetrics717,
 } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export interface PerformanceOverviewRepository {
@@ -16,5 +16,5 @@ export interface PerformanceOverviewRepository {
         multiSelectFilters?: Record<string, string[]>,
         dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]>;
-    get717Performance(): FutureData<Indicator717PerformanceBaseAttrs[]>;
+    get717Performance(): FutureData<PerformanceMetrics717[]>;
 }

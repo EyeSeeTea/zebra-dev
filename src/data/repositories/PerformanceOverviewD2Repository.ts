@@ -7,7 +7,7 @@ import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
     eventTrackerCountsIndicatorMap,
-    INDICATORS_717_PERFORMANCE,
+    PERFORMANCE_METRICS_717_IDS,
     IndicatorsId,
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
@@ -21,16 +21,10 @@ import {
     HazardNames,
     PerformanceOverviewMetrics,
     DiseaseNames,
+    PerformanceMetrics717,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
-
-export type Indicator717PerformanceBaseAttrs = {
-    id: string;
-    name: string;
-    type: "count" | "percent";
-    value: number;
-};
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -40,7 +34,6 @@ const formatDate = (date: Date): string => {
 };
 
 const DEFAULT_END_DATE: string = formatDate(new Date());
-
 const DEFAULT_START_DATE = "2000-01-01";
 
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
@@ -151,27 +144,26 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]> {
         return apiToFuture(
-            this.api.get<AnalyticsResponse>(
-                `/analytics/enrollments/query/${RTSL_ZEBRA_PROGRAM_ID}`,
-                {
-                    enrollmentDate: "LAST_12_MONTHS,THIS_MONTH",
-                    dimension: [
-                        IndicatorsId.suspectedDisease,
-                        IndicatorsId.hazardType,
-                        IndicatorsId.event,
-                        IndicatorsId.era1,
-                        IndicatorsId.era2,
-                        IndicatorsId.era3,
-                        IndicatorsId.era4,
-                        IndicatorsId.era5,
-                        IndicatorsId.era6,
-                        IndicatorsId.era7,
-                        IndicatorsId.detect7d,
-                        IndicatorsId.notify1d,
-                        IndicatorsId.respond7d,
-                    ],
-                }
-            )
+            this.api.analytics.getEnrollmentsQuery({
+                programId: RTSL_ZEBRA_PROGRAM_ID,
+                dimension: [
+                    IndicatorsId.suspectedDisease,
+                    IndicatorsId.hazardType,
+                    IndicatorsId.event,
+                    IndicatorsId.era1,
+                    IndicatorsId.era2,
+                    IndicatorsId.era3,
+                    IndicatorsId.era4,
+                    IndicatorsId.era5,
+                    IndicatorsId.era6,
+                    IndicatorsId.era7,
+                    IndicatorsId.detect7d,
+                    IndicatorsId.notify1d,
+                    IndicatorsId.respond7d,
+                ],
+                startDate: DEFAULT_START_DATE,
+                endDate: DEFAULT_END_DATE,
+            })
         ).flatMap(indicatorsProgramFuture => {
             const mappedIndicators =
                 indicatorsProgramFuture?.rows.map((row: string[]) =>
@@ -216,43 +208,37 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         });
     }
 
-    get717Performance(): FutureData<Indicator717PerformanceBaseAttrs[]> {
+    get717Performance(): FutureData<PerformanceMetrics717[]> {
         const transformData = (
-            data: string[][],
-            indicators717Performance: typeof INDICATORS_717_PERFORMANCE
-        ): Indicator717PerformanceBaseAttrs[] => {
-            return data.flatMap(([id, , value]) => {
-                const indicator = indicators717Performance.find(d => d.id === id);
-                if (!indicator || !value) {
-                    return [];
-                }
-
-                // Ensure the type is either 'count' or 'percent'
-                const type: "count" | "percent" =
-                    indicator.type === "count" || indicator.type === "percent"
-                        ? indicator.type
-                        : "count"; // Default to 'count' if type is not valid
-
-                return [
-                    {
+            performanceMetric717Response: string[][],
+            indicators717Performance: PerformanceMetrics717[]
+        ): PerformanceMetrics717[] => {
+            return _(
+                performanceMetric717Response.map(([id, value]) => {
+                    const indicator = indicators717Performance.find(d => d.id === id);
+                    if (!indicator || !value) {
+                        return undefined;
+                    }
+                    return {
                         ...indicator,
                         value: parseFloat(value),
-                        type, // Set the valid type here with narrowed types
-                    },
-                ];
-            });
+                        type: indicator.type,
+                    };
+                })
+            )
+                .compact()
+                .value();
         };
 
         return apiToFuture(
             this.api.analytics.get({
-                dimension: [
-                    `dx:${INDICATORS_717_PERFORMANCE.map(({ id }) => id).join(";")}`,
-                    "pe:THIS_YEAR",
-                ],
+                dimension: [`dx:${PERFORMANCE_METRICS_717_IDS.map(({ id }) => id).join(";")}`],
+                startDate: DEFAULT_START_DATE,
+                endDate: DEFAULT_END_DATE,
                 includeMetadataDetails: true,
             })
         ).map(res => {
-            return transformData(res.rows, INDICATORS_717_PERFORMANCE) || [];
+            return transformData(res.rows, PERFORMANCE_METRICS_717_IDS) || [];
         });
     }
 

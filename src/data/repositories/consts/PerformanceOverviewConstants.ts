@@ -2,6 +2,7 @@ import {
     DiseaseNames,
     HazardNames,
     IncidentStatus,
+    PerformanceMetrics717,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../../domain/entities/Ref";
 
@@ -265,7 +266,7 @@ export const eventTrackerCountsIndicatorMap: EventTrackerCountIndicator[] = [
     { id: "gRcZNqpKyYg", type: "hazard", name: "Environmental", incidentStatus: "Respond" },
 ];
 
-export const INDICATORS_717_PERFORMANCE = [
+export const PERFORMANCE_METRICS_717_IDS: PerformanceMetrics717[] = [
     { id: "VWazDAQ15Uw", name: "detection", type: "percent" }, // % of number of alerts that were detected within 7 days of date of emergence
     { id: "jnJHR2D0cN3", name: "detection", type: "count" }, // Number of alerts notified to public health authorities within 1 day of detection
 
