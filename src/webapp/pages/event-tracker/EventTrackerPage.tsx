@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { useParams } from "react-router-dom";
@@ -46,6 +46,12 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         useDiseaseOutbreakEvent(id);
     const { changeCurrentEventTracker: changeCurrentEventTrackerId } = useCurrentEventTracker();
 
+    const goToRiskSummaryForm = useCallback(() => {
+        goTo(RouteName.CREATE_FORM, {
+            formType: "risk-assessment-summary",
+        });
+    }, [goTo]);
+
     useEffect(() => {
         if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
     }, [changeCurrentEventTrackerId, eventTrackerDetails, id]);
@@ -74,9 +80,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             color="primary"
                             startIcon={<EditOutlined />}
                             onClick={() => {
-                                goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment-summary",
-                                });
+                                goToRiskSummaryForm();
                             }}
                         >
                             {i18n.t("Create Risk Assessment")}
@@ -87,9 +91,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             color="secondary"
                             startIcon={<AddCircleOutline />}
                             onClick={() => {
-                                goTo(RouteName.CREATE_FORM, {
-                                    formType: "risk-assessment-summary",
-                                });
+                                goToRiskSummaryForm();
                             }}
                         >
                             {i18n.t("Add new Assessment")}
