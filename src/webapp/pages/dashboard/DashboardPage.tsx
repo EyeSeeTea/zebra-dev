@@ -17,7 +17,8 @@ import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters
 import { MapSection } from "../../components/map/MapSection";
 import { Selector } from "../../components/selector/Selector";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
-import { PerformanceIndicator717, use717Performance } from "./use717Performance";
+import { PerformanceMetric717, use717Performance } from "./use717Performance";
+import { Loader } from "../../components/loader/Loader";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -37,10 +38,11 @@ export const DashboardPage: React.FC = React.memo(() => {
         setOrder,
         columnRules,
         editRiskAssessmentColumns,
+        isLoading: performanceOverviewLoading,
     } = usePerformanceOverview();
 
-    const { performanceIndicators } = use717Performance();
-    const { cardCounts } = useCardCounts(
+    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance();
+    const { cardCounts, isLoading: cardCountsLoading } = useCardCounts(
         singleSelectFilters,
         multiSelectFilters,
         dateRangeFilter.value
@@ -59,7 +61,9 @@ export const DashboardPage: React.FC = React.memo(() => {
         goTo(RouteName.EVENT_TRACKER, { id });
     };
 
-    return (
+    return performanceOverviewLoading || _717CardsLoading || cardCountsLoading ? (
+        <Loader />
+    ) : (
         <Layout title={i18n.t("Dashboard")} showCreateEvent>
             <Section title={i18n.t("Respond, alert, watch")}>
                 <FiltersContainer>
@@ -123,22 +127,17 @@ export const DashboardPage: React.FC = React.memo(() => {
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>
                 <GridWrapper>
-                    {performanceIndicators.map(
-                        (
-                            per: PerformanceIndicator717["performanceIndicators"][0],
-                            index: number
-                        ) => (
-                            <StatsCard
-                                key={index}
-                                stat={`${per.percent}`}
-                                title={per.title}
-                                pretitle={`${per.count} ${i18n.t("events")}`}
-                                color={per.color}
-                                fillParent
-                                isPercentage
-                            />
-                        )
-                    )}
+                    {performanceMetrics717.map((per: PerformanceMetric717, index: number) => (
+                        <StatsCard
+                            key={index}
+                            stat={`${per.percent}`}
+                            title={per.title}
+                            pretitle={`${per.count} ${i18n.t("events")}`}
+                            color={per.color}
+                            fillParent
+                            isPercentage
+                        />
+                    ))}
                 </GridWrapper>
             </Section>
             <Section title={i18n.t("Performance overview")}>

@@ -208,28 +208,30 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         });
     }
 
-    get717Performance(): FutureData<PerformanceMetrics717[]> {
-        const transformData = (
-            performanceMetric717Response: string[][],
-            indicators717Performance: PerformanceMetrics717[]
-        ): PerformanceMetrics717[] => {
-            return _(
-                performanceMetric717Response.map(([id, value]) => {
-                    const indicator = indicators717Performance.find(d => d.id === id);
-                    if (!indicator || !value) {
-                        return undefined;
-                    }
-                    return {
-                        ...indicator,
-                        value: parseFloat(value),
-                        type: indicator.type,
-                    };
-                })
-            )
-                .compact()
-                .value();
-        };
+    private mapIndicatorsTo717PerformanceMetrics(
+        performanceMetric717Response: string[][]
+    ): PerformanceMetrics717[] {
+        return _(
+            performanceMetric717Response.map(([id, value]) => {
+                const indicator = PERFORMANCE_METRICS_717_IDS.find(d => d.id === id);
 
+                if (!indicator) throw new Error(`Unknown Indicator with id ${id} `);
+
+                if (!value) {
+                    return undefined;
+                }
+                return {
+                    ...indicator,
+                    value: parseFloat(value),
+                    type: indicator.type,
+                };
+            })
+        )
+            .compact()
+            .value();
+    }
+
+    get717Performance(): FutureData<PerformanceMetrics717[]> {
         return apiToFuture(
             this.api.analytics.get({
                 dimension: [`dx:${PERFORMANCE_METRICS_717_IDS.map(({ id }) => id).join(";")}`],
@@ -238,7 +240,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                 includeMetadataDetails: true,
             })
         ).map(res => {
-            return transformData(res.rows, PERFORMANCE_METRICS_717_IDS) || [];
+            return this.mapIndicatorsTo717PerformanceMetrics(res.rows);
         });
     }
 

@@ -5,24 +5,24 @@ import { StatsCardProps } from "../../components/stats-card/StatsCard";
 import { PerformanceMetrics717 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 type CardColors = StatsCardProps["color"];
-export type PerformanceIndicator717 = {
-    performanceIndicators: {
-        title: string;
-        percent: number;
-        count: number;
-        color: CardColors;
-    }[];
+
+export type PerformanceMetric717 = {
+    title: string;
+    percent: number;
+    count: number;
+    color: CardColors;
+};
+export type PerformanceMetric717State = {
+    performanceMetrics717: PerformanceMetric717[];
     isLoading: boolean;
 };
 
 export type Order = { name: string; direction: "asc" | "desc" };
 
-export function use717Performance(): PerformanceIndicator717 {
+export function use717Performance(): PerformanceMetric717State {
     const { compositionRoot } = useAppContext();
 
-    const [performanceIndicators, setPerformanceIndicators] = useState<
-        PerformanceIndicator717["performanceIndicators"]
-    >([]);
+    const [performanceMetrics717, setPerformanceMetrics717] = useState<PerformanceMetric717[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const getColor = useCallback((key: string, percent: number): CardColors => {
@@ -72,8 +72,8 @@ export function use717Performance(): PerformanceIndicator717 {
     useEffect(() => {
         setIsLoading(true);
         compositionRoot.performanceOverview.get717Performance.execute().run(
-            performanceIndicators => {
-                setPerformanceIndicators(transformData(performanceIndicators));
+            performanceMetrics717 => {
+                setPerformanceMetrics717(transformData(performanceMetrics717));
                 setIsLoading(false);
             },
             error => {
@@ -84,7 +84,7 @@ export function use717Performance(): PerformanceIndicator717 {
     }, [compositionRoot.performanceOverview.get717Performance, transformData]);
 
     return {
-        performanceIndicators,
+        performanceMetrics717,
         isLoading,
     };
 }
