@@ -7,7 +7,7 @@ import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { FormSummary } from "../../components/form/form-summary/FormSummary";
-import { Visualisation } from "../../components/visualisation/Visualisation";
+import { Chart } from "../../components/chart/Chart";
 import { Section } from "../../components/section/Section";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
 import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
@@ -18,16 +18,7 @@ import { MapSection } from "../../components/map/MapSection";
 import LoaderContainer from "../../components/loader/LoaderContainer";
 import { useMapFilters } from "./useMapFilters";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
-
-// TODO: Add every section here
-export type VisualizationTypes =
-    | "ALL_EVENTS_MAP"
-    | "EVENT_TRACKER_AREAS_AFFECTED_MAP"
-    | "RISK_ASSESSMENT_HISTORY_LINE_CHART"
-    | "EVENT_TRACKER_CASES_BAR_CHART"
-    | "EVENT_TRACKER_DEATHS_BAR_CHART"
-    | "EVENT_TRACKER_OVERVIEW_CARDS"
-    | "EVENT_TRACKER_717_CARDS";
+import { NoticeBox } from "../../components/notice-box/NoticeBox";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -52,6 +43,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         useDiseaseOutbreakEvent(id);
     const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
         useCurrentEventTracker();
+    const currentEventTracker = getCurrentEventTracker();
 
     const { dateRangeFilter } = useMapFilters();
 
@@ -90,14 +82,14 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 </DurationFilterContainer>
                 <LoaderContainer
                     loading={
-                        !getCurrentEventTracker()?.suspectedDiseaseCode &&
-                        !getCurrentEventTracker()?.hazardType
+                        !currentEventTracker?.suspectedDiseaseCode &&
+                        !currentEventTracker?.hazardType
                     }
                 >
                     <MapSection
                         mapKey="event_tracker"
-                        eventDiseaseCode={getCurrentEventTracker()?.suspectedDiseaseCode}
-                        eventHazardCode={getCurrentEventTracker()?.hazardType}
+                        eventDiseaseCode={currentEventTracker?.suspectedDiseaseCode}
+                        eventHazardCode={currentEventTracker?.hazardType}
                         dateRangeFilter={dateRangeFilter.value || []}
                     />
                 </LoaderContainer>
@@ -131,28 +123,45 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     )
                 }
                 titleVariant="secondary"
-                lastUpdated={lastUpdated}
             >
-                <BasicTable columns={riskAssessmentColumns} rows={riskAssessmentRows} />
+                {riskAssessmentRows.length > 0 ? (
+                    <BasicTable columns={riskAssessmentColumns} rows={riskAssessmentRows} />
+                ) : (
+                    <NoticeBox title={i18n.t("Risk assessment incomplete")}>
+                        {i18n.t("Risks associated with this event have not yet been assessed.")}
+                    </NoticeBox>
+                )}
                 <Box sx={{ m: 5 }} />
+                {!!currentEventTracker?.riskAssessment?.grading?.length && (
+                    <Chart
+                        title="Risk Assessment History"
+                        chartType="risk-assessment-history"
+                        chartKey={
+                            currentEventTracker?.suspectedDisease?.name ||
+                            currentEventTracker?.hazardType
+                        }
+                    />
+                )}
             </Section>
-            <Visualisation
-                type="RISK_ASSESSMENT_HISTORY_LINE_CHART"
-                title="Risk Assessment History"
-            />
-            <Visualisation
-                type="EVENT_TRACKER_OVERVIEW_CARDS"
-                title="Overview"
-                hasSeparator={true}
-                lastUpdated={lastUpdated}
-            />
-            <Visualisation type="EVENT_TRACKER_CASES_BAR_CHART" title="Cases" hasSeparator={true} />
-            <Visualisation type="EVENT_TRACKER_CASES_BAR_CHART" title="Deaths" />
-            <Visualisation
-                type="EVENT_TRACKER_717_CARDS"
-                title="7-1-7 performance"
-                hasSeparator={true}
-            />
+
+            <Section hasSeparator={true}>
+                <Chart
+                    title="Cases"
+                    chartType="cases"
+                    chartKey={
+                        currentEventTracker?.suspectedDisease?.name ||
+                        currentEventTracker?.hazardType
+                    }
+                />
+                <Chart
+                    title="Deaths"
+                    chartType="deaths"
+                    chartKey={
+                        currentEventTracker?.suspectedDisease?.name ||
+                        currentEventTracker?.hazardType
+                    }
+                />
+            </Section>
         </Layout>
     );
 });
