@@ -9,7 +9,11 @@ export class Get717PerformanceUseCase {
         }
     ) {}
 
-    public execute(): FutureData<PerformanceMetrics717[]> {
-        return this.options.performanceOverviewRepository.get717Performance();
+    public execute(type: "dashboard" | "event_tracker"): FutureData<PerformanceMetrics717[]> {
+        if (type === "event_tracker") {
+            return this.options.performanceOverviewRepository.getEventTracker717Performance();
+        } else if (type === "dashboard") {
+            return this.options.performanceOverviewRepository.getDashboard717Performance();
+        } else throw new Error(`Unknown 717 type: ${type} `);
     }
 }

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-30T07:39:32.843Z\n"
-"PO-Revision-Date: 2024-09-30T07:39:32.843Z\n"
+"POT-Creation-Date: 2024-10-06T18:13:02.378Z\n"
+"PO-Revision-Date: 2024-10-06T18:13:02.378Z\n"
 
 msgid "Low"
 msgstr ""
@@ -90,9 +90,6 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
-msgid "Notes"
-msgstr ""
-
 msgid "Create Event"
 msgstr ""
 
@@ -154,6 +151,12 @@ msgid "Create Risk Assessment"
 msgstr ""
 
 msgid "Add new Assessment"
+msgstr ""
+
+msgid "Risk assessment incomplete"
+msgstr ""
+
+msgid "Risks associated with this event have not yet been assessed."
 msgstr ""
 
 msgid "N/A"

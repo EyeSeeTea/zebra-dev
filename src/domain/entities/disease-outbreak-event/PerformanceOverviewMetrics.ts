@@ -71,6 +71,6 @@ export type TotalCardCounts = DiseaseCounts | HazardCounts;
 export type PerformanceMetrics717 = {
     id: string;
     name: string;
-    type: "count" | "percent";
+    type: "primary" | "secondary";
     value?: number;
 };

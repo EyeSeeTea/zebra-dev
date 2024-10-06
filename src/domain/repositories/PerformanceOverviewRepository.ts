@@ -16,5 +16,6 @@ export interface PerformanceOverviewRepository {
         multiSelectFilters?: Record<string, string[]>,
         dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]>;
-    get717Performance(): FutureData<PerformanceMetrics717[]>;
+    getDashboard717Performance(): FutureData<PerformanceMetrics717[]>;
+    getEventTracker717Performance(): FutureData<PerformanceMetrics717[]>;
 }

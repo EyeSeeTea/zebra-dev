@@ -41,7 +41,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         isLoading: performanceOverviewLoading,
     } = usePerformanceOverview();
 
-    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance();
+    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance("dashboard");
     const { cardCounts, isLoading: cardCountsLoading } = useCardCounts(
         singleSelectFilters,
         multiSelectFilters,
@@ -127,17 +127,19 @@ export const DashboardPage: React.FC = React.memo(() => {
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>
                 <GridWrapper>
-                    {performanceMetrics717.map((per: PerformanceMetric717, index: number) => (
-                        <StatsCard
-                            key={index}
-                            stat={`${per.percent}`}
-                            title={per.title}
-                            pretitle={`${per.count} ${i18n.t("events")}`}
-                            color={per.color}
-                            fillParent
-                            isPercentage
-                        />
-                    ))}
+                    {performanceMetrics717.map(
+                        (perfMetric717: PerformanceMetric717, index: number) => (
+                            <StatsCard
+                                key={index}
+                                stat={`${perfMetric717.primaryValue}`}
+                                title={perfMetric717.title}
+                                pretitle={`${perfMetric717.secondaryValue} ${i18n.t("events")}`}
+                                color={perfMetric717.color}
+                                fillParent
+                                isPercentage
+                            />
+                        )
+                    )}
                 </GridWrapper>
             </Section>
             <Section title={i18n.t("Performance overview")}>
@@ -158,7 +160,7 @@ export const DashboardPage: React.FC = React.memo(() => {
     );
 });
 
-const GridWrapper = styled.div`
+export const GridWrapper = styled.div`
     width: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

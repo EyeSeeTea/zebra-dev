@@ -9,6 +9,7 @@ import {
     eventTrackerCountsIndicatorMap,
     PERFORMANCE_METRICS_717_IDS,
     IndicatorsId,
+    EVENT_TRACKER_717_IDS,
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
 import {
@@ -209,11 +210,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private mapIndicatorsTo717PerformanceMetrics(
-        performanceMetric717Response: string[][]
+        performanceMetric717Response: string[][],
+        metricIdList: PerformanceMetrics717[]
     ): PerformanceMetrics717[] {
         return _(
             performanceMetric717Response.map(([id, value]) => {
-                const indicator = PERFORMANCE_METRICS_717_IDS.find(d => d.id === id);
+                const indicator = metricIdList.find(d => d.id === id);
 
                 if (!indicator) throw new Error(`Unknown Indicator with id ${id} `);
 
@@ -231,7 +233,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             .value();
     }
 
-    get717Performance(): FutureData<PerformanceMetrics717[]> {
+    getDashboard717Performance(): FutureData<PerformanceMetrics717[]> {
         return apiToFuture(
             this.api.analytics.get({
                 dimension: [`dx:${PERFORMANCE_METRICS_717_IDS.map(({ id }) => id).join(";")}`],
@@ -240,7 +242,20 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                 includeMetadataDetails: true,
             })
         ).map(res => {
-            return this.mapIndicatorsTo717PerformanceMetrics(res.rows);
+            return this.mapIndicatorsTo717PerformanceMetrics(res.rows, PERFORMANCE_METRICS_717_IDS);
+        });
+    }
+
+    getEventTracker717Performance(): FutureData<PerformanceMetrics717[]> {
+        return apiToFuture(
+            this.api.analytics.get({
+                dimension: [`dx:${EVENT_TRACKER_717_IDS.map(({ id }) => id).join(";")}`],
+                startDate: DEFAULT_START_DATE,
+                endDate: DEFAULT_END_DATE,
+                includeMetadataDetails: true,
+            })
+        ).map(res => {
+            return this.mapIndicatorsTo717PerformanceMetrics(res.rows, EVENT_TRACKER_717_IDS);
         });
     }
 

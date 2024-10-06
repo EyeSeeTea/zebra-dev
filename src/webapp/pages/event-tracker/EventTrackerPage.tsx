@@ -19,6 +19,9 @@ import LoaderContainer from "../../components/loader/LoaderContainer";
 import { useMapFilters } from "./useMapFilters";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 import { NoticeBox } from "../../components/notice-box/NoticeBox";
+import { PerformanceMetric717, use717Performance } from "../dashboard/use717Performance";
+import { GridWrapper } from "../dashboard/DashboardPage";
+import { StatsCard } from "../../components/stats-card/StatsCard";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -52,6 +55,8 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             formType: "risk-assessment-summary",
         });
     }, [goTo]);
+    const { performanceMetrics717, isLoading: _717CardsLoading } =
+        use717Performance("event_tracker");
 
     useEffect(() => {
         if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
@@ -161,6 +166,21 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         currentEventTracker?.hazardType
                     }
                 />
+            </Section>
+            <Section title={i18n.t("7-1-7 performance")} hasSeparator={true}>
+                <GridWrapper>
+                    {performanceMetrics717.map(
+                        (perfMetric: PerformanceMetric717, index: number) => (
+                            <StatsCard
+                                key={index}
+                                stat={`${perfMetric.primaryValue}`}
+                                title={perfMetric.title}
+                                color={perfMetric.color}
+                                fillParent
+                            />
+                        )
+                    )}
+                </GridWrapper>
             </Section>
         </Layout>
     );
