@@ -19,6 +19,7 @@ import { Selector } from "../../components/selector/Selector";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 import { PerformanceMetric717, use717Performance } from "./use717Performance";
 import { Loader } from "../../components/loader/Loader";
+import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -50,6 +51,7 @@ export const DashboardPage: React.FC = React.memo(() => {
 
     const { goTo } = useRoutes();
     const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
+    const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
 
     useEffect(() => {
         //On navigating to the dashboard page, reset the current event tracker id
@@ -64,7 +66,11 @@ export const DashboardPage: React.FC = React.memo(() => {
     return performanceOverviewLoading || _717CardsLoading || cardCountsLoading ? (
         <Loader />
     ) : (
-        <Layout title={i18n.t("Dashboard")} showCreateEvent>
+        <Layout
+            title={i18n.t("Dashboard")}
+            showCreateEvent
+            lastAnalyticsRuntime={lastAnalyticsRuntime}
+        >
             <Section title={i18n.t("Respond, alert, watch")}>
                 <FiltersContainer>
                     {selectorFiltersConfig.map(({ id, label, placeholder, options, type }) => {

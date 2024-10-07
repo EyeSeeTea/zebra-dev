@@ -46,6 +46,10 @@ import { ChartConfigRepository } from "./domain/repositories/ChartConfigReposito
 import { GetChartConfigByTypeUseCase } from "./domain/usecases/GetChartConfigByTypeUseCase";
 import { ChartConfigTestRepository } from "./data/repositories/test/ChartConfigTestRepository";
 import { ChartConfigD2Repository } from "./data/repositories/ChartConfigD2Repository";
+import { GetAnalyticsRuntimeUseCase } from "./domain/usecases/GetAnalyticsRuntimeUseCase";
+import { SystemRepository } from "./domain/repositories/SystemRepository";
+import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
+import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -61,6 +65,7 @@ type Repositories = {
     mapConfigRepository: MapConfigRepository;
     performanceOverviewRepository: PerformanceOverviewRepository;
     chartConfigRepository: ChartConfigRepository;
+    systemRepository: SystemRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -88,6 +93,7 @@ function getCompositionRoot(repositories: Repositories) {
             ),
             getTotalCardCounts: new GetTotalCardCountsUseCase(repositories),
             get717Performance: new Get717PerformanceUseCase(repositories),
+            getAnalyticsRuntime: new GetAnalyticsRuntimeUseCase(repositories),
         },
         maps: {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
@@ -116,6 +122,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         mapConfigRepository: new MapConfigD2Repository(api),
         performanceOverviewRepository: new PerformanceOverviewD2Repository(api, dataStoreClient),
         chartConfigRepository: new ChartConfigD2Repository(dataStoreClient),
+        systemRepository: new SystemD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -134,6 +141,7 @@ export function getTestCompositionRoot() {
         mapConfigRepository: new MapConfigTestRepository(),
         performanceOverviewRepository: new PerformanceOverviewTestRepository(),
         chartConfigRepository: new ChartConfigTestRepository(),
+        systemRepository: new SystemTestRepository(),
     };
 
     return getCompositionRoot(repositories);

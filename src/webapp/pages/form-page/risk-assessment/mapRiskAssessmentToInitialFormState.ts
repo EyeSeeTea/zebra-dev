@@ -49,10 +49,6 @@ export function mapRiskGradingToInitialFormState(
         id: "",
         title: "Risk Assessment Grading",
         subtitle: riskFormaData.eventTrackerDetails.name,
-        titleDescripton: "Last updated",
-        subtitleDescripton: getDateAsLocaleDateTimeString(
-            riskFormaData.eventTrackerDetails.lastUpdated
-        ),
         saveButtonLabel: "Save",
         isValid: false,
         sections: [
@@ -260,10 +256,6 @@ export function mapRiskAssessmentSummaryToInitialFormState(
         id: riskAssessmentSummary?.id ?? "",
         title: "Risk Assessment Summary",
         subtitle: riskFormaData.eventTrackerDetails.name,
-        titleDescripton: "Last updated",
-        subtitleDescripton: getDateAsLocaleDateTimeString(
-            riskFormaData.eventTrackerDetails.lastUpdated
-        ),
         saveButtonLabel: "Save & Continue",
         isValid: riskAssessmentSummary ? true : false,
         sections: [

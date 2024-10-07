@@ -21,7 +21,6 @@ export enum IndicatorsId {
     notify1d = "HDa3nE7Elxj",
     respond7d = "yxVOW4lj4xP",
     province = "ouname",
-    creationDate = "lastupdated",
     id = "tei",
     nationalIncidentStatus = "incidentStatus",
 }

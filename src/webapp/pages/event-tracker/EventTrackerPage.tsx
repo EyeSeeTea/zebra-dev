@@ -10,7 +10,6 @@ import { FormSummary } from "../../components/form/form-summary/FormSummary";
 import { Chart } from "../../components/chart/Chart";
 import { Section } from "../../components/section/Section";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
-import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { useDiseaseOutbreakEvent } from "./useDiseaseOutbreakEvent";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
@@ -22,6 +21,7 @@ import { NoticeBox } from "../../components/notice-box/NoticeBox";
 import { PerformanceMetric717, use717Performance } from "../dashboard/use717Performance";
 import { GridWrapper } from "../dashboard/DashboardPage";
 import { StatsCard } from "../../components/stats-card/StatsCard";
+import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -47,6 +47,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
         useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
+    const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
 
     const { dateRangeFilter } = useMapFilters();
 
@@ -62,21 +63,15 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
     }, [changeCurrentEventTrackerId, eventTrackerDetails, id]);
 
-    const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
     return (
-        <Layout title={i18n.t("Event Tracker")}>
+        <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
             <FormSummary
                 id={id}
                 formType="disease-outbreak-event"
                 formSummary={formSummary}
                 summaryError={summaryError}
             />
-            <Section
-                title={i18n.t("Districts Affected")}
-                titleVariant="secondary"
-                hasSeparator
-                lastUpdated={lastUpdated}
-            >
+            <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
                 <DurationFilterContainer>
                     <DateRangePicker
                         value={dateRangeFilter.value || []}

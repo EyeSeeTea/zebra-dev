@@ -41,7 +41,6 @@ export type PerformanceOverviewMetrics = {
     detect7d: string;
     notify1d: string;
     respond7d: string;
-    creationDate: string;
     suspectedDisease: DiseaseNames;
     hazardType: HazardNames;
     nationalIncidentStatus: string;
