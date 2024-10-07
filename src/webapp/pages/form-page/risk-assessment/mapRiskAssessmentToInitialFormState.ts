@@ -12,7 +12,6 @@ import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as UIOption } from "../../../components/utils/option";
 import { mapTeamMemberToUser, mapToPresentationOptions } from "../mapEntityToFormState";
-import { getDateAsLocaleDateTimeString } from "../../../../data/repositories/utils/DateTimeHelper";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { RiskAssessmentQuestionnaire } from "../../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { Maybe } from "../../../../utils/ts-utils";
