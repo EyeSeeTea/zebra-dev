@@ -267,17 +267,17 @@ export const eventTrackerCountsIndicatorMap: EventTrackerCountIndicator[] = [
 ];
 
 export const PERFORMANCE_METRICS_717_IDS: PerformanceMetrics717[] = [
-    { id: "VWazDAQ15Uw", name: "detection", type: "primary" }, // % of number of alerts that were detected within 7 days of date of emergence
-    { id: "jnJHR2D0cN3", name: "detection", type: "secondary" }, // Number of alerts notified to public health authorities within 1 day of detection
+    { id: "MFk8jiMSlfC", name: "detection", type: "primary" }, // % of number of alerts that were detected within 7 days of date of emergence
+    { id: "jD8CfKvvdXt", name: "detection", type: "secondary" }, // Number of alerts notified to public health authorities within 1 day of detection
 
-    { id: "dr4OT0ql4cl", name: "notification", type: "primary" }, //
-    { id: "K3cqDGAQwWe", name: "notification", type: "secondary" }, // # events response action started 1 day
+    { id: "Y6OkqfhGhZb", name: "notification", type: "primary" }, //
+    { id: "fKvY7kMydl1", name: "notification", type: "secondary" }, // # events response action started 1 day
 
-    { id: "PQbR3lpD6my", name: "response", type: "primary" }, // % num of alerts responded d within 7d date not
+    { id: "gEVnF77Uz2u", name: "response", type: "primary" }, // % num of alerts responded d within 7d date not
     { id: "ZX0uPp3ik81", name: "response", type: "secondary" }, // # events response action started 1 day
 
-    { id: "gsHTYKBOLbb", name: "allTargets", type: "primary" }, // % num of alerts detected within 7d date emergence
-    { id: "FbPj6kekXBj", name: "allTargets", type: "secondary" },
+    { id: "bs4E7tV8QRN", name: "allTargets", type: "primary" }, // % num of alerts detected within 7d date emergence
+    { id: "dr4OT0ql4cl", name: "allTargets", type: "secondary" },
 ];
 
 export const EVENT_TRACKER_717_IDS: PerformanceMetrics717[] = [
