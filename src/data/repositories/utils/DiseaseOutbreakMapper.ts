@@ -47,8 +47,8 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         status: trackedEntity.enrollments?.[0]?.status ?? "ACTIVE", //Zebra Outbreak has only one enrollment
         name: fromMap("name"),
         dataSource: dataSource,
-        created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : new Date(),
-        lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : new Date(),
+        created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : undefined,
+        lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : undefined,
         createdByName: undefined,
         hazardType: getHazardTypeByCode(fromMap("hazardType")),
         mainSyndromeCode: fromMap("mainSyndrome"),
