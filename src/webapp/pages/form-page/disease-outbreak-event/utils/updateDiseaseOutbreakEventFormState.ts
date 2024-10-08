@@ -60,10 +60,13 @@ function validateFormState(
 
         case "risk-assessment-grading":
             break;
-
         case "risk-assessment-summary":
             break;
         case "risk-assessment-questionnaire":
+            break;
+        case "incident-action-plan":
+            break;
+        case "incident-response-action":
             break;
     }
 

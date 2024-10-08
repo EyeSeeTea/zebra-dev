@@ -26,6 +26,9 @@ import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
 import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
 import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
 import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
+import { IncidentActionRepository } from "./domain/repositories/IncidentActionRepository";
+import { IncidentActionD2Repository } from "./data/repositories/IncidentActionD2Repository";
+import { IncidentActionTestRepository } from "./data/repositories/test/IncidentActionTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -37,6 +40,7 @@ type Repositories = {
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
     riskAssessmentRepository: RiskAssessmentRepository;
+    incidentActionRepository: IncidentActionRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -44,7 +48,8 @@ function getCompositionRoot(repositories: Repositories) {
         getWithOptions: new GetEntityWithOptionsUseCase(repositories),
         save: new SaveEntityUseCase(
             repositories.diseaseOutbreakEventRepository,
-            repositories.riskAssessmentRepository
+            repositories.riskAssessmentRepository,
+            repositories.incidentActionRepository
         ),
         users: {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
@@ -68,6 +73,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
+        incidentActionRepository: new IncidentActionD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -82,6 +88,7 @@ export function getTestCompositionRoot() {
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
         riskAssessmentRepository: new RiskAssessmentTestRepository(),
+        incidentActionRepository: new IncidentActionTestRepository(),
     };
 
     return getCompositionRoot(repositories);

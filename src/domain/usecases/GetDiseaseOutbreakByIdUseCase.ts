@@ -3,10 +3,12 @@ import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/Disease
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
+import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { getIncidentAction } from "./utils/incident-action/GetIncidentActionById";
 import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
 
 export class GetDiseaseOutbreakByIdUseCase {
@@ -17,6 +19,7 @@ export class GetDiseaseOutbreakByIdUseCase {
             teamMemberRepository: TeamMemberRepository;
             orgUnitRepository: OrgUnitRepository;
             riskAssessmentRepository: RiskAssessmentRepository;
+            incidentActionRepository: IncidentActionRepository;
         }
     ) {}
 
@@ -56,6 +59,12 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.optionsRepository,
                         this.options.teamMemberRepository
                     ),
+                    incidentAction: getIncidentAction(
+                        id,
+                        this.options.incidentActionRepository,
+                        this.options.optionsRepository,
+                        this.options.teamMemberRepository
+                    ),
                 }).flatMap(
                     ({
                         mainSyndrome,
@@ -65,6 +74,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                         areasAffectedProvinces,
                         areasAffectedDistricts,
                         riskAssessment,
+                        incidentAction,
                     }) => {
                         const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent(
                             {
@@ -77,7 +87,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                                 areasAffectedDistricts: areasAffectedDistricts,
                                 incidentManager: incidentManager,
                                 riskAssessment: riskAssessment,
-                                incidentActionPlan: undefined, //TO DO : FIXME populate once incidentActionPlan repo is implemented
+                                incidentActionPlan: incidentAction,
                                 incidentManagementTeam: undefined, //TO DO : FIXME populate once incidentManagementTeam repo is implemented
                             }
                         );

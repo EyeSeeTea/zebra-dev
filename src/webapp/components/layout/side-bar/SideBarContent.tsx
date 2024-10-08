@@ -1,7 +1,7 @@
 import { List, ListItem, ListItemText } from "@material-ui/core";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { AddCircleOutline } from "@material-ui/icons";
 
 import i18n from "../../../../utils/i18n";
@@ -44,6 +44,9 @@ const DEFAULT_SIDEBAR_OPTIONS: SideBarOption[] = [
 
 export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
     ({ children, hideOptions = false, showCreateEvent = false }) => {
+        const { id } = useParams<{
+            id: string;
+        }>();
         const { goTo } = useRoutes();
 
         const goToCreateEvent = useCallback(() => {
@@ -63,7 +66,12 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
                 ) : (
                     <StyledList>
                         {DEFAULT_SIDEBAR_OPTIONS.map(({ text, value }) => (
-                            <ListItem button key={text} component={NavLink} to={routes[value]}>
+                            <ListItem
+                                button
+                                key={text}
+                                component={NavLink}
+                                to={getSideBarRoute(id, value)}
+                            >
                                 <StyledText primary={i18n.t(text)} selected={false} />
                             </ListItem>
                         ))}
@@ -106,3 +114,8 @@ const CreateEventContainer = styled.div`
     margin-inline-start: 30px;
     width: 245px;
 `;
+
+function getSideBarRoute(id: string, value: RouteName) {
+    const route = routes[value];
+    return route.includes(":id") ? route.replace(":id", id) : route;
+}

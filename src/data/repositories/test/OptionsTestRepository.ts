@@ -105,5 +105,31 @@ export class OptionsTestRepository implements OptionsRepository {
         return Future.success([{ id: "1", name: "Test Incident Status" }]);
     }
 
+    // Incident action plan options
+    getIapTypeOptions(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test IAP Type" }]);
+    }
+
+    getPhoecLevelOptions(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test PHOEC Level" }]);
+    }
+
+    // Incident response action options
+    getStatusOptions(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test Status" }]);
+    }
+
+    getStatusOption(_optionCode: Code): FutureData<Option> {
+        throw new Error("Method not implemented.");
+    }
+
+    getVerificationOptions(): FutureData<Option[]> {
+        return Future.success([{ id: "1", name: "Test Verification" }]);
+    }
+
+    getVerificationOption(_optionCode: Code): FutureData<Option> {
+        throw new Error("Method not implemented.");
+    }
+
     //Risk Grading Options
 }

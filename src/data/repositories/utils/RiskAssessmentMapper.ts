@@ -36,7 +36,7 @@ import {
 } from "../../../domain/entities/ConfigurableForm";
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 
-type D2ProgramStageDataElementsMetadata = {
+export type D2ProgramStageDataElementsMetadata = {
     dataElement: SelectedPick<
         D2DataElementSchema,
         {
