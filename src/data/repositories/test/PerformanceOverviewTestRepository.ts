@@ -1,10 +1,13 @@
 import { PerformanceMetrics717 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Future } from "../../../domain/entities/generic/Future";
+import { Id } from "../../../domain/entities/Ref";
 import { PerformanceOverviewRepository } from "../../../domain/repositories/PerformanceOverviewRepository";
 import { FutureData } from "../../api-futures";
 
 export class PerformanceOverviewTestRepository implements PerformanceOverviewRepository {
-    getEventTracker717Performance(): FutureData<PerformanceMetrics717[]> {
+    getEventTracker717Performance(
+        _diseaseOutbreakEventId: Id
+    ): FutureData<PerformanceMetrics717[]> {
         return Future.success([]);
     }
     getTotalCardCounts(): FutureData<any> {

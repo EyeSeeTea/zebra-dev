@@ -26,6 +26,7 @@ import {
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
+import { Id } from "../../domain/entities/Ref";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -246,16 +247,37 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         });
     }
 
-    getEventTracker717Performance(): FutureData<PerformanceMetrics717[]> {
+    getEventTracker717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
         return apiToFuture(
-            this.api.analytics.get({
-                dimension: [`dx:${EVENT_TRACKER_717_IDS.map(({ id }) => id).join(";")}`],
+            this.api.analytics.getEnrollmentsQuery({
+                programId: RTSL_ZEBRA_PROGRAM_ID,
+                dimension: [...EVENT_TRACKER_717_IDS.map(({ id }) => id)],
                 startDate: DEFAULT_START_DATE,
                 endDate: DEFAULT_END_DATE,
-                includeMetadataDetails: true,
             })
-        ).map(res => {
-            return this.mapIndicatorsTo717PerformanceMetrics(res.rows, EVENT_TRACKER_717_IDS);
+        ).flatMap(response => {
+            const filteredRow = filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
+                diseaseOutbreakEventId,
+                response.rows,
+                response.headers
+            );
+
+            if (!filteredRow)
+                return Future.error(new Error("No data found for event tracker 7-1-7 performance"));
+
+            const mappedIndicatorsToRows: string[][] = EVENT_TRACKER_717_IDS.map(({ id }) => {
+                return [
+                    id,
+                    filteredRow[response.headers.findIndex(header => header.name === id)] || "",
+                ];
+            });
+
+            return Future.success(
+                this.mapIndicatorsTo717PerformanceMetrics(
+                    mappedIndicatorsToRows,
+                    EVENT_TRACKER_717_IDS
+                )
+            );
         });
     }
 
@@ -313,4 +335,15 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             return acc;
         }, {} as Partial<PerformanceOverviewMetrics>);
     }
+}
+
+function filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
+    diseaseOutbreakEventId: Id,
+    rows: string[][],
+    headers: { name: string; column: string }[]
+): string[] | undefined {
+    return rows.filter(row => {
+        const teiId = row[headers.findIndex(header => header.name === "tei")];
+        return teiId === diseaseOutbreakEventId;
+    })[0];
 }

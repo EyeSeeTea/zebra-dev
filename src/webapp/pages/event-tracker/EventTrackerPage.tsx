@@ -56,8 +56,11 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             formType: "risk-assessment-summary",
         });
     }, [goTo]);
-    const { performanceMetrics717, isLoading: _717CardsLoading } =
-        use717Performance("event_tracker");
+
+    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance(
+        "event_tracker",
+        id
+    );
 
     useEffect(() => {
         if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);

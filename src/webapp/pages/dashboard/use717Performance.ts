@@ -3,6 +3,7 @@ import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 import { StatsCardProps } from "../../components/stats-card/StatsCard";
 import { PerformanceMetrics717 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { Id } from "../../../domain/entities/Ref";
 
 type CardColors = StatsCardProps["color"];
 
@@ -19,7 +20,10 @@ export type PerformanceMetric717State = {
 
 export type Order = { name: string; direction: "asc" | "desc" };
 
-export function use717Performance(type: "dashboard" | "event_tracker"): PerformanceMetric717State {
+export function use717Performance(
+    type: "dashboard" | "event_tracker",
+    diseaseOutbreakEventId?: Id
+): PerformanceMetric717State {
     const { compositionRoot } = useAppContext();
 
     const [performanceMetrics717, setPerformanceMetrics717] = useState<PerformanceMetric717[]>([]);
@@ -68,17 +72,24 @@ export function use717Performance(type: "dashboard" | "event_tracker"): Performa
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.performanceOverview.get717Performance.execute(type).run(
-            performanceMetrics717 => {
-                setPerformanceMetrics717(transformData(performanceMetrics717));
-                setIsLoading(false);
-            },
-            error => {
-                console.error({ error });
-                setIsLoading(false);
-            }
-        );
-    }, [compositionRoot.performanceOverview.get717Performance, transformData, type]);
+        compositionRoot.performanceOverview.get717Performance
+            .execute(type, diseaseOutbreakEventId)
+            .run(
+                performanceMetrics717 => {
+                    setPerformanceMetrics717(transformData(performanceMetrics717));
+                    setIsLoading(false);
+                },
+                error => {
+                    console.error({ error });
+                    setIsLoading(false);
+                }
+            );
+    }, [
+        compositionRoot.performanceOverview.get717Performance,
+        diseaseOutbreakEventId,
+        transformData,
+        type,
+    ]);
 
     return {
         performanceMetrics717,

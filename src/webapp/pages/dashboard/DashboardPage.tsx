@@ -9,10 +9,7 @@ import { useCardCounts } from "./useCardCounts";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
-import { Id } from "../../../domain/entities/Ref";
-import { Maybe } from "../../../utils/ts-utils";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
-import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
 import { MapSection } from "../../components/map/MapSection";
 import { Selector } from "../../components/selector/Selector";
@@ -49,7 +46,6 @@ export const DashboardPage: React.FC = React.memo(() => {
         dateRangeFilter.value
     );
 
-    const { goTo } = useRoutes();
     const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
 
@@ -57,11 +53,6 @@ export const DashboardPage: React.FC = React.memo(() => {
         //On navigating to the dashboard page, reset the current event tracker id
         resetCurrentEventTrackerId();
     });
-
-    const goToEvent = (id: Maybe<Id>) => {
-        if (!id) return;
-        goTo(RouteName.EVENT_TRACKER, { id });
-    };
 
     return performanceOverviewLoading || _717CardsLoading || cardCountsLoading ? (
         <Loader />
@@ -158,7 +149,6 @@ export const DashboardPage: React.FC = React.memo(() => {
                         setOrder={setOrder}
                         columnRules={columnRules}
                         editRiskAssessmentColumns={editRiskAssessmentColumns}
-                        goToEvent={goToEvent}
                     />
                 </StatisticTableWrapper>
             </Section>

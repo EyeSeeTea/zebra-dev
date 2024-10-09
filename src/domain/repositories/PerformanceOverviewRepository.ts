@@ -5,6 +5,7 @@ import {
     PerformanceOverviewMetrics,
     PerformanceMetrics717,
 } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { Id } from "../entities/Ref";
 
 export interface PerformanceOverviewRepository {
     getPerformanceOverviewMetrics(
@@ -17,5 +18,5 @@ export interface PerformanceOverviewRepository {
         dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]>;
     getDashboard717Performance(): FutureData<PerformanceMetrics717[]>;
-    getEventTracker717Performance(): FutureData<PerformanceMetrics717[]>;
+    getEventTracker717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]>;
 }
