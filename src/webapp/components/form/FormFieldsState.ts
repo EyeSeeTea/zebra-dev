@@ -4,6 +4,7 @@ import { User } from "../user-selector/UserSelector";
 import { Option } from "../utils/option";
 import { ValidationError, ValidationErrorKey } from "../../../domain/entities/ValidationError";
 import { FormSectionState } from "./FormSectionsState";
+import { Rule } from "../../../domain/entities/Rule";
 
 export type FieldType = "text" | "boolean" | "select" | "radio" | "date" | "user" | "addNew";
 
@@ -204,4 +205,31 @@ export function validateField(
 
 export function hideFieldsAndSetToEmpty(fields: FormFieldState[]): FormFieldState[] {
     return fields.map(field => ({ ...getFieldWithEmptyValue(field), isVisible: false }));
+}
+
+export function applyRulesInUpdatedField(
+    updatedField: FormFieldState,
+    formRules: Rule[]
+): FormFieldState {
+    const filteredRulesByFieldId = formRules.filter(rule => rule.fieldId === updatedField.id);
+
+    if (filteredRulesByFieldId.length === 0) {
+        return updatedField;
+    }
+
+    const formStateWithRulesApplied = filteredRulesByFieldId.reduce((currentUpdatedField, rule) => {
+        switch (rule.type) {
+            case "disableFieldsByFieldValue":
+                return rule.disableFieldIds.includes(currentUpdatedField.id)
+                    ? {
+                          ...currentUpdatedField,
+                          disabled: currentUpdatedField.value === rule.fieldValue,
+                      }
+                    : currentUpdatedField;
+            default:
+                return currentUpdatedField;
+        }
+    }, updatedField);
+
+    return formStateWithRulesApplied;
 }

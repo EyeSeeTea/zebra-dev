@@ -41,6 +41,14 @@ import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/Alert
 import { AlertSyncRepository } from "./domain/repositories/AlertSyncRepository";
 import { DataStoreClient } from "./data/DataStoreClient";
 import { GetTotalCardCountsUseCase } from "./domain/usecases/GetTotalCardCountsUseCase";
+import { RoleRepository } from "./domain/repositories/RoleRepository";
+import { RoleD2Repository } from "./data/repositories/RoleD2Repository";
+import { RoleTestRepository } from "./data/repositories/test/RoleTestRepository";
+import { IncidentManagementTeamTestRepository } from "./data/repositories/test/IncidentManagementTeamTestRepository";
+import { IncidentManagementTeamD2Repository } from "./data/repositories/IncidentManagementTeamD2Repository";
+import { IncidentManagementTeamRepository } from "./domain/repositories/IncidentManagementTeamRepository";
+import { GetIncidentManagementTeamByIdUseCase } from "./domain/usecases/GetIncidentManagementTeamByIdUseCase";
+import { DeleteIncidentManagementTeamMemberRoleUseCase } from "./domain/usecases/DeleteIncidentManagementTeamMemberRoleUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -55,15 +63,14 @@ type Repositories = {
     riskAssessmentRepository: RiskAssessmentRepository;
     mapConfigRepository: MapConfigRepository;
     performanceOverviewRepository: PerformanceOverviewRepository;
+    roleRepository: RoleRepository;
+    incidentManagementTeamRepository: IncidentManagementTeamRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
     return {
         getWithOptions: new GetEntityWithOptionsUseCase(repositories),
-        save: new SaveEntityUseCase(
-            repositories.diseaseOutbreakEventRepository,
-            repositories.riskAssessmentRepository
-        ),
+        save: new SaveEntityUseCase(repositories),
         users: {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
         },
@@ -75,6 +82,11 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertSyncRepository,
                 repositories.optionsRepository
             ),
+        },
+        incidentManagementTeam: {
+            get: new GetIncidentManagementTeamByIdUseCase(repositories),
+            deleteIncidentManagementTeamMemberRole:
+                new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
         },
         performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
@@ -105,6 +117,8 @@ export function getWebappCompositionRoot(api: D2Api) {
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
         mapConfigRepository: new MapConfigD2Repository(api),
         performanceOverviewRepository: new PerformanceOverviewD2Repository(api, dataStoreClient),
+        roleRepository: new RoleD2Repository(api),
+        incidentManagementTeamRepository: new IncidentManagementTeamD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -122,6 +136,8 @@ export function getTestCompositionRoot() {
         riskAssessmentRepository: new RiskAssessmentTestRepository(),
         mapConfigRepository: new MapConfigTestRepository(),
         performanceOverviewRepository: new PerformanceOverviewTestRepository(),
+        roleRepository: new RoleTestRepository(),
+        incidentManagementTeamRepository: new IncidentManagementTeamTestRepository(),
     };
 
     return getCompositionRoot(repositories);

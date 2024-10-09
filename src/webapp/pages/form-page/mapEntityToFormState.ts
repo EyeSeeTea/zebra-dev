@@ -5,6 +5,7 @@ import { FormState } from "../../components/form/FormState";
 import { User } from "../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../components/utils/option";
 import { mapDiseaseOutbreakEventToInitialFormState } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
+import { mapIncidentManagementTeamMemberToInitialFormState } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import {
     mapRiskAssessmentQuestionnaireToInitialFormState,
     mapRiskAssessmentSummaryToInitialFormState,
@@ -24,6 +25,8 @@ export function mapEntityToFormState(
             return mapRiskAssessmentSummaryToInitialFormState(configurableForm);
         case "risk-assessment-questionnaire":
             return mapRiskAssessmentQuestionnaireToInitialFormState(configurableForm);
+        case "incident-management-team-member-assignment":
+            return mapIncidentManagementTeamMemberToInitialFormState(configurableForm);
     }
 }
 
@@ -37,10 +40,12 @@ export function mapToPresentationOptions(options: Option[]): PresentationOption[
 }
 
 export function mapTeamMemberToUser(teamMember: TeamMember): User {
+    const teamRoles = teamMember.teamRoles?.map(role => role.name).join(", ");
     return {
         value: teamMember.username,
         label: teamMember.name,
-        workPosition: teamMember.role?.name || "",
+        workPosition: teamMember.workPosition || "",
+        teamRoles: teamRoles || "",
         phone: teamMember.phone || "",
         email: teamMember.email || "",
         status: teamMember.status || "",

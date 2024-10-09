@@ -449,7 +449,7 @@ function givenFormProps(): FormProps {
                                 {
                                     value: "1",
                                     label: "user 1",
-                                    workPosition: "Postion",
+                                    workPosition: "workPosition",
                                     phone: "PhoneNumber",
                                     email: "Email",
                                     status: "Available",
@@ -458,7 +458,7 @@ function givenFormProps(): FormProps {
                                 {
                                     value: "2",
                                     label: "user 2",
-                                    workPosition: "Postion",
+                                    workPosition: "workPosition",
                                     phone: "PhoneNumber",
                                     email: "Email",
                                     status: "Unavailable",

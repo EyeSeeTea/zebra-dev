@@ -63,6 +63,8 @@ function validateFormState(
             break;
         case "risk-assessment-questionnaire":
             break;
+        case "incident-management-team-member-assignment":
+            break;
     }
 
     return [...formValidationErrors, ...entityValidationErrors];

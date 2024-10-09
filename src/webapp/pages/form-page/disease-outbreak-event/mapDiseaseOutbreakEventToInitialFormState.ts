@@ -42,10 +42,12 @@ export const diseaseOutbreakEventFieldIds = {
 } as const;
 
 export function mapTeamMemberToUser(teamMember: TeamMember): User {
+    const teamRoles = teamMember.teamRoles?.map(role => role.name).join(", ");
     return {
         value: teamMember.username,
         label: teamMember.name,
-        workPosition: teamMember.role?.name || "",
+        workPosition: teamMember.workPosition || "",
+        teamRoles: teamRoles || "",
         phone: teamMember.phone || "",
         email: teamMember.email || "",
         status: teamMember.status || "",

@@ -7,6 +7,7 @@ import { AddCircleOutline } from "@material-ui/icons";
 import i18n from "../../../../utils/i18n";
 import { Button } from "../../button/Button";
 import { RouteName, routes, useRoutes } from "../../../hooks/useRoutes";
+import { useCurrentEventTracker } from "../../../contexts/current-event-tracker-context";
 
 type SideBarContentProps = {
     children?: React.ReactNode;
@@ -45,6 +46,7 @@ const DEFAULT_SIDEBAR_OPTIONS: SideBarOption[] = [
 export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
     ({ children, hideOptions = false, showCreateEvent = false }) => {
         const { goTo } = useRoutes();
+        const { getCurrentEventTracker } = useCurrentEventTracker();
 
         const goToCreateEvent = useCallback(() => {
             goTo(RouteName.CREATE_FORM, { formType: "disease-outbreak-event" });
@@ -63,7 +65,20 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
                 ) : (
                     <StyledList>
                         {DEFAULT_SIDEBAR_OPTIONS.map(({ text, value }) => (
-                            <ListItem button key={text} component={NavLink} to={routes[value]}>
+                            <ListItem
+                                button
+                                key={text}
+                                component={NavLink}
+                                to={
+                                    value === RouteName.EVENT_TRACKER ||
+                                    value === RouteName.IM_TEAM_BUILDER
+                                        ? routes[value].replace(
+                                              ":id",
+                                              getCurrentEventTracker()?.id || ""
+                                          )
+                                        : routes[value]
+                                }
+                            >
                                 <StyledText primary={i18n.t(text)} selected={false} />
                             </ListItem>
                         ))}
