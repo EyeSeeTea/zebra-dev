@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-12T14:10:04.460Z\n"
+"POT-Creation-Date: 2024-10-09T10:40:30.273Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -83,7 +83,13 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+msgid "Edit Action Plan"
+msgstr ""
+
 msgid "Edit Details"
+msgstr ""
+
+msgid "Notes"
 msgstr ""
 
 msgid "Create Event"
@@ -167,13 +173,31 @@ msgstr ""
 msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
+msgid "Incident Action Plan saved successfully"
+msgstr ""
+
+msgid "Incident Response Actions saved successfully"
+msgstr ""
+
 msgid "Incident Action Plan"
 msgstr ""
 
-msgid "Cholera in NW Province, June 2023"
+msgid "Edit Response Actions"
+msgstr ""
+
+msgid "Create an incident action plan"
+msgstr ""
+
+msgid "No plan has been created for this incident"
+msgstr ""
+
+msgid "Create IAP"
 msgstr ""
 
 msgid "Incident Management Team Builder"
+msgstr ""
+
+msgid "Cholera in NW Province, June 2023"
 msgstr ""
 
 msgid "Resources"
