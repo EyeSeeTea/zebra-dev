@@ -19,25 +19,20 @@ import {
 import { Maybe } from "../../utils/ts-utils";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Alert } from "../../domain/entities/alert/Alert";
-
-export type Filter = {
-    id: Id;
-    value: Maybe<string>;
-};
+import { OutbreakData } from "../../domain/entities/alert/AlertData";
 
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
 
     updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]> {
-        const { dataSource, eventId, hazardTypeCode, incidentStatus, suspectedDiseaseCode } =
-            alertOptions;
-        const filter = this.getAlertFilter(dataSource, suspectedDiseaseCode, hazardTypeCode);
+        const { dataSource, eventId, incidentStatus, outbreakValue } = alertOptions;
+        const outbreakData = this.getAlertOutbreakData(dataSource, outbreakValue);
 
         return this.getTrackedEntitiesByTEACode({
             program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
             orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
             ouMode: "DESCENDANTS",
-            filter: filter,
+            filter: outbreakData,
         }).flatMap(alertTrackedEntities => {
             const alertsToMap: Alert[] = alertTrackedEntities.map(trackedEntity => ({
                 id: trackedEntity.trackedEntity || "",
@@ -79,11 +74,11 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    async getTrackedEntitiesByTEACodeAsync(options: {
+    private async getTrackedEntitiesByTEACodeAsync(options: {
         program: Id;
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
-        filter?: Filter;
+        filter?: OutbreakData;
     }): Promise<D2TrackerTrackedEntity[]> {
         const { program, orgUnit, ouMode, filter } = options;
         const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
@@ -132,25 +127,24 @@ export class AlertD2Repository implements AlertRepository {
         }
     }
 
-    getTrackedEntitiesByTEACode(options: {
+    private getTrackedEntitiesByTEACode(options: {
         program: Id;
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
-        filter?: Filter;
+        filter?: OutbreakData;
     }): FutureData<D2TrackerTrackedEntity[]> {
         return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(options));
     }
 
-    private getAlertFilter(
+    private getAlertOutbreakData(
         dataSource: DataSource,
-        suspectedDiseaseCode: Maybe<string>,
-        hazardTypeCode: Maybe<string>
-    ): Filter {
+        outbreakValue: Maybe<string>
+    ): OutbreakData {
         switch (dataSource) {
             case DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS:
-                return { id: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID, value: suspectedDiseaseCode };
+                return { id: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID, value: outbreakValue };
             case DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS:
-                return { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: hazardTypeCode };
+                return { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: outbreakValue };
         }
     }
 }

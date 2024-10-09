@@ -1,15 +1,14 @@
 import { FutureData } from "../../data/api-futures";
-import { Ref } from "../entities/Ref";
+import { AlertData } from "../entities/alert/AlertData";
+import { UserGroup } from "../entities/UserGroup";
 
 export interface NotificationRepository {
-    save(notification: Notification): FutureData<void>;
+    notifyNationalWatchStaff(
+        alertData: AlertData,
+        outbreakName: string,
+        userGroups: UserGroup[]
+    ): FutureData<void>;
 }
-
-export type Notification = {
-    subject: string;
-    text: string;
-    userGroups: Ref[];
-};
 
 export type NotificationOptions = {
     detectionDate: string;

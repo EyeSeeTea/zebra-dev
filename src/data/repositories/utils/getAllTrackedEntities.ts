@@ -4,11 +4,13 @@ import {
     TrackedEntitiesGetResponse,
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Id } from "../../../domain/entities/Ref";
+import { OutbreakData } from "../../../domain/entities/alert/AlertData";
 
 export async function getAllTrackedEntitiesAsync(
     api: D2Api,
     programId: Id,
-    orgUnitId: Id
+    orgUnitId: Id,
+    filter?: OutbreakData
 ): Promise<D2TrackerTrackedEntity[]> {
     const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
@@ -25,12 +27,8 @@ export async function getAllTrackedEntitiesAsync(
                     totalPages: true,
                     page: page,
                     pageSize: pageSize,
-                    fields: {
-                        attributes: true,
-                        orgUnit: true,
-                        trackedEntity: true,
-                        trackedEntityType: true,
-                    },
+                    fields: fields,
+                    filter: filter ? `${filter.id}:eq:${filter.value}` : undefined,
                 })
                 .getData();
 
@@ -43,3 +41,20 @@ export async function getAllTrackedEntitiesAsync(
         return [];
     }
 }
+
+const fields = {
+    attributes: true,
+    orgUnit: true,
+    trackedEntity: true,
+    trackedEntityType: true,
+    enrollments: {
+        events: {
+            createdAt: true,
+            dataValues: {
+                dataElement: true,
+                value: true,
+            },
+            event: true,
+        },
+    },
+};

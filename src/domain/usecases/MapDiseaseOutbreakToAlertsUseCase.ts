@@ -37,9 +37,8 @@ export class MapDiseaseOutbreakToAlertsUseCase {
             .updateAlerts({
                 dataSource: dataSource,
                 eventId: diseaseOutbreakEventId,
-                hazardTypeCode: hazardTypeCode,
                 incidentStatus: incidentStatus,
-                suspectedDiseaseCode: suspectedDiseaseCode,
+                outbreakValue: hazardTypeCode ?? suspectedDiseaseCode,
             })
             .flatMap((alerts: Alert[]) =>
                 Future.joinObj({
@@ -53,8 +52,7 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                                     alert: alert,
                                     nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
                                     dataSource: dataSource,
-                                    hazardTypeCode: hazardTypeCode,
-                                    suspectedDiseaseCode: suspectedDiseaseCode,
+                                    outbreakValue: hazardTypeCode ?? suspectedDiseaseCode,
                                     hazardTypes: hazardTypes,
                                     suspectedDiseases: suspectedDiseases,
                                 })

@@ -13,6 +13,7 @@ import { getProgramTEAsMetadata } from "./utils/MetadataHelper";
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
+import { OutbreakData } from "../../domain/entities/alert/AlertData";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -35,6 +36,23 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
         return Future.fromPromise(
             getAllTrackedEntitiesAsync(this.api, RTSL_ZEBRA_PROGRAM_ID, RTSL_ZEBRA_ORG_UNIT_ID)
+        ).map(trackedEntities => {
+            return trackedEntities.map(trackedEntity => {
+                return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+            });
+        });
+    }
+
+    getEventByDiseaseOrHazardType(
+        filter: OutbreakData
+    ): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(
+                this.api,
+                RTSL_ZEBRA_PROGRAM_ID,
+                RTSL_ZEBRA_ORG_UNIT_ID,
+                filter
+            )
         ).map(trackedEntities => {
             return trackedEntities.map(trackedEntity => {
                 return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
