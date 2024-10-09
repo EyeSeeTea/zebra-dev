@@ -20,6 +20,7 @@ export type FormSummaryData = {
     subTitle: string;
     summary: LabelWithValue[];
     incidentManager: Maybe<User>;
+    notes: string;
 };
 
 export function useIncidentActionPlan(id: Id) {
@@ -59,7 +60,8 @@ const mapIncidentActionToFormSummary = (
 ): FormSummaryData => {
     const { incidentActionPlan, name, lastUpdated } = diseaseOutbreakEvent;
 
-    if (!incidentActionPlan) return { subTitle: name, summary: [], incidentManager: undefined };
+    if (!incidentActionPlan)
+        return { subTitle: name, summary: [], incidentManager: undefined, notes: "" };
 
     const iapTypeCode = incidentActionPlan.actionPlan?.iapType ?? "";
     const phoecLevelCode = incidentActionPlan.actionPlan?.phoecLevel ?? "";
@@ -81,6 +83,7 @@ const mapIncidentActionToFormSummary = (
             },
         ],
         incidentManager: undefined,
+        notes: diseaseOutbreakEvent.notes || "",
     };
 };
 
@@ -88,7 +91,8 @@ const mapIncidentActionPlanToFormSummary = (
     diseaseOutbreakEvent: DiseaseOutbreakEvent
 ): FormSummaryData => {
     const actionPlan = diseaseOutbreakEvent?.incidentActionPlan?.actionPlan;
-    if (!actionPlan) return { subTitle: "Action Plan", summary: [], incidentManager: undefined };
+    if (!actionPlan)
+        return { subTitle: "Action Plan", summary: [], incidentManager: undefined, notes: "" };
 
     return {
         subTitle: "Action Plan",
@@ -115,6 +119,7 @@ const mapIncidentActionPlanToFormSummary = (
             },
         ],
         incidentManager: undefined,
+        notes: diseaseOutbreakEvent.notes || "",
     };
 };
 
