@@ -95,6 +95,12 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
                         )}
                     </SummaryColumn>
                 </SummaryContainer>
+                <StyledType>
+                    <Box fontWeight="bold" display="inline">
+                        {i18n.t("Notes")}:
+                    </Box>{" "}
+                    {formSummary.notes}
+                </StyledType>
             </Section>
         </>
     ) : (
@@ -104,14 +110,21 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
 
 const SummaryContainer = styled.div`
     display: flex;
+    flex-wrap: wrap;
     width: max-content;
-    align-items: center;
+    align-items: flex-start;
     margin-top: 0rem;
+    @media (max-width: 1200px) {
+        flex-direction: column;
+    }
 `;
 
 const SummaryColumn = styled.div`
-    flex: 1;
     padding-right: 2rem;
     color: ${props => props.theme.palette.text.hint};
     min-width: fit-content;
+`;
+
+const StyledType = styled(Typography)`
+    color: ${props => props.theme.palette.text.hint};
 `;

@@ -4,7 +4,10 @@ import {
     RiskAssessmentGrading,
     RiskAssessmentGradingAttrs,
 } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
-import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
+import {
+    RiskAssessmentQuestion,
+    RiskAssessmentQuestionnaire,
+} from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { RiskAssessmentSummary } from "../../../domain/entities/risk-assessment/RiskAssessmentSummary";
 import { GetValue } from "../../../utils/ts-utils";
 
@@ -68,7 +71,7 @@ export const riskAssessmentSummaryCodes = {
 } as const;
 export type RiskAssessmentSummaryCodes = GetValue<typeof riskAssessmentSummaryCodes>;
 
-export const riskAssessmentQuestionnaireCodes = {
+export const riskAssessmentStdQuestionnaireCodes = {
     question: "RTSL_ZEB_DET_QUESTION",
     likelihood1: "RTSL_ZEB_DET_LIKELIHOOD",
     consequences1: "RTSL_ZEB_DET_CONSEQUENCES",
@@ -87,9 +90,22 @@ export const riskAssessmentQuestionnaireCodes = {
     riskId3: "RTSL_ZEB_DET_RISK_ID_RAQ3",
 } as const;
 
+export type RiskAssessmentStdQuestionnaireCodes = GetValue<
+    typeof riskAssessmentStdQuestionnaireCodes
+>;
 
+export const riskAssessmentCustomQuestionnaireCodes = {
+    question: "RTSL_ZEB_DET_QUESTION",
+    likelihood4: "RTSL_ZEB_DET_LIKELIHOOD4",
+    consequences4: "RTSL_ZEB_DET_CONSEQUENCES4",
+    risk4: "RTSL_ZEB_DET_RISK4",
+    rational4: "RTSL_ZEB_DET_RATIONALE4",
+    riskId: "RTSL_ZEB_DET_RISK_ID_RAQ4",
+} as const;
 
-export type RiskAssessmentQuestionnaireCodes = GetValue<typeof riskAssessmentQuestionnaireCodes>;
+export type RiskAssessmentCustomQuestionnaireCodes = GetValue<
+    typeof riskAssessmentCustomQuestionnaireCodes
+>;
 
 export function isStringInRiskAssessmentGradingOptionCodes(
     code: string
@@ -176,9 +192,9 @@ export function isStringInRiskAssessmentSummaryCodes(
     return (Object.values(riskAssessmentSummaryCodes) as string[]).includes(code);
 }
 
-export function getValueFromRiskAssessmentQuestionnaire(
+export function getValueFromRiskAssessmentStdQuestionnaire(
     riskAssessmentQuestionnaire: RiskAssessmentQuestionnaire
-): Record<RiskAssessmentQuestionnaireCodes, string> {
+): Record<RiskAssessmentStdQuestionnaireCodes, string> {
     return {
         RTSL_ZEB_DET_LIKELIHOOD:
             riskAssessmentQuestionnaire.potentialRiskForHumanHealth.likelihood.id,
@@ -203,11 +219,33 @@ export function getValueFromRiskAssessmentQuestionnaire(
         RTSL_ZEB_DET_RISK_ID_RAQ3: "",
     };
 }
-export type RiskAssessmentQuestionnaireKeyCode =
-    (typeof riskAssessmentQuestionnaireCodes)[keyof typeof riskAssessmentQuestionnaireCodes];
+export type RiskAssessmentStdQuestionnaireKeyCode =
+    (typeof riskAssessmentStdQuestionnaireCodes)[keyof typeof riskAssessmentStdQuestionnaireCodes];
 
-export function isStringInRiskAssessmentQuestionnaireCodes(
+export function isStringInRiskAssessmentStdQuestionnaireCodes(
     code: string
-): code is RiskAssessmentQuestionnaireKeyCode {
-    return (Object.values(riskAssessmentQuestionnaireCodes) as string[]).includes(code);
+): code is RiskAssessmentStdQuestionnaireKeyCode {
+    return (Object.values(riskAssessmentStdQuestionnaireCodes) as string[]).includes(code);
+}
+
+export function getValueFromRiskAssessmentCustomQuestionnaire(
+    riskAssessmentCustomQuestion: RiskAssessmentQuestion
+): Record<RiskAssessmentCustomQuestionnaireCodes, string> {
+    return {
+        RTSL_ZEB_DET_QUESTION: riskAssessmentCustomQuestion.question ?? "",
+        RTSL_ZEB_DET_LIKELIHOOD4: riskAssessmentCustomQuestion.likelihood.id,
+        RTSL_ZEB_DET_CONSEQUENCES4: riskAssessmentCustomQuestion.consequences.id,
+        RTSL_ZEB_DET_RISK4: riskAssessmentCustomQuestion.risk.id,
+        RTSL_ZEB_DET_RATIONALE4: riskAssessmentCustomQuestion.rational,
+        RTSL_ZEB_DET_RISK_ID_RAQ4: "",
+    };
+}
+
+export type RiskAssessmentCustomQuestionnaireKeyCode =
+    (typeof riskAssessmentCustomQuestionnaireCodes)[keyof typeof riskAssessmentCustomQuestionnaireCodes];
+
+export function isStringInRiskAssessmentCustomQuestionnaireCodes(
+    code: string
+): code is RiskAssessmentCustomQuestionnaireKeyCode {
+    return (Object.values(riskAssessmentCustomQuestionnaireCodes) as string[]).includes(code);
 }

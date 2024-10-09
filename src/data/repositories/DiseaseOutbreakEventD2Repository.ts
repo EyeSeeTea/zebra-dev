@@ -36,9 +36,11 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         return Future.fromPromise(
             getAllTrackedEntitiesAsync(this.api, RTSL_ZEBRA_PROGRAM_ID, RTSL_ZEBRA_ORG_UNIT_ID)
         ).map(trackedEntities => {
-            return trackedEntities.map(trackedEntity => {
-                return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
-            });
+            return trackedEntities
+                .map(trackedEntity => {
+                    return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                })
+                .filter(outbreak => outbreak.status === "ACTIVE");
         });
     }
 

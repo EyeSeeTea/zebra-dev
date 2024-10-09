@@ -1,7 +1,6 @@
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import {
     riskAssessmentGradingCodes,
-    riskAssessmentQuestionnaireCodes,
     riskAssessmentSummaryCodes,
 } from "../../../../data/repositories/consts/RiskAssessmentConstants";
 import {
@@ -14,12 +13,10 @@ import { User } from "../../../components/user-selector/UserSelector";
 import { Option as UIOption } from "../../../components/utils/option";
 import { mapTeamMemberToUser, mapToPresentationOptions } from "../mapEntityToFormState";
 import { getDateAsLocaleDateTimeString } from "../../../../data/repositories/utils/DateTimeHelper";
-import {
-    FormAddNewOptionSectionState,
-    FormSectionState,
-} from "../../../components/form/FormSectionsState";
+import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { RiskAssessmentQuestionnaire } from "../../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { Maybe } from "../../../../utils/ts-utils";
+import { Id } from "../../../../domain/entities/Ref";
 
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapRiskGradingToInitialFormState(
@@ -620,20 +617,15 @@ export function mapRiskAssessmentQuestionnaireToInitialFormState(
 
     const customQuestionSections =
         riskAssessmentQuestionnaire?.additionalQuestions?.map((question, index) => {
-            return getRiskAssessmentCustomQuestionSection("Custom Question", index, sectionOptions);
+            return getRiskAssessmentCustomQuestionSection(
+                "Custom Question",
+                index,
+                sectionOptions,
+                question.id
+            );
         }) ?? [];
 
-    const addNewOptionSection: FormAddNewOptionSectionState = {
-        id: "addNewOptionSection",
-        fields: [],
-        addNewField: {
-            id: "addNewOption",
-            isVisible: true,
-            errors: [],
-            type: "addNew",
-            value: null,
-        },
-    };
+    const addNewOptionSection: FormSectionState = getAnotherOptionSection();
 
     //SNEHA TO DO : Create this form by iterating over Object Keys
     return {
@@ -649,6 +641,21 @@ export function mapRiskAssessmentQuestionnaireToInitialFormState(
             ...customQuestionSections,
             addNewOptionSection,
         ],
+    };
+}
+
+export function getAnotherOptionSection(): FormSectionState {
+    return {
+        id: "addNewOptionSection",
+        isVisible: true,
+        fields: [],
+        addNewField: {
+            id: "addNewOption",
+            isVisible: true,
+            errors: [],
+            type: "addNew",
+            value: null,
+        },
     };
 }
 
@@ -675,7 +682,7 @@ function getRiskAssessmentStdQuestionSection(
 
         fields: [
             {
-                id: `${riskAssessmentQuestionnaireCodes[`likelihood${index}`]}`,
+                id: `std-likelihood${index}`,
                 label: "Likelihood",
                 placeholder: "Select..",
                 isVisible: true,
@@ -691,7 +698,7 @@ function getRiskAssessmentStdQuestionSection(
                 disabled: false,
             },
             {
-                id: `${riskAssessmentQuestionnaireCodes[`consequences${index}`]}`,
+                id: `std-consequences${index}`,
                 label: "Consequences",
                 placeholder: "Select..",
                 isVisible: true,
@@ -707,7 +714,7 @@ function getRiskAssessmentStdQuestionSection(
                 disabled: false,
             },
             {
-                id: `${riskAssessmentQuestionnaireCodes[`risk${index}`]}`,
+                id: `std-risk${index}`,
                 label: "Risk",
                 placeholder: "Select..",
                 isVisible: true,
@@ -721,7 +728,7 @@ function getRiskAssessmentStdQuestionSection(
                 disabled: false,
             },
             {
-                id: `${riskAssessmentQuestionnaireCodes[`rational${index}`]}`,
+                id: `std-rational${index}`,
                 label: "Rational",
                 isVisible: true,
                 errors: [],
@@ -740,7 +747,7 @@ function getRiskAssessmentStdQuestionSection(
     return riskAssesssmentQuestionFormSection;
 }
 
-export function getRiskAssessmentCustomQuestionSection(
+function getRiskAssessmentCustomQuestionSection(
     title: string,
     index: number,
     options: {
@@ -748,18 +755,19 @@ export function getRiskAssessmentCustomQuestionSection(
         likelihoodOptions: UIOption[];
         consequencesOptions: UIOption[];
         riskOptions: UIOption[];
-    }
+    },
+    questionId?: Id
 ): FormSectionState {
     const id = "additionalQuestions";
     const { riskAssessmentQuestionnaire, likelihoodOptions, consequencesOptions, riskOptions } =
         options;
     const riskAssesssmentQuestionFormSection: FormSectionState = {
         title: title,
-        id: `${id}${index}`,
+        id: questionId ? `${id}${questionId}` : `${id}`,
         isVisible: true,
         fields: [
             {
-                id: `question-custom${index}`,
+                id: `custom-question${index}`,
                 label: "Question",
                 isVisible: true,
                 errors: [],
@@ -773,7 +781,7 @@ export function getRiskAssessmentCustomQuestionSection(
             },
 
             {
-                id: `likelihood-custom${index}`,
+                id: `custom-likelihood${index}`,
                 label: "Likelihood",
                 placeholder: "Select..",
                 isVisible: true,
@@ -789,7 +797,7 @@ export function getRiskAssessmentCustomQuestionSection(
                 disabled: false,
             },
             {
-                id: `consequences-custom${index}`,
+                id: `custom-consequences${index}`,
                 label: "Consequences",
                 placeholder: "Select..",
                 isVisible: true,
@@ -805,7 +813,7 @@ export function getRiskAssessmentCustomQuestionSection(
                 disabled: false,
             },
             {
-                id: `risk-custom${index}`,
+                id: `custom-risk${index}`,
                 label: "Risk",
                 placeholder: "Select..",
                 isVisible: true,
@@ -821,7 +829,7 @@ export function getRiskAssessmentCustomQuestionSection(
                 disabled: false,
             },
             {
-                id: `rational-custom${index}`,
+                id: `custom-rational${index}`,
                 label: "Rational",
                 isVisible: true,
                 errors: [],
@@ -840,4 +848,26 @@ export function getRiskAssessmentCustomQuestionSection(
         subsections: [],
     };
     return riskAssesssmentQuestionFormSection;
+}
+
+export function addNewCustomQuestionSection(sections: FormSectionState[]): FormSectionState {
+    const customQuestionSections = sections.filter(section =>
+        section.id.startsWith("additionalQuestions")
+    );
+
+    const newCustomQuestionSection = getRiskAssessmentCustomQuestionSection(
+        "Custom Question",
+        customQuestionSections.length,
+        {
+            riskAssessmentQuestionnaire: undefined,
+            likelihoodOptions:
+                sections[0]?.fields[0]?.type === "select" ? sections[0].fields[0].options : [],
+            consequencesOptions:
+                sections[0]?.fields[1]?.type === "select" ? sections[0].fields[1].options : [],
+            riskOptions:
+                sections[0]?.fields[2]?.type === "select" ? sections[0].fields[2].options : [],
+        }
+    );
+
+    return newCustomQuestionSection;
 }

@@ -7,6 +7,7 @@ import {
     DiseaseOutbreakEvent,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
+    getDateAsLocaleDateString,
     getDateAsLocaleDateTimeString,
     getDateAsMonthYearString,
 } from "../../../data/repositories/utils/DateTimeHelper";
@@ -27,6 +28,7 @@ export type FormSummaryData = {
     subTitle: string;
     summary: LabelWithValue[];
     incidentManager: Maybe<User>;
+    notes: string;
 };
 export function useDiseaseOutbreakEvent(id: Id) {
     const { compositionRoot } = useAppContext();
@@ -92,6 +94,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
             incidentManager: diseaseOutbreakEvent.incidentManager
                 ? mapTeamMemberToUser(diseaseOutbreakEvent.incidentManager)
                 : undefined,
+            notes: diseaseOutbreakEvent.notes || "",
         };
     };
 
@@ -100,6 +103,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
     ) => {
         if (diseaseOutbreakEvent.riskAssessment) {
             return diseaseOutbreakEvent.riskAssessment.grading.map(riskAssessmentGrading => ({
+                riskAssessmentDate: getDateAsLocaleDateString(riskAssessmentGrading.lastUpdated),
                 grade: RiskAssessmentGrading.getTranslatedLabel(
                     riskAssessmentGrading.getGrade().getOrThrow()
                 ),

@@ -97,7 +97,7 @@ export function getRiskAssessmentSummaryWithOptions(
     return Future.joinObj(
         {
             lowMediumHighOptions: optionsRepository.getLowMediumHighOptions(),
-            riskAssessors: teamMemberRepository.getAll(),
+            riskAssessors: teamMemberRepository.getRiskAssessors(),
         },
         { concurrency: 2 }
     ).flatMap(({ lowMediumHighOptions, riskAssessors }) => {

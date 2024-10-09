@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-09-11T11:00:15.232Z\n"
-"PO-Revision-Date: 2024-09-11T11:00:15.232Z\n"
+"POT-Creation-Date: 2024-09-30T07:39:32.843Z\n"
+"PO-Revision-Date: 2024-09-30T07:39:32.843Z\n"
 
 msgid "Low"
 msgstr ""
@@ -69,6 +69,12 @@ msgstr ""
 msgid "Add new option"
 msgstr ""
 
+msgid "Reset"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
 msgid "There is an error in this field"
 msgstr ""
 
@@ -78,13 +84,22 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-msgid "Save"
-msgstr ""
-
 msgid "Edit Details"
 msgstr ""
 
+msgid "Notes"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
 msgid "Create Event"
+msgstr ""
+
+msgid "The map with these filters could not be found."
+msgstr ""
+
+msgid "Map not found."
 msgstr ""
 
 msgid "Close"
@@ -111,10 +126,25 @@ msgstr ""
 msgid "Respond, alert, watch"
 msgstr ""
 
+msgid "Select duration"
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid "All public health events"
+msgstr ""
+
+msgid "7-1-7 performance"
+msgstr ""
+
 msgid "Performance overview"
 msgstr ""
 
 msgid "Event Tracker"
+msgstr ""
+
+msgid "Districts Affected"
 msgstr ""
 
 msgid "Create Risk Assessment"

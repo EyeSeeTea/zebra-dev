@@ -6,7 +6,6 @@ import { Maybe } from "../../utils/ts-utils";
 export const CurrentEventTrackerContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [currentEventTracker, setCurrentEventTracker] = useState<DiseaseOutbreakEvent>();
 
-    //PPS Module functions.
     const changeCurrentEventTracker = (EventTrackerDetails: DiseaseOutbreakEvent) => {
         setCurrentEventTracker(EventTrackerDetails);
         localStorage.setItem("currentEventTracker", JSON.stringify(EventTrackerDetails));
