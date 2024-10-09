@@ -8,10 +8,14 @@ import { OutbreakData } from "../../../domain/entities/alert/AlertData";
 
 export async function getAllTrackedEntitiesAsync(
     api: D2Api,
-    programId: Id,
-    orgUnitId: Id,
-    filter?: OutbreakData
+    options: {
+        programId: Id;
+        orgUnitId: Id;
+        ouMode?: "SELECTED" | "DESCENDANTS";
+        filter?: OutbreakData;
+    }
 ): Promise<D2TrackerTrackedEntity[]> {
+    const { programId, orgUnitId, ouMode, filter } = options;
     const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
     const pageSize = 250;
@@ -24,6 +28,7 @@ export async function getAllTrackedEntitiesAsync(
                 .get({
                     program: programId,
                     orgUnit: orgUnitId,
+                    ouMode: ouMode,
                     totalPages: true,
                     page: page,
                     pageSize: pageSize,

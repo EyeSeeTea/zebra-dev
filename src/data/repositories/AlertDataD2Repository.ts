@@ -1,10 +1,7 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { AlertData, OutbreakData } from "../../domain/entities/alert/AlertData";
 import { AlertDataRepository } from "../../domain/repositories/AlertDataRepository";
-import {
-    D2TrackerTrackedEntity,
-    TrackedEntitiesGetResponse,
-} from "@eyeseetea/d2-api/api/trackerTrackedEntities";
+import { Attribute, D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
     RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
@@ -19,6 +16,9 @@ import _ from "../../domain/entities/generic/Collection";
 import { getTEAttributeById } from "./utils/MetadataHelper";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { mapTrackedEntityAttributesToNotificationOptions } from "./utils/AlertOutbreakMapper";
+import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
+import { Maybe } from "../../utils/ts-utils";
+import { NotificationOptions } from "../../domain/repositories/NotificationRepository";
 
 export class AlertDataD2Repository implements AlertDataRepository {
     constructor(private api: D2Api) {}
@@ -34,43 +34,24 @@ export class AlertDataD2Repository implements AlertDataRepository {
     private getAlertData(alertTrackedEntities: D2TrackerTrackedEntity[]): FutureData<AlertData[]> {
         const alertsWithNoEventId = _(alertTrackedEntities)
             .compactMap(trackedEntity => {
-                const nationalEventId = getTEAttributeById(
-                    trackedEntity,
-                    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID
-                );
-                const hazardType = getTEAttributeById(
-                    trackedEntity,
-                    RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID
-                );
-                const diseaseType = getTEAttributeById(
-                    trackedEntity,
-                    RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
-                );
-
+                const { diseaseType, hazardType, nationalEventId } =
+                    this.getAlertTEAttributes(trackedEntity);
                 const notificationOptions =
                     mapTrackedEntityAttributesToNotificationOptions(trackedEntity);
-
-                const outbreakData = diseaseType
-                    ? { id: diseaseType.attribute, value: diseaseType.value }
-                    : hazardType
-                    ? { id: hazardType.value, value: hazardType.value }
-                    : undefined;
+                const outbreakData = this.getOutbreakData(diseaseType, hazardType);
 
                 if (!outbreakData) return undefined;
-                if (!trackedEntity.trackedEntity || !trackedEntity.orgUnit)
-                    throw new Error("Tracked entity not found");
 
-                const alertData: AlertData = {
-                    alert: {
-                        id: trackedEntity.trackedEntity,
-                        district: trackedEntity.orgUnit,
-                    },
-                    outbreakData: outbreakData,
-                    dataSource: diseaseType
-                        ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
-                        : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
-                    notificationOptions: notificationOptions,
-                };
+                const dataSource = diseaseType
+                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
+
+                const alertData: AlertData = this.buildAlertData(
+                    trackedEntity,
+                    outbreakData,
+                    dataSource,
+                    notificationOptions
+                );
 
                 return !nationalEventId && (hazardType || diseaseType) ? alertData : undefined;
             })
@@ -79,57 +60,45 @@ export class AlertDataD2Repository implements AlertDataRepository {
         return Future.success(alertsWithNoEventId);
     }
 
-    private async getTrackedEntitiesByTEACodeAsync(options: {
-        program: Id;
-        orgUnit: Id;
-        ouMode: "SELECTED" | "DESCENDANTS";
-        filter?: OutbreakData;
-    }): Promise<D2TrackerTrackedEntity[]> {
-        const { program, orgUnit, ouMode, filter } = options;
-        const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
+    private buildAlertData(
+        trackedEntity: D2TrackerTrackedEntity,
+        outbreakData: OutbreakData,
+        dataSource: DataSource,
+        notificationOptions: NotificationOptions
+    ): AlertData {
+        if (!trackedEntity.trackedEntity || !trackedEntity.orgUnit)
+            throw new Error(`Alert data not found for ${outbreakData.value}`);
 
-        const pageSize = 250;
-        let page = 1;
-        let result: TrackedEntitiesGetResponse;
+        return {
+            alert: {
+                id: trackedEntity.trackedEntity,
+                district: trackedEntity.orgUnit,
+            },
+            outbreakData: outbreakData,
+            dataSource: dataSource,
+            notificationOptions: notificationOptions,
+        };
+    }
 
-        try {
-            do {
-                result = await this.api.tracker.trackedEntities
-                    .get({
-                        program: program,
-                        orgUnit: orgUnit,
-                        ouMode: ouMode,
-                        totalPages: true,
-                        page: page,
-                        pageSize: pageSize,
-                        fields: {
-                            attributes: true,
-                            orgUnit: true,
-                            trackedEntity: true,
-                            trackedEntityType: true,
-                            enrollments: {
-                                events: {
-                                    createdAt: true,
-                                    dataValues: {
-                                        dataElement: true,
-                                        value: true,
-                                    },
-                                    event: true,
-                                },
-                            },
-                        },
-                        filter: filter ? `${filter.id}:eq:${filter.value}` : undefined,
-                    })
-                    .getData();
+    private getOutbreakData(
+        diseaseType: Maybe<Attribute>,
+        hazardType: Maybe<Attribute>
+    ): Maybe<OutbreakData> {
+        return diseaseType
+            ? { id: diseaseType.attribute, value: diseaseType.value }
+            : hazardType
+            ? { id: hazardType.value, value: hazardType.value }
+            : undefined;
+    }
 
-                d2TrackerTrackedEntities.push(...result.instances);
-
-                page++;
-            } while (result.page < Math.ceil((result.total as number) / pageSize));
-            return d2TrackerTrackedEntities;
-        } catch {
-            return [];
-        }
+    private getAlertTEAttributes(trackedEntity: D2TrackerTrackedEntity) {
+        const nationalEventId = getTEAttributeById(
+            trackedEntity,
+            RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID
+        );
+        const hazardType = getTEAttributeById(trackedEntity, RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID);
+        const diseaseType = getTEAttributeById(trackedEntity, RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID);
+        return { diseaseType, hazardType, nationalEventId };
     }
 
     private getTrackedEntitiesByTEACode(options: {
@@ -138,7 +107,16 @@ export class AlertDataD2Repository implements AlertDataRepository {
         ouMode: "SELECTED" | "DESCENDANTS";
         filter?: OutbreakData;
     }): FutureData<D2TrackerTrackedEntity[]> {
-        return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(options));
+        const { program, orgUnit, ouMode, filter } = options;
+
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: program,
+                orgUnitId: orgUnit,
+                filter: filter,
+                ouMode: ouMode,
+            })
+        );
     }
 
     private getAlertTrackedEntities(): FutureData<D2TrackerTrackedEntity[]> {

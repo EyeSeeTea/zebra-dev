@@ -35,7 +35,10 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
 
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
         return Future.fromPromise(
-            getAllTrackedEntitiesAsync(this.api, RTSL_ZEBRA_PROGRAM_ID, RTSL_ZEBRA_ORG_UNIT_ID)
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+            })
         ).map(trackedEntities => {
             return trackedEntities.map(trackedEntity => {
                 return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
@@ -47,12 +50,11 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         filter: OutbreakData
     ): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
         return Future.fromPromise(
-            getAllTrackedEntitiesAsync(
-                this.api,
-                RTSL_ZEBRA_PROGRAM_ID,
-                RTSL_ZEBRA_ORG_UNIT_ID,
-                filter
-            )
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                filter: filter,
+            })
         ).map(trackedEntities => {
             return trackedEntities.map(trackedEntity => {
                 return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
