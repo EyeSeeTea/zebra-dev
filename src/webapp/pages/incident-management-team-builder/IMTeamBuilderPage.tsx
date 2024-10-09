@@ -103,8 +103,10 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
                     >
                         {openDeleteModalData && (
                             <RoleAndMemberWrapper>
-                                <RoleWrapper>{openDeleteModalData.teamRole}: </RoleWrapper>
-                                <MemberWrapper>{openDeleteModalData.member?.name} </MemberWrapper>
+                                <RoleWrapper>{openDeleteModalData.teamRole.name}: </RoleWrapper>
+                                <MemberWrapper>
+                                    {openDeleteModalData.teamMember.name}{" "}
+                                </MemberWrapper>
                             </RoleAndMemberWrapper>
                         )}
                     </SimpleModal>

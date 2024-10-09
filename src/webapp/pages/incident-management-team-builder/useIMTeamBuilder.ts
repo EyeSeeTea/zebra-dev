@@ -17,6 +17,11 @@ type GlobalMessage = {
     type: "warning" | "success" | "error";
 };
 
+export type ProfileModalData = {
+    teamMember: TeamMember;
+    teamRole: TeamRole;
+};
+
 type State = {
     globalMessage: Maybe<GlobalMessage>;
     incidentManagementTeamHierarchyItems: Maybe<IMTeamHierarchyOption[]>;
@@ -26,7 +31,7 @@ type State = {
     onDeleteIncidentManagementTeamMember: () => void;
     incidentManagerUser: Maybe<User>;
     lastUpdated: string;
-    openDeleteModalData: IMTeamHierarchyOption | undefined;
+    openDeleteModalData: ProfileModalData | undefined;
     onOpenDeleteModalData: (selectedHierarchyItemId: Id | undefined) => void;
     disableDeletion: boolean;
 };
@@ -43,11 +48,11 @@ export function useIMTeamBuilder(id: Id): State {
     >();
     const [selectedHierarchyItemId, setSelectedHierarchyItemId] = useState<string>("");
     const [disableDeletion, setDisableDeletion] = useState(false);
-    const [openDeleteModalData, setOpenDeleteModalData] = useState<
-        IMTeamHierarchyOption | undefined
-    >(undefined);
+    const [openDeleteModalData, setOpenDeleteModalData] = useState<ProfileModalData | undefined>(
+        undefined
+    );
 
-    useEffect(() => {
+    const getIncidentManagementTeam = useCallback(() => {
         compositionRoot.incidentManagementTeam.get.execute(id).run(
             incidentManagementTeam => {
                 setIncidentManagementTeam(incidentManagementTeam);
@@ -67,6 +72,10 @@ export function useIMTeamBuilder(id: Id): State {
         );
     }, [compositionRoot.incidentManagementTeam.get, id]);
 
+    useEffect(() => {
+        getIncidentManagementTeam();
+    }, [getIncidentManagementTeam]);
+
     const goToIncidentManagementTeamRole = useCallback(() => {
         if (selectedHierarchyItemId) {
             goTo(RouteName.EDIT_FORM, {
@@ -84,17 +93,23 @@ export function useIMTeamBuilder(id: Id): State {
         (nodeId: string, selected: boolean) => {
             const selection = selected ? nodeId : "";
             const incidentManagementTeamItemSelected = selection
-                ? incidentManagementTeamHierarchyItems?.find(item => item.id === selection)
+                ? incidentManagementTeam?.teamHierarchy.find(teamMember =>
+                      teamMember.teamRoles?.some(role => role.id === selection)
+                  )
                 : undefined;
 
+            const selectedRole = incidentManagementTeamItemSelected?.teamRoles?.find(
+                role => role.id === selection
+            );
+
             const isIncidentManagerRoleSelected =
-                incidentManagementTeamItemSelected?.teamRoleId ===
+                selectedRole?.roleId ===
                 RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole;
 
             setSelectedHierarchyItemId(selection);
             setDisableDeletion(isIncidentManagerRoleSelected);
         },
-        [incidentManagementTeamHierarchyItems]
+        [incidentManagementTeam?.teamHierarchy]
     );
 
     const onOpenDeleteModalData = useCallback(
@@ -102,27 +117,35 @@ export function useIMTeamBuilder(id: Id): State {
             if (!selectedHierarchyItemId) {
                 setOpenDeleteModalData(undefined);
             } else {
-                const incidentManagementTeamItem = incidentManagementTeamHierarchyItems?.find(
-                    item => item.id === selectedHierarchyItemId
+                const incidentManagementTeamItem = incidentManagementTeam?.teamHierarchy.find(
+                    teamMember =>
+                        teamMember.teamRoles?.some(role => role.id === selectedHierarchyItemId)
                 );
 
-                if (incidentManagementTeamItem) {
-                    setOpenDeleteModalData(incidentManagementTeamItem);
+                const selectedRole = incidentManagementTeamItem?.teamRoles?.find(
+                    role => role.id === selectedHierarchyItemId
+                );
+
+                if (incidentManagementTeamItem && selectedRole) {
+                    setOpenDeleteModalData({
+                        teamRole: selectedRole,
+                        teamMember: incidentManagementTeamItem,
+                    });
                 }
             }
         },
-        [incidentManagementTeamHierarchyItems]
+        [incidentManagementTeam?.teamHierarchy]
     );
 
     const onDeleteIncidentManagementTeamMember = useCallback(() => {
         if (disableDeletion) return;
 
-        const teamMember = incidentManagementTeamHierarchyItems?.find(
-            item => item.id === selectedHierarchyItemId
-        )?.member;
+        const teamMember = incidentManagementTeam?.teamHierarchy.find(teamMember =>
+            teamMember.teamRoles?.some(role => role.id === selectedHierarchyItemId)
+        );
 
         const teamRoleToDelete = teamMember?.teamRoles?.find(
-            teamRole => teamRole.id === selectedHierarchyItemId
+            role => role.id === selectedHierarchyItemId
         );
 
         if (teamMember && teamRoleToDelete) {
@@ -134,6 +157,8 @@ export function useIMTeamBuilder(id: Id): State {
                             text: `${teamMember.name} deleted from Incident Management Team`,
                             type: "success",
                         });
+                        getIncidentManagementTeam();
+                        onOpenDeleteModalData(undefined);
                     },
                     err => {
                         console.debug(err);
@@ -141,6 +166,7 @@ export function useIMTeamBuilder(id: Id): State {
                             text: `Error deleting ${teamMember.name} from Incident Management Team`,
                             type: "error",
                         });
+                        onOpenDeleteModalData(undefined);
                     }
                 );
         } else {
@@ -152,8 +178,10 @@ export function useIMTeamBuilder(id: Id): State {
     }, [
         compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRole,
         disableDeletion,
+        getIncidentManagementTeam,
         id,
-        incidentManagementTeamHierarchyItems,
+        incidentManagementTeam?.teamHierarchy,
+        onOpenDeleteModalData,
         selectedHierarchyItemId,
     ]);
 
