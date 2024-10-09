@@ -53,13 +53,20 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
             getAllTrackedEntitiesAsync(this.api, {
                 programId: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
-                filter: filter,
+                filter: {
+                    id: this.getOutbreakFilterId(filter),
+                    value: filter.value,
+                },
             })
         ).map(trackedEntities => {
             return trackedEntities.map(trackedEntity => {
                 return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
             });
         });
+    }
+
+    private getOutbreakFilterId(filter: OutbreakData): string {
+        return filter.type === "disease" ? RTSL_ZEBRA_DISEASE_TEA_ID : RTSL_ZEBRA_HAZARD_TEA_ID;
     }
 
     save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<Id> {
@@ -108,3 +115,6 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
 
     //TO DO : Implement delete/archive after requirement confirmation
 }
+
+const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
+const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";

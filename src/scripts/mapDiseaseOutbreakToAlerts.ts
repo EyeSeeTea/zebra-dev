@@ -8,14 +8,15 @@ import { NotificationD2Repository } from "../data/repositories/NotificationD2Rep
 import { OptionsD2Repository } from "../data/repositories/OptionsD2Repository";
 import { AlertSyncDataStoreRepository } from "../data/repositories/AlertSyncDataStoreRepository";
 import { UserGroupD2Repository } from "../data/repositories/UserGroupD2Repository";
-import { MappingScriptUseCase } from "../domain/usecases/MappingScriptUseCase";
+import { MapAndSaveAlertsUseCase } from "../domain/usecases/MapAndSaveAlertsUseCase";
 import { AlertDataD2Repository } from "../data/repositories/AlertDataD2Repository";
 import { DiseaseOutbreakEventD2Repository } from "../data/repositories/DiseaseOutbreakEventD2Repository";
 
 function main() {
     const cmd = command({
         name: path.basename(__filename),
-        description: "Map national event ID to Zebra Alert Events with no event ID",
+        description:
+            "Map national event ID to Zebra Alert Events with no event ID, and save alert data to datastore",
         args: {
             debug: flag({
                 type: boolean,
@@ -36,7 +37,7 @@ function main() {
             const optionsRepository = new OptionsD2Repository(api);
             const userGroupRepository = new UserGroupD2Repository(api);
 
-            const mappingScriptUseCase = new MappingScriptUseCase(
+            const mapAndSaveAlertsUseCase = new MapAndSaveAlertsUseCase(
                 alertRepository,
                 alertDataRepository,
                 alertSyncRepository,
@@ -46,7 +47,7 @@ function main() {
                 userGroupRepository
             );
 
-            return await mappingScriptUseCase.execute();
+            return await mapAndSaveAlertsUseCase.execute();
         },
     });
 

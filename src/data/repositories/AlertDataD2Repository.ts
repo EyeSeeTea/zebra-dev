@@ -85,9 +85,9 @@ export class AlertDataD2Repository implements AlertDataRepository {
         hazardType: Maybe<Attribute>
     ): Maybe<OutbreakData> {
         return diseaseType
-            ? { id: diseaseType.attribute, value: diseaseType.value }
+            ? { value: diseaseType.value, type: "disease" }
             : hazardType
-            ? { id: hazardType.value, value: hazardType.value }
+            ? { value: hazardType.value, type: "hazard" }
             : undefined;
     }
 
@@ -98,6 +98,7 @@ export class AlertDataD2Repository implements AlertDataRepository {
         );
         const hazardType = getTEAttributeById(trackedEntity, RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID);
         const diseaseType = getTEAttributeById(trackedEntity, RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID);
+
         return { diseaseType, hazardType, nationalEventId };
     }
 
@@ -105,15 +106,13 @@ export class AlertDataD2Repository implements AlertDataRepository {
         program: Id;
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
-        filter?: OutbreakData;
     }): FutureData<D2TrackerTrackedEntity[]> {
-        const { program, orgUnit, ouMode, filter } = options;
+        const { program, orgUnit, ouMode } = options;
 
         return Future.fromPromise(
             getAllTrackedEntitiesAsync(this.api, {
                 programId: program,
                 orgUnitId: orgUnit,
-                filter: filter,
                 ouMode: ouMode,
             })
         );

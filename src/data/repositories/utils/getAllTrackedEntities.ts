@@ -4,7 +4,7 @@ import {
     TrackedEntitiesGetResponse,
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Id } from "../../../domain/entities/Ref";
-import { OutbreakData } from "../../../domain/entities/alert/AlertData";
+import { Maybe } from "../../../utils/ts-utils";
 
 export async function getAllTrackedEntitiesAsync(
     api: D2Api,
@@ -12,7 +12,7 @@ export async function getAllTrackedEntitiesAsync(
         programId: Id;
         orgUnitId: Id;
         ouMode?: "SELECTED" | "DESCENDANTS";
-        filter?: OutbreakData;
+        filter?: { id: string; value: Maybe<string> };
     }
 ): Promise<D2TrackerTrackedEntity[]> {
     const { programId, orgUnitId, ouMode, filter } = options;

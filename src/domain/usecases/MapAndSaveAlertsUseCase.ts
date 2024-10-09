@@ -15,8 +15,9 @@ import { AlertData, OutbreakData } from "../entities/alert/AlertData";
 import { AlertDataRepository } from "../repositories/AlertDataRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { getOutbreakKey } from "../entities/alert/AlertSynchronizationData";
+import { promiseMap } from "../../utils/promiseMap";
 
-export class MappingScriptUseCase {
+export class MapAndSaveAlertsUseCase {
     constructor(
         private alertRepository: AlertRepository,
         private alertDataRepository: AlertDataRepository,
@@ -35,66 +36,70 @@ export class MappingScriptUseCase {
             `${alertData.length} event(s) found in the Zebra Alerts program with no national event id.`
         );
 
-        return _(alertData)
+        const uniqueFiltersWithAlerts = _(alertData)
             .groupBy(alert => alert.dataSource)
             .values()
-            .forEach(alertsByDataSource => {
-                const uniqueFilters = getUniqueFilters(alertsByDataSource);
-
-                return uniqueFilters.forEach(filter => {
-                    this.getDiseaseOutbreakEvents({
-                        id: filter.filterId,
-                        value: filter.filterValue,
-                    }).then(diseaseOutbreakEvents => {
-                        this.handleAlertOutbreakMapping(
-                            diseaseOutbreakEvents,
-                            filter,
-                            alertsByDataSource,
-                            hazardTypes,
-                            suspectedDiseases
-                        );
-                    });
-                });
+            .flatMap(alertsByDataSource => {
+                return getUniqueFilters(alertsByDataSource).map(outbreakData => ({
+                    outbreakData: outbreakData,
+                    alerts: alertsByDataSource,
+                }));
             });
+
+        await promiseMap(uniqueFiltersWithAlerts, async uniqueFilterWithAlerts => {
+            const { outbreakData, alerts } = uniqueFilterWithAlerts;
+
+            return this.mapDiseaseOutbreakToAlertsAndSave(
+                alerts,
+                outbreakData,
+                hazardTypes,
+                suspectedDiseases
+            );
+        });
     }
 
-    private handleAlertOutbreakMapping(
-        diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[],
-        filter: { filterId: string; filterValue: string; dataSource: DataSource },
-        alertsByDataSource: AlertData[],
+    private async mapDiseaseOutbreakToAlertsAndSave(
+        alertData: AlertData[],
+        outbreakData: OutbreakData,
         hazardTypes: Option[],
         suspectedDiseases: Option[]
-    ) {
+    ): Promise<void> {
+        const diseaseOutbreakEvents = await this.getDiseaseOutbreakEvents(outbreakData);
+        const dataSource =
+            outbreakData.type === "disease"
+                ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
+
         if (diseaseOutbreakEvents.length > 1) {
             const outbreakKey = getOutbreakKey({
-                dataSource: filter.dataSource,
-                outbreakValue: filter.filterValue,
+                dataSource: dataSource,
+                outbreakValue: outbreakData.value,
                 hazardTypes: hazardTypes,
                 suspectedDiseases: suspectedDiseases,
             });
 
-            logger.error(`More than 1 National event found for ${outbreakKey} outbreak.`);
-
-            return undefined;
+            return logger.error(`More than 1 National event found for ${outbreakKey} outbreak.`);
         }
 
-        return alertsByDataSource
-            .filter(alertData => alertData.outbreakData.value === filter.filterValue)
-            .forEach(alertData => {
-                this.processAlertData(
-                    alertData,
-                    diseaseOutbreakEvents,
-                    hazardTypes,
-                    suspectedDiseases
-                );
-            });
+        const outbreakAlerts = alertData.filter(
+            alertData => alertData.outbreakData.value === outbreakData.value
+        );
+
+        await promiseMap(outbreakAlerts, alertData => {
+            return this.mapAndSaveAlertData(
+                alertData,
+                diseaseOutbreakEvents,
+                hazardTypes,
+                suspectedDiseases
+            );
+        });
     }
 
     private getDiseaseOutbreakEvents(
-        filter: OutbreakData
+        outbreakData: OutbreakData
     ): Promise<DiseaseOutbreakEventBaseAttrs[]> {
         return this.diseaseOutbreakEventRepository
-            .getEventByDiseaseOrHazardType(filter)
+            .getEventByDiseaseOrHazardType(outbreakData)
             .toPromise();
     }
 
@@ -105,7 +110,7 @@ export class MappingScriptUseCase {
         }).toPromise();
     }
 
-    private processAlertData(
+    private mapAndSaveAlertData(
         alertData: AlertData,
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[],
         hazardTypes: Option[],
@@ -113,8 +118,7 @@ export class MappingScriptUseCase {
     ): Promise<void> {
         const { dataSource, outbreakData } = alertData;
 
-        const outbreakType =
-            dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS ? "disease" : "hazard";
+        const outbreakType = outbreakData.type;
         const outbreakName = getOutbreakKey({
             dataSource: dataSource,
             outbreakValue: outbreakData.value,
@@ -128,7 +132,7 @@ export class MappingScriptUseCase {
 
         const diseaseOutbreakEvent = diseaseOutbreakEvents[0];
         if (!diseaseOutbreakEvent)
-            throw new Error(
+            return logger.error(
                 `No disease outbreak event found for ${outbreakType} type ${outbreakName}.`
             );
 
@@ -191,24 +195,11 @@ export class MappingScriptUseCase {
     }
 }
 
-function getUniqueFilters(alerts: AlertData[]): {
-    filterId: string;
-    filterValue: string;
-    dataSource: DataSource;
-}[] {
+function getUniqueFilters(alerts: AlertData[]): OutbreakData[] {
     return _(alerts)
-        .uniqBy(filter => filter.outbreakData.value)
-        .map(filter => ({
-            filterId:
-                filter.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
-                    ? RTSL_ZEBRA_DISEASE_TEA_ID
-                    : RTSL_ZEBRA_HAZARD_TEA_ID,
-            filterValue: filter.outbreakData.value ?? "",
-            dataSource: filter.dataSource,
-        }))
+        .uniqBy(alertData => alertData.outbreakData.value)
+        .map(alertData => alertData.outbreakData)
         .value();
 }
 
-const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
-const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
 const RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE = "RTSL_ZEBRA_NATONAL_WATCH_STAFF";
