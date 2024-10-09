@@ -1,10 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Link } from "@material-ui/core";
+import { IconEditItems24 } from "@dhis2/ui";
 
 import i18n from "../../../utils/i18n";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { ProfileModal } from "../profile-modal/ProfileModal";
+import { useAppContext } from "../../contexts/app-context";
+import { Button } from "../button/Button";
 
 type TeamMemberProfileProps = {
     open: boolean;
@@ -15,11 +18,16 @@ type TeamMemberProfileProps = {
 
 export const TeamMemberProfile: React.FC<TeamMemberProfileProps> = React.memo(props => {
     const { open, setOpen, member, diseaseOutbreakEventName } = props;
+    const { api } = useAppContext();
 
     const teamRolesNames = useMemo(
         () => member.teamRoles?.map(role => role.name).join(", "),
         [member.teamRoles]
     );
+
+    const onRedirectToProfile = useCallback(() => {
+        window.open(`${api.baseUrl}/dhis-web-user/index.html#/users/edit/${member.id}`, "_blank");
+    }, [api.baseUrl, member.id]);
 
     return (
         <ProfileModal
@@ -28,6 +36,16 @@ export const TeamMemberProfile: React.FC<TeamMemberProfileProps> = React.memo(pr
             name={member.name}
             src={member.photo?.toString()}
             alt={member.photo ? `Photo of ${member.name}` : undefined}
+            footerButtons={
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    startIcon={<IconEditItems24 />}
+                    onClick={onRedirectToProfile}
+                >
+                    {i18n.t("Edit Profile")}
+                </Button>
+            }
         >
             <Container>
                 <Text>{member.phone}</Text>
