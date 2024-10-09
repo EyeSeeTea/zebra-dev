@@ -80,12 +80,10 @@ export function useForm(formType: FormType, id?: Id): State {
             error => {
                 setFormState({
                     kind: "error",
-                    message: i18n.t(`Create Event form cannot be loaded`),
+                    message: i18n.t(`Form cannot be loaded`),
                 });
                 setGlobalMessage({
-                    text: i18n.t(
-                        `An error occurred while loading Create Event form: ${error.message}`
-                    ),
+                    text: i18n.t(`An error occurred while loading form: ${error.message}`),
                     type: "error",
                 });
                 setCurrentEventTrackerState(currentEventTracker);
