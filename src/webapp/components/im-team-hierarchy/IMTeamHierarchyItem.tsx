@@ -127,12 +127,13 @@ const RoleAndMemberWrapper = styled.div`
 
 const RoleWrapper = styled.div`
     font-weight: 700;
-    font-size: 14px;
+    font-size: 0.875rem;
     color: ${props => props.theme.palette.common.grey900};
 `;
 
 const MemberWrapper = styled.div`
     font-weight: 400;
-    font-size: 14px;
-    color: ${props => props.theme.palette.common.grey900};
+    font-size: 0.875rem;
+    text-decoration: underline;
+    color: ${props => props.theme.palette.common.blue800};
 `;
