@@ -1,7 +1,7 @@
 import { FutureData } from "../../data/api-futures";
 import {
     IncidentActionPlanDataValues,
-    IncidentResponseActionsDataValues,
+    IncidentResponseActionDataValues,
 } from "../../data/repositories/IncidentActionD2Repository";
 import { Maybe } from "../../utils/ts-utils";
 import { ActionPlanFormData, ResponseActionFormData } from "../entities/ConfigurableForm";
@@ -11,7 +11,7 @@ export interface IncidentActionRepository {
     getIncidentActionPlan(diseaseOutbreakId: Id): FutureData<Maybe<IncidentActionPlanDataValues>>;
     getIncidentResponseActions(
         diseaseOutbreakId: Id
-    ): FutureData<Maybe<IncidentResponseActionsDataValues>>;
+    ): FutureData<Maybe<IncidentResponseActionDataValues[]>>;
     saveIncidentAction(
         formData: ActionPlanFormData | ResponseActionFormData,
         diseaseOutbreakId: Id

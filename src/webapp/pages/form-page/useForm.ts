@@ -16,6 +16,7 @@ import {
     addNewCustomQuestionSection,
     getAnotherOptionSection,
 } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
+import { addNewResponseActionSection } from "./incident-action/mapIncidentActionToInitialFormState";
 
 export type GlobalMessage = {
     text: string;
@@ -133,10 +134,54 @@ export function useForm(formType: FormType, id?: Id): State {
                 });
                 break;
             }
+            case "incident-response-action":
+                setFormState(prevState => {
+                    if (prevState.kind === "loaded") {
+                        const otherSections = prevState.data.sections.filter(
+                            section => section.id !== "addNewOptionSection"
+                        );
+                        const addAnotherSection = getAnotherOptionSection();
+                        const newResponseActionSection = addNewResponseActionSection(
+                            prevState.data.sections
+                        );
+
+                        const updatedData = {
+                            ...prevState.data,
+                            sections: [
+                                ...otherSections,
+                                ...newResponseActionSection,
+                                addAnotherSection,
+                            ],
+                        };
+
+                        const allNewFields = newResponseActionSection.flatMap(
+                            section => section.fields
+                        );
+
+                        const updatedAndValidatedData = allNewFields.reduce(
+                            (acc, updatedFields) => {
+                                return updateAndValidateFormState(
+                                    acc,
+                                    updatedFields,
+                                    configurableForm
+                                );
+                            },
+                            updatedData
+                        );
+
+                        return {
+                            kind: "loaded",
+                            data: updatedAndValidatedData,
+                        };
+                    } else {
+                        return prevState;
+                    }
+                });
+                break;
             default:
                 break;
         }
-    }, [configurableForm, formState.kind]);
+    }, [configurableForm, formState]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {

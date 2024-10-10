@@ -55,30 +55,22 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
         );
     }, []);
 
-    console.log({
-        actionPlanSummary,
-        incidentActionFormSummary,
-        summaryError,
-        id,
-        eventTrackerDetails,
-        responseActionRows,
-    });
+    const incidentActionExists = eventTrackerDetails?.incidentActionPlan?.actionPlan?.id;
 
     return (
         <Layout
             title={i18n.t("Incident Action Plan")}
             subtitle={i18n.t(incidentActionFormSummary?.subTitle || "")}
         >
-            {!incidentActionFormSummary?.summary.every(
-                summaryLabel => summaryLabel.value !== undefined
-            ) ? (
+            {!actionPlanSummary && responseActionRows.length === 0 && !summaryError && <Loader />}
+            {!incidentActionExists ? (
                 <IncidentActionNotice />
-            ) : incidentActionFormSummary ? (
+            ) : (
                 <>
                     <Section>
                         <SummaryContainer>
                             <SummaryColumn>
-                                {incidentActionFormSummary.summary.map((labelWithValue, index) =>
+                                {incidentActionFormSummary?.summary.map((labelWithValue, index) =>
                                     getSummaryColumn(
                                         index,
                                         labelWithValue.label,
@@ -119,8 +111,6 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
                         id={id}
                     />
                 </>
-            ) : (
-                <Loader />
             )}
         </Layout>
     );

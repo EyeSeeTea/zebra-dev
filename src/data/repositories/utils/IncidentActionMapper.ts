@@ -2,7 +2,7 @@ import { D2TrackerEvent, DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
 import {
     IncidentActionPlanDataValues,
     incidentActionPlanIds,
-    IncidentResponseActionsDataValues,
+    IncidentResponseActionDataValues,
     incidentResponseActionsIds,
 } from "../IncidentActionD2Repository";
 import { Id } from "../../../domain/entities/Ref";
@@ -22,12 +22,13 @@ import {
     isStringInIncidentActionPlanCodes,
     isStringInIncidentResponseActionCodes,
     ResponseActionCodes,
-    responseActionConstants,
-    statusMap,
-    verificationMap,
 } from "../consts/IncidentActionConstants";
 import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "../consts/DiseaseOutbreakConstants";
-import { ResponseAction } from "../../../domain/entities/incident-action-plan/ResponseAction";
+import {
+    ResponseAction,
+    Status,
+    Verification,
+} from "../../../domain/entities/incident-action-plan/ResponseAction";
 
 export function mapDataElementsToIncidentActionPlan(
     id: Id,
@@ -64,43 +65,37 @@ export function mapDataElementsToIncidentActionPlan(
 }
 
 export function mapDataElementsToIncidentResponseActions(
-    id: Id,
-    dataValues: DataValue[]
-): IncidentResponseActionsDataValues {
-    const fromMap = (key: keyof typeof responseActionConstants) => getValueFromMap(key, dataValues);
+    instances: D2TrackerEvent[]
+): IncidentResponseActionDataValues[] {
+    const incidentResponseActions: IncidentResponseActionDataValues[] = instances.map(instance => {
+        const { event, dataValues } = instance;
 
-    const mainTask = getValueById(dataValues, incidentResponseActionsIds.mainTask);
-    const subActivities = getValueById(dataValues, incidentResponseActionsIds.subActivities);
-    const subPillar = getValueById(dataValues, incidentResponseActionsIds.subPillar);
-    const searchAssignRO = getValueById(dataValues, incidentResponseActionsIds.searchAssignRO);
-    const dueDate = getValueById(dataValues, incidentResponseActionsIds.dueDate);
-    const timeLine = getValueById(dataValues, incidentResponseActionsIds.timeLine);
+        const mainTask = getValueById(dataValues, incidentResponseActionsIds.mainTask);
+        const subActivities = getValueById(dataValues, incidentResponseActionsIds.subActivities);
+        const subPillar = getValueById(dataValues, incidentResponseActionsIds.subPillar);
+        const searchAssignRO = getValueById(dataValues, incidentResponseActionsIds.searchAssignRO);
+        const dueDate = getValueById(dataValues, incidentResponseActionsIds.dueDate);
+        const timeLine = getValueById(dataValues, incidentResponseActionsIds.timeLine);
+        const status = getValueById(dataValues, incidentResponseActionsIds.status) as Status;
+        const verification = getValueById(
+            dataValues,
+            incidentResponseActionsIds.verification
+        ) as Verification;
 
-    const status = statusMap[fromMap("status")];
-    const verification = verificationMap[fromMap("verification")];
+        return {
+            id: event,
+            mainTask,
+            subActivities,
+            subPillar,
+            searchAssignRO,
+            dueDate,
+            timeLine,
+            status,
+            verification,
+        };
+    });
 
-    const incidentActionPlan: IncidentResponseActionsDataValues = {
-        id: id,
-        mainTask: mainTask,
-        subActivities: subActivities,
-        subPillar: subPillar,
-        searchAssignRO: searchAssignRO,
-        dueDate: dueDate,
-        timeLine: timeLine,
-        status: status,
-        verification: verification,
-    };
-
-    return incidentActionPlan;
-}
-
-function getValueFromMap(
-    key: keyof typeof responseActionConstants,
-    dataValues: DataValue[]
-): string {
-    return (
-        dataValues.find(dataValue => dataValue.value === responseActionConstants[key])?.value ?? ""
-    );
+    return incidentResponseActions;
 }
 
 export function mapIncidentActionToDataElements(
@@ -167,30 +162,35 @@ function mapIncidentResponseActionToDataElements(
     programStageId: Id,
     teiId: Id,
     enrollmentId: Id,
-    incidentResponseAction: ResponseAction,
+    incidentResponseActions: ResponseAction[],
     programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
-): D2TrackerEvent {
-    const dataElementValues: Record<ResponseActionCodes, string> =
-        getValueFromIncidentResponseAction(incidentResponseAction);
+): D2TrackerEvent[] {
+    return incidentResponseActions.map(incidentResponseAction => {
+        const dataElementValues: Record<ResponseActionCodes, string> =
+            getValueFromIncidentResponseAction(incidentResponseAction);
 
-    const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
-        if (!isStringInIncidentResponseActionCodes(programStage.dataElement.code)) {
-            throw new Error(
-                `DataElement code ${programStage.dataElement.code} not found in Incident Action Plan Codes`
+        const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
+            if (!isStringInIncidentResponseActionCodes(programStage.dataElement.code)) {
+                throw new Error(
+                    `DataElement code ${programStage.dataElement.code} not found in Incident Action Plan Codes`
+                );
+            }
+            const typedCode: IncidentResponseActionKeyCode = programStage.dataElement.code;
+
+            return getPopulatedDataElement(
+                programStage.dataElement.id,
+                dataElementValues[typedCode]
             );
-        }
-        const typedCode: IncidentResponseActionKeyCode = programStage.dataElement.code;
+        });
 
-        return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
+        return getIncidentActionTrackerEvent(
+            programStageId,
+            incidentResponseAction.id,
+            enrollmentId,
+            dataValues,
+            teiId
+        );
     });
-
-    return getIncidentActionTrackerEvent(
-        programStageId,
-        incidentResponseAction.id,
-        enrollmentId,
-        dataValues,
-        teiId
-    );
 }
 
 function getPopulatedDataElement(dataElement: Id, value: Maybe<string>): DataValue {

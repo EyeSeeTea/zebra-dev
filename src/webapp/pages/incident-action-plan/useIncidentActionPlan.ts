@@ -9,6 +9,8 @@ import { TableRowType } from "../../components/table/BasicTable";
 import {
     getIAPTypeByCode,
     getPhoecLevelByCode,
+    getStatusTypeByCode,
+    getVerificationTypeByCode,
 } from "../../../data/repositories/consts/IncidentActionConstants";
 
 type LabelWithValue = {
@@ -130,8 +132,8 @@ const mapIncidentResponseActionToFormSummary = (diseaseOutbreakEvent: DiseaseOut
             subActivities: responseAction.subActivities,
             subPillar: responseAction.subPillar,
             searchAssignRO: responseAction.searchAssignRO?.username ?? "",
-            status: responseAction.status,
-            verification: responseAction.verification,
+            status: getStatusTypeByCode(responseAction.status) ?? "",
+            verification: getVerificationTypeByCode(responseAction.verification) ?? "",
             timeLine: responseAction.timeLine,
             dueDate: responseAction.dueDate.toISOString(),
         }));

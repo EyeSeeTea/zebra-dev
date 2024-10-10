@@ -47,7 +47,7 @@ export function getIncidentResponseActionWithOptions(
         const incidentResponseActionData: ResponseActionFormData = {
             type: "incident-response-action",
             eventTrackerDetails: eventTrackerDetails,
-            entity: eventTrackerDetails.incidentActionPlan?.responseActions[0],
+            entity: eventTrackerDetails.incidentActionPlan?.responseActions ?? [],
             options: {
                 searchAssignRO: responsibleOfficers,
                 status: statusOptions,

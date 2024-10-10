@@ -107,7 +107,7 @@ export type ActionPlanFormData = BaseFormData & {
 export type ResponseActionFormData = BaseFormData & {
     type: "incident-response-action";
     eventTrackerDetails: DiseaseOutbreakEvent;
-    entity: Maybe<ResponseAction>;
+    entity: ResponseAction[];
     options: IncidentResponseActionOptions;
 };
 

@@ -6,10 +6,13 @@ import {
     ActionPlanFormData,
     ResponseActionFormData,
 } from "../../../../domain/entities/ConfigurableForm";
+import { ResponseAction } from "../../../../domain/entities/incident-action-plan/ResponseAction";
+import { Maybe } from "../../../../utils/ts-utils";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";
 import { Option as UIOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
+import { getAnotherOptionSection } from "../risk-assessment/mapRiskAssessmentToInitialFormState";
 
 type ActionPlanSectionKeys =
     | "iapType"
@@ -196,8 +199,7 @@ export function mapIncidentActionPlanToInitialFormState(
         titleDescripton: "Step 1:",
         subtitleDescripton: "Define the action plan",
         saveButtonLabel: "Save & Continue",
-        // isValid: incidentActionPlan ? true : false,
-        isValid: true,
+        isValid: incidentActionPlan ? true : false,
         sections: [
             mainSections.iapType,
             mainSections.phoecLevel,
@@ -221,15 +223,57 @@ export function mapIncidentResponseActionToInitialFormState(
     } = incidentResponseActionFormData;
 
     const { searchAssignRO, status, verification } = options;
-
     const searchAssignROOptions: UIOption[] = mapToPresentationOptions(searchAssignRO);
     const statusOptions: UIOption[] = mapToPresentationOptions(status);
     const verificationOptions: UIOption[] = mapToPresentationOptions(verification);
 
+    const sectionOptions = {
+        searchAssignROOptions: searchAssignROOptions,
+        statusOptions: statusOptions,
+        verificationOptions: verificationOptions,
+    };
+
+    const responseActionSections =
+        incidentResponseActions.flatMap((incidentResponseAction, index) => {
+            return getIncidentResponseActionFormSections(
+                {
+                    ...sectionOptions,
+                    incidentResponseAction,
+                },
+                index
+            );
+        }) ?? [];
+
+    const addNewOptionSection: FormSectionState = getAnotherOptionSection();
+
+    return {
+        id: eventTrackerDetails.id ?? "",
+        title: "Incident Action Plan",
+        subtitle: eventTrackerDetails.name,
+        titleDescripton: "Step 2:",
+        subtitleDescripton: "Assign response actions",
+        saveButtonLabel: "Save plan",
+        isValid: incidentResponseActions ? true : false,
+        sections: [...responseActionSections, addNewOptionSection],
+    };
+}
+
+function getIncidentResponseActionFormSections(
+    options: {
+        incidentResponseAction: Maybe<ResponseAction>;
+        searchAssignROOptions: UIOption[];
+        statusOptions: UIOption[];
+        verificationOptions: UIOption[];
+    },
+    index: number
+): FormSectionState[] {
+    const { incidentResponseAction, searchAssignROOptions, statusOptions, verificationOptions } =
+        options;
+
     const mainSections: Record<ResponseActionSectionKeys, FormSectionState> = {
         mainTask: {
             title: "Main task",
-            id: "main_task_section",
+            id: `main_task_section${index}`,
             isVisible: true,
             required: true,
             fields: [
@@ -238,7 +282,7 @@ export function mapIncidentResponseActionToInitialFormState(
                     placeholder: "Select..",
                     isVisible: true,
                     errors: [],
-                    value: incidentResponseActions?.mainTask || "",
+                    value: incidentResponseAction?.mainTask || "",
                     type: "text",
                     required: true,
                 },
@@ -246,7 +290,7 @@ export function mapIncidentResponseActionToInitialFormState(
         },
         subActivities: {
             title: "Sub activities",
-            id: "sub_activities_section",
+            id: `sub_activities_section${index}`,
             isVisible: true,
             required: true,
             fields: [
@@ -255,7 +299,7 @@ export function mapIncidentResponseActionToInitialFormState(
                     placeholder: "Select..",
                     isVisible: true,
                     errors: [],
-                    value: incidentResponseActions?.subActivities || "",
+                    value: incidentResponseAction?.subActivities || "",
                     type: "text",
                     required: true,
                 },
@@ -263,7 +307,7 @@ export function mapIncidentResponseActionToInitialFormState(
         },
         subPillar: {
             title: "Sub pilar",
-            id: "sub_pillar_section",
+            id: `sub_pillar_section${index}`,
             isVisible: true,
             required: true,
             fields: [
@@ -272,7 +316,7 @@ export function mapIncidentResponseActionToInitialFormState(
                     placeholder: "Select..",
                     isVisible: true,
                     errors: [],
-                    value: incidentResponseActions?.subPillar || "",
+                    value: incidentResponseAction?.subPillar || "",
                     type: "text",
                     required: true,
                 },
@@ -280,7 +324,7 @@ export function mapIncidentResponseActionToInitialFormState(
         },
         searchAssignRO: {
             title: "Responsible officer",
-            id: "responsible_officer_section",
+            id: `responsible_officer_section${index}`,
             isVisible: true,
             required: true,
             fields: [
@@ -289,7 +333,7 @@ export function mapIncidentResponseActionToInitialFormState(
                     placeholder: "Select..",
                     isVisible: true,
                     errors: [],
-                    value: incidentResponseActions?.searchAssignRO?.name || "",
+                    value: incidentResponseAction?.searchAssignRO?.id || "",
                     type: "select",
                     multiple: false,
                     options: searchAssignROOptions,
@@ -299,7 +343,7 @@ export function mapIncidentResponseActionToInitialFormState(
         },
         dueDate: {
             title: "Due date",
-            id: "due_date_section",
+            id: `due_date_section${index}`,
             isVisible: true,
             required: true,
             fields: [
@@ -310,14 +354,14 @@ export function mapIncidentResponseActionToInitialFormState(
                     errors: [],
                     type: "date",
                     required: true,
-                    value: incidentResponseActions?.dueDate || new Date(),
+                    value: incidentResponseAction?.dueDate || new Date(),
                     width: "200px",
                 },
             ],
         },
         timeline: {
             title: "Time line",
-            id: "time_line_section",
+            id: `time_line_section${index}`,
             isVisible: true,
             required: true,
             fields: [
@@ -326,7 +370,7 @@ export function mapIncidentResponseActionToInitialFormState(
                     placeholder: "Select..",
                     isVisible: true,
                     errors: [],
-                    value: incidentResponseActions?.timeLine || "",
+                    value: incidentResponseAction?.timeLine || "",
                     type: "text",
                     required: true,
                 },
@@ -334,7 +378,7 @@ export function mapIncidentResponseActionToInitialFormState(
         },
         status: {
             title: "Status",
-            id: "status_section",
+            id: `status_section${index}`,
             isVisible: true,
             required: true,
             fields: [
@@ -343,7 +387,7 @@ export function mapIncidentResponseActionToInitialFormState(
                     placeholder: "Select..",
                     isVisible: true,
                     errors: [],
-                    value: incidentResponseActions?.status || "",
+                    value: incidentResponseAction?.status || "",
                     type: "select",
                     multiple: false,
                     options: statusOptions,
@@ -353,7 +397,7 @@ export function mapIncidentResponseActionToInitialFormState(
         },
         verification: {
             title: "Verification",
-            id: "verification_section",
+            id: `verification_section${index}`,
             isVisible: true,
             required: true,
             fields: [
@@ -362,7 +406,7 @@ export function mapIncidentResponseActionToInitialFormState(
                     placeholder: "Select..",
                     isVisible: true,
                     errors: [],
-                    value: incidentResponseActions?.verification || "",
+                    value: incidentResponseAction?.verification || "",
                     type: "select",
                     multiple: false,
                     options: verificationOptions,
@@ -372,24 +416,31 @@ export function mapIncidentResponseActionToInitialFormState(
         },
     };
 
-    return {
-        id: eventTrackerDetails.id ?? "",
-        title: "Incident Action Plan",
-        subtitle: eventTrackerDetails.name,
-        titleDescripton: "Step 2:",
-        subtitleDescripton: "Assign response actions",
-        saveButtonLabel: "Save plan",
-        // isValid: incidentResponseActions ? true : false,
-        isValid: true,
-        sections: [
-            mainSections.mainTask,
-            mainSections.subActivities,
-            mainSections.subPillar,
-            mainSections.searchAssignRO,
-            mainSections.dueDate,
-            mainSections.timeline,
-            mainSections.status,
-            mainSections.verification,
-        ],
-    };
+    return [
+        mainSections.mainTask,
+        mainSections.subActivities,
+        mainSections.subPillar,
+        mainSections.searchAssignRO,
+        mainSections.dueDate,
+        mainSections.timeline,
+        mainSections.status,
+        mainSections.verification,
+    ];
+}
+
+export function addNewResponseActionSection(sections: FormSectionState[]): FormSectionState[] {
+    const newResponseActionSection = getIncidentResponseActionFormSections(
+        {
+            incidentResponseAction: undefined,
+            searchAssignROOptions:
+                sections[0]?.fields[0]?.type === "select" ? sections[0].fields[0].options : [],
+            statusOptions:
+                sections[0]?.fields[1]?.type === "select" ? sections[0].fields[1].options : [],
+            verificationOptions:
+                sections[0]?.fields[2]?.type === "select" ? sections[0].fields[2].options : [],
+        },
+        sections.length % 8 // not absolutely correct
+    );
+
+    return newResponseActionSection;
 }

@@ -103,10 +103,10 @@ export function mapFormStateToEntityData(
             return actionPlanForm;
         }
         case "incident-response-action": {
-            const responseAction = mapFormStateToIncidentResponseAction(formState, formData);
+            const responseActions = mapFormStateToIncidentResponseAction(formState, formData);
             const responseActionForm: ResponseActionFormData = {
                 ...formData,
-                entity: responseAction,
+                entity: responseActions,
             };
 
             return responseActionForm;
@@ -525,7 +525,7 @@ function mapFormStateToIncidentActionPlan(
 function mapFormStateToIncidentResponseAction(
     formState: FormState,
     formData: ResponseActionFormData
-): ResponseAction {
+): ResponseAction[] {
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
     const mainTask = allFields.find(field => field.id.includes(responseActionConstants.mainTask))
@@ -564,19 +564,21 @@ function mapFormStateToIncidentResponseAction(
     );
     if (!verification) throw new Error("Verification not found");
 
-    const incidentResponseAction: ResponseAction = new ResponseAction({
-        id: formData.entity?.id ?? "",
-        mainTask: mainTask,
-        subActivities: subActivities,
-        subPillar: subPillar,
-        searchAssignRO: searchAssignRO,
-        dueDate: dueDate,
-        timeLine: timeLine,
-        status: Status.RTSL_ZEB_OS_STATUS_COMPLETE,
-        verification: Verification.RTSL_ZEB_OS_VERIFICATION_VERIFIED,
+    const incidentResponseActions: ResponseAction[] = formData.entity?.map(responseAction => {
+        return new ResponseAction({
+            id: responseAction.id ?? "",
+            mainTask: mainTask,
+            subActivities: subActivities,
+            subPillar: subPillar,
+            searchAssignRO: searchAssignRO,
+            dueDate: dueDate,
+            timeLine: timeLine,
+            status: status.id as Status,
+            verification: verification.id as Verification,
+        });
     });
 
-    return incidentResponseAction;
+    return incidentResponseActions;
 }
 
 function getRiskAssessmentQuestionsWithOption(

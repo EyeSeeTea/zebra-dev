@@ -17,7 +17,6 @@ import {
 import { ActionPlanFormData, ResponseActionFormData } from "../../domain/entities/ConfigurableForm";
 import { getProgramStage } from "./utils/MetadataHelper";
 import { Future } from "../../domain/entities/generic/Future";
-import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import { Status, Verification } from "../../domain/entities/incident-action-plan/ResponseAction";
 
 export const incidentActionPlanIds = {
@@ -54,7 +53,7 @@ export const incidentResponseActionsIds = {
     verification: "M62NkbKXhqZ",
 };
 
-export type IncidentResponseActionsDataValues = {
+export type IncidentResponseActionDataValues = {
     id: string;
     mainTask: Maybe<string>;
     subActivities: Maybe<string>;
@@ -101,7 +100,7 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
 
     getIncidentResponseActions(
         diseaseOutbreakId: Id
-    ): FutureData<Maybe<IncidentResponseActionsDataValues>> {
+    ): FutureData<IncidentResponseActionDataValues[]> {
         return apiToFuture(
             this.api.tracker.events.get({
                 program: RTSL_ZEBRA_PROGRAM_ID,
@@ -111,11 +110,10 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
                 fields: this.fields,
             })
         ).map(events => {
-            const responseActions: IncidentResponseActionsDataValues =
-                mapDataElementsToIncidentResponseActions(
-                    events.instances[0]?.event ?? diseaseOutbreakId,
-                    events.instances[0]?.dataValues ?? []
-                );
+            if (events.instances.length === 0) return [];
+
+            const responseActions: IncidentResponseActionDataValues[] =
+                mapDataElementsToIncidentResponseActions(events.instances);
 
             return responseActions;
         });
@@ -152,7 +150,7 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
                     return Future.error(new Error(`Enrollment not found for Disease Outbreak`));
                 }
 
-                const events: D2TrackerEvent = mapIncidentActionToDataElements(
+                const events = mapIncidentActionToDataElements(
                     formData,
                     programStageId,
                     diseaseOutbreakId,
@@ -163,7 +161,7 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
                 return apiToFuture(
                     this.api.tracker.post(
                         { importStrategy: "CREATE_AND_UPDATE" },
-                        { events: [events] }
+                        { events: Array.isArray(events) ? events : [events] }
                     )
                 ).flatMap(saveResponse => {
                     if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {

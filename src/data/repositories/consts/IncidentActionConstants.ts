@@ -1,10 +1,14 @@
-import { ActionPlanAttrs } from "../../../domain/entities/incident-action-plan/ActionPlan";
+import {
+    ActionPlanAttrs,
+    ActionPlanIAPType,
+    ActionPlanPhoecLevel,
+} from "../../../domain/entities/incident-action-plan/ActionPlan";
 import {
     ResponseAction,
-    Status,
-    Verification,
+    ResponseActionStatusType,
+    ResponseActionVerificationType,
 } from "../../../domain/entities/incident-action-plan/ResponseAction";
-import { GetValue } from "../../../utils/ts-utils";
+import { GetValue, Maybe } from "../../../utils/ts-utils";
 
 export const actionPlanConstants = {
     iapType: "RTSL_ZEB_DET_IAP_TYPE",
@@ -26,30 +30,26 @@ export function isStringInIncidentActionPlanCodes(code: string): code is Inciden
     return (Object.values(actionPlanConstants) as string[]).includes(code);
 }
 
-type IAPType = "Initial" | "Update" | "Final";
-
-export const iapTypeCodeMap: Record<IAPType, string> = {
+const iapTypeCodeMap: Record<ActionPlanIAPType, string> = {
     Initial: "RTSL_ZEB_OS_IAP_TYPE_INITIAL",
     Update: "RTSL_ZEB_OS_IAP_TYPE_UPDATE",
     Final: "RTSL_ZEB_OS_IAP_TYPE_FINAL",
 };
 
-export function getIAPTypeByCode(iapTypeCode: string): IAPType | undefined {
-    return (Object.keys(iapTypeCodeMap) as IAPType[]).find(
+export function getIAPTypeByCode(iapTypeCode: string): Maybe<ActionPlanIAPType> {
+    return (Object.keys(iapTypeCodeMap) as ActionPlanIAPType[]).find(
         key => iapTypeCodeMap[key] === iapTypeCode
     );
 }
 
-type PhoecLevel = "Response" | "Watch" | "Alert";
-
-export const phoecLevelCodeMap: Record<PhoecLevel, string> = {
+const phoecLevelCodeMap: Record<ActionPlanPhoecLevel, string> = {
     Response: "RTSL_ZEB_OS_PHOEC_ACT_LEVEL_RESPONSE",
     Watch: "RTSL_ZEB_OS_PHOEC_ACT_LEVEL_WATCH",
     Alert: "RTSL_ZEB_OS_PHOEC_ACT_LEVEL_ALERT",
 };
 
-export function getPhoecLevelByCode(phoecLevelCode: string): PhoecLevel | undefined {
-    return (Object.keys(phoecLevelCodeMap) as PhoecLevel[]).find(
+export function getPhoecLevelByCode(phoecLevelCode: string): ActionPlanPhoecLevel | undefined {
+    return (Object.keys(phoecLevelCodeMap) as ActionPlanPhoecLevel[]).find(
         key => phoecLevelCodeMap[key] === phoecLevelCode
     );
 }
@@ -74,6 +74,32 @@ export function isStringInIncidentResponseActionCodes(
     code: string
 ): code is IncidentResponseActionKeyCode {
     return (Object.values(responseActionConstants) as string[]).includes(code);
+}
+
+const statusCodeMap: Record<ResponseActionStatusType, string> = {
+    "Not done": "RTSL_ZEB_OS_STATUS_NOT_DONE",
+    Pending: "RTSL_ZEB_OS_STATUS_PENDING",
+    "In Progress": "RTSL_ZEB_OS_STATUS_IN_PROGRESS",
+    Complete: "RTSL_ZEB_OS_STATUS_COMPLETE",
+} as const;
+
+export function getStatusTypeByCode(iapTypeCode: string): Maybe<ResponseActionStatusType> {
+    return (Object.keys(statusCodeMap) as ResponseActionStatusType[]).find(
+        key => statusCodeMap[key] === iapTypeCode
+    );
+}
+
+const verificationCodeMap: Record<ResponseActionVerificationType, string> = {
+    Verified: "RTSL_ZEB_OS_VERIFICATION_VERIFIED",
+    Unverified: "RTSL_ZEB_OS_VERIFICATION_UNVERIFIED",
+};
+
+export function getVerificationTypeByCode(
+    iapTypeCode: string
+): Maybe<ResponseActionVerificationType> {
+    return (Object.keys(verificationCodeMap) as ResponseActionVerificationType[]).find(
+        key => verificationCodeMap[key] === iapTypeCode
+    );
 }
 
 export function getValueFromIncidentActionPlan(
@@ -106,15 +132,3 @@ export function getValueFromIncidentResponseAction(
         RTSL_ZEB_DET_VERIFICATION: incidentResponseAction.verification,
     };
 }
-
-export const statusMap: Record<string, Status> = {
-    RTSL_ZEB_OS_STATUS_NOT_DONE: Status.RTSL_ZEB_OS_STATUS_NOT_DONE,
-    RTSL_ZEB_OS_STATUS_PENDING: Status.RTSL_ZEB_OS_STATUS_PENDING,
-    RTSL_ZEB_OS_STATUS_IN_PROGRESS: Status.RTSL_ZEB_OS_STATUS_IN_PROGRESS,
-    RTSL_ZEB_OS_STATUS_COMPLETE: Status.RTSL_ZEB_OS_STATUS_COMPLETE,
-};
-
-export const verificationMap: Record<string, Verification> = {
-    RTSL_ZEB_OS_VERIFICATION_UNVERIFIED: Verification.RTSL_ZEB_OS_VERIFICATION_UNVERIFIED,
-    RTSL_ZEB_OS_VERIFICATION_VERIFIED: Verification.RTSL_ZEB_OS_VERIFICATION_VERIFIED,
-};

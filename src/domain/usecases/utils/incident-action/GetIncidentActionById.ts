@@ -1,5 +1,5 @@
 import { FutureData } from "../../../../data/api-futures";
-import { IncidentResponseActionsDataValues } from "../../../../data/repositories/IncidentActionD2Repository";
+import { IncidentResponseActionDataValues } from "../../../../data/repositories/IncidentActionD2Repository";
 import { Maybe } from "../../../../utils/ts-utils";
 import _c from "../../../entities/generic/Collection";
 import { Future } from "../../../entities/generic/Future";
@@ -25,7 +25,7 @@ export function getIncidentAction(
         .getIncidentActionPlan(diseaseOutbreakId)
         .flatMap(incidentActionPlan => {
             const actionPlan = new ActionPlan({
-                id: diseaseOutbreakId,
+                id: incidentActionPlan?.id ?? "",
                 iapType: incidentActionPlan?.iapType ?? "",
                 phoecLevel: incidentActionPlan?.phoecLevel ?? "",
                 criticalInfoRequirements: incidentActionPlan?.criticalInfoRequirements ?? "",
@@ -47,27 +47,29 @@ export function getIncidentAction(
                             teamMemberRepository
                         )
                     ).flatMap(responseActionOptions => {
-                        const searchAssignRO = responseActionOptions.searchAssignRO;
-
-                        const responseActions = new ResponseAction({
-                            id: diseaseOutbreakId,
-                            mainTask: responseActionDataValues?.mainTask ?? "",
-                            subActivities: responseActionDataValues?.subActivities ?? "",
-                            subPillar: responseActionDataValues?.subPillar ?? "",
-                            searchAssignRO: searchAssignRO,
-                            dueDate: responseActionDataValues?.dueDate
-                                ? new Date(responseActionDataValues.dueDate)
-                                : new Date(),
-                            timeLine: responseActionDataValues?.timeLine ?? "",
-                            status: responseActionOptions.status?.name as Status,
-                            verification: responseActionOptions.verification?.name as Verification,
-                        });
+                        const responseActions =
+                            responseActionDataValues?.map(responseActionDataValue => {
+                                return new ResponseAction({
+                                    id: responseActionDataValue?.id ?? "",
+                                    mainTask: responseActionDataValue?.mainTask ?? "",
+                                    subActivities: responseActionDataValue?.subActivities ?? "",
+                                    subPillar: responseActionDataValue?.subPillar ?? "",
+                                    searchAssignRO: responseActionOptions.searchAssignRO,
+                                    dueDate: responseActionDataValue?.dueDate
+                                        ? new Date(responseActionDataValue.dueDate)
+                                        : new Date(),
+                                    timeLine: responseActionDataValue?.timeLine ?? "",
+                                    status: responseActionOptions.status?.id as Status,
+                                    verification: responseActionOptions.verification
+                                        ?.id as Verification,
+                                });
+                            }) ?? [];
 
                         const incidentAction = new IncidentActionPlan({
                             id: diseaseOutbreakId,
                             lastUpdated: new Date(),
                             actionPlan: actionPlan,
-                            responseActions: [responseActions],
+                            responseActions: responseActions,
                         });
 
                         return Future.success(incidentAction);
@@ -77,19 +79,21 @@ export function getIncidentAction(
 }
 
 function getIncidentResponseActionOptionFutures(
-    responseActionsBase: Maybe<IncidentResponseActionsDataValues>,
+    responseActionsBase: Maybe<IncidentResponseActionDataValues[]>,
     optionsRepository: OptionsRepository,
     teamMemberRepository: TeamMemberRepository
 ) {
+    const responseActionBase = responseActionsBase ? responseActionsBase[0] : undefined;
+
     return {
-        searchAssignRO: responseActionsBase?.searchAssignRO
-            ? teamMemberRepository.get(responseActionsBase.searchAssignRO)
+        searchAssignRO: responseActionBase?.searchAssignRO
+            ? teamMemberRepository.get(responseActionBase.searchAssignRO)
             : Future.success(undefined),
-        status: responseActionsBase?.status
-            ? optionsRepository.getStatusOption(responseActionsBase.status)
+        status: responseActionBase?.status
+            ? optionsRepository.getStatusOption(responseActionBase.status)
             : Future.success(undefined),
-        verification: responseActionsBase?.verification
-            ? optionsRepository.getVerificationOption(responseActionsBase.verification)
+        verification: responseActionBase?.verification
+            ? optionsRepository.getVerificationOption(responseActionBase.verification)
             : Future.success(undefined),
     };
 }

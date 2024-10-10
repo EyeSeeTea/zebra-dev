@@ -4,7 +4,7 @@ import { Maybe } from "../../../utils/ts-utils";
 import { FutureData } from "../../api-futures";
 import {
     IncidentActionPlanDataValues,
-    IncidentResponseActionsDataValues,
+    IncidentResponseActionDataValues,
 } from "../IncidentActionD2Repository";
 
 export class IncidentActionTestRepository implements IncidentActionRepository {
@@ -14,7 +14,7 @@ export class IncidentActionTestRepository implements IncidentActionRepository {
 
     getIncidentResponseActions(
         _diseaseOutbreakId: Id
-    ): FutureData<Maybe<IncidentResponseActionsDataValues>> {
+    ): FutureData<Maybe<IncidentResponseActionDataValues[]>> {
         throw new Error("Method not implemented.");
     }
 
