@@ -261,11 +261,21 @@ export function useForm(formType: FormType, id?: Id): State {
 
     const onCancelForm = useCallback(() => {
         if (currentEventTracker)
-            goTo(RouteName.EVENT_TRACKER, {
-                id: currentEventTracker.id,
-            });
+            switch (formType) {
+                case "incident-action-plan":
+                case "incident-response-action":
+                    goTo(RouteName.INCIDENT_ACTION_PLAN, {
+                        id: currentEventTracker.id,
+                    });
+                    break;
+                default:
+                    goTo(RouteName.EVENT_TRACKER, {
+                        id: currentEventTracker.id,
+                    });
+                    break;
+            }
         else goTo(RouteName.DASHBOARD);
-    }, [currentEventTracker, goTo]);
+    }, [currentEventTracker, formType, goTo]);
 
     return {
         formLabels,
