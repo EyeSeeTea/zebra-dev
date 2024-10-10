@@ -37,7 +37,7 @@ import {
 } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
-import { incidentManagementTeamBuilderCodes } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -497,12 +497,15 @@ function mapFormStateToIncidentManagementTeamMember(
     const teamMemberAssigned = teamMembers.find(teamMember => {
         return (
             teamMember.username ===
-            getStringFieldValueById(incidentManagementTeamBuilderCodes.teamMemberAssigned)
+            getStringFieldValueById(
+                incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned
+            )
         );
     });
 
     const reportsToUserNameSelected =
-        getStringFieldValueById(incidentManagementTeamBuilderCodes.reportsToUsername) || "";
+        getStringFieldValueById(incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername) ||
+        "";
 
     const filteredTeamMemberAssignedRoles = teamMemberAssigned?.teamRoles?.filter(
         teamRole => teamRole.id !== incidentManagementTeamRoleId

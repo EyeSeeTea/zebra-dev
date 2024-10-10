@@ -9,29 +9,24 @@ import {
 } from "../consts/DiseaseOutbreakConstants";
 import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Maybe } from "../../../utils/ts-utils";
-import { D2DataElement } from "../IncidentManagementTeamD2Repository";
 import _c from "../../../domain/entities/generic/Collection";
 import { Id } from "../../../domain/entities/Ref";
 import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
-import {
-    IncidentManagementTeamBuilderCodes,
-    isStringInIncidentManagementTeamBuilderCodes,
-    RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS,
-    RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS,
-} from "../consts/IncidentManagementTeamBuilderConstants";
+import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES } from "../consts/IncidentManagementTeamBuilderConstants";
+import { Role } from "../../../domain/entities/incident-management-team/Role";
 
 export function mapD2EventsToIncidentManagementTeam(
-    events: D2TrackerEvent[],
-    dataElementRoles: D2DataElement[],
+    d2Events: D2TrackerEvent[],
+    roles: Role[],
     teamMembers: TeamMember[]
 ): Maybe<IncidentManagementTeam> {
     const teamHierarchy: TeamMember[] = teamMembers.reduce(
         (acc: TeamMember[], teamMember: TeamMember) => {
-            const memberRoleEvents = events.filter(event => {
+            const memberRoleEvents = d2Events.filter(event => {
                 const teamMemberAssignedUsername = getValueById(
                     event.dataValues,
-                    RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS.teamMemberAssigned
+                    RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.teamMemberAssigned
                 );
                 return teamMemberAssignedUsername === teamMember.username;
             });
@@ -42,8 +37,9 @@ export function mapD2EventsToIncidentManagementTeam(
                 const teamRoles = getTeamMemberIncidentManagementTeamRoles(
                     teamMember,
                     memberRoleEvents,
-                    dataElementRoles
+                    roles
                 );
+
                 return teamRoles.length === 0
                     ? acc
                     : [...acc, new TeamMember({ ...teamMember, teamRoles: teamRoles })];
@@ -60,47 +56,42 @@ export function mapD2EventsToIncidentManagementTeam(
 export function getTeamMemberIncidentManagementTeamRoles(
     teamMemberAssigned: TeamMember,
     events: D2TrackerEvent[],
-    dataElementRoles: D2DataElement[]
+    roles: Role[]
 ): TeamRole[] {
     return events.reduce((acc: TeamRole[], event: D2TrackerEvent) => {
         if (
             teamMemberAssigned.username ===
             getValueById(
                 event.dataValues,
-                RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS.teamMemberAssigned
+                RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.teamMemberAssigned
             )
         ) {
-            const teamRole = getTeamRole(event.event, event.dataValues, dataElementRoles);
+            const teamRole = getTeamRole(event.event, event.dataValues, roles);
+
             return teamRole ? [...acc, teamRole] : acc;
         }
         return acc;
     }, []);
 }
 
-function getTeamRole(
-    eventId: Id,
-    dataValues: DataValue[],
-    dataElementRoles: D2DataElement[]
-): Maybe<TeamRole> {
-    const roleIds = Object.values(RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS);
-
-    const selectedRoleId = roleIds.find(roleId => {
-        const role = getValueById(dataValues, roleId);
+function getTeamRole(eventId: Id, dataValues: DataValue[], roles: Role[]): Maybe<TeamRole> {
+    const selectedRoleId = roles.find(({ id }) => {
+        const role = getValueById(dataValues, id);
         return role === "true";
-    });
+    })?.id;
 
-    const roleDataElement = dataElementRoles.find(dataElement => dataElement.id === selectedRoleId);
+    const roleSelected = roles.find(role => role.id === selectedRoleId);
 
     const reportsToUsername = getValueById(
         dataValues,
-        RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS.reportsToUsername
+        RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.reportsToUsername
     );
 
-    if (selectedRoleId && roleDataElement) {
+    if (selectedRoleId && roleSelected) {
         return {
             id: eventId,
             roleId: selectedRoleId,
-            name: roleDataElement?.name,
+            name: roleSelected?.name,
             reportsToUsername: reportsToUsername,
         };
     }
@@ -122,19 +113,17 @@ export function mapIncidentManagementTeamMemberToD2Event(
     incidentManagementTeamMember: TeamMember,
     teiId: Id,
     enrollmentId: Id,
-    programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
+    programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[],
+    roles: Role[]
 ): D2TrackerEvent {
-    const dataElementValues: Record<IncidentManagementTeamBuilderCodes, string> =
-        getValueFromIncidentManagementTeamMember(
-            incidentManagementTeamMember.username,
-            teamMemberRole
-        );
+    const dataElementValues = getValueFromIncidentManagementTeamMember(
+        incidentManagementTeamMember.username,
+        teamMemberRole,
+        roles
+    );
 
     const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
-        if (!isStringInIncidentManagementTeamBuilderCodes(programStage.dataElement.code)) {
-            throw new Error("DataElement code not found in IncidentManagementTeamBuilderCodes");
-        }
-        const typedCode: IncidentManagementTeamBuilderCodes = programStage.dataElement.code;
+        const typedCode = programStage.dataElement.code;
         return getPopulatedDataElement(programStage.dataElement.id, dataElementValues[typedCode]);
     });
 
@@ -155,48 +144,22 @@ export function mapIncidentManagementTeamMemberToD2Event(
 
 export function getValueFromIncidentManagementTeamMember(
     incidentManagementTeamMemberUsername: string,
-    teamRoleAssigned: TeamRole
-): Record<IncidentManagementTeamBuilderCodes, string> {
+    teamRoleAssigned: TeamRole,
+    roles: Role[]
+): Record<string, string> {
     const checkRoleSelected = (roleId: string): boolean =>
         (teamRoleAssigned?.roleId || "") === roleId;
+
+    const rolesObjByCode = roles.reduce((acc, role) => {
+        return {
+            ...acc,
+            [role.code]: checkRoleSelected(role.id) ? "true" : "",
+        };
+    }, {});
 
     return {
         RTSL_ZEB_DET_IMB_TMA: incidentManagementTeamMemberUsername,
         RTSL_ZEB_DET_IMB_REPORTS: teamRoleAssigned?.reportsToUsername ?? "",
-        RTSL_ZEB_DET_IMB_INCIDENT_MANAGER: checkRoleSelected(
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole
-        )
-            ? "true"
-            : "",
-        RTSL_ZEB_DET_IMB_CASE_MANAGMENT: checkRoleSelected(
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.caseManagementRole
-        )
-            ? "true"
-            : "",
-        RTSL_ZEB_DET_IMB_IPC_LEAD: checkRoleSelected(
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.ipcUnitLeadRole
-        )
-            ? "true"
-            : "",
-        RTSL_ZEB_DET_IMB_LAB_LEAD: checkRoleSelected(
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.labUnitLeadRole
-        )
-            ? "true"
-            : "",
-        RTSL_ZEB_DET_IMB_OPERATIONAL_LEAD: checkRoleSelected(
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.operationalSectionLeadRole
-        )
-            ? "true"
-            : "",
-        RTSL_ZEB_DET_IMB_SURVEILLANCE_LEAD: checkRoleSelected(
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.surveillanceUnitLeadRole
-        )
-            ? "true"
-            : "",
-        RTSL_ZEB_DET_IMB_VACCINE_UNIT: checkRoleSelected(
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.vaccineUnitRole
-        )
-            ? "true"
-            : "",
+        ...rolesObjByCode,
     };
 }

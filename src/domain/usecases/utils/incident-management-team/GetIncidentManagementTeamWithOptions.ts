@@ -1,5 +1,5 @@
 import { FutureData } from "../../../../data/api-futures";
-import { incidentManagementTeamBuilderCodes } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { Maybe } from "../../../../utils/ts-utils";
 import { SECTION_IDS } from "../../../../webapp/pages/form-page/incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { IncidentManagementTeamMemberFormData } from "../../../entities/ConfigurableForm";
@@ -24,11 +24,7 @@ export function getIncidentManagementTeamWithOptions(
         roles: repositories.roleRepository.getAll(),
         teamMembers: repositories.teamMemberRepository.getForIncidentManagementTeamMembers(),
         incidentManagers: repositories.teamMemberRepository.getIncidentManagers(),
-        incidentManagementTeam: getIncidentManagementTeamById(
-            eventTrackerDetails.id,
-            repositories.incidentManagementTeamRepository,
-            repositories.teamMemberRepository
-        ),
+        incidentManagementTeam: getIncidentManagementTeamById(eventTrackerDetails.id, repositories),
     }).flatMap(({ roles, teamMembers, incidentManagers, incidentManagementTeam }) => {
         const teamMemberSelected = incidentManagementTeam?.teamHierarchy.find(teamMember =>
             teamMember.teamRoles?.some(teamRole => teamRole.id === incidentManagementTeamRoleId)
@@ -55,8 +51,10 @@ export function getIncidentManagementTeamWithOptions(
             rules: [
                 {
                     type: "disableFieldOptionWithSameFieldValue",
-                    fieldId: incidentManagementTeamBuilderCodes.teamMemberAssigned,
-                    fieldIdsToDisableOption: [incidentManagementTeamBuilderCodes.reportsToUsername],
+                    fieldId: incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned,
+                    fieldIdsToDisableOption: [
+                        incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername,
+                    ],
                     sectionsWithFieldsToDisableOption: [SECTION_IDS.reportsTo],
                 },
             ],

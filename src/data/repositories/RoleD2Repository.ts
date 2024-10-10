@@ -4,42 +4,89 @@ import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
 import { Role } from "../../domain/entities/incident-management-team/Role";
 import { RoleRepository } from "../../domain/repositories/RoleRepository";
-import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS } from "./consts/IncidentManagementTeamBuilderConstants";
+import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID } from "./consts/DiseaseOutbreakConstants";
+import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES } from "./consts/IncidentManagementTeamBuilderConstants";
 
 export class RoleD2Repository implements RoleRepository {
     constructor(private api: D2Api) {}
 
     getAll(): FutureData<Role[]> {
         return apiToFuture(
-            this.api.models.dataElements.get({
-                fields: dataElementFields,
-                paging: false,
+            this.api.models.programStages.get({
+                fields: programStageFields,
                 filter: {
-                    id: { in: Object.values(RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS) },
+                    id: {
+                        eq: RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID,
+                    },
                 },
             })
         )
-            .flatMap(response => assertOrError(response.objects, `Roles not found`))
-            .flatMap(d2DataElementRoles => {
-                if (d2DataElementRoles.length === 0)
-                    return Future.error(new Error(`Roles not found`));
-                else
-                    return Future.success(
-                        d2DataElementRoles.map(d2DataElementRole =>
-                            this.mapDataElementToRole(d2DataElementRole)
+            .flatMap(response =>
+                assertOrError(
+                    response.objects,
+                    `Incident management team builder program stage not found`
+                )
+            )
+            .flatMap(d2ProgramStages => {
+                const programStageDataElementsIds =
+                    d2ProgramStages[0]?.programStageDataElements.map(
+                        ({ dataElement }) => dataElement.id
+                    );
+                if (!programStageDataElementsIds?.length) {
+                    return Future.error(
+                        new Error(
+                            `Incident management team builder program stage data elements not found`
                         )
                     );
+                } else {
+                    const programStageDataElementsRoleIds = programStageDataElementsIds?.filter(
+                        id =>
+                            id !==
+                                RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.teamMemberAssigned &&
+                            id !==
+                                RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.reportsToUsername
+                    );
+
+                    return apiToFuture(
+                        this.api.models.dataElements.get({
+                            fields: dataElementFields,
+                            paging: false,
+                            filter: {
+                                id: {
+                                    in: programStageDataElementsRoleIds,
+                                },
+                            },
+                        })
+                    )
+                        .flatMap(response =>
+                            assertOrError(
+                                response.objects,
+                                `Incident management team builder data elements not found`
+                            )
+                        )
+                        .flatMap(d2DataElements => {
+                            return Future.success(
+                                this.mapProgramStageDataElementsToRoles(d2DataElements)
+                            );
+                        });
+                }
             });
     }
 
-    private mapDataElementToRole(d2DataElementRole: D2DataElement): Role {
-        return {
-            id: d2DataElementRole.id,
-            code: d2DataElementRole.code,
-            name: d2DataElementRole.name,
-        };
+    private mapProgramStageDataElementsToRoles(d2DataElements: D2DataElement[]): Role[] {
+        return d2DataElements.map(dataElement => ({
+            id: dataElement.id,
+            name: dataElement.name,
+            code: dataElement.code,
+        }));
     }
 }
+
+const programStageFields = {
+    programStageDataElements: {
+        dataElement: { id: true },
+    },
+} as const;
 
 const dataElementFields = {
     id: true,
@@ -47,6 +94,6 @@ const dataElementFields = {
     name: true,
 } as const;
 
-type D2DataElement = MetadataPick<{
+export type D2DataElement = MetadataPick<{
     dataElements: { fields: typeof dataElementFields };
 }>["dataElements"][number];

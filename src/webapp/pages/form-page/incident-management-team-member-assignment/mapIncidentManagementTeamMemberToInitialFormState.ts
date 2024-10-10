@@ -4,15 +4,15 @@ import { mapTeamMemberToUser, mapToPresentationOptions } from "../mapEntityToFor
 import { Option as UIOption } from "../../../components/utils/option";
 import { User } from "../../../components/user-selector/UserSelector";
 import {
-    incidentManagementTeamBuilderCodes,
-    RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS,
+    INCIDENT_MANAGER_ROLE,
+    incidentManagementTeamBuilderCodesWithoutRoles,
 } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 
 export const TEAM_ROLE_FIELD_ID = "team-role-field";
 export const SECTION_IDS = {
     teamRole: "team-role-section",
-    teamMemberAssigned: `${incidentManagementTeamBuilderCodes.teamMemberAssigned}-section`,
-    reportsTo: `${incidentManagementTeamBuilderCodes.reportsToUsername}-section`,
+    teamMemberAssigned: `${incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned}-section`,
+    reportsTo: `${incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername}-section`,
 };
 
 export function mapIncidentManagementTeamMemberToInitialFormState(
@@ -30,10 +30,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
 
     const roleOptions: UIOption[] = mapToPresentationOptions(roles);
     const roleOptionsWithoutIncidentManager: UIOption[] = mapToPresentationOptions(
-        roles.filter(
-            role =>
-                role.id !== RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole
-        )
+        roles.filter(role => role.id !== INCIDENT_MANAGER_ROLE)
     );
     const teamMemberOptions: User[] = teamMembers.map(tm => mapTeamMemberToUser(tm));
     const incidentManagerOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
@@ -65,16 +62,13 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                         type: "select",
                         multiple: false,
                         options:
-                            teamRoleToAssing?.roleId ===
-                            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole
+                            teamRoleToAssing?.roleId === INCIDENT_MANAGER_ROLE
                                 ? roleOptions
                                 : roleOptionsWithoutIncidentManager,
                         value: teamRoleToAssing?.roleId || "",
                         required: true,
                         showIsRequired: true,
-                        disabled:
-                            teamRoleToAssing?.roleId ===
-                            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole,
+                        disabled: teamRoleToAssing?.roleId === INCIDENT_MANAGER_ROLE,
                     },
                 ],
             },
@@ -85,7 +79,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                 required: true,
                 fields: [
                     {
-                        id: incidentManagementTeamBuilderCodes.teamMemberAssigned,
+                        id: incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned,
                         placeholder: "Select a team member",
                         helperText: "Only available team members are shown",
                         isVisible: true,
@@ -93,8 +87,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                         type: "select",
                         multiple: false,
                         options:
-                            teamRoleToAssing?.roleId ===
-                            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole
+                            teamRoleToAssing?.roleId === INCIDENT_MANAGER_ROLE
                                 ? incidentManagerOptions
                                 : teamMemberOptions,
                         value: incidentManagementTeamMember?.username || "",
@@ -111,7 +104,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                 required: false,
                 fields: [
                     {
-                        id: incidentManagementTeamBuilderCodes.reportsToUsername,
+                        id: incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername,
                         placeholder: "Select a team member",
                         isVisible: true,
                         errors: [],

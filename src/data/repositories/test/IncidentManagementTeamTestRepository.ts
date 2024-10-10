@@ -1,16 +1,18 @@
 import { Future } from "../../../domain/entities/generic/Future";
 import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
+import { Role } from "../../../domain/entities/incident-management-team/Role";
 import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Id } from "../../../domain/entities/Ref";
 import { IncidentManagementTeamRepository } from "../../../domain/repositories/IncidentManagementTeamRepository";
 import { Maybe } from "../../../utils/ts-utils";
 import { FutureData } from "../../api-futures";
-import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS } from "../consts/IncidentManagementTeamBuilderConstants";
+import { INCIDENT_MANAGER_ROLE } from "../consts/IncidentManagementTeamBuilderConstants";
 
 export class IncidentManagementTeamTestRepository implements IncidentManagementTeamRepository {
     get(
         _diseaseOutbreakId: Id,
-        _teamMembers: TeamMember[]
+        _teamMembers: TeamMember[],
+        _roles: Role[]
     ): FutureData<Maybe<IncidentManagementTeam>> {
         return Future.success(undefined);
     }
@@ -18,7 +20,8 @@ export class IncidentManagementTeamTestRepository implements IncidentManagementT
     saveIncidentManagementTeamMemberRole(
         _teamMemberRole: TeamRole,
         _incidentManagementTeamMember: TeamMember,
-        _diseaseOutbreakId: Id
+        _diseaseOutbreakId: Id,
+        _roles: Role[]
     ): FutureData<void> {
         return Future.success(undefined);
     }
@@ -26,12 +29,17 @@ export class IncidentManagementTeamTestRepository implements IncidentManagementT
     deleteIncidentManagementTeamMemberRole(
         _teamMemberRole: TeamRole,
         _incidentManagementTeamMember: TeamMember,
-        _diseaseOutbreakId: Id
+        _diseaseOutbreakId: Id,
+        _roles: Role[]
     ): FutureData<void> {
         return Future.success(undefined);
     }
 
-    getIncidentManagementTeamMember(username: Id, _diseaseOutbreakId: Id): FutureData<TeamMember> {
+    getIncidentManagementTeamMember(
+        username: Id,
+        _diseaseOutbreakId: Id,
+        _roles: Role[]
+    ): FutureData<TeamMember> {
         const teamMember: TeamMember = new TeamMember({
             id: username,
             username: username,
@@ -42,7 +50,7 @@ export class IncidentManagementTeamTestRepository implements IncidentManagementT
                 {
                     id: "role",
                     name: "role",
-                    roleId: RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole,
+                    roleId: INCIDENT_MANAGER_ROLE,
                     reportsToUsername: "reportsToUsername",
                 },
             ],

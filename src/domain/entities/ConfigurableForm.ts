@@ -11,6 +11,7 @@ import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
 import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
 import { RiskAssessmentQuestionnaire } from "./risk-assessment/RiskAssessmentQuestionnaire";
 import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
+import { Role } from "./incident-management-team/Role";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -86,7 +87,7 @@ export type RiskAssessmentQuestionnaireFormData = BaseFormData & {
 };
 
 export type IncidentManagementTeamRoleOptions = {
-    roles: Option[];
+    roles: Role[];
     teamMembers: TeamMember[];
     incidentManagers: TeamMember[];
 };

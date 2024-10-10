@@ -7,6 +7,7 @@ import { IncidentManagementTeamRepository } from "../repositories/IncidentManage
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
+import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getIncidentManagementTeamById } from "./utils/incident-management-team/GetIncidentManagementTeamById";
 import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
@@ -20,6 +21,7 @@ export class GetDiseaseOutbreakByIdUseCase {
             orgUnitRepository: OrgUnitRepository;
             riskAssessmentRepository: RiskAssessmentRepository;
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
+            roleRepository: RoleRepository;
         }
     ) {}
 
@@ -56,11 +58,8 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.optionsRepository,
                         this.options.teamMemberRepository
                     ),
-                    incidentManagementTeam: getIncidentManagementTeamById(
-                        id,
-                        this.options.incidentManagementTeamRepository,
-                        this.options.teamMemberRepository
-                    ),
+                    incidentManagementTeam: getIncidentManagementTeamById(id, this.options),
+                    roles: this.options.roleRepository.getAll(),
                 }).flatMap(
                     ({
                         mainSyndrome,
@@ -70,9 +69,10 @@ export class GetDiseaseOutbreakByIdUseCase {
                         areasAffectedDistricts,
                         riskAssessment,
                         incidentManagementTeam,
+                        roles,
                     }) => {
                         return this.options.incidentManagementTeamRepository
-                            .getIncidentManagementTeamMember(incidentManagerName, id)
+                            .getIncidentManagementTeamMember(incidentManagerName, id, roles)
                             .flatMap(incidentManager => {
                                 const diseaseOutbreakEvent: DiseaseOutbreakEvent =
                                     new DiseaseOutbreakEvent({

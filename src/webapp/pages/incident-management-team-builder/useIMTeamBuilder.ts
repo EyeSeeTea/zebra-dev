@@ -10,7 +10,7 @@ import { IMTeamHierarchyOption } from "../../components/im-team-hierarchy/IMTeam
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
 import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
-import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { INCIDENT_MANAGER_ROLE } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import _c from "../../../domain/entities/generic/Collection";
 
 type GlobalMessage = {
@@ -106,9 +106,7 @@ export function useIMTeamBuilder(id: Id): State {
                 role => role.id === selection
             );
 
-            const isIncidentManagerRoleSelected =
-                selectedRole?.roleId ===
-                RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole;
+            const isIncidentManagerRoleSelected = selectedRole?.roleId === INCIDENT_MANAGER_ROLE;
 
             setSelectedHierarchyItemId(selection);
             setDisableDeletion(isIncidentManagerRoleSelected);
@@ -191,11 +189,7 @@ export function useIMTeamBuilder(id: Id): State {
 
     const incidentManagerUser = useMemo(() => {
         const incidentManagerTeamMember = incidentManagementTeam?.teamHierarchy.find(member => {
-            return member.teamRoles?.some(
-                role =>
-                    role.roleId ===
-                    RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole
-            );
+            return member.teamRoles?.some(role => role.roleId === INCIDENT_MANAGER_ROLE);
         });
         if (incidentManagerTeamMember) {
             return mapTeamMemberToUser(incidentManagerTeamMember);

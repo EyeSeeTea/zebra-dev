@@ -39,25 +39,27 @@ export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.mem
 
     return (
         <IMTeamHierarchyViewContainer>
-            <SearchInput placeholder="Search" value={searchTerm} onChange={onSearchChange} />
-            <StyledIMTeamHierarchyView
-                disableSelection
-                defaultCollapseIcon={<ArrowDropDown />}
-                defaultExpandIcon={<ArrowRight />}
-            >
-                {items.map(item => (
-                    <IMTeamHierarchyItem
-                        key={item.id}
-                        nodeId={item.id}
-                        teamRole={item.teamRole}
-                        member={item.member}
-                        selectedItemId={selectedItemId}
-                        onSelectedChange={onSelectedItemChange}
-                        diseaseOutbreakEventName={diseaseOutbreakEventName}
-                        subChildren={item.children}
-                    />
-                ))}
-            </StyledIMTeamHierarchyView>
+            <ContentWrapper>
+                <SearchInput value={searchTerm} onChange={onSearchChange} />
+                <StyledIMTeamHierarchyView
+                    disableSelection
+                    defaultCollapseIcon={<ArrowDropDown />}
+                    defaultExpandIcon={<ArrowRight />}
+                >
+                    {items.map(item => (
+                        <IMTeamHierarchyItem
+                            key={item.id}
+                            nodeId={item.id}
+                            teamRole={item.teamRole}
+                            member={item.member}
+                            selectedItemId={selectedItemId}
+                            onSelectedChange={onSelectedItemChange}
+                            diseaseOutbreakEventName={diseaseOutbreakEventName}
+                            subChildren={item.children}
+                        />
+                    ))}
+                </StyledIMTeamHierarchyView>
+            </ContentWrapper>
         </IMTeamHierarchyViewContainer>
     );
 });
@@ -79,4 +81,10 @@ const StyledIMTeamHierarchyView = styled(TreeViewMUI)`
     .MuiTreeItem-content {
         align-items: baseline;
     }
+`;
+
+const ContentWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 `;

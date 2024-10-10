@@ -1,5 +1,5 @@
 import { FutureData } from "../../data/api-futures";
-import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS } from "../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { INCIDENT_MANAGER_ROLE } from "../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { ConfigurableForm } from "../entities/ConfigurableForm";
 import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
@@ -9,6 +9,7 @@ import { IncidentManagementTeamRepository } from "../repositories/IncidentManage
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
+import { RoleRepository } from "../repositories/RoleRepository";
 
 export class SaveEntityUseCase {
     constructor(
@@ -17,6 +18,7 @@ export class SaveEntityUseCase {
             riskAssessmentRepository: RiskAssessmentRepository;
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
             teamMemberRepository: TeamMemberRepository;
+            roleRepository: RoleRepository;
         }
     ) {}
 
@@ -30,6 +32,7 @@ export class SaveEntityUseCase {
                         incidentManagementTeamRepository:
                             this.options.incidentManagementTeamRepository,
                         teamMemberRepository: this.options.teamMemberRepository,
+                        roleRepository: this.options.roleRepository,
                     },
                     formData.entity
                 );
@@ -43,9 +46,7 @@ export class SaveEntityUseCase {
 
             case "incident-management-team-member-assignment": {
                 const isIncidentManager = formData.entity.teamRoles?.find(
-                    role =>
-                        role.roleId ===
-                        RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole
+                    role => role.roleId === INCIDENT_MANAGER_ROLE
                 );
 
                 const hasIncidentManagerChanged =
@@ -73,6 +74,7 @@ export class SaveEntityUseCase {
                                         incidentManagementTeamRepository:
                                             this.options.incidentManagementTeamRepository,
                                         teamMemberRepository: this.options.teamMemberRepository,
+                                        roleRepository: this.options.roleRepository,
                                     },
                                     updatedDiseaseOutbreakEvent
                                 );
@@ -92,7 +94,8 @@ export class SaveEntityUseCase {
                     return this.options.incidentManagementTeamRepository.saveIncidentManagementTeamMemberRole(
                         teamRoleToSave,
                         formData.entity,
-                        formData.eventTrackerDetails.id
+                        formData.eventTrackerDetails.id,
+                        formData.options.roles
                     );
                 }
             }

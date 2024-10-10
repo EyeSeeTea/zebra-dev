@@ -1,11 +1,13 @@
 import { FutureData } from "../../../../data/api-futures";
-import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { INCIDENT_MANAGER_ROLE } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { DiseaseOutbreakEventBaseAttrs } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
+import { Role } from "../../../entities/incident-management-team/Role";
 import { TeamMember, TeamRole } from "../../../entities/incident-management-team/TeamMember";
 import { Id } from "../../../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
 import { IncidentManagementTeamRepository } from "../../../repositories/IncidentManagementTeamRepository";
+import { RoleRepository } from "../../../repositories/RoleRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
 export function saveDiseaseOutbreak(
@@ -13,6 +15,7 @@ export function saveDiseaseOutbreak(
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
         teamMemberRepository: TeamMemberRepository;
+        roleRepository: RoleRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
 ): FutureData<Id> {
@@ -28,26 +31,26 @@ function saveIncidentManagerTeamMemberRole(
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
         teamMemberRepository: TeamMemberRepository;
+        roleRepository: RoleRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
 ): FutureData<Id> {
-    return repositories.teamMemberRepository.getAll().flatMap(teamMembers => {
+    return Future.joinObj({
+        roles: repositories.roleRepository.getAll(),
+        teamMembers: repositories.teamMemberRepository.getAll(),
+    }).flatMap(({ roles, teamMembers }) => {
         return repositories.incidentManagementTeamRepository
-            .get(diseaseOutbreakEventBaseAttrs.id, teamMembers)
+            .get(diseaseOutbreakEventBaseAttrs.id, teamMembers, roles)
             .flatMap(incidentManagementTeam => {
                 const incidentManagerTeamMemberFound = incidentManagementTeam?.teamHierarchy?.find(
                     teamMember =>
                         teamMember.teamRoles?.some(
-                            teamRole =>
-                                teamRole.roleId ===
-                                RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole
+                            teamRole => teamRole.roleId === INCIDENT_MANAGER_ROLE
                         )
                 );
 
                 const incidentManagerTeamRole = incidentManagerTeamMemberFound?.teamRoles?.find(
-                    teamRole =>
-                        teamRole.roleId ===
-                        RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole
+                    teamRole => teamRole.roleId === INCIDENT_MANAGER_ROLE
                 );
 
                 if (
@@ -61,13 +64,15 @@ function saveIncidentManagerTeamMemberRole(
                         diseaseOutbreakEventBaseAttrs,
                         incidentManagerTeamMemberFound,
                         incidentManagerTeamRole,
-                        teamMembers
+                        teamMembers,
+                        roles
                     );
                 } else {
                     return createNewIncidentManager(
                         repositories,
                         diseaseOutbreakEventBaseAttrs,
-                        teamMembers
+                        teamMembers,
+                        roles
                     );
                 }
             });
@@ -83,12 +88,14 @@ function changeIncidentManager(
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
     oldIncidentManager: TeamMember,
     oldIncidentManagerTeamRole: TeamRole,
-    teamMembers: TeamMember[]
+    teamMembers: TeamMember[],
+    roles: Role[]
 ): FutureData<Id> {
     if (oldIncidentManager.username !== diseaseOutbreakEventBaseAttrs.incidentManagerName) {
         const newIncidentManager = teamMembers.find(
             teamMember => teamMember.username === diseaseOutbreakEventBaseAttrs.incidentManagerName
         );
+
         if (!newIncidentManager) {
             return Future.error(
                 new Error(
@@ -96,24 +103,28 @@ function changeIncidentManager(
                 )
             );
         }
+
         const newIncidentManagerTeamRole: TeamRole = {
             id: "",
             name: "",
-            roleId: RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole,
+            roleId: INCIDENT_MANAGER_ROLE,
             reportsToUsername: undefined,
         };
+
         return repositories.incidentManagementTeamRepository
             .deleteIncidentManagementTeamMemberRole(
                 oldIncidentManagerTeamRole,
                 oldIncidentManager,
-                diseaseOutbreakEventBaseAttrs.id
+                diseaseOutbreakEventBaseAttrs.id,
+                roles
             )
             .flatMap(() => {
                 return repositories.incidentManagementTeamRepository
                     .saveIncidentManagementTeamMemberRole(
                         newIncidentManagerTeamRole,
                         newIncidentManager,
-                        diseaseOutbreakEventBaseAttrs.id
+                        diseaseOutbreakEventBaseAttrs.id,
+                        roles
                     )
                     .flatMap(() => Future.success(diseaseOutbreakEventBaseAttrs.id));
             });
@@ -129,7 +140,8 @@ function createNewIncidentManager(
         teamMemberRepository: TeamMemberRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
-    teamMembers: TeamMember[]
+    teamMembers: TeamMember[],
+    roles: Role[]
 ): FutureData<Id> {
     const newIncidentManager = teamMembers.find(
         teamMember => teamMember.username === diseaseOutbreakEventBaseAttrs.incidentManagerName
@@ -146,14 +158,15 @@ function createNewIncidentManager(
     const incidentManagerTeamRole: TeamRole = {
         id: "",
         name: "",
-        roleId: RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS.incidentManagerRole,
+        roleId: INCIDENT_MANAGER_ROLE,
         reportsToUsername: undefined,
     };
     return repositories.incidentManagementTeamRepository
         .saveIncidentManagementTeamMemberRole(
             incidentManagerTeamRole,
             newIncidentManager,
-            diseaseOutbreakEventBaseAttrs.id
+            diseaseOutbreakEventBaseAttrs.id,
+            roles
         )
         .flatMap(() => Future.success(diseaseOutbreakEventBaseAttrs.id));
 }

@@ -19,54 +19,51 @@ import {
 } from "./utils/IncidentManagementTeamMapper";
 import { TeamMember, TeamRole } from "../../domain/entities/incident-management-team/TeamMember";
 import { getProgramStage } from "./utils/MetadataHelper";
-import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS } from "./consts/IncidentManagementTeamBuilderConstants";
 import { assertOrError } from "./utils/AssertOrError";
+import { Role } from "../../domain/entities/incident-management-team/Role";
 
 export class IncidentManagementTeamD2Repository implements IncidentManagementTeamRepository {
     constructor(private api: D2Api) {}
 
     get(
         diseaseOutbreakId: Id,
-        teamMembers: TeamMember[]
+        teamMembers: TeamMember[],
+        roles: Role[]
     ): FutureData<Maybe<IncidentManagementTeam>> {
-        return this.getDataElementRolesAndIncidentManagementTeamEvents(diseaseOutbreakId).flatMap(
-            ({ dataElementRoles, events }) => {
-                const maybeIncidentManagementTeam: Maybe<IncidentManagementTeam> =
-                    mapD2EventsToIncidentManagementTeam(events, dataElementRoles, teamMembers);
-                return Future.success(maybeIncidentManagementTeam);
-            }
-        );
+        return this.getIncidentManagementTeamEvents(diseaseOutbreakId).flatMap(d2Events => {
+            return Future.success(
+                mapD2EventsToIncidentManagementTeam(d2Events, roles, teamMembers)
+            );
+        });
     }
 
-    getIncidentManagementTeamMember(username: Id, diseaseOutbreakId: Id): FutureData<TeamMember> {
-        return this.getDataElementRolesAndIncidentManagementTeamEvents(diseaseOutbreakId).flatMap(
-            ({ dataElementRoles, events }) => {
-                return apiToFuture(
-                    this.api.metadata.get({
-                        users: {
-                            fields: d2UserFields,
-                            filter: { username: { eq: username } },
-                        },
-                    })
+    getIncidentManagementTeamMember(
+        username: Id,
+        diseaseOutbreakId: Id,
+        roles: Role[]
+    ): FutureData<TeamMember> {
+        return this.getIncidentManagementTeamEvents(diseaseOutbreakId).flatMap(d2Events => {
+            return apiToFuture(
+                this.api.metadata.get({
+                    users: {
+                        fields: d2UserFields,
+                        filter: { username: { eq: username } },
+                    },
+                })
+            )
+                .flatMap(response =>
+                    assertOrError(response.users[0], "Incident Management Team Member")
                 )
-                    .flatMap(response =>
-                        assertOrError(response.users[0], "Incident Management Team Member")
-                    )
-                    .map(d2User =>
-                        this.mapUserToIncidentManagementTeamMember(
-                            d2User as D2UserFix,
-                            events,
-                            dataElementRoles
-                        )
-                    );
-            }
-        );
+                .map(d2User =>
+                    this.mapUserToIncidentManagementTeamMember(d2User as D2UserFix, d2Events, roles)
+                );
+        });
     }
 
     private mapUserToIncidentManagementTeamMember(
         d2User: D2UserFix,
         events: D2TrackerEvent[],
-        dataElementRoles: D2DataElement[]
+        roles: Role[]
     ): TeamMember {
         const avatarId = d2User?.avatar?.id;
         const photoUrlString = avatarId
@@ -88,11 +85,7 @@ export class IncidentManagementTeamD2Repository implements IncidentManagementTea
             workPosition: undefined, // TODO: Get workPosition when defined
         });
 
-        const teamRoles = getTeamMemberIncidentManagementTeamRoles(
-            teamMember,
-            events,
-            dataElementRoles
-        );
+        const teamRoles = getTeamMemberIncidentManagementTeamRoles(teamMember, events, roles);
 
         return new TeamMember({
             ...teamMember,
@@ -103,80 +96,75 @@ export class IncidentManagementTeamD2Repository implements IncidentManagementTea
     saveIncidentManagementTeamMemberRole(
         teamMemberRole: TeamRole,
         incidentManagementTeamMember: TeamMember,
-        diseaseOutbreakId: Id
+        diseaseOutbreakId: Id,
+        roles: Role[]
     ): FutureData<void> {
-        return this.saveOrDeleteIncidentManagementTeamMember(
+        return this.saveOrDeleteIncidentManagementTeamMember({
             teamMemberRole,
             incidentManagementTeamMember,
             diseaseOutbreakId,
-            "CREATE_AND_UPDATE"
-        );
+            importStrategy: "CREATE_AND_UPDATE",
+            roles,
+        });
     }
 
     deleteIncidentManagementTeamMemberRole(
         teamMemberRole: TeamRole,
         incidentManagementTeamMember: TeamMember,
-        diseaseOutbreakId: Id
+        diseaseOutbreakId: Id,
+        roles: Role[]
     ): FutureData<void> {
-        return this.saveOrDeleteIncidentManagementTeamMember(
+        return this.saveOrDeleteIncidentManagementTeamMember({
             teamMemberRole,
             incidentManagementTeamMember,
             diseaseOutbreakId,
-            "DELETE"
-        );
-    }
-
-    private getDataElementRolesAndIncidentManagementTeamEvents(diseaseOutbreakId: Id): FutureData<{
-        dataElementRoles: D2DataElement[];
-        events: D2TrackerEvent[];
-    }> {
-        return Future.joinObj(
-            {
-                dataElementRoles: apiToFuture(
-                    this.api.models.dataElements.get({
-                        fields: dataElementFields,
-                        paging: false,
-                        filter: {
-                            id: {
-                                in: Object.values(
-                                    RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS
-                                ),
-                            },
-                        },
-                    })
-                ),
-                events: apiToFuture(
-                    this.api.tracker.events.get({
-                        program: RTSL_ZEBRA_PROGRAM_ID,
-                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                        trackedEntity: diseaseOutbreakId,
-                        programStage: RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID,
-                        fields: {
-                            dataValues: {
-                                dataElement: { id: true, code: true },
-                                value: true,
-                            },
-                            trackedEntity: true,
-                            event: true,
-                        },
-                    })
-                ),
-            },
-            { concurrency: 2 }
-        ).flatMap(({ dataElementRoles, events }) => {
-            return Future.success({
-                dataElementRoles: dataElementRoles.objects,
-                events: events.instances,
-            });
+            importStrategy: "DELETE",
+            roles,
         });
     }
 
-    private saveOrDeleteIncidentManagementTeamMember(
-        teamMemberRole: TeamRole,
-        incidentManagementTeamMember: TeamMember,
-        diseaseOutbreakId: Id,
-        importStrategy: "CREATE_AND_UPDATE" | "DELETE"
-    ): FutureData<void> {
+    private getIncidentManagementTeamEvents(diseaseOutbreakId: Id): FutureData<D2TrackerEvent[]> {
+        return apiToFuture(
+            this.api.tracker.events.get({
+                program: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                trackedEntity: diseaseOutbreakId,
+                programStage: RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID,
+                fields: {
+                    dataValues: {
+                        dataElement: { id: true, code: true },
+                        value: true,
+                    },
+                    trackedEntity: true,
+                    event: true,
+                },
+            })
+        )
+            .flatMap(response =>
+                assertOrError(
+                    response.instances,
+                    `Incident management team builder program stage not found`
+                )
+            )
+            .flatMap(d2Events => {
+                return Future.success(d2Events);
+            });
+    }
+
+    private saveOrDeleteIncidentManagementTeamMember(params: {
+        teamMemberRole: TeamRole;
+        incidentManagementTeamMember: TeamMember;
+        diseaseOutbreakId: Id;
+        importStrategy: "CREATE_AND_UPDATE" | "DELETE";
+        roles: Role[];
+    }): FutureData<void> {
+        const {
+            teamMemberRole,
+            incidentManagementTeamMember,
+            diseaseOutbreakId,
+            importStrategy,
+            roles,
+        } = params;
         return getProgramStage(
             this.api,
             RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID
@@ -209,7 +197,8 @@ export class IncidentManagementTeamD2Repository implements IncidentManagementTea
                     incidentManagementTeamMember,
                     diseaseOutbreakId,
                     enrollmentId,
-                    incidentManagementTeamBuilderDataElements
+                    incidentManagementTeamBuilderDataElements,
+                    roles
                 );
 
                 return apiToFuture(
