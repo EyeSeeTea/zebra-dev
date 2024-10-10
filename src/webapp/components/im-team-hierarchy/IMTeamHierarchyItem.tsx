@@ -7,16 +7,18 @@ import { Maybe } from "../../../utils/ts-utils";
 import { Checkbox } from "../checkbox/Checkbox";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { TeamMemberProfile } from "./TeamMemberProfile";
+import { IMTeamHierarchyOption } from "./IMTeamHierarchyView";
+import { Id } from "../../../domain/entities/Ref";
 
 type IMTeamHierarchyItemProps = {
     nodeId: string;
     teamRole: string;
     member: Maybe<TeamMember>;
-    selected: boolean;
     disabled?: boolean;
     onSelectedChange: (nodeId: string, selected: boolean) => void;
-    children?: React.ReactNode;
+    subChildren: IMTeamHierarchyOption[];
     diseaseOutbreakEventName: string;
+    selectedItemId: Id;
 };
 
 export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.memo(props => {
@@ -26,9 +28,9 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
         member,
         disabled = false,
         onSelectedChange,
-        selected,
-        children,
+        subChildren,
         diseaseOutbreakEventName,
+        selectedItemId,
     } = props;
 
     const [openMemberProfile, setOpenMemberProfile] = React.useState(false);
@@ -43,9 +45,9 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
     const onTeamRoleClick = React.useCallback(
         (event: React.MouseEvent<Element, MouseEvent>) => {
             event.preventDefault();
-            !disabled && onSelectedChange(nodeId, !selected);
+            !disabled && onSelectedChange(nodeId, !(selectedItemId === nodeId));
         },
-        [disabled, nodeId, onSelectedChange, selected]
+        [disabled, nodeId, onSelectedChange, selectedItemId]
     );
 
     const onMemberClick = React.useCallback(
@@ -67,7 +69,7 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
                     <LabelWrapper>
                         <Checkbox
                             id={`team-role-hierarchy-checkbox-${nodeId}`}
-                            checked={selected}
+                            checked={selectedItemId === nodeId}
                             onChange={onCheckboxChange}
                             disabled={disabled}
                         />
@@ -84,7 +86,18 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
                     </LabelWrapper>
                 }
             >
-                {children}
+                {subChildren.map(child => (
+                    <IMTeamHierarchyItem
+                        key={child.id}
+                        nodeId={child.id}
+                        teamRole={child.teamRole}
+                        member={child.member}
+                        selectedItemId={selectedItemId}
+                        onSelectedChange={onSelectedChange}
+                        diseaseOutbreakEventName={diseaseOutbreakEventName}
+                        subChildren={child.children}
+                    />
+                ))}
             </StyledIMTeamHierarchyItem>
 
             {member && (

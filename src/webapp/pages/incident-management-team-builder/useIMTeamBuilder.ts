@@ -11,6 +11,7 @@ import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
 import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
 import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_ROLE_IDS } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import _c from "../../../domain/entities/generic/Collection";
 
 type GlobalMessage = {
     text: string;
@@ -34,6 +35,8 @@ type State = {
     openDeleteModalData: ProfileModalData | undefined;
     onOpenDeleteModalData: (selectedHierarchyItemId: Id | undefined) => void;
     disableDeletion: boolean;
+    onSearchChange: (term: string) => void;
+    searchTerm: string;
 };
 
 export function useIMTeamBuilder(id: Id): State {
@@ -51,6 +54,7 @@ export function useIMTeamBuilder(id: Id): State {
     const [openDeleteModalData, setOpenDeleteModalData] = useState<ProfileModalData | undefined>(
         undefined
     );
+    const [searchTerm, setSearchTerm] = useState<string>("");
 
     const getIncidentManagementTeam = useCallback(() => {
         compositionRoot.incidentManagementTeam.get.execute(id).run(
@@ -58,7 +62,7 @@ export function useIMTeamBuilder(id: Id): State {
                 setIncidentManagementTeam(incidentManagementTeam);
                 setIncidentManagementTeamHierarchyItems(
                     mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
-                        incidentManagementTeam
+                        incidentManagementTeam?.teamHierarchy
                     )
                 );
             },
@@ -198,6 +202,28 @@ export function useIMTeamBuilder(id: Id): State {
         }
     }, [incidentManagementTeam?.teamHierarchy]);
 
+    const onSearchChange = useCallback(
+        (term: string) => {
+            setSearchTerm(term);
+
+            if (incidentManagementTeamHierarchyItems) {
+                const filteredIncidentManagementTeamHierarchyItems = term
+                    ? filterIncidentManagementTeamHierarchy(
+                          incidentManagementTeamHierarchyItems,
+                          term
+                      )
+                    : mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
+                          incidentManagementTeam?.teamHierarchy
+                      );
+
+                setIncidentManagementTeamHierarchyItems(
+                    filteredIncidentManagementTeamHierarchyItems
+                );
+            }
+        },
+        [incidentManagementTeam?.teamHierarchy, incidentManagementTeamHierarchyItems]
+    );
+
     const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
 
     return {
@@ -212,13 +238,15 @@ export function useIMTeamBuilder(id: Id): State {
         openDeleteModalData,
         onOpenDeleteModalData,
         disableDeletion,
+        searchTerm,
+        onSearchChange,
     };
 }
 
 function mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
-    incidentManagementTeam: Maybe<IncidentManagementTeam>
+    incidentManagementTeamHierarchy: Maybe<TeamMember[]>
 ): IMTeamHierarchyOption[] {
-    if (incidentManagementTeam?.teamHierarchy) {
+    if (incidentManagementTeamHierarchy) {
         const createHierarchyItem = (
             item: TeamMember,
             teamRole: TeamRole
@@ -237,11 +265,11 @@ function mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
                 teamRoles: item.teamRoles,
                 workPosition: item.workPosition,
             }),
-            parents: [],
+            parent: teamRole.reportsToUsername,
             children: [],
         });
 
-        const teamMap = incidentManagementTeam?.teamHierarchy.reduce<
+        const teamMap = incidentManagementTeamHierarchy.reduce<
             Record<string, IMTeamHierarchyOption>
         >((map, item) => {
             const hierarchyItems = item.teamRoles?.map(teamRole =>
@@ -259,34 +287,55 @@ function mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
                   );
         }, {});
 
-        return incidentManagementTeam.teamHierarchy.reduce<IMTeamHierarchyOption[]>((acc, item) => {
-            return item.teamRoles
-                ? item.teamRoles.reduce((innerAcc, teamRole) => {
-                      const hierarchyItem = teamMap[teamRole.id];
-                      if (!hierarchyItem) return innerAcc;
-
-                      const reportsToUsername = teamRole.reportsToUsername;
-                      if (reportsToUsername) {
-                          const parentItem = Object.values(teamMap).find(
-                              teamItem => teamItem.member?.username === reportsToUsername
-                          );
-
-                          if (parentItem) {
-                              parentItem.children = [...(parentItem.children || []), hierarchyItem];
-                              hierarchyItem.parents = [
-                                  ...hierarchyItem.parents,
-                                  { id: parentItem.id, name: parentItem.teamRole },
-                              ];
-                          }
-                      }
-
-                      return hierarchyItem.parents.length === 0
-                          ? [...innerAcc, hierarchyItem]
-                          : innerAcc;
-                  }, acc)
-                : acc;
-        }, []);
+        return buildTree(teamMap);
     } else {
         return [];
     }
+}
+
+function buildTree(teamMap: Record<string, IMTeamHierarchyOption>): IMTeamHierarchyOption[] {
+    const findChildren = (parentUsername: string): IMTeamHierarchyOption[] =>
+        Object.values(teamMap)
+            .filter(item => item.parent === parentUsername)
+            .reduce<IMTeamHierarchyOption[]>((acc, item) => {
+                const children = findChildren(item.member?.username || "");
+                return [...acc, { ...item, children: [...item.children, ...children] }];
+            }, []);
+
+    return Object.values(teamMap).reduce<IMTeamHierarchyOption[]>((acc, item) => {
+        const isRoot = !item.parent;
+        if (isRoot) {
+            const children = findChildren(item.member?.username || "");
+            return [...acc, { ...item, children: [...item.children, ...children] }];
+        }
+
+        return acc;
+    }, []);
+}
+
+function filterIncidentManagementTeamHierarchy(
+    items: IMTeamHierarchyOption[],
+    searchTerm: string
+): IMTeamHierarchyOption[] {
+    return _c(
+        items.map(item => {
+            const filteredChildren = filterIncidentManagementTeamHierarchy(
+                item.children,
+                searchTerm
+            );
+
+            const isMatch = item.teamRole.toLowerCase().includes(searchTerm.toLowerCase());
+
+            if (isMatch || filteredChildren.length > 0) {
+                return {
+                    ...item,
+                    children: filteredChildren,
+                };
+            }
+
+            return null;
+        })
+    )
+        .compact()
+        .toArray();
 }

@@ -7,13 +7,14 @@ import { Maybe } from "../../../utils/ts-utils";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { IMTeamHierarchyItem } from "./IMTeamHierarchyItem";
 import { Id } from "../../../domain/entities/Ref";
+import { SearchInput } from "../search-input/SearchInput";
 
 export type IMTeamHierarchyOption = {
     id: Id;
     teamRole: string;
     teamRoleId: Id;
     member: Maybe<TeamMember>;
-    parents: { id: Id; name: string }[];
+    parent: Maybe<string>;
     children: IMTeamHierarchyOption[];
 };
 
@@ -22,13 +23,23 @@ type IMTeamHierarchyViewProps = {
     selectedItemId: Id;
     onSelectedItemChange: (nodeId: Id, selected: boolean) => void;
     diseaseOutbreakEventName: string;
+    onSearchChange: (term: string) => void;
+    searchTerm: string;
 };
 
 export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.memo(props => {
-    const { onSelectedItemChange, items, selectedItemId, diseaseOutbreakEventName } = props;
+    const {
+        onSelectedItemChange,
+        items,
+        selectedItemId,
+        diseaseOutbreakEventName,
+        searchTerm,
+        onSearchChange,
+    } = props;
 
     return (
         <IMTeamHierarchyViewContainer>
+            <SearchInput placeholder="Search" value={searchTerm} onChange={onSearchChange} />
             <StyledIMTeamHierarchyView
                 disableSelection
                 defaultCollapseIcon={<ArrowDropDown />}
@@ -40,23 +51,11 @@ export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.mem
                         nodeId={item.id}
                         teamRole={item.teamRole}
                         member={item.member}
-                        selected={selectedItemId === item.id}
+                        selectedItemId={selectedItemId}
                         onSelectedChange={onSelectedItemChange}
                         diseaseOutbreakEventName={diseaseOutbreakEventName}
-                    >
-                        {item.children &&
-                            item.children.map(child => (
-                                <IMTeamHierarchyItem
-                                    key={child.id}
-                                    nodeId={child.id}
-                                    teamRole={child.teamRole}
-                                    member={child.member}
-                                    selected={selectedItemId === child.id}
-                                    onSelectedChange={onSelectedItemChange}
-                                    diseaseOutbreakEventName={diseaseOutbreakEventName}
-                                />
-                            ))}
-                    </IMTeamHierarchyItem>
+                        subChildren={item.children}
+                    />
                 ))}
             </StyledIMTeamHierarchyView>
         </IMTeamHierarchyViewContainer>

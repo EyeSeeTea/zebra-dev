@@ -30,6 +30,8 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
         selectedHierarchyItemId,
         openDeleteModalData,
         disableDeletion,
+        searchTerm,
+        onSearchChange,
         onSelectHierarchyItem,
         goToIncidentManagementTeamRole,
         onDeleteIncidentManagementTeamMember,
@@ -88,6 +90,8 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
                         selectedItemId={selectedHierarchyItemId}
                         onSelectedItemChange={onSelectHierarchyItem}
                         diseaseOutbreakEventName={getCurrentEventTracker()?.name || ""}
+                        onSearchChange={onSearchChange}
+                        searchTerm={searchTerm}
                     />
 
                     <SimpleModal
