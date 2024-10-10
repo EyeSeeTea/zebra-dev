@@ -163,7 +163,7 @@ export const GridWrapper = styled.div`
     gap: 10px;
 `;
 
-const StyledStatsCard = styled(StatsCard)`
+export const StyledStatsCard = styled(StatsCard)`
     width: 220px;
 `;
 

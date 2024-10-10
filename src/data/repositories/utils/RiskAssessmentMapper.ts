@@ -43,7 +43,6 @@ import {
     RiskAssessmentSummaryFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
-import { getDateAsLocaleDateString } from "./DateTimeHelper";
 
 type D2ProgramStageDataElementsMetadata = {
     dataElement: SelectedPick<

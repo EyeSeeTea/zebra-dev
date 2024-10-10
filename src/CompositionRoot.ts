@@ -50,6 +50,7 @@ import { GetAnalyticsRuntimeUseCase } from "./domain/usecases/GetAnalyticsRuntim
 import { SystemRepository } from "./domain/repositories/SystemRepository";
 import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
+import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -94,6 +95,9 @@ function getCompositionRoot(repositories: Repositories) {
             getTotalCardCounts: new GetTotalCardCountsUseCase(repositories),
             get717Performance: new Get717PerformanceUseCase(repositories),
             getAnalyticsRuntime: new GetAnalyticsRuntimeUseCase(repositories),
+            getOverviewCards: new GetOverviewCardsUseCase(
+                repositories.performanceOverviewRepository
+            ),
         },
         maps: {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),

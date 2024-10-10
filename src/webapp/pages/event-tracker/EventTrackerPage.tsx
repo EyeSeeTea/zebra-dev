@@ -19,9 +19,10 @@ import { useMapFilters } from "./useMapFilters";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 import { NoticeBox } from "../../components/notice-box/NoticeBox";
 import { PerformanceMetric717, use717Performance } from "../dashboard/use717Performance";
-import { GridWrapper } from "../dashboard/DashboardPage";
+import { GridWrapper, StyledStatsCard } from "../dashboard/DashboardPage";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
+import { useOverviewCards } from "./useOverviewCards";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -48,6 +49,8 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
+
+    const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
 
     const { dateRangeFilter } = useMapFilters();
 
@@ -86,7 +89,8 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 <LoaderContainer
                     loading={
                         !currentEventTracker?.suspectedDiseaseCode &&
-                        !currentEventTracker?.hazardType
+                        !currentEventTracker?.hazardType &&
+                        areOverviewCardsLoading
                     }
                 >
                     <MapSection
@@ -146,6 +150,18 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     />
                 )}
             </Section>
+            <Section title="Overview" hasSeparator={true} titleVariant="secondary">
+                <GridWrapper>
+                    {overviewCards?.map((card, index) => (
+                        <StyledStatsCard
+                            key={index}
+                            stat={card.value.toString()}
+                            title={i18n.t(card.name)}
+                            fillParent
+                        />
+                    ))}
+                </GridWrapper>
+            </Section>
 
             <Section hasSeparator={true}>
                 <Chart
@@ -165,7 +181,11 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     }
                 />
             </Section>
-            <Section title={i18n.t("7-1-7 performance")} hasSeparator={true}>
+            <Section
+                title={i18n.t("7-1-7 performance")}
+                hasSeparator={true}
+                titleVariant="secondary"
+            >
                 <GridWrapper>
                     {performanceMetrics717.map(
                         (perfMetric: PerformanceMetric717, index: number) => (
