@@ -57,8 +57,9 @@ export function useIMTeamBuilder(id: Id): State {
     const [searchTerm, setSearchTerm] = useState<string>("");
 
     const getIncidentManagementTeam = useCallback(() => {
-        compositionRoot.incidentManagementTeam.get.execute(id).run(
-            incidentManagementTeam => {
+        compositionRoot.diseaseOutbreakEvent.get.execute(id).run(
+            diseaseOutbreakEvent => {
+                const incidentManagementTeam = diseaseOutbreakEvent?.incidentManagementTeam;
                 setIncidentManagementTeam(incidentManagementTeam);
                 setIncidentManagementTeamHierarchyItems(
                     mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
@@ -74,7 +75,7 @@ export function useIMTeamBuilder(id: Id): State {
                 });
             }
         );
-    }, [compositionRoot.incidentManagementTeam.get, id]);
+    }, [compositionRoot.diseaseOutbreakEvent.get, id]);
 
     useEffect(() => {
         getIncidentManagementTeam();
@@ -151,7 +152,7 @@ export function useIMTeamBuilder(id: Id): State {
         );
 
         if (teamMember && teamRoleToDelete) {
-            compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRole
+            compositionRoot.diseaseOutbreakEvent.deleteIncidentManagementTeamMemberRole
                 .execute(teamRoleToDelete, teamMember, id)
                 .run(
                     () => {
@@ -178,7 +179,7 @@ export function useIMTeamBuilder(id: Id): State {
             });
         }
     }, [
-        compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRole,
+        compositionRoot.diseaseOutbreakEvent.deleteIncidentManagementTeamMemberRole,
         disableDeletion,
         getIncidentManagementTeam,
         id,

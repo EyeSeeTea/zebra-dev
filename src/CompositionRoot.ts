@@ -55,7 +55,6 @@ import { SystemRepository } from "./domain/repositories/SystemRepository";
 import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
-import { GetIncidentManagementTeamByIdUseCase } from "./domain/usecases/GetIncidentManagementTeamByIdUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -90,9 +89,6 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertSyncRepository,
                 repositories.optionsRepository
             ),
-        },
-        incidentManagementTeam: {
-            get: new GetIncidentManagementTeamByIdUseCase(repositories),
             deleteIncidentManagementTeamMemberRole:
                 new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
         },
