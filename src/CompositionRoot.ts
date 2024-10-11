@@ -45,7 +45,6 @@ import { RoleRepository } from "./domain/repositories/RoleRepository";
 import { RoleD2Repository } from "./data/repositories/RoleD2Repository";
 import { RoleTestRepository } from "./data/repositories/test/RoleTestRepository";
 import { DeleteIncidentManagementTeamMemberRoleUseCase } from "./domain/usecases/DeleteIncidentManagementTeamMemberRoleUseCase";
-import { GetIncidentManagementTeamByIdUseCase } from "./domain/usecases/GetIncidentManagementTeamByIdUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -78,9 +77,6 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertSyncRepository,
                 repositories.optionsRepository
             ),
-        },
-        incidentManagementTeam: {
-            get: new GetIncidentManagementTeamByIdUseCase(repositories),
             deleteIncidentManagementTeamMemberRole:
                 new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
         },
