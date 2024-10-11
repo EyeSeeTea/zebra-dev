@@ -6,7 +6,6 @@ import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/Disease
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
-import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
@@ -25,7 +24,6 @@ export class GetEntityWithOptionsUseCase {
             optionsRepository: OptionsRepository;
             roleRepository: RoleRepository;
             teamMemberRepository: TeamMemberRepository;
-            incidentManagementTeamRepository: IncidentManagementTeamRepository;
         }
     ) {}
 
@@ -77,7 +75,7 @@ export class GetEntityWithOptionsUseCase {
                 return getIncidentManagementTeamWithOptions(id, eventTrackerDetails, {
                     roleRepository: this.options.roleRepository,
                     teamMemberRepository: this.options.teamMemberRepository,
-                    incidentManagementTeamRepository: this.options.incidentManagementTeamRepository,
+                    diseaseOutbreakEventRepository: this.options.diseaseOutbreakEventRepository,
                 });
             default:
                 return Future.error(new Error("Form type not supported"));

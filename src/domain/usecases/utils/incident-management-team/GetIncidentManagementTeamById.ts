@@ -3,7 +3,7 @@ import { Maybe } from "../../../../utils/ts-utils";
 import { Future } from "../../../entities/generic/Future";
 import { IncidentManagementTeam } from "../../../entities/incident-management-team/IncidentManagementTeam";
 import { Id } from "../../../entities/Ref";
-import { IncidentManagementTeamRepository } from "../../../repositories/IncidentManagementTeamRepository";
+import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
 import { RoleRepository } from "../../../repositories/RoleRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
@@ -12,14 +12,14 @@ export function getIncidentManagementTeamById(
     repositories: {
         roleRepository: RoleRepository;
         teamMemberRepository: TeamMemberRepository;
-        incidentManagementTeamRepository: IncidentManagementTeamRepository;
+        diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     }
 ): FutureData<Maybe<IncidentManagementTeam>> {
     return Future.joinObj({
         roles: repositories.roleRepository.getAll(),
         teamMembers: repositories.teamMemberRepository.getAll(),
     }).flatMap(({ roles, teamMembers }) => {
-        return repositories.incidentManagementTeamRepository.get(
+        return repositories.diseaseOutbreakEventRepository.getIncidentManagementTeam(
             diseaseOutbreakId,
             teamMembers,
             roles
