@@ -20,7 +20,7 @@ export function mapD2EventsToIncidentManagementTeam(
     d2Events: D2TrackerEvent[],
     roles: Role[],
     teamMembers: TeamMember[]
-): Maybe<IncidentManagementTeam> {
+): IncidentManagementTeam {
     const teamHierarchy: TeamMember[] = teamMembers.reduce(
         (acc: TeamMember[], teamMember: TeamMember) => {
             const memberRoleEvents = d2Events.filter(event => {

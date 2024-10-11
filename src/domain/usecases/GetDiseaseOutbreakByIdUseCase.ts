@@ -3,7 +3,6 @@ import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/Disease
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
-import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
@@ -20,7 +19,6 @@ export class GetDiseaseOutbreakByIdUseCase {
             teamMemberRepository: TeamMemberRepository;
             orgUnitRepository: OrgUnitRepository;
             riskAssessmentRepository: RiskAssessmentRepository;
-            incidentManagementTeamRepository: IncidentManagementTeamRepository;
             roleRepository: RoleRepository;
         }
     ) {}
@@ -71,7 +69,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                         incidentManagementTeam,
                         roles,
                     }) => {
-                        return this.options.incidentManagementTeamRepository
+                        return this.options.diseaseOutbreakEventRepository
                             .getIncidentManagementTeamMember(incidentManagerName, id, roles)
                             .flatMap(incidentManager => {
                                 const diseaseOutbreakEvent: DiseaseOutbreakEvent =

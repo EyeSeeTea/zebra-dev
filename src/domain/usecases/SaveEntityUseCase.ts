@@ -5,7 +5,6 @@ import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-even
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
-import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
@@ -16,7 +15,6 @@ export class SaveEntityUseCase {
         private options: {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             riskAssessmentRepository: RiskAssessmentRepository;
-            incidentManagementTeamRepository: IncidentManagementTeamRepository;
             teamMemberRepository: TeamMemberRepository;
             roleRepository: RoleRepository;
         }
@@ -29,8 +27,6 @@ export class SaveEntityUseCase {
                 return saveDiseaseOutbreak(
                     {
                         diseaseOutbreakEventRepository: this.options.diseaseOutbreakEventRepository,
-                        incidentManagementTeamRepository:
-                            this.options.incidentManagementTeamRepository,
                         teamMemberRepository: this.options.teamMemberRepository,
                         roleRepository: this.options.roleRepository,
                     },
@@ -71,8 +67,6 @@ export class SaveEntityUseCase {
                                     {
                                         diseaseOutbreakEventRepository:
                                             this.options.diseaseOutbreakEventRepository,
-                                        incidentManagementTeamRepository:
-                                            this.options.incidentManagementTeamRepository,
                                         teamMemberRepository: this.options.teamMemberRepository,
                                         roleRepository: this.options.roleRepository,
                                     },
@@ -91,7 +85,7 @@ export class SaveEntityUseCase {
                         return Future.error(new Error("No team role to save found"));
                     }
 
-                    return this.options.incidentManagementTeamRepository.saveIncidentManagementTeamMemberRole(
+                    return this.options.diseaseOutbreakEventRepository.saveIncidentManagementTeamMemberRole(
                         teamRoleToSave,
                         formData.entity,
                         formData.eventTrackerDetails.id,

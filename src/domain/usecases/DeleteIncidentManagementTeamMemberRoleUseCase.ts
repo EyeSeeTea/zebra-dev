@@ -1,13 +1,13 @@
 import { FutureData } from "../../data/api-futures";
 import { TeamMember, TeamRole } from "../entities/incident-management-team/TeamMember";
 import { Id } from "../entities/Ref";
-import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
+import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 
 export class DeleteIncidentManagementTeamMemberRoleUseCase {
     constructor(
         private options: {
-            incidentManagementTeamRepository: IncidentManagementTeamRepository;
+            diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             roleRepository: RoleRepository;
         }
     ) {}
@@ -18,7 +18,7 @@ export class DeleteIncidentManagementTeamMemberRoleUseCase {
         diseaseOutbreakId: Id
     ): FutureData<void> {
         return this.options.roleRepository.getAll().flatMap(roles => {
-            return this.options.incidentManagementTeamRepository.deleteIncidentManagementTeamMemberRole(
+            return this.options.diseaseOutbreakEventRepository.deleteIncidentManagementTeamMemberRole(
                 teamMemberRole,
                 incidentManagementTeam,
                 diseaseOutbreakId,
