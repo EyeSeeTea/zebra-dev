@@ -17,6 +17,7 @@ import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 import { PerformanceMetric717, use717Performance } from "./use717Performance";
 import { Loader } from "../../components/loader/Loader";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
+import LoaderContainer from "../../components/loader/LoaderContainer";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -54,7 +55,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         resetCurrentEventTrackerId();
     });
 
-    return performanceOverviewLoading || _717CardsLoading || cardCountsLoading ? (
+    return performanceOverviewLoading || _717CardsLoading ? (
         <Loader />
     ) : (
         <Layout
@@ -103,16 +104,18 @@ export const DashboardPage: React.FC = React.memo(() => {
                         />
                     </FilterContainer>
                 </FiltersContainer>
-                <GridWrapper>
-                    {cardCounts.map((cardCount, index) => (
-                        <StyledStatsCard
-                            key={index}
-                            stat={cardCount.total.toString()}
-                            title={i18n.t(cardCount.name)}
-                            fillParent
-                        />
-                    ))}
-                </GridWrapper>
+                <LoaderContainer loading={cardCountsLoading}>
+                    <GridWrapper>
+                        {cardCounts.map((cardCount, index) => (
+                            <StyledStatsCard
+                                key={index}
+                                stat={cardCount.total.toString()}
+                                title={i18n.t(cardCount.name)}
+                                fillParent
+                            />
+                        ))}
+                    </GridWrapper>
+                </LoaderContainer>
             </Section>
             <Section title={i18n.t("All public health events")}>
                 <MapSection
