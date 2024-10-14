@@ -1,12 +1,12 @@
 import { List, ListItem, ListItemText } from "@material-ui/core";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { AddCircleOutline } from "@material-ui/icons";
-
 import i18n from "../../../../utils/i18n";
 import { Button } from "../../button/Button";
 import { RouteName, routes, useRoutes } from "../../../hooks/useRoutes";
+import { useCurrentEventTracker } from "../../../contexts/current-event-tracker-context";
 
 type SideBarContentProps = {
     children?: React.ReactNode;
@@ -44,10 +44,8 @@ const DEFAULT_SIDEBAR_OPTIONS: SideBarOption[] = [
 
 export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
     ({ children, hideOptions = false, showCreateEvent = false }) => {
-        const { id } = useParams<{
-            id: string;
-        }>();
         const { goTo } = useRoutes();
+        const { getCurrentEventTracker } = useCurrentEventTracker();
 
         const goToCreateEvent = useCallback(() => {
             goTo(RouteName.CREATE_FORM, { formType: "disease-outbreak-event" });
@@ -70,7 +68,15 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
                                 button
                                 key={text}
                                 component={NavLink}
-                                to={getSideBarRoute(id, value)}
+                                to={
+                                    value === RouteName.EVENT_TRACKER ||
+                                    value === RouteName.INCIDENT_ACTION_PLAN
+                                        ? routes[value].replace(
+                                              ":id",
+                                              getCurrentEventTracker()?.id || ""
+                                          )
+                                        : routes[value]
+                                }
                             >
                                 <StyledText primary={i18n.t(text)} selected={false} />
                             </ListItem>
@@ -114,8 +120,3 @@ const CreateEventContainer = styled.div`
     margin-inline-start: 30px;
     width: 245px;
 `;
-
-function getSideBarRoute(id: string, value: RouteName) {
-    const route = routes[value];
-    return route.includes(":id") ? route.replace(":id", id) : route;
-}

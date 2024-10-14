@@ -4,7 +4,6 @@ import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
 import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
-import { User } from "../../components/user-selector/UserSelector";
 import { TableRowType } from "../../components/table/BasicTable";
 import {
     getIAPTypeByCode,
@@ -12,89 +11,89 @@ import {
     getStatusTypeByCode,
     getVerificationTypeByCode,
 } from "../../../data/repositories/consts/IncidentActionConstants";
+import { IncidentActionPlan } from "../../../domain/entities/incident-action-plan/IncidentActionPlan";
 
 type LabelWithValue = {
     label: string;
     value: string;
 };
 
-export type FormSummaryData = {
+export type IncidentActionFormSummaryData = {
     subTitle: string;
     summary: LabelWithValue[];
-    incidentManager: Maybe<User>;
-    notes: string;
 };
 
 export function useIncidentActionPlan(id: Id) {
     const { compositionRoot } = useAppContext();
-    const [formSummary, setFormSummary] = useState<FormSummaryData>();
-    const [actionPlanSummary, setActionPlanSummary] = useState<FormSummaryData>();
+
+    const [incidentAction, setIncidentAction] = useState<LabelWithValue[] | undefined>();
+    const [actionPlanSummary, setActionPlanSummary] = useState<IncidentActionFormSummaryData>();
     const [responseActionRows, setResponseActionRows] = useState<TableRowType[]>([]);
-    const [summaryError, setSummaryError] = useState<string>();
+    const [globalMessage, setGlobalMessage] = useState<string>();
     const [eventTrackerDetails, setEventTrackerDetails] = useState<DiseaseOutbreakEvent>();
 
     useEffect(() => {
+        compositionRoot.incidentActionPlan.get.execute(id).run(
+            incidentActionPlan => {
+                setIncidentAction(getIncidentActionFormSummary(incidentActionPlan));
+                setActionPlanSummary(mapIncidentActionPlanToFormSummary(incidentActionPlan));
+                setResponseActionRows(mapIncidentResponseActionToFormSummary(incidentActionPlan));
+            },
+            err => {
+                console.debug(err);
+                setGlobalMessage(`Event tracker with id: ${id} does not exist`);
+            }
+        );
         compositionRoot.diseaseOutbreakEvent.get.execute(id).run(
             diseaseOutbreakEvent => {
-                setFormSummary(mapIncidentActionToFormSummary(diseaseOutbreakEvent));
-                setActionPlanSummary(mapIncidentActionPlanToFormSummary(diseaseOutbreakEvent));
-                setResponseActionRows(mapIncidentResponseActionToFormSummary(diseaseOutbreakEvent));
                 setEventTrackerDetails(diseaseOutbreakEvent);
             },
             err => {
                 console.debug(err);
-                setSummaryError(`Event tracker with id: ${id} does not exist`);
+                setGlobalMessage(`Event tracker with id: ${id} does not exist`);
             }
         );
     }, [compositionRoot, id]);
 
     return {
         actionPlanSummary: actionPlanSummary,
-        formSummary: formSummary,
+        formSummary: incidentAction,
         responseActionRows: responseActionRows,
-        summaryError: summaryError,
+        summaryError: globalMessage,
         eventTrackerDetails: eventTrackerDetails,
     };
 }
 
-const mapIncidentActionToFormSummary = (
-    diseaseOutbreakEvent: DiseaseOutbreakEvent
-): FormSummaryData => {
-    const { incidentActionPlan, name, lastUpdated } = diseaseOutbreakEvent;
-
-    if (!incidentActionPlan)
-        return { subTitle: name, summary: [], incidentManager: undefined, notes: "" };
+const getIncidentActionFormSummary = (
+    incidentActionPlan: Maybe<IncidentActionPlan>
+): LabelWithValue[] => {
+    if (!incidentActionPlan) return [];
 
     const iapTypeCode = incidentActionPlan.actionPlan?.iapType ?? "";
     const phoecLevelCode = incidentActionPlan.actionPlan?.phoecLevel ?? "";
+    const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
 
-    return {
-        subTitle: name,
-        summary: [
-            {
-                label: "IAP last updated",
-                value: getDateAsLocaleDateTimeString(lastUpdated),
-            },
-            {
-                label: "IAP type",
-                value: getIAPTypeByCode(iapTypeCode) || "",
-            },
-            {
-                label: "PHOEC activation Level",
-                value: getPhoecLevelByCode(phoecLevelCode) || "",
-            },
-        ],
-        incidentManager: undefined,
-        notes: diseaseOutbreakEvent.notes || "",
-    };
+    return [
+        {
+            label: "IAP last updated",
+            value: lastUpdated,
+        },
+        {
+            label: "IAP type",
+            value: getIAPTypeByCode(iapTypeCode) || "",
+        },
+        {
+            label: "PHOEC activation Level",
+            value: getPhoecLevelByCode(phoecLevelCode) || "",
+        },
+    ];
 };
 
 const mapIncidentActionPlanToFormSummary = (
-    diseaseOutbreakEvent: DiseaseOutbreakEvent
-): FormSummaryData => {
-    const actionPlan = diseaseOutbreakEvent?.incidentActionPlan?.actionPlan;
-    if (!actionPlan)
-        return { subTitle: "Action Plan", summary: [], incidentManager: undefined, notes: "" };
+    incidentActionPlan: Maybe<IncidentActionPlan>
+): IncidentActionFormSummaryData => {
+    const actionPlan = incidentActionPlan?.actionPlan;
+    if (!actionPlan) return { subTitle: "Action Plan", summary: [] };
 
     return {
         subTitle: "Action Plan",
@@ -120,14 +119,12 @@ const mapIncidentActionPlanToFormSummary = (
                 value: actionPlan.responseActivitiesNarrative ?? "",
             },
         ],
-        incidentManager: undefined,
-        notes: diseaseOutbreakEvent.notes || "",
     };
 };
 
-const mapIncidentResponseActionToFormSummary = (diseaseOutbreakEvent: DiseaseOutbreakEvent) => {
-    if (diseaseOutbreakEvent.incidentActionPlan) {
-        return diseaseOutbreakEvent.incidentActionPlan.responseActions.map(responseAction => ({
+const mapIncidentResponseActionToFormSummary = (incidentActionPlan: Maybe<IncidentActionPlan>) => {
+    if (incidentActionPlan) {
+        return incidentActionPlan.responseActions.map(responseAction => ({
             mainTask: responseAction.mainTask,
             subActivities: responseAction.subActivities,
             subPillar: responseAction.subPillar,

@@ -7,9 +7,19 @@ import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import { EditOutlined } from "@material-ui/icons";
 import { Loader } from "../../loader/Loader";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
-import { FormSummaryProps } from "./FormSummary";
+import { Id } from "../../../../domain/entities/Ref";
+import { FormType } from "../../../pages/form-page/FormPage";
+import { IncidentActionFormSummaryData } from "../../../pages/incident-action-plan/useIncidentActionPlan";
+import { Maybe } from "../../../../utils/ts-utils";
 
-export const ActionPlanFormSummary: React.FC<FormSummaryProps> = React.memo(props => {
+type ActionPlanFormSummaryProps = {
+    id: Id;
+    formType: FormType;
+    formSummary: Maybe<IncidentActionFormSummaryData>;
+    summaryError: Maybe<string>;
+};
+
+export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React.memo(props => {
     const { id, formType, formSummary, summaryError } = props;
     const { goTo } = useRoutes();
     const snackbar = useSnackbar();

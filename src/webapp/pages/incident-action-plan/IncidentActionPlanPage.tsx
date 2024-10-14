@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { useParams } from "react-router-dom";
@@ -30,19 +30,15 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
         id: string;
     }>();
     const { goTo } = useRoutes();
+    const { getCurrentEventTracker } = useCurrentEventTracker();
+    const currentEventTracker = getCurrentEventTracker();
 
     const {
         actionPlanSummary,
         formSummary: incidentActionFormSummary,
         responseActionRows,
         summaryError,
-        eventTrackerDetails,
     } = useIncidentActionPlan(id);
-    const { changeCurrentEventTracker: changeCurrentEventTrackerId } = useCurrentEventTracker();
-
-    useEffect(() => {
-        if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
-    }, [changeCurrentEventTrackerId, eventTrackerDetails, id]);
 
     const getSummaryColumn = useCallback((index: number, label: string, value: string) => {
         return (
@@ -55,12 +51,12 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
         );
     }, []);
 
-    const incidentActionExists = eventTrackerDetails?.incidentActionPlan?.actionPlan?.id;
+    const incidentActionExists = currentEventTracker?.incidentActionPlan?.actionPlan?.id;
 
     return (
         <Layout
             title={i18n.t("Incident Action Plan")}
-            subtitle={i18n.t(incidentActionFormSummary?.subTitle || "")}
+            subtitle={i18n.t(getCurrentEventTracker()?.name || "")}
         >
             {!actionPlanSummary && responseActionRows.length === 0 && !summaryError && <Loader />}
             {!incidentActionExists ? (
@@ -70,7 +66,7 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
                     <Section>
                         <SummaryContainer>
                             <SummaryColumn>
-                                {incidentActionFormSummary?.summary.map((labelWithValue, index) =>
+                                {incidentActionFormSummary?.map((labelWithValue, index) =>
                                     getSummaryColumn(
                                         index,
                                         labelWithValue.label,

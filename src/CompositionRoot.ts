@@ -44,6 +44,7 @@ import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/Alert
 import { AlertSyncRepository } from "./domain/repositories/AlertSyncRepository";
 import { DataStoreClient } from "./data/DataStoreClient";
 import { GetTotalCardCountsUseCase } from "./domain/usecases/GetTotalCardCountsUseCase";
+import { GetIncidentActionByIdUseCase } from "./domain/usecases/GetIncidentActionByIdUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -80,6 +81,9 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertSyncRepository,
                 repositories.optionsRepository
             ),
+        },
+        incidentActionPlan: {
+            get: new GetIncidentActionByIdUseCase(repositories),
         },
         performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
