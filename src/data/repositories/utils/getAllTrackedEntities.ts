@@ -53,6 +53,7 @@ const fields = {
     trackedEntity: true,
     trackedEntityType: true,
     enrollments: {
+        status: true,
         events: {
             createdAt: true,
             dataValues: {

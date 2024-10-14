@@ -1,4 +1,6 @@
-import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
+import { ConfigurableForm } from "../../../../../domain/entities/ConfigurableForm";
+import { DiseaseOutbreakEvent } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { ValidationError } from "../../../../../domain/entities/ValidationError";
 import { FormFieldState } from "../../../../components/form/FormFieldsState";
 import {
     FormState,
@@ -9,22 +11,25 @@ import {
 } from "../../../../components/form/FormState";
 import { applyRulesInFormState } from "./applyRulesInFormState";
 
-export function updateDiseaseOutbreakEventFormState(
+export function updateAndValidateFormState(
     prevFormState: FormState,
     updatedField: FormFieldState,
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions
+    configurableForm: ConfigurableForm
 ): FormState {
     const updatedForm = updateFormStateAndApplySideEffects(prevFormState, updatedField);
 
     const hasUpdatedFieldAnyRule =
-        diseaseOutbreakEventWithOptions.rules.filter(rule => rule.fieldId === updatedField.id)
-            .length > 0;
+        configurableForm.rules.filter(rule => rule.fieldId === updatedField.id).length > 0;
 
     const updatedFormWithRulesApplied = hasUpdatedFieldAnyRule
-        ? applyRulesInFormState(updatedForm, updatedField, diseaseOutbreakEventWithOptions.rules)
+        ? applyRulesInFormState(updatedForm, updatedField, configurableForm.rules)
         : updatedForm;
 
-    const fieldValidationErrors = validateForm(updatedFormWithRulesApplied, updatedField);
+    const fieldValidationErrors = validateFormState(
+        updatedFormWithRulesApplied,
+        updatedField,
+        configurableForm
+    );
 
     const updatedFormStateWithErrors = updateFormStateWithFieldErrors(
         updatedFormWithRulesApplied,
@@ -36,4 +41,29 @@ export function updateDiseaseOutbreakEventFormState(
         ...updatedFormStateWithErrors,
         isValid: isValidForm(updatedFormStateWithErrors.sections),
     };
+}
+
+function validateFormState(
+    updatedForm: FormState,
+    updatedField: FormFieldState,
+    configurableForm: ConfigurableForm
+): ValidationError[] {
+    const formValidationErrors = validateForm(updatedForm, updatedField);
+    let entityValidationErrors: ValidationError[] = [];
+
+    switch (configurableForm.type) {
+        case "disease-outbreak-event": {
+            if (configurableForm.entity)
+                entityValidationErrors = DiseaseOutbreakEvent.validate(configurableForm.entity);
+            break;
+        }
+        case "risk-assessment-grading":
+            break;
+        case "risk-assessment-summary":
+            break;
+        case "risk-assessment-questionnaire":
+            break;
+    }
+
+    return [...formValidationErrors, ...entityValidationErrors];
 }

@@ -5,7 +5,7 @@ import { Option } from "../utils/option";
 import { ValidationError, ValidationErrorKey } from "../../../domain/entities/ValidationError";
 import { FormSectionState } from "./FormSectionsState";
 
-export type FieldType = "text" | "boolean" | "select" | "radio" | "date" | "user";
+export type FieldType = "text" | "boolean" | "select" | "radio" | "date" | "user" | "addNew";
 
 type FormFieldStateBase<T> = {
     id: string;
@@ -53,6 +53,10 @@ export type FormDateFieldState = FormFieldStateBase<Date | null> & {
 export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
     type: "user";
     options: User[];
+};
+
+export type AddNewFieldState = FormFieldStateBase<null> & {
+    type: "addNew";
 };
 
 export type FormFieldState =

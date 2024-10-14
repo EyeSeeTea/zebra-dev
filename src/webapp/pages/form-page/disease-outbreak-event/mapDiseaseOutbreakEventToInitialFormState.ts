@@ -1,13 +1,13 @@
-import i18n from "../../../../../utils/i18n";
-import { DiseaseOutbreakEventWithOptions } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventWithOptions";
-import { TeamMember } from "../../../../../domain/entities/incident-management-team/TeamMember";
-import { Option } from "../../../../../domain/entities/Ref";
-import { getFieldIdFromIdsDictionary } from "../../../../components/form/FormFieldsState";
-import { FormState } from "../../../../components/form/FormState";
-import { User } from "../../../../components/user-selector/UserSelector";
-import { Option as PresentationOption } from "../../../../components/utils/option";
-import { FormSectionState } from "../../../../components/form/FormSectionsState";
-import { DataSource } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import i18n from "@eyeseetea/d2-ui-components/locales";
+import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
+import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { TeamMember } from "../../../../domain/entities/incident-management-team/TeamMember";
+import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
+import { FormSectionState } from "../../../components/form/FormSectionsState";
+import { FormState } from "../../../components/form/FormState";
+import { User } from "../../../components/user-selector/UserSelector";
+import { Option as PresentationOption } from "../../../components/utils/option";
+import { mapToPresentationOptions } from "../mapEntityToFormState";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -79,14 +79,14 @@ type ResponseActionsSubsectionKeys =
     | "responseNarrative";
 
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
-export function mapEntityToInitialFormState(
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventWithOptions,
+export function mapDiseaseOutbreakEventToInitialFormState(
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
     editMode: boolean
 ): FormState {
-    const { diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
+    const { entity: diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
         dataSources,
-        teamMembers,
+        incidentManagers,
         hazardTypes,
         mainSyndromes,
         suspectedDiseases,
@@ -94,7 +94,7 @@ export function mapEntityToInitialFormState(
         incidentStatus,
     } = options;
 
-    const teamMemberOptions: User[] = teamMembers.map(tm => mapTeamMemberToUser(tm));
+    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
 
     const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
     const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
@@ -648,13 +648,4 @@ export function mapEntityToInitialFormState(
             mainSections.notes,
         ],
     };
-}
-
-function mapToPresentationOptions(options: Option[]): PresentationOption[] {
-    return options.map(
-        (option): PresentationOption => ({
-            value: option.id,
-            label: option.name,
-        })
-    );
 }

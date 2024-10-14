@@ -5,14 +5,29 @@ import styled from "styled-components";
 type IconButtonProps = {
     icon: React.ReactNode;
     disabled?: boolean;
-    onClick: () => void;
+    onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+    onMouseDown?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
     ariaLabel?: string;
+    className?: string;
 };
 
 export const IconButton: React.FC<IconButtonProps> = React.memo(
-    ({ icon, disabled = false, onClick, ariaLabel = "Icon button" }) => {
+    ({
+        icon,
+        disabled = false,
+        onClick,
+        ariaLabel = "Icon button",
+        onMouseDown,
+        className = "",
+    }) => {
         return (
-            <StyledIconButton aria-label={ariaLabel} disabled={disabled} onClick={onClick}>
+            <StyledIconButton
+                className={className}
+                aria-label={ariaLabel}
+                disabled={disabled}
+                onClick={onClick}
+                onMouseDown={onMouseDown}
+            >
                 {icon}
             </StyledIconButton>
         );

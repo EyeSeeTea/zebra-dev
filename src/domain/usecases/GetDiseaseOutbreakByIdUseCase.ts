@@ -5,7 +5,9 @@ import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
+import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
 
 export class GetDiseaseOutbreakByIdUseCase {
     constructor(
@@ -14,6 +16,7 @@ export class GetDiseaseOutbreakByIdUseCase {
             optionsRepository: OptionsRepository;
             teamMemberRepository: TeamMemberRepository;
             orgUnitRepository: OrgUnitRepository;
+            riskAssessmentRepository: RiskAssessmentRepository;
         }
     ) {}
 
@@ -47,6 +50,12 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.orgUnitRepository.get(areasAffectedProvinceIds),
                     areasAffectedDistricts:
                         this.options.orgUnitRepository.get(areasAffectedDistrictIds),
+                    riskAssessment: getAll(
+                        id,
+                        this.options.riskAssessmentRepository,
+                        this.options.optionsRepository,
+                        this.options.teamMemberRepository
+                    ),
                 }).flatMap(
                     ({
                         mainSyndrome,
@@ -55,6 +64,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                         incidentManager,
                         areasAffectedProvinces,
                         areasAffectedDistricts,
+                        riskAssessment,
                     }) => {
                         const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent(
                             {
@@ -66,7 +76,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                                 areasAffectedProvinces: areasAffectedProvinces,
                                 areasAffectedDistricts: areasAffectedDistricts,
                                 incidentManager: incidentManager,
-                                riskAssessments: undefined, //TO DO : FIXME populate once riskAssessment repo is implemented
+                                riskAssessment: riskAssessment,
                                 incidentActionPlan: undefined, //TO DO : FIXME populate once incidentActionPlan repo is implemented
                                 incidentManagementTeam: undefined, //TO DO : FIXME populate once incidentManagementTeam repo is implemented
                             }

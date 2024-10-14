@@ -5,4 +5,6 @@ import { Id } from "../entities/Ref";
 export interface TeamMemberRepository {
     getAll(): FutureData<TeamMember[]>;
     get(id: Id): FutureData<TeamMember>;
+    getIncidentManagers(): FutureData<TeamMember[]>;
+    getRiskAssessors(): FutureData<TeamMember[]>;
 }
