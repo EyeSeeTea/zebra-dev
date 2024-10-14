@@ -14,7 +14,6 @@ export interface AlertRepository {
 export type AlertOptions = {
     dataSource: DataSource;
     eventId: Id;
-    hazardTypeCode: Maybe<string>;
+    outbreakValue: Maybe<string>;
     incidentStatus: NationalIncidentStatus;
-    suspectedDiseaseCode: Maybe<string>;
 };
