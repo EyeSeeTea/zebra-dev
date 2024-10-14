@@ -127,7 +127,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 notificationSourceCode: "1",
                 areasAffectedDistrictIds: [],
                 areasAffectedProvinceIds: [],
-                incidentStatus: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
+                incidentStatus: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
                 emerged: { date: new Date(), narrative: "emerged" },
                 detected: { date: new Date(), narrative: "detected" },
                 notified: { date: new Date(), narrative: "notified" },
@@ -143,6 +143,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
+                status: "ACTIVE",
             },
             {
                 id: "2",
@@ -157,7 +158,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 notificationSourceCode: "2",
                 areasAffectedDistrictIds: [],
                 areasAffectedProvinceIds: [],
-                incidentStatus: IncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
+                incidentStatus: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
                 emerged: { date: new Date(), narrative: "emerged" },
                 detected: { date: new Date(), narrative: "detected" },
                 notified: { date: new Date(), narrative: "notified" },
@@ -173,6 +174,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
+                status: "COMPLETED",
             },
         ]);
     }
