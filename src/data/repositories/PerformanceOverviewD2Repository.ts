@@ -21,8 +21,8 @@ import {
     PerformanceOverviewMetrics,
     DiseaseNames,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
-import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
+import { AlertSynchronizationData } from "../../domain/entities/alert/AlertSynchronizationData";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
