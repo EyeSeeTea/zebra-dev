@@ -251,7 +251,7 @@ export function mapIncidentResponseActionToInitialFormState(
         titleDescripton: "Step 2:",
         subtitleDescripton: "Assign response actions",
         saveButtonLabel: "Save plan",
-        isValid: incidentResponseActions ? true : false,
+        isValid: incidentResponseActions.length !== 0 ? true : false,
         sections: [...responseActionSections, addNewOptionSection],
     };
 }
@@ -325,7 +325,9 @@ function getResponseActionSection(options: {
                 label: "Due date",
                 isVisible: true,
                 errors: [],
-                value: incidentResponseAction?.dueDate || new Date(),
+                value: incidentResponseAction?.dueDate
+                    ? new Date(incidentResponseAction?.dueDate)
+                    : new Date(),
                 type: "date",
                 width: "200px",
                 required: true,
