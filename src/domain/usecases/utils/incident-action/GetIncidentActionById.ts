@@ -1,7 +1,5 @@
 import { FutureData } from "../../../../data/api-futures";
-import { IncidentResponseActionDataValues } from "../../../../data/repositories/IncidentActionD2Repository";
 import { Maybe } from "../../../../utils/ts-utils";
-import _c from "../../../entities/generic/Collection";
 import { Future } from "../../../entities/generic/Future";
 import { ActionPlan } from "../../../entities/incident-action-plan/ActionPlan";
 import { IncidentActionPlan } from "../../../entities/incident-action-plan/IncidentActionPlan";
@@ -42,26 +40,38 @@ export function getIncidentAction(
                 .flatMap(responseActionDataValues => {
                     return Future.joinObj(
                         getIncidentResponseActionOptionFutures(
-                            responseActionDataValues,
                             optionsRepository,
                             teamMemberRepository
                         )
                     ).flatMap(responseActionOptions => {
+                        const { searchAssignROOptions, statusOptions, verificationOptions } =
+                            responseActionOptions;
+
                         const responseActions =
                             responseActionDataValues?.map(responseActionDataValue => {
+                                const searchAssignRO = searchAssignROOptions.find(
+                                    option =>
+                                        option.username === responseActionDataValue?.searchAssignRO
+                                );
+                                const status = statusOptions.find(
+                                    option => option.id === responseActionDataValue?.status
+                                )?.id as Status;
+                                const verification = verificationOptions.find(
+                                    option => option.id === responseActionDataValue?.verification
+                                )?.id as Verification;
+
                                 return new ResponseAction({
                                     id: responseActionDataValue?.id ?? "",
                                     mainTask: responseActionDataValue?.mainTask ?? "",
                                     subActivities: responseActionDataValue?.subActivities ?? "",
                                     subPillar: responseActionDataValue?.subPillar ?? "",
-                                    searchAssignRO: responseActionOptions.searchAssignRO,
+                                    searchAssignRO: searchAssignRO,
                                     dueDate: responseActionDataValue?.dueDate
                                         ? new Date(responseActionDataValue.dueDate)
                                         : new Date(),
                                     timeLine: responseActionDataValue?.timeLine ?? "",
-                                    status: responseActionOptions.status?.id as Status,
-                                    verification: responseActionOptions.verification
-                                        ?.id as Verification,
+                                    status: status,
+                                    verification: verification,
                                 });
                             }) ?? [];
 
@@ -79,21 +89,12 @@ export function getIncidentAction(
 }
 
 function getIncidentResponseActionOptionFutures(
-    responseActionsBase: Maybe<IncidentResponseActionDataValues[]>,
     optionsRepository: OptionsRepository,
     teamMemberRepository: TeamMemberRepository
 ) {
-    const responseActionBase = responseActionsBase ? responseActionsBase[0] : undefined;
-
     return {
-        searchAssignRO: responseActionBase?.searchAssignRO
-            ? teamMemberRepository.get(responseActionBase.searchAssignRO)
-            : Future.success(undefined),
-        status: responseActionBase?.status
-            ? optionsRepository.getStatusOption(responseActionBase.status)
-            : Future.success(undefined),
-        verification: responseActionBase?.verification
-            ? optionsRepository.getVerificationOption(responseActionBase.verification)
-            : Future.success(undefined),
+        searchAssignROOptions: teamMemberRepository.getAll(),
+        statusOptions: optionsRepository.getStatusOptions(),
+        verificationOptions: optionsRepository.getVerificationOptions(),
     };
 }

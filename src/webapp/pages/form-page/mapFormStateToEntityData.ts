@@ -528,55 +528,61 @@ function mapFormStateToIncidentResponseAction(
 ): ResponseAction[] {
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
-    const mainTask = allFields.find(field => field.id.includes(responseActionConstants.mainTask))
-        ?.value as string;
-    const subActivities = allFields.find(field =>
-        field.id.includes(responseActionConstants.subActivities)
-    )?.value as string;
-    const subPillar = allFields.find(field => field.id.includes(responseActionConstants.subPillar))
-        ?.value as string;
-    const dueDate = getDateFieldValue(
-        `${responseActionConstants.dueDate}-section`,
-        allFields
-    ) as Date;
+    const incidentResponseActions: ResponseAction[] = formState.sections
+        .filter(section => !section.id.includes("addNewOptionSection"))
+        .map((_, index): ResponseAction => {
+            const mainTask = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.mainTask}_${index}`)
+            )?.value as string;
+            const subActivities = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.subActivities}_${index}`)
+            )?.value as string;
+            const subPillar = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.subPillar}_${index}`)
+            )?.value as string;
+            const dueDate = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.dueDate}_${index}`)
+            )?.value as Date;
+            const timeLine = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.timeLine}_${index}`)
+            )?.value as string;
 
-    const timeLine = allFields.find(field => field.id.includes(responseActionConstants.timeLine))
-        ?.value as string;
+            const searchAssignROValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.searchAssignRO}_${index}`)
+            )?.value as string;
+            const searchAssignRO = formData.options.searchAssignRO.find(
+                option => option.id === searchAssignROValue
+            );
+            if (!searchAssignRO) throw new Error("Responsible officer not found");
 
-    const searchAssignROValue = allFields.find(field =>
-        field.id.includes(responseActionConstants.searchAssignRO)
-    )?.value as string;
-    const searchAssignRO = formData.options.searchAssignRO.find(
-        option => option.id === searchAssignROValue
-    );
-    if (!searchAssignRO) throw new Error("Responsible officer not found");
+            const statusValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.status}_${index}`)
+            )?.value as string;
+            const status = formData.options.status.find(option => option.id === statusValue);
+            if (!status) throw new Error("Status not found");
 
-    const statusValue = allFields.find(field => field.id.includes(responseActionConstants.status))
-        ?.value as string;
-    const status = formData.options.status.find(option => option.id === statusValue);
-    if (!status) throw new Error("Status not found");
+            const verificationValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.verification}_${index}`)
+            )?.value as string;
+            const verification = formData.options.verification.find(
+                option => option.id === verificationValue
+            );
+            if (!verification) throw new Error("Verification not found");
 
-    const verificationValue = allFields.find(field =>
-        field.id.includes(responseActionConstants.verification)
-    )?.value as string;
-    const verification = formData.options.verification.find(
-        option => option.id === verificationValue
-    );
-    if (!verification) throw new Error("Verification not found");
+            const responseAction = new ResponseAction({
+                id: formData.entity?.[index]?.id ?? "",
+                mainTask: mainTask,
+                subActivities: subActivities,
+                subPillar: subPillar,
+                dueDate: dueDate,
+                timeLine: timeLine,
+                searchAssignRO: searchAssignRO,
+                status: status.id as Status,
+                verification: verification.id as Verification,
+            });
 
-    const incidentResponseActions: ResponseAction[] = formData.entity?.map(responseAction => {
-        return new ResponseAction({
-            id: responseAction.id ?? "",
-            mainTask: mainTask,
-            subActivities: subActivities,
-            subPillar: subPillar,
-            searchAssignRO: searchAssignRO,
-            dueDate: dueDate,
-            timeLine: timeLine,
-            status: status.id as Status,
-            verification: verification.id as Verification,
+            return responseAction;
         });
-    });
 
     return incidentResponseActions;
 }
@@ -606,3 +612,30 @@ function getRiskAssessmentQuestionsWithOption(
 
     return { likelihoodOption, consequencesOption, riskOption };
 }
+
+// function getIncidentResponseActions(
+//     allFields: FormFieldState[],
+//     options: IncidentResponseActionOptions,
+//     index: string
+// ) {
+//     const likelihood = allFields.find(field =>
+//         field.id.includes(`${questionType}-likelihood${index}`)
+//     )?.value as string;
+//     const likelihoodOption = options.likelihood.find(option => option.id === likelihood);
+//     if (!likelihoodOption) throw new Error("Likelihood not found");
+
+//     const searchAssignRO = allFields.find(field => field.id.includes());
+
+//     const consequences = allFields.find(field =>
+//         field.id.includes(`${questionType}-consequences${index}`)
+//     )?.value as string;
+//     const consequencesOption = options.consequences.find(option => option.id === consequences);
+//     if (!consequencesOption) throw new Error("Consequences not found");
+
+//     const risk = allFields.find(field => field.id.includes(`${questionType}-risk${index}`))
+//         ?.value as string;
+//     const riskOption = options.risk.find(option => option.id === risk);
+//     if (!riskOption) throw new Error("Risk  not found");
+
+//     return { likelihoodOption, consequencesOption, riskOption };
+// }

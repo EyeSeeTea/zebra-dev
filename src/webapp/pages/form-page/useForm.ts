@@ -89,6 +89,7 @@ export function useForm(formType: FormType, id?: Id): State {
 
     const handleAddNew = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm) return;
+
         switch (configurableForm.type) {
             case "risk-assessment-questionnaire": {
                 setFormState(prevState => {
@@ -149,14 +150,12 @@ export function useForm(formType: FormType, id?: Id): State {
                             ...prevState.data,
                             sections: [
                                 ...otherSections,
-                                ...newResponseActionSection,
+                                newResponseActionSection,
                                 addAnotherSection,
                             ],
                         };
 
-                        const allNewFields = newResponseActionSection.flatMap(
-                            section => section.fields
-                        );
+                        const allNewFields = newResponseActionSection.fields;
 
                         const updatedAndValidatedData = allNewFields.reduce(
                             (acc, updatedFields) => {
@@ -214,6 +213,7 @@ export function useForm(formType: FormType, id?: Id): State {
             currentUser.username,
             configurableForm
         );
+
         compositionRoot.save.execute(formData).run(
             diseaseOutbreakEventId => {
                 setIsLoading(false);
