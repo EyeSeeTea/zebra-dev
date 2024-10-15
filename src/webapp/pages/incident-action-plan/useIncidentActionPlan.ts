@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
-import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { TableRowType } from "../../components/table/BasicTable";
 import {
@@ -30,11 +29,14 @@ export function useIncidentActionPlan(id: Id) {
     const [actionPlanSummary, setActionPlanSummary] = useState<IncidentActionFormSummaryData>();
     const [responseActionRows, setResponseActionRows] = useState<TableRowType[]>([]);
     const [globalMessage, setGlobalMessage] = useState<string>();
-    const [eventTrackerDetails, setEventTrackerDetails] = useState<DiseaseOutbreakEvent>();
+    const [incidentActionExists, setIncidentActionExists] = useState<boolean>(false);
 
     useEffect(() => {
         compositionRoot.incidentActionPlan.get.execute(id).run(
             incidentActionPlan => {
+                const incidentActionExists = !!incidentActionPlan?.actionPlan?.id;
+
+                setIncidentActionExists(incidentActionExists);
                 setIncidentAction(getIncidentActionFormSummary(incidentActionPlan));
                 setActionPlanSummary(mapIncidentActionPlanToFormSummary(incidentActionPlan));
                 setResponseActionRows(mapIncidentResponseActionToFormSummary(incidentActionPlan));
@@ -44,23 +46,14 @@ export function useIncidentActionPlan(id: Id) {
                 setGlobalMessage(`Event tracker with id: ${id} does not exist`);
             }
         );
-        compositionRoot.diseaseOutbreakEvent.get.execute(id).run(
-            diseaseOutbreakEvent => {
-                setEventTrackerDetails(diseaseOutbreakEvent);
-            },
-            err => {
-                console.debug(err);
-                setGlobalMessage(`Event tracker with id: ${id} does not exist`);
-            }
-        );
     }, [compositionRoot, id]);
 
     return {
+        incidentActionExists: incidentActionExists,
         actionPlanSummary: actionPlanSummary,
         formSummary: incidentAction,
         responseActionRows: responseActionRows,
         summaryError: globalMessage,
-        eventTrackerDetails: eventTrackerDetails,
     };
 }
 
