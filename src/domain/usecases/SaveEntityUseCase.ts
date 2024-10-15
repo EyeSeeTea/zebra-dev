@@ -6,6 +6,7 @@ import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
+import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
@@ -19,6 +20,7 @@ export class SaveEntityUseCase {
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
             teamMemberRepository: TeamMemberRepository;
             roleRepository: RoleRepository;
+            incidentActionRepository: IncidentActionRepository;
         }
     ) {}
 
@@ -40,6 +42,12 @@ export class SaveEntityUseCase {
             case "risk-assessment-summary":
             case "risk-assessment-questionnaire":
                 return this.options.riskAssessmentRepository.saveRiskAssessment(
+                    formData,
+                    formData.eventTrackerDetails.id
+                );
+            case "incident-action-plan":
+            case "incident-response-action":
+                return this.options.incidentActionRepository.saveIncidentAction(
                     formData,
                     formData.eventTrackerDetails.id
                 );

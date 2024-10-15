@@ -84,10 +84,10 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-msgid "Edit Details"
+msgid "Edit Action Plan"
 msgstr ""
 
-msgid "Notes"
+msgid "Edit Details"
 msgstr ""
 
 msgid "Edit Profile"
@@ -189,10 +189,25 @@ msgstr ""
 msgid "Incident Management Team Member saved successfully"
 msgstr ""
 
+msgid "Incident Action Plan saved successfully"
+msgstr ""
+
+msgid "Incident Response Actions saved successfully"
+msgstr ""
+
 msgid "Incident Action Plan"
 msgstr ""
 
-msgid "Cholera in NW Province, June 2023"
+msgid "Edit Response Actions"
+msgstr ""
+
+msgid "Create an incident action plan"
+msgstr ""
+
+msgid "No plan has been created for this incident"
+msgstr ""
+
+msgid "Create IAP"
 msgstr ""
 
 msgid "Incident Management Team Builder"
@@ -208,6 +223,9 @@ msgid "Delete Role"
 msgstr ""
 
 msgid "Delete team role"
+msgstr ""
+
+msgid "Cholera in NW Province, June 2023"
 msgstr ""
 
 msgid "Resources"

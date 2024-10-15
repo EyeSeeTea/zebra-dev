@@ -4,12 +4,14 @@ import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
+import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getIncidentManagementTeamById } from "./utils/incident-management-team/GetIncidentManagementTeamById";
+import { getIncidentAction } from "./utils/incident-action/GetIncidentActionById";
 import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
 
 export class GetDiseaseOutbreakByIdUseCase {
@@ -22,6 +24,7 @@ export class GetDiseaseOutbreakByIdUseCase {
             riskAssessmentRepository: RiskAssessmentRepository;
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
             roleRepository: RoleRepository;
+            incidentActionRepository: IncidentActionRepository;
         }
     ) {}
 
@@ -60,6 +63,12 @@ export class GetDiseaseOutbreakByIdUseCase {
                     ),
                     incidentManagementTeam: getIncidentManagementTeamById(id, this.options),
                     roles: this.options.roleRepository.getAll(),
+                    incidentAction: getIncidentAction(
+                        id,
+                        this.options.incidentActionRepository,
+                        this.options.optionsRepository,
+                        this.options.teamMemberRepository
+                    ),
                 }).flatMap(
                     ({
                         mainSyndrome,
@@ -70,6 +79,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                         riskAssessment,
                         incidentManagementTeam,
                         roles,
+                        incidentAction,
                     }) => {
                         return this.options.incidentManagementTeamRepository
                             .getIncidentManagementTeamMember(incidentManagerName, id, roles)
@@ -85,7 +95,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                                         areasAffectedDistricts: areasAffectedDistricts,
                                         incidentManager: incidentManager,
                                         riskAssessment: riskAssessment,
-                                        incidentActionPlan: undefined, //TO DO : FIXME populate once incidentActionPlan repo is implemented
+                                        incidentActionPlan: incidentAction,
                                         incidentManagementTeam: incidentManagementTeam,
                                     });
                                 return Future.success(diseaseOutbreakEvent);

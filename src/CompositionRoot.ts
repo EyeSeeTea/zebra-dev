@@ -27,6 +27,9 @@ import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
 import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
 import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
 import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
+import { IncidentActionRepository } from "./domain/repositories/IncidentActionRepository";
+import { IncidentActionD2Repository } from "./data/repositories/IncidentActionD2Repository";
+import { IncidentActionTestRepository } from "./data/repositories/test/IncidentActionTestRepository";
 import { MapConfigRepository } from "./domain/repositories/MapConfigRepository";
 import { MapConfigD2Repository } from "./data/repositories/MapConfigD2Repository";
 import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestRepository";
@@ -59,6 +62,7 @@ import { SystemRepository } from "./domain/repositories/SystemRepository";
 import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
+import { GetIncidentActionByIdUseCase } from "./domain/usecases/GetIncidentActionByIdUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -71,6 +75,7 @@ type Repositories = {
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
     riskAssessmentRepository: RiskAssessmentRepository;
+    incidentActionRepository: IncidentActionRepository;
     mapConfigRepository: MapConfigRepository;
     performanceOverviewRepository: PerformanceOverviewRepository;
     roleRepository: RoleRepository;
@@ -99,6 +104,9 @@ function getCompositionRoot(repositories: Repositories) {
             get: new GetIncidentManagementTeamByIdUseCase(repositories),
             deleteIncidentManagementTeamMemberRole:
                 new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
+        },
+        incidentActionPlan: {
+            get: new GetIncidentActionByIdUseCase(repositories),
         },
         performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
@@ -135,6 +143,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
+        incidentActionRepository: new IncidentActionD2Repository(api),
         mapConfigRepository: new MapConfigD2Repository(api),
         performanceOverviewRepository: new PerformanceOverviewD2Repository(api, dataStoreClient),
         roleRepository: new RoleD2Repository(api),
@@ -156,6 +165,7 @@ export function getTestCompositionRoot() {
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
         riskAssessmentRepository: new RiskAssessmentTestRepository(),
+        incidentActionRepository: new IncidentActionTestRepository(),
         mapConfigRepository: new MapConfigTestRepository(),
         performanceOverviewRepository: new PerformanceOverviewTestRepository(),
         roleRepository: new RoleTestRepository(),

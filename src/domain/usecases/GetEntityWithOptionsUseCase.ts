@@ -7,11 +7,16 @@ import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
+import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getDiseaseOutbreakWithEventOptions } from "./utils/disease-outbreak/GetDiseaseOutbreakWithOptions";
 import { getIncidentManagementTeamWithOptions } from "./utils/incident-management-team/GetIncidentManagementTeamWithOptions";
+import {
+    getIncidentActionPlanWithOptions,
+    getIncidentResponseActionWithOptions,
+} from "./utils/incident-action/GetIncidentActionPlanWithOptions";
 import {
     getRiskAssessmentGradingWithOptions,
     getRiskAssessmentQuestionnaireWithOptions,
@@ -26,6 +31,7 @@ export class GetEntityWithOptionsUseCase {
             roleRepository: RoleRepository;
             teamMemberRepository: TeamMemberRepository;
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
+            incidentActionRepository: IncidentActionRepository;
         }
     ) {}
 
@@ -64,6 +70,27 @@ export class GetEntityWithOptionsUseCase {
                 return getRiskAssessmentQuestionnaireWithOptions(
                     eventTrackerDetails,
                     this.options.optionsRepository
+                );
+            case "incident-action-plan":
+                if (!eventTrackerDetails)
+                    return Future.error(
+                        new Error("Disease outbreak id is required for incident action plan")
+                    );
+
+                return getIncidentActionPlanWithOptions(
+                    eventTrackerDetails,
+                    this.options.optionsRepository
+                );
+            case "incident-response-action":
+                if (!eventTrackerDetails)
+                    return Future.error(
+                        new Error("Disease outbreak id is required for incident action plan")
+                    );
+
+                return getIncidentResponseActionWithOptions(
+                    eventTrackerDetails,
+                    this.options.optionsRepository,
+                    this.options.teamMemberRepository
                 );
 
             case "incident-management-team-member-assignment":

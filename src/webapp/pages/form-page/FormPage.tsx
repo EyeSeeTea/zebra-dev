@@ -12,7 +12,9 @@ export type FormType =
     | "risk-assessment-grading"
     | "risk-assessment-questionnaire"
     | "risk-assessment-summary"
-    | "incident-management-team-member-assignment";
+    | "incident-management-team-member-assignment"
+    | "incident-action-plan"
+    | "incident-response-action";
 
 export const FormPage: React.FC = React.memo(() => {
     const { formType, id } = useParams<{
