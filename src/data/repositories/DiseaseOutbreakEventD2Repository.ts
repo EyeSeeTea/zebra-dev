@@ -23,7 +23,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 program: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
                 trackedEntity: id,
-                fields: { attributes: true, trackedEntity: true },
+                fields: { attributes: true, trackedEntity: true, updatedAt: true },
             })
         )
             .flatMap(response => assertOrError(response.instances[0], "Tracked entity"))

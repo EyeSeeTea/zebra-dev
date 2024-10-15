@@ -1,6 +1,6 @@
 import React from "react";
 import { join } from "string-ts";
-import { generatePath, useHistory } from "react-router-dom";
+import { generatePath as generatePathRRD, useHistory } from "react-router-dom";
 
 import { FormType } from "../pages/form-page/FormPage";
 
@@ -44,16 +44,29 @@ type RouteParams = {
     [RouteName.DASHBOARD]: undefined;
 };
 
-export function useRoutes() {
+type State = {
+    goTo: <T extends RouteName>(route: T, params?: RouteParams[T]) => void;
+    generatePath: <T extends RouteName>(route: T, params?: RouteParams[T]) => string;
+};
+
+export function useRoutes(): State {
     const history = useHistory();
 
     const goTo = React.useCallback(
         <T extends RouteName>(route: T, params?: RouteParams[T]) => {
-            const path = generatePath(routes[route], params as any);
+            const path = generatePathRRD(routes[route], params as any);
             history.push(path);
         },
         [history]
     );
 
-    return { goTo };
+    const generatePath = React.useCallback(
+        <T extends RouteName>(route: T, params?: RouteParams[T]) => {
+            const path = generatePathRRD(routes[route], params as any);
+            return path;
+        },
+        []
+    );
+
+    return { goTo, generatePath };
 }

@@ -140,6 +140,9 @@ msgstr ""
 msgid "7-1-7 performance"
 msgstr ""
 
+msgid "events"
+msgstr ""
+
 msgid "Performance overview"
 msgstr ""
 
@@ -153,6 +156,12 @@ msgid "Create Risk Assessment"
 msgstr ""
 
 msgid "Add new Assessment"
+msgstr ""
+
+msgid "Risk assessment incomplete"
+msgstr ""
+
+msgid "Risks associated with this event have not yet been assessed."
 msgstr ""
 
 msgid "N/A"

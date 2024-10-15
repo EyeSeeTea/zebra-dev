@@ -156,12 +156,13 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
                         dataElement: { id: true, code: true },
                         value: true,
                     },
+                    createdAt: true,
                     trackedEntity: true,
                 },
             })
         ).map(events => {
             const grading: RiskAssessmentGrading[] = events.instances.map(event => {
-                return mapDataElementsToRiskAssessmentGrading(event.dataValues);
+                return mapDataElementsToRiskAssessmentGrading(event.createdAt, event.dataValues);
             });
             return grading;
         });
