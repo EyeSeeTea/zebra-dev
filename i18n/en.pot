@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-10-09T10:56:24.909Z\n"
-"PO-Revision-Date: 2024-10-09T10:56:24.909Z\n"
+"POT-Creation-Date: 2024-10-15T12:56:35.980Z\n"
+"PO-Revision-Date: 2024-10-15T12:56:35.980Z\n"
 
 msgid "Low"
 msgstr ""
@@ -88,6 +88,9 @@ msgid "Edit Action Plan"
 msgstr ""
 
 msgid "Edit Details"
+msgstr ""
+
+msgid "Notes"
 msgstr ""
 
 msgid "Edit Profile"
@@ -223,9 +226,6 @@ msgid "Delete Role"
 msgstr ""
 
 msgid "Delete team role"
-msgstr ""
-
-msgid "Cholera in NW Province, June 2023"
 msgstr ""
 
 msgid "Resources"
