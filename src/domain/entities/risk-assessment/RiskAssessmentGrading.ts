@@ -116,7 +116,7 @@ const translations: Record<AllOptionTypes, string> = {
 };
 
 export interface RiskAssessmentGradingAttrs extends Ref {
-    lastUpdated: Date;
+    lastUpdated?: Date;
     populationAtRisk: LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk;
     attackRate: LowWeightedOption | MediumWeightedOption | HighWeightedOption;
     geographicalSpread: LowGeographicalSpread | MediumGeographicalSpread | HighGeographicalSpread;

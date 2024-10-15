@@ -41,7 +41,6 @@ export type PerformanceOverviewMetrics = {
     detect7d: string;
     notify1d: string;
     respond7d: string;
-    creationDate: string;
     suspectedDisease: DiseaseNames;
     hazardType: HazardNames;
     nationalIncidentStatus: string;
@@ -67,3 +66,10 @@ type HazardCounts = BaseCounts & {
 };
 
 export type TotalCardCounts = DiseaseCounts | HazardCounts;
+
+export type PerformanceMetrics717 = {
+    id: string;
+    name: string;
+    type: "primary" | "secondary";
+    value?: number;
+};

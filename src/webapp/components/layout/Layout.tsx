@@ -12,6 +12,7 @@ type LayoutProps = {
     subtitle?: string;
     hideSideBarOptions?: boolean;
     showCreateEvent?: boolean;
+    lastAnalyticsRuntime?: string;
 };
 
 export const Layout: React.FC<LayoutProps> = React.memo(
@@ -21,6 +22,7 @@ export const Layout: React.FC<LayoutProps> = React.memo(
         subtitle = "",
         hideSideBarOptions = false,
         showCreateEvent = false,
+        lastAnalyticsRuntime = "",
     }) => {
         const theme = useTheme();
         const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -41,6 +43,7 @@ export const Layout: React.FC<LayoutProps> = React.memo(
                     showCreateEvent={showCreateEvent}
                     title={title}
                     subtitle={subtitle}
+                    lastAnalyticsRuntime={lastAnalyticsRuntime}
                 >
                     {children}
                 </MainContent>

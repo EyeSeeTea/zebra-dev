@@ -254,6 +254,7 @@ function getRiskAssessmentTrackerEvent(
 }
 
 export function mapDataElementsToRiskAssessmentGrading(
+    lastUpdated: string | undefined,
     dataValues: DataValue[]
 ): RiskAssessmentGrading {
     const populationValue = getValueById(dataValues, riskAssessmentGradingIds.populationAtRisk);
@@ -273,7 +274,7 @@ export function mapDataElementsToRiskAssessmentGrading(
 
     const riskAssessmentGrading: RiskAssessmentGrading = RiskAssessmentGrading.create({
         id: "",
-        lastUpdated: new Date(),
+        lastUpdated: lastUpdated ? new Date(lastUpdated) : undefined,
         populationAtRisk: RiskAssessmentGrading.getOptionTypeByCodePopulation(populationValue),
         attackRate: RiskAssessmentGrading.getOptionTypeByCodeWeighted(attackRateValue),
         geographicalSpread:

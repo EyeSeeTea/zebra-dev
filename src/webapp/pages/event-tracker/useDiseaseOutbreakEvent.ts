@@ -71,7 +71,9 @@ export function useDiseaseOutbreakEvent(id: Id) {
             summary: [
                 {
                     label: "Last updated",
-                    value: getDateAsLocaleDateTimeString(diseaseOutbreakEvent.lastUpdated),
+                    value: diseaseOutbreakEvent.lastUpdated
+                        ? getDateAsLocaleDateTimeString(diseaseOutbreakEvent.lastUpdated)
+                        : "",
                 },
                 dataSourceLabelValue,
                 {
@@ -103,7 +105,9 @@ export function useDiseaseOutbreakEvent(id: Id) {
     ) => {
         if (diseaseOutbreakEvent.riskAssessment) {
             return diseaseOutbreakEvent.riskAssessment.grading.map(riskAssessmentGrading => ({
-                riskAssessmentDate: getDateAsLocaleDateString(riskAssessmentGrading.lastUpdated),
+                riskAssessmentDate: riskAssessmentGrading.lastUpdated
+                    ? getDateAsLocaleDateString(riskAssessmentGrading.lastUpdated)
+                    : "",
                 grade: RiskAssessmentGrading.getTranslatedLabel(
                     riskAssessmentGrading.getGrade().getOrThrow()
                 ),
