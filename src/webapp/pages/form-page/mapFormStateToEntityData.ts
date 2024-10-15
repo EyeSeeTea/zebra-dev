@@ -529,7 +529,7 @@ function mapFormStateToIncidentResponseAction(
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
     const incidentResponseActions: ResponseAction[] = formState.sections
-        .filter(section => !section.id.includes("addNewOptionSection"))
+        .filter(section => !section.id.includes("addNewResponseActionSection"))
         .map((_, index): ResponseAction => {
             const mainTask = allFields.find(field =>
                 field.id.includes(`${responseActionConstants.mainTask}_${index}`)
@@ -612,30 +612,3 @@ function getRiskAssessmentQuestionsWithOption(
 
     return { likelihoodOption, consequencesOption, riskOption };
 }
-
-// function getIncidentResponseActions(
-//     allFields: FormFieldState[],
-//     options: IncidentResponseActionOptions,
-//     index: string
-// ) {
-//     const likelihood = allFields.find(field =>
-//         field.id.includes(`${questionType}-likelihood${index}`)
-//     )?.value as string;
-//     const likelihoodOption = options.likelihood.find(option => option.id === likelihood);
-//     if (!likelihoodOption) throw new Error("Likelihood not found");
-
-//     const searchAssignRO = allFields.find(field => field.id.includes());
-
-//     const consequences = allFields.find(field =>
-//         field.id.includes(`${questionType}-consequences${index}`)
-//     )?.value as string;
-//     const consequencesOption = options.consequences.find(option => option.id === consequences);
-//     if (!consequencesOption) throw new Error("Consequences not found");
-
-//     const risk = allFields.find(field => field.id.includes(`${questionType}-risk${index}`))
-//         ?.value as string;
-//     const riskOption = options.risk.find(option => option.id === risk);
-//     if (!riskOption) throw new Error("Risk  not found");
-
-//     return { likelihoodOption, consequencesOption, riskOption };
-// }

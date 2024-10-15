@@ -139,7 +139,7 @@ export function useForm(formType: FormType, id?: Id): State {
                 setFormState(prevState => {
                     if (prevState.kind === "loaded") {
                         const otherSections = prevState.data.sections.filter(
-                            section => section.id !== "addNewOptionSection"
+                            section => section.id !== "addNewResponseActionSection"
                         );
                         const addAnotherSection = getAnotherOptionSection();
                         const newResponseActionSection = addNewResponseActionSection(
