@@ -6,9 +6,12 @@ import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/Disease
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
+import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
+import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getDiseaseOutbreakWithEventOptions } from "./utils/disease-outbreak/GetDiseaseOutbreakWithOptions";
+import { getIncidentManagementTeamWithOptions } from "./utils/incident-management-team/GetIncidentManagementTeamWithOptions";
 import {
     getRiskAssessmentGradingWithOptions,
     getRiskAssessmentQuestionnaireWithOptions,
@@ -20,7 +23,9 @@ export class GetEntityWithOptionsUseCase {
         private options: {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             optionsRepository: OptionsRepository;
+            roleRepository: RoleRepository;
             teamMemberRepository: TeamMemberRepository;
+            incidentManagementTeamRepository: IncidentManagementTeamRepository;
         }
     ) {}
 
@@ -61,6 +66,19 @@ export class GetEntityWithOptionsUseCase {
                     this.options.optionsRepository
                 );
 
+            case "incident-management-team-member-assignment":
+                if (!eventTrackerDetails)
+                    return Future.error(
+                        new Error(
+                            "Disease outbreak id is required for incident management team member builder"
+                        )
+                    );
+
+                return getIncidentManagementTeamWithOptions(id, eventTrackerDetails, {
+                    roleRepository: this.options.roleRepository,
+                    teamMemberRepository: this.options.teamMemberRepository,
+                    incidentManagementTeamRepository: this.options.incidentManagementTeamRepository,
+                });
             default:
                 return Future.error(new Error("Form type not supported"));
         }

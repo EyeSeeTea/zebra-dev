@@ -13,6 +13,7 @@ export type User = {
     status?: string;
     src?: string;
     alt?: string;
+    teamRoles?: string;
 };
 
 type UserSelectorProps = {

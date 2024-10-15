@@ -8,6 +8,7 @@ import { Future } from "../../domain/entities/generic/Future";
 
 const RTSL_ZEBRA_INCIDENTMANAGER = "RTSL_ZEBRA_INCIDENTMANAGER";
 const RTSL_ZEBRA_RISKASSESSOR = "RTSL_ZEBRA_RISKASSESSOR";
+const RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_MEMBERS = "RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_MEMBERS";
 
 export class TeamMemberD2Repository implements TeamMemberRepository {
     constructor(private api: D2Api) {}
@@ -35,6 +36,10 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
 
     getRiskAssessors(): FutureData<TeamMember[]> {
         return this.getTeamMembersByUserGroup(RTSL_ZEBRA_RISKASSESSOR);
+    }
+
+    getForIncidentManagementTeamMembers(): FutureData<TeamMember[]> {
+        return this.getTeamMembersByUserGroup(RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_MEMBERS);
     }
 
     private getTeamMembersByUserGroup(userGroupCode: string): FutureData<TeamMember[]> {
@@ -85,11 +90,12 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
             email: user.email,
             phone: user.phoneNumber,
             status: "Available", // TODO: Get status when defined
-            role: { id: "1", name: "Incident Manager" }, // TODO: Get role when defined
             photo:
                 photoUrlString && TeamMember.isValidPhotoUrl(photoUrlString)
                     ? new URL(photoUrlString)
                     : undefined,
+            teamRoles: undefined,
+            workPosition: undefined, // TODO: Get workPosition when defined
         });
     }
 }

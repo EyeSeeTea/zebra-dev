@@ -43,6 +43,7 @@ import {
     RiskAssessmentSummaryFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
+import { getPopulatedDataElement, getValueById } from "./helpers";
 
 type D2ProgramStageDataElementsMetadata = {
     dataElement: SelectedPick<
@@ -218,18 +219,6 @@ function mapRiskAssessmentQuestionnaireToDataElements(
 
         return customEvents;
     }
-}
-
-function getPopulatedDataElement(dataElement: Id, value: Maybe<string>): DataValue {
-    const populatedDataElement: DataValue = {
-        dataElement: dataElement,
-        value: value ?? "",
-        updatedAt: new Date().toISOString(),
-        storedBy: "",
-        createdAt: new Date().toISOString(),
-        providedElsewhere: false,
-    };
-    return populatedDataElement;
 }
 
 function getRiskAssessmentTrackerEvent(
@@ -416,8 +405,4 @@ export function mapDataElementsToCustomRiskAssessmentQuestionnaire(
     };
 
     return customQuestion;
-}
-
-function getValueById(dataValues: DataValue[], dataElement: string): Maybe<string> {
-    return dataValues.find(dataValue => dataValue.dataElement === dataElement)?.value;
 }

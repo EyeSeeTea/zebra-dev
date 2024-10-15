@@ -7,7 +7,8 @@ type Email = string;
 type IncidentManagerStatus = "Available" | "Unavailable";
 
 export type TeamRole = NamedRef & {
-    level?: number;
+    roleId: string;
+    reportsToUsername: Maybe<string>;
 };
 
 interface TeamMemberAttrs extends NamedRef {
@@ -16,7 +17,8 @@ interface TeamMemberAttrs extends NamedRef {
     email: Maybe<Email>;
     status: Maybe<IncidentManagerStatus>;
     photo: Maybe<URL>;
-    role: Maybe<TeamRole>;
+    teamRoles: Maybe<TeamRole[]>;
+    workPosition: Maybe<string>;
 }
 
 export class TeamMember extends Struct<TeamMemberAttrs>() {

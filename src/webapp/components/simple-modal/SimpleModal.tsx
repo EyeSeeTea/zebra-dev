@@ -1,44 +1,41 @@
 import React from "react";
-import { Modal, Avatar, CardContent, Card } from "@material-ui/core";
+import { Modal, CardContent, Card } from "@material-ui/core";
 import styled from "styled-components";
 
 import i18n from "../../../utils/i18n";
 import { Button } from "../button/Button";
 
-type ProfileModalProps = {
-    name: string;
+type SimpleModalProps = {
+    title: string;
     children: React.ReactNode;
     footerButtons?: React.ReactNode;
-    alt?: string;
-    src?: string;
     open: boolean;
     onClose: () => void;
+    closeLabel?: string;
 };
 
-export const ProfileModal: React.FC<ProfileModalProps> = React.memo(
-    ({ children, footerButtons, src, alt, open = false, onClose, name }) => {
+export const SimpleModal: React.FC<SimpleModalProps> = React.memo(
+    ({ children, footerButtons, closeLabel, open = false, onClose, title }) => {
         return (
             <Modal
-                aria-labelledby={`modal-${name}`}
-                aria-describedby={`${name}-profile`}
+                aria-labelledby={`modal-${title}`}
+                aria-describedby={`${title}-modal`}
                 open={open}
                 onClose={onClose}
                 hideBackdrop
             >
                 <StyledCard variant="outlined">
-                    <Name>{name}</Name>
+                    <Title>{title}</Title>
 
                     <Content>
-                        <AvatarContainer>
-                            <Avatar alt={alt} src={src} />
-                        </AvatarContainer>
-
                         <StyledCardContent>{children}</StyledCardContent>
                     </Content>
 
                     <Footer>
-                        <Button onClick={onClose}>{i18n.t("Close")}</Button>
                         {footerButtons ?? null}
+                        <Button variant="outlined" color="secondary" onClick={onClose}>
+                            {closeLabel ? closeLabel : i18n.t("Close")}
+                        </Button>
                     </Footer>
                 </StyledCard>
             </Modal>
@@ -53,7 +50,7 @@ const Content = styled.div`
     }
 `;
 
-const Name = styled.span`
+const Title = styled.span`
     color: ${props => props.theme.palette.common.black};
     font-size: 1.25rem;
     font-weight: 500;
@@ -62,7 +59,7 @@ const Name = styled.span`
 const Footer = styled.div`
     display: flex;
     margin-block-start: 16px;
-    gap: 16px;
+    gap: 8px;
 `;
 
 const StyledCard = styled(Card)`
@@ -78,15 +75,6 @@ const StyledCard = styled(Card)`
     transform: translate(-50%, -50%);
     padding: 24px;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-`;
-
-const AvatarContainer = styled.div`
-    padding-block: 20px;
-    padding-inline: 45px;
-    .MuiAvatar-root {
-        width: 121px;
-        height: 121px;
-    }
 `;
 
 const StyledCardContent = styled(CardContent)`

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-10-06T18:13:02.378Z\n"
-"PO-Revision-Date: 2024-10-06T18:13:02.378Z\n"
+"POT-Creation-Date: 2024-10-09T10:56:24.909Z\n"
+"PO-Revision-Date: 2024-10-09T10:56:24.909Z\n"
 
 msgid "Low"
 msgstr ""
@@ -90,6 +90,12 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+msgid "Edit Profile"
+msgstr ""
+
+msgid "Currently assigned:"
+msgstr ""
+
 msgid "Create Event"
 msgstr ""
 
@@ -165,7 +171,7 @@ msgstr ""
 msgid "Add another"
 msgstr ""
 
-msgid "Create Event form cannot be loaded"
+msgid "Form cannot be loaded"
 msgstr ""
 
 msgid "Disease Outbreak saved successfully"
@@ -180,6 +186,9 @@ msgstr ""
 msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
+msgid "Incident Management Team Member saved successfully"
+msgstr ""
+
 msgid "Incident Action Plan"
 msgstr ""
 
@@ -187,6 +196,18 @@ msgid "Cholera in NW Province, June 2023"
 msgstr ""
 
 msgid "Incident Management Team Builder"
+msgstr ""
+
+msgid "Edit Role"
+msgstr ""
+
+msgid "Assign Role"
+msgstr ""
+
+msgid "Delete Role"
+msgstr ""
+
+msgid "Delete team role"
 msgstr ""
 
 msgid "Resources"

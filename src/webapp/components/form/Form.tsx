@@ -18,7 +18,6 @@ export type FormProps = {
 
 export const Form: React.FC<FormProps> = React.memo(props => {
     const { formState, onFormChange, onSave, onCancel, errorLabels, handleAddNew } = props;
-
     const { formLocalState, handleUpdateFormField } = useLocalForm(formState, onFormChange);
 
     return (
