@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-10-09T10:40:30.273Z\n"
-"PO-Revision-Date: 2024-10-09T10:40:30.273Z\n"
+"POT-Creation-Date: 2024-10-15T13:56:24.806Z\n"
+"PO-Revision-Date: 2024-10-15T13:56:24.806Z\n"
 
 msgid "Low"
 msgstr ""
@@ -180,12 +180,6 @@ msgstr ""
 msgid "Incident Response Actions saved successfully"
 msgstr ""
 
-msgid "Incident Action Plan"
-msgstr ""
-
-msgid "Edit Response Actions"
-msgstr ""
-
 msgid "Create an incident action plan"
 msgstr ""
 
@@ -193,6 +187,9 @@ msgid "No plan has been created for this incident"
 msgstr ""
 
 msgid "Create IAP"
+msgstr ""
+
+msgid "Incident Action Plan"
 msgstr ""
 
 msgid "Incident Management Team Builder"

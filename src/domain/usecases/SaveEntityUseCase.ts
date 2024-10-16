@@ -9,26 +9,31 @@ import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbrea
 
 export class SaveEntityUseCase {
     constructor(
-        private diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository,
-        private riskAssessmentRepository: RiskAssessmentRepository,
-        private incidentActionRepository: IncidentActionRepository
+        private options: {
+            diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
+            riskAssessmentRepository: RiskAssessmentRepository;
+            incidentActionRepository: IncidentActionRepository;
+        }
     ) {}
 
     public execute(formData: ConfigurableForm): FutureData<void | Id> {
         if (!formData || !formData.entity) return Future.error(new Error("No form data found"));
         switch (formData.type) {
             case "disease-outbreak-event":
-                return saveDiseaseOutbreak(this.diseaseOutbreakEventRepository, formData.entity);
+                return saveDiseaseOutbreak(
+                    this.options.diseaseOutbreakEventRepository,
+                    formData.entity
+                );
             case "risk-assessment-grading":
             case "risk-assessment-summary":
             case "risk-assessment-questionnaire":
-                return this.riskAssessmentRepository.saveRiskAssessment(
+                return this.options.riskAssessmentRepository.saveRiskAssessment(
                     formData,
                     formData.eventTrackerDetails.id
                 );
             case "incident-action-plan":
             case "incident-response-action":
-                return this.incidentActionRepository.saveIncidentAction(
+                return this.options.incidentActionRepository.saveIncidentAction(
                     formData,
                     formData.eventTrackerDetails.id
                 );

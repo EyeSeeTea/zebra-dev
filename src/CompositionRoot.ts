@@ -65,11 +65,7 @@ type Repositories = {
 function getCompositionRoot(repositories: Repositories) {
     return {
         getWithOptions: new GetEntityWithOptionsUseCase(repositories),
-        save: new SaveEntityUseCase(
-            repositories.diseaseOutbreakEventRepository,
-            repositories.riskAssessmentRepository,
-            repositories.incidentActionRepository
-        ),
+        save: new SaveEntityUseCase(repositories),
         users: {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
         },
