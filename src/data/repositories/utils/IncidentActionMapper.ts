@@ -158,7 +158,7 @@ function mapIncidentActionPlanToDataElements(
     );
 }
 
-function mapIncidentResponseActionToDataElements(
+export function mapIncidentResponseActionToDataElements(
     programStageId: Id,
     teiId: Id,
     enrollmentId: Id,

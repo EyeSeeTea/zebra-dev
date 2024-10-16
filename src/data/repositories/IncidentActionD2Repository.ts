@@ -8,7 +8,10 @@ import {
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
 } from "./consts/DiseaseOutbreakConstants";
-import { IncidentActionRepository } from "../../domain/repositories/IncidentActionRepository";
+import {
+    IncidentActionRepository,
+    UpdateIncidentResponseActionOptions,
+} from "../../domain/repositories/IncidentActionRepository";
 import {
     mapDataElementsToIncidentActionPlan,
     mapDataElementsToIncidentResponseActions,
@@ -18,6 +21,9 @@ import { ActionPlanFormData, ResponseActionFormData } from "../../domain/entitie
 import { getProgramStage } from "./utils/MetadataHelper";
 import { Future } from "../../domain/entities/generic/Future";
 import { Status, Verification } from "../../domain/entities/incident-action-plan/ResponseAction";
+import { assertOrError } from "./utils/AssertOrError";
+import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
+import { statusCodeMap, verificationCodeMap } from "./consts/IncidentActionConstants";
 
 export const incidentActionPlanIds = {
     iapType: "wr1I51WTHhl",
@@ -129,9 +135,7 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
             const incidentDataElements = incidentResponse.objects[0]?.programStageDataElements;
 
             if (!incidentDataElements)
-                return Future.error(
-                    new Error(` ${formData.type} Program Stage metadata not found`)
-                );
+                return Future.error(new Error(`${formData.type} Program Stage metadata not found`));
 
             //Get the enrollment Id for the disease outbreak
             return apiToFuture(
@@ -165,15 +169,75 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
                     )
                 ).flatMap(saveResponse => {
                     if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
-                        return Future.error(
-                            new Error(`Error saving Incident Action Plan Risk Assessment Grading`)
-                        );
+                        return Future.error(new Error(`Error saving Incident Action`));
                     } else {
                         return Future.success(undefined);
                     }
                 });
             });
         });
+    }
+
+    updateIncidentResponseAction(options: UpdateIncidentResponseActionOptions): FutureData<void> {
+        const { diseaseOutbreakId, eventId, responseAction } = options;
+
+        return apiToFuture(
+            this.api.tracker.events.get({
+                program: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                trackedEntity: diseaseOutbreakId,
+                programStage: RTSL_ZEBRA_INCIDENT_RESPONSE_ACTION_PROGRAM_STAGE_ID,
+                event: eventId,
+                fields: {
+                    enrollment: true,
+                    dataValues: {
+                        dataElement: true,
+                        value: true,
+                    },
+                },
+            })
+        )
+            .flatMap(response => assertOrError(response.instances[0], "Event"))
+            .flatMap(event => {
+                const enrollmentId = event.enrollment;
+                if (!enrollmentId) {
+                    return Future.error(new Error(`Enrollment not found for response action`));
+                }
+
+                const valueCodeMaps = { ...statusCodeMap, ...verificationCodeMap };
+
+                const eventToPost: D2TrackerEvent = {
+                    event: eventId,
+                    program: RTSL_ZEBRA_PROGRAM_ID,
+                    programStage: RTSL_ZEBRA_INCIDENT_RESPONSE_ACTION_PROGRAM_STAGE_ID,
+                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                    enrollment: enrollmentId,
+                    occurredAt: new Date().toISOString(),
+                    trackedEntity: diseaseOutbreakId,
+                    status: "ACTIVE",
+                    dataValues: [
+                        {
+                            dataElement:
+                                incidentResponseActionsIds[
+                                    responseAction.type as keyof typeof incidentResponseActionsIds
+                                ],
+                            value: valueCodeMaps[
+                                responseAction.value as keyof typeof valueCodeMaps
+                            ],
+                        },
+                    ],
+                };
+
+                return apiToFuture(
+                    this.api.tracker.post({ importStrategy: "UPDATE" }, { events: [eventToPost] })
+                ).flatMap(saveResponse => {
+                    if (saveResponse.status === "ERROR") {
+                        return Future.error(new Error(`Error saving Incident Response Action`));
+                    } else {
+                        return Future.success(undefined);
+                    }
+                });
+            });
     }
 
     private getProgramStageByFormType(formType: string) {

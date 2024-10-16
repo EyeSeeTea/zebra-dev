@@ -1,52 +1,98 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
-import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
-import { TableRowType } from "../../components/table/BasicTable";
+import { TableColumn, TableRowType } from "../../components/table/BasicTable";
 import {
     getIAPTypeByCode,
     getPhoecLevelByCode,
     getStatusTypeByCode,
     getVerificationTypeByCode,
 } from "../../../data/repositories/consts/IncidentActionConstants";
-import { IncidentActionPlan } from "../../../domain/entities/incident-action-plan/IncidentActionPlan";
-
-type LabelWithValue = {
-    label: string;
-    value: string;
-};
+import {
+    IncidentActionOptions,
+    IncidentActionPlan,
+} from "../../../domain/entities/incident-action-plan/IncidentActionPlan";
+import { Option } from "../../components/utils/option";
 
 export type IncidentActionFormSummaryData = {
     subTitle: string;
-    summary: LabelWithValue[];
+    summary: Option[];
+};
+
+export type UIIncidentActionOptions = {
+    status: Option[];
+    verification: Option[];
 };
 
 export function useIncidentActionPlan(id: Id) {
     const { compositionRoot } = useAppContext();
 
-    const [incidentAction, setIncidentAction] = useState<LabelWithValue[] | undefined>();
+    const [incidentAction, setIncidentAction] = useState<Option[] | undefined>();
     const [actionPlanSummary, setActionPlanSummary] = useState<IncidentActionFormSummaryData>();
     const [responseActionRows, setResponseActionRows] = useState<TableRowType[]>([]);
     const [globalMessage, setGlobalMessage] = useState<string>();
-    const [eventTrackerDetails, setEventTrackerDetails] = useState<DiseaseOutbreakEvent>();
+    const [incidentActionExists, setIncidentActionExists] = useState<boolean>(false);
+    const [incidentActionOptions, setIncidentActionOptions] = useState<UIIncidentActionOptions>();
+
+    const saveTableOption = useCallback(
+        (value: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => {
+            const eventId = responseActionRows[rowIndex]?.id ?? "";
+            compositionRoot.incidentActionPlan.updateResponseAction
+                .execute({
+                    diseaseOutbreakId: id,
+                    eventId: eventId,
+                    responseAction: { value: value ?? "", type: column },
+                })
+                .run(
+                    () => console.debug(`${column} table option saved successfully`),
+                    err => setGlobalMessage(`Error saving table option: ${err}`)
+                );
+        },
+        [compositionRoot, id, responseActionRows]
+    );
+
+    const responseActionColumns: TableColumn[] = useMemo(() => {
+        return [
+            { value: "mainTask", label: "Main task", type: "text" },
+            { value: "subActivities", label: "Sub Activities", type: "text" },
+            { value: "subPillar", label: "Sub Pillar", type: "text" },
+            {
+                value: "searchAssignRO",
+                label: "Responsible officer",
+                type: "text",
+            },
+            {
+                value: "status",
+                label: "Status",
+                type: "selector",
+                options: incidentActionOptions?.status ?? [],
+                onChange: saveTableOption,
+            },
+            {
+                value: "verification",
+                label: "Verification",
+                type: "selector",
+                options: incidentActionOptions?.verification ?? [],
+                onChange: saveTableOption,
+            },
+            { value: "timeLine", label: "Timeline", type: "text" },
+            { value: "dueDate", label: "Due date", type: "text" },
+        ];
+    }, [incidentActionOptions, saveTableOption]);
 
     useEffect(() => {
         compositionRoot.incidentActionPlan.get.execute(id).run(
             incidentActionPlan => {
+                const incidentActionExists = !!incidentActionPlan?.actionPlan?.id;
+                const incidentActionOptions = incidentActionPlan?.incidentActionOptions;
+
+                setIncidentActionExists(incidentActionExists);
+                setIncidentActionOptions(mapIncidentActionOptionsToTable(incidentActionOptions));
                 setIncidentAction(getIncidentActionFormSummary(incidentActionPlan));
                 setActionPlanSummary(mapIncidentActionPlanToFormSummary(incidentActionPlan));
-                setResponseActionRows(mapIncidentResponseActionToFormSummary(incidentActionPlan));
-            },
-            err => {
-                console.debug(err);
-                setGlobalMessage(`Event tracker with id: ${id} does not exist`);
-            }
-        );
-        compositionRoot.diseaseOutbreakEvent.get.execute(id).run(
-            diseaseOutbreakEvent => {
-                setEventTrackerDetails(diseaseOutbreakEvent);
+                setResponseActionRows(mapIncidentResponseActionToTableRows(incidentActionPlan));
             },
             err => {
                 console.debug(err);
@@ -56,17 +102,17 @@ export function useIncidentActionPlan(id: Id) {
     }, [compositionRoot, id]);
 
     return {
+        incidentActionExists: incidentActionExists,
+        saveTableOption: saveTableOption,
+        responseActionColumns: responseActionColumns,
         actionPlanSummary: actionPlanSummary,
         formSummary: incidentAction,
         responseActionRows: responseActionRows,
         summaryError: globalMessage,
-        eventTrackerDetails: eventTrackerDetails,
     };
 }
 
-const getIncidentActionFormSummary = (
-    incidentActionPlan: Maybe<IncidentActionPlan>
-): LabelWithValue[] => {
+const getIncidentActionFormSummary = (incidentActionPlan: Maybe<IncidentActionPlan>): Option[] => {
     if (!incidentActionPlan) return [];
 
     const iapTypeCode = incidentActionPlan.actionPlan?.iapType ?? "";
@@ -122,9 +168,12 @@ const mapIncidentActionPlanToFormSummary = (
     };
 };
 
-const mapIncidentResponseActionToFormSummary = (incidentActionPlan: Maybe<IncidentActionPlan>) => {
+const mapIncidentResponseActionToTableRows = (
+    incidentActionPlan: Maybe<IncidentActionPlan>
+): TableRowType[] => {
     if (incidentActionPlan) {
         return incidentActionPlan.responseActions.map(responseAction => ({
+            id: responseAction.id,
             mainTask: responseAction.mainTask,
             subActivities: responseAction.subActivities,
             subPillar: responseAction.subPillar,
@@ -137,4 +186,22 @@ const mapIncidentResponseActionToFormSummary = (incidentActionPlan: Maybe<Incide
     } else {
         return [];
     }
+};
+
+const mapIncidentActionOptionsToTable = (
+    incidentActionOptions: Maybe<IncidentActionOptions>
+): UIIncidentActionOptions => {
+    return {
+        status:
+            incidentActionOptions?.status.map(option => ({
+                value: getStatusTypeByCode(option.id) ?? "",
+                label: option.name,
+            })) ?? [],
+
+        verification:
+            incidentActionOptions?.verification.map(option => ({
+                value: getVerificationTypeByCode(option.id) ?? "",
+                label: option.name,
+            })) ?? [],
+    };
 };

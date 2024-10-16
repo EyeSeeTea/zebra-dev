@@ -12,7 +12,6 @@ import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";
 import { Option as UIOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
-import { getAnotherOptionSection } from "../risk-assessment/mapRiskAssessmentToInitialFormState";
 
 type ActionPlanSectionKeys =
     | "iapType"
@@ -24,6 +23,22 @@ type ActionPlanSectionKeys =
     | "expectedResults"
     | "responseActivitiesNarrative";
 
+export function getAnotherResponseActionSection(): FormSectionState {
+    return {
+        id: "addNewResponseActionSection",
+        isVisible: true,
+        fields: [],
+        addNewField: {
+            id: "addNewResponseAction",
+            isVisible: true,
+            errors: [],
+            type: "addNew",
+            value: null,
+            label: "Add new response action",
+        },
+    };
+}
+
 export function mapIncidentActionPlanToInitialFormState(
     incidentActionPlanFormData: ActionPlanFormData
 ): FormState {
@@ -31,7 +46,7 @@ export function mapIncidentActionPlanToInitialFormState(
     const { iapType, phoecLevel } = options;
 
     const iapTypeOptions: UIOption[] = mapToPresentationOptions(iapType);
-    const phoexLevelOptions: UIOption[] = mapToPresentationOptions(phoecLevel);
+    const phoecLevelOptions: UIOption[] = mapToPresentationOptions(phoecLevel);
 
     const mainSections: Record<ActionPlanSectionKeys, FormSectionState> = {
         iapType: {
@@ -66,7 +81,7 @@ export function mapIncidentActionPlanToInitialFormState(
                     errors: [],
                     type: "select",
                     multiple: false,
-                    options: phoexLevelOptions,
+                    options: phoecLevelOptions,
                     value: incidentActionPlan?.phoecLevel || "",
                     required: true,
                 },
@@ -148,7 +163,7 @@ export function mapIncidentActionPlanToInitialFormState(
             ],
         },
         expectedResults: {
-            title: "Expected results",
+            title: "Sections, functional area objectives, expected results",
             id: "expected_results_section",
             isVisible: true,
             direction: "column",
@@ -242,7 +257,7 @@ export function mapIncidentResponseActionToInitialFormState(
               })
             : [initialResponseActionSection];
 
-    const addNewOptionSection: FormSectionState = getAnotherOptionSection();
+    const addNewResponseActionSection: FormSectionState = getAnotherResponseActionSection();
 
     return {
         id: eventTrackerDetails.id ?? "",
@@ -252,7 +267,7 @@ export function mapIncidentResponseActionToInitialFormState(
         subtitleDescripton: "Assign response actions",
         saveButtonLabel: "Save plan",
         isValid: incidentResponseActions.length !== 0 ? true : false,
-        sections: [...responseActionSections, addNewOptionSection],
+        sections: [...responseActionSections, addNewResponseActionSection],
     };
 }
 
@@ -270,7 +285,7 @@ function getResponseActionSection(options: {
 
     const responseActionSection: FormSectionState = {
         title: "",
-        id: `response_action_section`,
+        id: `response_action_section_${index}`,
         isVisible: true,
         direction: "row",
         fields: [
@@ -379,7 +394,7 @@ function getResponseActionSection(options: {
 
 export function addNewResponseActionSection(sections: FormSectionState[]): FormSectionState {
     const responseActionSections = sections.filter(
-        section => !section.id.startsWith("addNewOptionSection")
+        section => !section.id.startsWith("addNewResponseActionSection")
     );
 
     const newResponseActionSection = getResponseActionSection({

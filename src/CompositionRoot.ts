@@ -63,6 +63,7 @@ import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
 import { GetIncidentActionByIdUseCase } from "./domain/usecases/GetIncidentActionByIdUseCase";
+import { UpdateIncidentResponseActionUseCase } from "./domain/usecases/UpdateIncidentResponseActionUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -107,6 +108,7 @@ function getCompositionRoot(repositories: Repositories) {
         },
         incidentActionPlan: {
             get: new GetIncidentActionByIdUseCase(repositories),
+            updateResponseAction: new UpdateIncidentResponseActionUseCase(repositories),
         },
         performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
