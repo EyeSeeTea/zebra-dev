@@ -16,4 +16,14 @@ export interface IncidentActionRepository {
         formData: ActionPlanFormData | ResponseActionFormData,
         diseaseOutbreakId: Id
     ): FutureData<void>;
+    updateIncidentResponseAction(options: UpdateIncidentResponseActionOptions): FutureData<void>;
 }
+
+export type UpdateIncidentResponseActionOptions = {
+    diseaseOutbreakId: Id;
+    eventId: Id;
+    responseAction: {
+        value: string;
+        type: string;
+    };
+};

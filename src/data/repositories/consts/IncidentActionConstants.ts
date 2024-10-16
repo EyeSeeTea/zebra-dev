@@ -76,7 +76,7 @@ export function isStringInIncidentResponseActionCodes(
     return (Object.values(responseActionConstants) as string[]).includes(code);
 }
 
-const statusCodeMap: Record<ResponseActionStatusType, string> = {
+export const statusCodeMap: Record<ResponseActionStatusType, string> = {
     "Not done": "RTSL_ZEB_OS_STATUS_NOT_DONE",
     Pending: "RTSL_ZEB_OS_STATUS_PENDING",
     "In Progress": "RTSL_ZEB_OS_STATUS_IN_PROGRESS",
@@ -89,7 +89,7 @@ export function getStatusTypeByCode(iapTypeCode: string): Maybe<ResponseActionSt
     );
 }
 
-const verificationCodeMap: Record<ResponseActionVerificationType, string> = {
+export const verificationCodeMap: Record<ResponseActionVerificationType, string> = {
     Verified: "RTSL_ZEB_OS_VERIFICATION_VERIFIED",
     Unverified: "RTSL_ZEB_OS_VERIFICATION_UNVERIFIED",
 };

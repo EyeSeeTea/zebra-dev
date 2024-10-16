@@ -16,7 +16,10 @@ import {
     addNewCustomQuestionSection,
     getAnotherOptionSection,
 } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
-import { addNewResponseActionSection } from "./incident-action/mapIncidentActionToInitialFormState";
+import {
+    addNewResponseActionSection,
+    getAnotherResponseActionSection,
+} from "./incident-action/mapIncidentActionToInitialFormState";
 
 export type GlobalMessage = {
     text: string;
@@ -141,7 +144,7 @@ export function useForm(formType: FormType, id?: Id): State {
                         const otherSections = prevState.data.sections.filter(
                             section => section.id !== "addNewResponseActionSection"
                         );
-                        const addAnotherSection = getAnotherOptionSection();
+                        const addAnotherSection = getAnotherResponseActionSection();
                         const newResponseActionSection = addNewResponseActionSection(
                             prevState.data.sections
                         );

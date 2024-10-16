@@ -80,6 +80,10 @@ export function getIncidentAction(
                             lastUpdated: new Date(),
                             actionPlan: actionPlan,
                             responseActions: responseActions,
+                            incidentActionOptions: {
+                                status: statusOptions,
+                                verification: verificationOptions,
+                            },
                         });
 
                         return Future.success(incidentAction);

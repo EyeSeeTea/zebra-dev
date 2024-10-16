@@ -1,5 +1,8 @@
 import { Id } from "../../../domain/entities/Ref";
-import { IncidentActionRepository } from "../../../domain/repositories/IncidentActionRepository";
+import {
+    IncidentActionRepository,
+    UpdateIncidentResponseActionOptions,
+} from "../../../domain/repositories/IncidentActionRepository";
 import { Maybe } from "../../../utils/ts-utils";
 import { FutureData } from "../../api-futures";
 import {
@@ -19,6 +22,10 @@ export class IncidentActionTestRepository implements IncidentActionRepository {
     }
 
     saveIncidentAction(_formData: any, _diseaseOutbreakId: Id): FutureData<void> {
+        throw new Error("Method not implemented.");
+    }
+
+    updateIncidentResponseAction(_options: UpdateIncidentResponseActionOptions): FutureData<void> {
         throw new Error("Method not implemented.");
     }
 }

@@ -23,7 +23,7 @@ type ActionPlanSectionKeys =
     | "expectedResults"
     | "responseActivitiesNarrative";
 
-function getAnotherResponseActionSection(): FormSectionState {
+export function getAnotherResponseActionSection(): FormSectionState {
     return {
         id: "addNewResponseActionSection",
         isVisible: true,
