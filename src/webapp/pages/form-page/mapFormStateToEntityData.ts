@@ -18,6 +18,7 @@ import {
     ConfigurableForm,
     DiseaseOutbreakEventFormData,
     ActionPlanFormData,
+    IncidentManagementTeamMemberFormData,
     RiskAssessmentGradingFormData,
     RiskAssessmentQuestionnaireFormData,
     RiskAssessmentQuestionnaireOptions,
@@ -46,6 +47,9 @@ import {
     Status,
     Verification,
 } from "../../../domain/entities/incident-action-plan/ResponseAction";
+import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
+import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -110,6 +114,16 @@ export function mapFormStateToEntityData(
             };
 
             return responseActionForm;
+        }
+
+        case "incident-management-team-member-assignment": {
+            const incidentManagementTeamMember: TeamMember =
+                mapFormStateToIncidentManagementTeamMember(formState, formData);
+            const incidentManagementTeamMemberForm: IncidentManagementTeamMemberFormData = {
+                ...formData,
+                entity: incidentManagementTeamMember,
+            };
+            return incidentManagementTeamMemberForm;
         }
 
         default:
@@ -611,4 +625,57 @@ function getRiskAssessmentQuestionsWithOption(
     if (!riskOption) throw new Error("Risk  not found");
 
     return { likelihoodOption, consequencesOption, riskOption };
+}
+
+function mapFormStateToIncidentManagementTeamMember(
+    formState: FormState,
+    formData: IncidentManagementTeamMemberFormData
+): TeamMember {
+    const { options, incidentManagementTeamRoleId } = formData;
+    const { roles, teamMembers } = options;
+
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+    const getStringFieldValueById = (id: string): string => getStringFieldValue(id, allFields);
+
+    const teamRoleSelected = roles.find(
+        role => role.id === getStringFieldValueById(TEAM_ROLE_FIELD_ID)
+    );
+    const teamMemberAssigned = teamMembers.find(teamMember => {
+        return (
+            teamMember.username ===
+            getStringFieldValueById(
+                incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned
+            )
+        );
+    });
+
+    const reportsToUserNameSelected =
+        getStringFieldValueById(incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername) ||
+        "";
+
+    const filteredTeamMemberAssignedRoles = teamMemberAssigned?.teamRoles?.filter(
+        teamRole => teamRole.id !== incidentManagementTeamRoleId
+    );
+
+    const newTeamMemberAssignedRoles = [
+        ...(filteredTeamMemberAssignedRoles || []),
+        {
+            id: incidentManagementTeamRoleId || "",
+            roleId: teamRoleSelected?.id || "",
+            name: teamRoleSelected?.name || "",
+            reportsToUsername: reportsToUserNameSelected,
+        },
+    ];
+
+    return new TeamMember({
+        id: teamMemberAssigned?.id || "",
+        teamRoles: teamRoleSelected ? newTeamMemberAssignedRoles : undefined,
+        username: teamMemberAssigned?.username || "",
+        name: teamMemberAssigned?.name || "",
+        phone: teamMemberAssigned?.phone,
+        email: teamMemberAssigned?.email,
+        photo: teamMemberAssigned?.photo,
+        workPosition: teamMemberAssigned?.workPosition,
+        status: teamMemberAssigned?.status,
+    });
 }

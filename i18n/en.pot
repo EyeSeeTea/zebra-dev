@@ -93,6 +93,9 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+msgid "Currently assigned:"
+msgstr ""
+
 msgid "Create Event"
 msgstr ""
 
@@ -138,6 +141,9 @@ msgstr ""
 msgid "7-1-7 performance"
 msgstr ""
 
+msgid "events"
+msgstr ""
+
 msgid "Performance overview"
 msgstr ""
 
@@ -153,13 +159,19 @@ msgstr ""
 msgid "Add new Assessment"
 msgstr ""
 
+msgid "Risk assessment incomplete"
+msgstr ""
+
+msgid "Risks associated with this event have not yet been assessed."
+msgstr ""
+
 msgid "N/A"
 msgstr ""
 
 msgid "Add another"
 msgstr ""
 
-msgid "Create Event form cannot be loaded"
+msgid "Form cannot be loaded"
 msgstr ""
 
 msgid "Disease Outbreak saved successfully"
@@ -189,6 +201,9 @@ msgstr ""
 msgid "Create IAP"
 msgstr ""
 
+msgid "Incident Management Team Member saved successfully"
+msgstr ""
+
 msgid "Incident Action Plan"
 msgstr ""
 
@@ -196,6 +211,21 @@ msgid "Incident Management Team Builder"
 msgstr ""
 
 msgid "Cholera in NW Province, June 2023"
+msgstr ""
+
+msgid "Incident Management Team Builder"
+msgstr ""
+
+msgid "Edit Role"
+msgstr ""
+
+msgid "Assign Role"
+msgstr ""
+
+msgid "Delete Role"
+msgstr ""
+
+msgid "Delete team role"
 msgstr ""
 
 msgid "Resources"

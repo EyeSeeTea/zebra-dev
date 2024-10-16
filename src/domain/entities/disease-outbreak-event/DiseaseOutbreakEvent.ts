@@ -55,8 +55,8 @@ type EarlyResponseActions = {
 
 export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     status: "ACTIVE" | "COMPLETED" | "CANCELLED";
-    created: Date;
-    lastUpdated: Date;
+    created?: Date;
+    lastUpdated?: Date;
     createdByName: Maybe<string>;
     dataSource: DataSource;
     hazardType: Maybe<HazardType>;

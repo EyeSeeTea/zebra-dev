@@ -1,6 +1,6 @@
 import React from "react";
 import { join } from "string-ts";
-import { generatePath, useHistory } from "react-router-dom";
+import { generatePath as generatePathRRD, useHistory } from "react-router-dom";
 
 import { FormType } from "../pages/form-page/FormPage";
 
@@ -21,6 +21,7 @@ const formTypes = [
     "risk-assessment-questionnaire",
     "incident-action-plan",
     "incident-response-action",
+    "incident-management-team-member-assignment",
 ] as const satisfies FormType[];
 
 const formType = `:formType(${join(formTypes, "|")})` as const;
@@ -29,7 +30,7 @@ export const routes: Record<RouteName, string> = {
     [RouteName.CREATE_FORM]: `/create/${formType}`,
     [RouteName.EDIT_FORM]: `/edit/${formType}/:id`,
     [RouteName.EVENT_TRACKER]: "/event-tracker/:id",
-    [RouteName.IM_TEAM_BUILDER]: "/incident-management-team-builder",
+    [RouteName.IM_TEAM_BUILDER]: "/incident-management-team-builder/:id",
     [RouteName.INCIDENT_ACTION_PLAN]: "/incident-action-plan/:id",
     [RouteName.RESOURCES]: "/resources",
     [RouteName.DASHBOARD]: "/",
@@ -39,22 +40,35 @@ type RouteParams = {
     [RouteName.CREATE_FORM]: { formType: FormType };
     [RouteName.EDIT_FORM]: { formType: FormType; id: string };
     [RouteName.EVENT_TRACKER]: { id: string };
-    [RouteName.IM_TEAM_BUILDER]: undefined;
+    [RouteName.IM_TEAM_BUILDER]: { id: string };
     [RouteName.INCIDENT_ACTION_PLAN]: { id: string };
     [RouteName.RESOURCES]: undefined;
     [RouteName.DASHBOARD]: undefined;
 };
 
-export function useRoutes() {
+type State = {
+    goTo: <T extends RouteName>(route: T, params?: RouteParams[T]) => void;
+    generatePath: <T extends RouteName>(route: T, params?: RouteParams[T]) => string;
+};
+
+export function useRoutes(): State {
     const history = useHistory();
 
     const goTo = React.useCallback(
         <T extends RouteName>(route: T, params?: RouteParams[T]) => {
-            const path = generatePath(routes[route], params as any);
+            const path = generatePathRRD(routes[route], params as any);
             history.push(path);
         },
         [history]
     );
 
-    return { goTo };
+    const generatePath = React.useCallback(
+        <T extends RouteName>(route: T, params?: RouteParams[T]) => {
+            const path = generatePathRRD(routes[route], params as any);
+            return path;
+        },
+        []
+    );
+
+    return { goTo, generatePath };
 }

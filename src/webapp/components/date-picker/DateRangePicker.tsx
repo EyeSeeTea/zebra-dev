@@ -21,8 +21,12 @@ const ID = "date-range-picker";
 export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
     ({ label = "", value, placeholder = "", onChange }) => {
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-        const [startDate, setStartDate] = useState<Date | null>(null);
-        const [endDate, setEndDate] = useState<Date | null>(null);
+        const [startDate, setStartDate] = useState<Date | null>(
+            value && value[0] ? new Date(value[0]) : null
+        );
+        const [endDate, setEndDate] = useState<Date | null>(
+            value && value[1] ? new Date(value[1]) : null
+        );
 
         const handleOpen = useCallback((event: React.MouseEvent<HTMLElement>) => {
             setAnchorEl(event.currentTarget);
@@ -41,14 +45,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
         }, [onCleanValues, value.length]);
 
         const formatDurationValue = useMemo(() => {
-            if (!value || value.length !== 2) {
+            if (!value || value.length !== 2 || !value[0] || !value[1]) {
                 return placeholder;
             }
 
-            return `${moment(startDate).format("DD/MM/yyyy")} — ${moment(endDate).format(
-                "DD/MM/yyyy"
-            )}`;
-        }, [startDate, endDate, placeholder, value]);
+            return `${moment(new Date(value[0])).format("DD/MM/yyyy")} — ${moment(
+                new Date(value[1])
+            ).format("DD/MM/yyyy")}`;
+        }, [placeholder, value]);
 
         const onReset = useCallback(() => {
             onChange([]);

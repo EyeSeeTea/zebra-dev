@@ -20,6 +20,7 @@ import {
     addNewResponseActionSection,
     getAnotherResponseActionSection,
 } from "./incident-action/mapIncidentActionToInitialFormState";
+import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
     text: string;
@@ -61,11 +62,15 @@ export function useForm(formType: FormType, id?: Id): State {
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [formState, setFormState] = useState<FormLoadState>({ kind: "loading" });
     const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
+    const [currentEventTrackerState, setCurrentEventTrackerState] =
+        useState<Maybe<DiseaseOutbreakEvent>>();
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
     const currentEventTracker = getCurrentEventTracker();
 
     useEffect(() => {
+        if (currentEventTrackerState?.id === currentEventTracker?.id) return;
+
         compositionRoot.getWithOptions.execute(formType, currentEventTracker, id).run(
             formData => {
                 setConfigurableForm(formData);
@@ -74,21 +79,27 @@ export function useForm(formType: FormType, id?: Id): State {
                     kind: "loaded",
                     data: mapEntityToFormState(formData, !!id),
                 });
+                setCurrentEventTrackerState(currentEventTracker);
             },
             error => {
                 setFormState({
                     kind: "error",
-                    message: i18n.t(`Create Event form cannot be loaded`),
+                    message: i18n.t(`Form cannot be loaded`),
                 });
                 setGlobalMessage({
-                    text: i18n.t(
-                        `An error occurred while loading Create Event form: ${error.message}`
-                    ),
+                    text: i18n.t(`An error occurred while loading form: ${error.message}`),
                     type: "error",
                 });
+                setCurrentEventTrackerState(currentEventTracker);
             }
         );
-    }, [compositionRoot.getWithOptions, currentEventTracker, formType, id]);
+    }, [
+        compositionRoot.getWithOptions,
+        formType,
+        id,
+        currentEventTracker,
+        currentEventTrackerState?.id,
+    ]);
 
     const handleAddNew = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm) return;
@@ -289,6 +300,17 @@ export function useForm(formType: FormType, id?: Id): State {
                             type: "success",
                         });
                         break;
+
+                    case "incident-management-team-member-assignment":
+                        if (currentEventTracker?.id)
+                            goTo(RouteName.IM_TEAM_BUILDER, {
+                                id: currentEventTracker?.id,
+                            });
+                        setGlobalMessage({
+                            text: i18n.t(`Incident Management Team Member saved successfully`),
+                            type: "success",
+                        });
+                        break;
                 }
             },
             err => {
@@ -308,21 +330,31 @@ export function useForm(formType: FormType, id?: Id): State {
     ]);
 
     const onCancelForm = useCallback(() => {
-        if (currentEventTracker)
+        if (currentEventTracker) {
             switch (formType) {
-                case "incident-action-plan":
-                case "incident-response-action":
-                    goTo(RouteName.INCIDENT_ACTION_PLAN, {
+                case "incident-management-team-member-assignment":
+                    goTo(RouteName.IM_TEAM_BUILDER, {
                         id: currentEventTracker.id,
                     });
                     break;
                 default:
-                    goTo(RouteName.EVENT_TRACKER, {
-                        id: currentEventTracker.id,
-                    });
-                    break;
+                    switch (formType) {
+                        case "incident-action-plan":
+                        case "incident-response-action":
+                            goTo(RouteName.INCIDENT_ACTION_PLAN, {
+                                id: currentEventTracker.id,
+                            });
+                            break;
+                        default:
+                            goTo(RouteName.EVENT_TRACKER, {
+                                id: currentEventTracker.id,
+                            });
+                            break;
+                    }
             }
-        else goTo(RouteName.DASHBOARD);
+        } else {
+            goTo(RouteName.DASHBOARD);
+        }
     }, [currentEventTracker, formType, goTo]);
 
     return {

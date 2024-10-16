@@ -19,9 +19,10 @@ import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
 import { Order } from "../../../pages/dashboard/usePerformanceOverview";
 import { Option } from "../../utils/option";
-import { Id } from "../../../../domain/entities/Ref";
 import { Maybe } from "../../../../utils/ts-utils";
 import { PerformanceOverviewMetrics } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { Link } from "react-router-dom";
+import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 
 export type TableColumn = {
     value: string;
@@ -53,7 +54,6 @@ export type StatisticTableProps = {
     filters: FiltersConfig[];
     order: Maybe<Order>;
     setOrder: Dispatch<SetStateAction<Maybe<Order>>>;
-    goToEvent: (id: Maybe<Id>) => void;
 };
 
 export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
@@ -65,8 +65,9 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         filters: filtersConfig,
         order,
         setOrder,
-        goToEvent,
     }) => {
+        const { generatePath } = useRoutes();
+
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
 
         const { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions } =
@@ -151,11 +152,21 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                             />
                                         ) : (
                                             <StyledTableCell
-                                                onClick={() => goToEvent(row.id)}
                                                 key={`${rowIndex}-${column.value}`}
                                                 $link={columnIndex === 0}
                                             >
-                                                {row[column.value] || ""}
+                                                {row.id ? (
+                                                    <StyledLink
+                                                        to={generatePath(RouteName.EVENT_TRACKER, {
+                                                            id: row.id,
+                                                        })}
+                                                        $link={columnIndex === 0}
+                                                    >
+                                                        {row[column.value]}
+                                                    </StyledLink>
+                                                ) : (
+                                                    row[column.value]
+                                                )}
                                             </StyledTableCell>
                                         )
                                     )}
@@ -216,6 +227,15 @@ const StyledTableCell = styled(TableCell)<{ $link?: boolean }>`
     text-decoration: ${props => (props.$link ? "underline" : "none")};
     cursor: ${props => (props.$link ? "pointer" : "initial")};
     font-weight: ${props => (props.$link ? "600" : "initial")};
+`;
+
+const StyledLink = styled(Link)<{ $link?: boolean }>`
+    text-decoration: ${props => (props.$link ? "underline" : "none")};
+    cursor: ${props => (props.$link ? "pointer" : "initial")};
+    font-weight: ${props => (props.$link ? "600" : "initial")};
+    color: ${props => props.theme.palette.text.primary};
+    width: 100%;
+    height: 100%;
 `;
 
 const Container = styled.div`

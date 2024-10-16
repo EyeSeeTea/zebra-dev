@@ -11,6 +11,7 @@ type MainContentProps = {
     sideBarOpen: boolean;
     toggleSideBar: (isOpen: boolean) => void;
     showCreateEvent?: boolean;
+    lastAnalyticsRuntime?: string;
 };
 
 export const MainContent: React.FC<MainContentProps> = React.memo(
@@ -22,6 +23,7 @@ export const MainContent: React.FC<MainContentProps> = React.memo(
         showCreateEvent = false,
         toggleSideBar,
         sideBarOpen,
+        lastAnalyticsRuntime = "",
     }) => {
         return (
             <Container>
@@ -36,6 +38,13 @@ export const MainContent: React.FC<MainContentProps> = React.memo(
                     {title && <Title>{title}</Title>}
 
                     {subtitle && <SubTitle>{subtitle}</SubTitle>}
+
+                    {lastAnalyticsRuntime && (
+                        <AnalyticsRuntime>
+                            <EmphasisedText>Last Analytics Runtime :</EmphasisedText>
+                            <Text>{lastAnalyticsRuntime}</Text>
+                        </AnalyticsRuntime>
+                    )}
 
                     <PageContent>{children}</PageContent>
                 </Main>
@@ -59,6 +68,23 @@ const SubTitle = styled.span`
     font-size: 1rem;
     font-weight: 400;
     color: ${props => props.theme.palette.text.secondary};
+`;
+
+const AnalyticsRuntime = styled.span`
+    align-self: flex-end;
+    margin-block-start: 8px;
+`;
+
+const EmphasisedText = styled.span`
+    color: ${props => props.theme.palette.common.grey700};
+    font-size: 0.875rem;
+    font-weight: 700;
+`;
+
+const Text = styled.span`
+    color: ${props => props.theme.palette.common.grey700};
+    font-size: 0.875rem;
+    font-weight: 400;
 `;
 
 const PageContent = styled.div`

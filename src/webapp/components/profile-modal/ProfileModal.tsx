@@ -8,7 +8,7 @@ import { Button } from "../button/Button";
 type ProfileModalProps = {
     name: string;
     children: React.ReactNode;
-    avatarSize?: "small" | "medium";
+    footerButtons?: React.ReactNode;
     alt?: string;
     src?: string;
     open: boolean;
@@ -16,7 +16,7 @@ type ProfileModalProps = {
 };
 
 export const ProfileModal: React.FC<ProfileModalProps> = React.memo(
-    ({ children, src, alt, open = false, onClose, name }) => {
+    ({ children, footerButtons, src, alt, open = false, onClose, name }) => {
         return (
             <Modal
                 aria-labelledby={`modal-${name}`}
@@ -38,6 +38,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = React.memo(
 
                     <Footer>
                         <Button onClick={onClose}>{i18n.t("Close")}</Button>
+                        {footerButtons ?? null}
                     </Footer>
                 </StyledCard>
             </Modal>
@@ -61,6 +62,7 @@ const Name = styled.span`
 const Footer = styled.div`
     display: flex;
     margin-block-start: 16px;
+    gap: 16px;
 `;
 
 const StyledCard = styled(Card)`

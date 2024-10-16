@@ -4,11 +4,14 @@ import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
+import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
+import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getIncidentAction } from "./utils/incident-action/GetIncidentActionById";
+import { getIncidentManagementTeamById } from "./utils/incident-management-team/GetIncidentManagementTeamById";
 import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
 
 export class GetDiseaseOutbreakByIdUseCase {
@@ -20,6 +23,8 @@ export class GetDiseaseOutbreakByIdUseCase {
             orgUnitRepository: OrgUnitRepository;
             riskAssessmentRepository: RiskAssessmentRepository;
             incidentActionRepository: IncidentActionRepository;
+            incidentManagementTeamRepository: IncidentManagementTeamRepository;
+            roleRepository: RoleRepository;
         }
     ) {}
 
@@ -46,9 +51,6 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.optionsRepository.getNotificationSource(
                             notificationSourceCode
                         ),
-                    incidentManager: incidentManagerName
-                        ? this.options.teamMemberRepository.get(incidentManagerName)
-                        : Future.success(undefined),
                     areasAffectedProvinces:
                         this.options.orgUnitRepository.get(areasAffectedProvinceIds),
                     areasAffectedDistricts:
@@ -65,33 +67,39 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.optionsRepository,
                         this.options.teamMemberRepository
                     ),
+                    incidentManagementTeam: getIncidentManagementTeamById(id, this.options),
+                    roles: this.options.roleRepository.getAll(),
                 }).flatMap(
                     ({
                         mainSyndrome,
                         suspectedDisease,
                         notificationSource,
-                        incidentManager,
                         areasAffectedProvinces,
                         areasAffectedDistricts,
                         riskAssessment,
                         incidentAction,
+                        incidentManagementTeam,
+                        roles,
                     }) => {
-                        const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent(
-                            {
-                                ...diseaseOutbreakEventBase,
-                                createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
-                                mainSyndrome: mainSyndrome,
-                                suspectedDisease: suspectedDisease,
-                                notificationSource: notificationSource,
-                                areasAffectedProvinces: areasAffectedProvinces,
-                                areasAffectedDistricts: areasAffectedDistricts,
-                                incidentManager: incidentManager,
-                                riskAssessment: riskAssessment,
-                                incidentActionPlan: incidentAction,
-                                incidentManagementTeam: undefined, //TO DO : FIXME populate once incidentManagementTeam repo is implemented
-                            }
-                        );
-                        return Future.success(diseaseOutbreakEvent);
+                        return this.options.incidentManagementTeamRepository
+                            .getIncidentManagementTeamMember(incidentManagerName, id, roles)
+                            .flatMap(incidentManager => {
+                                const diseaseOutbreakEvent: DiseaseOutbreakEvent =
+                                    new DiseaseOutbreakEvent({
+                                        ...diseaseOutbreakEventBase,
+                                        createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
+                                        mainSyndrome: mainSyndrome,
+                                        suspectedDisease: suspectedDisease,
+                                        notificationSource: notificationSource,
+                                        areasAffectedProvinces: areasAffectedProvinces,
+                                        areasAffectedDistricts: areasAffectedDistricts,
+                                        incidentManager: incidentManager,
+                                        riskAssessment: riskAssessment,
+                                        incidentActionPlan: incidentAction,
+                                        incidentManagementTeam: incidentManagementTeam,
+                                    });
+                                return Future.success(diseaseOutbreakEvent);
+                            });
                     }
                 );
             });
