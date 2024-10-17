@@ -37,15 +37,15 @@ function main() {
             const optionsRepository = new OptionsD2Repository(api);
             const userGroupRepository = new UserGroupD2Repository(api);
 
-            const mapAndSaveAlertsUseCase = new MapAndSaveAlertsUseCase(
-                alertRepository,
-                alertDataRepository,
-                alertSyncRepository,
-                diseaseOutbreakEventRepository,
-                notificationRepository,
-                optionsRepository,
-                userGroupRepository
-            );
+            const mapAndSaveAlertsUseCase = new MapAndSaveAlertsUseCase({
+                alertRepository: alertRepository,
+                alertDataRepository: alertDataRepository,
+                alertSyncRepository: alertSyncRepository,
+                diseaseOutbreakEventRepository: diseaseOutbreakEventRepository,
+                notificationRepository: notificationRepository,
+                optionsRepository: optionsRepository,
+                userGroupRepository: userGroupRepository,
+            });
 
             return await mapAndSaveAlertsUseCase.execute();
         },

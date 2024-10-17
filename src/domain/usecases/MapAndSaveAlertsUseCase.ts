@@ -19,18 +19,20 @@ import { promiseMap } from "../../utils/promiseMap";
 
 export class MapAndSaveAlertsUseCase {
     constructor(
-        private alertRepository: AlertRepository,
-        private alertDataRepository: AlertDataRepository,
-        private alertSyncRepository: AlertSyncRepository,
-        private diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository,
-        private notificationRepository: NotificationRepository,
-        private optionsRepository: OptionsRepository,
-        private userGroupRepository: UserGroupRepository
+        private options: {
+            alertRepository: AlertRepository;
+            alertDataRepository: AlertDataRepository;
+            alertSyncRepository: AlertSyncRepository;
+            diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
+            notificationRepository: NotificationRepository;
+            optionsRepository: OptionsRepository;
+            userGroupRepository: UserGroupRepository;
+        }
     ) {}
 
     public async execute(): Promise<void> {
         const { hazardTypes, suspectedDiseases } = await this.getOptions();
-        const alertData = await this.alertDataRepository.get().toPromise();
+        const alertData = await this.options.alertDataRepository.get().toPromise();
 
         logger.info(
             `${alertData.length} event(s) found in the Zebra Alerts program with no national event id.`
@@ -98,15 +100,17 @@ export class MapAndSaveAlertsUseCase {
     private getDiseaseOutbreakEvents(
         outbreakData: OutbreakData
     ): Promise<DiseaseOutbreakEventBaseAttrs[]> {
-        return this.diseaseOutbreakEventRepository
+        return this.options.diseaseOutbreakEventRepository
             .getEventByDiseaseOrHazardType(outbreakData)
             .toPromise();
     }
 
     private getOptions(): Promise<{ hazardTypes: Option[]; suspectedDiseases: Option[] }> {
+        const { optionsRepository } = this.options;
+
         return Future.joinObj({
-            hazardTypes: this.optionsRepository.getHazardTypesByCode(),
-            suspectedDiseases: this.optionsRepository.getSuspectedDiseases(),
+            hazardTypes: optionsRepository.getHazardTypesByCode(),
+            suspectedDiseases: optionsRepository.getSuspectedDiseases(),
         }).toPromise();
     }
 
@@ -149,13 +153,14 @@ export class MapAndSaveAlertsUseCase {
         alertOutbreakType: string,
         outbreakName: string
     ): Promise<void> {
+        const { notificationRepository, userGroupRepository } = this.options;
         logger.debug(`There is no national event with ${outbreakName} ${alertOutbreakType} type.`);
 
-        const userGroup = await this.userGroupRepository
+        const userGroup = await userGroupRepository
             .getUserGroupByCode(RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE)
             .toPromise();
 
-        return this.notificationRepository
+        return notificationRepository
             .notifyNationalWatchStaff(alertData, outbreakName, [userGroup])
             .toPromise()
             .then(() => logger.success("Successfully notified all national watch staff."));
@@ -176,12 +181,12 @@ export class MapAndSaveAlertsUseCase {
             incidentStatus: diseaseOutbreakEvent.incidentStatus,
         };
 
-        await this.alertRepository
+        await this.options.alertRepository
             .updateAlerts(alertOptions)
             .toPromise()
             .then(() => logger.success("Successfully updated alert."));
 
-        return this.alertSyncRepository
+        return this.options.alertSyncRepository
             .saveAlertSyncData({
                 alert: alertData.alert,
                 dataSource: alertOptions.dataSource,
