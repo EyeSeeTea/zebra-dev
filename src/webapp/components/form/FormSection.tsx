@@ -61,7 +61,11 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
                     )}
 
                     {addNewField && handleAddNew && (
-                        <AddNewOption id="" onAddNewOption={handleAddNew} />
+                        <AddNewOption
+                            id=""
+                            label={addNewField.label}
+                            onAddNewOption={handleAddNew}
+                        />
                     )}
 
                     {fields.length && fields.some(f => f.isVisible) ? (

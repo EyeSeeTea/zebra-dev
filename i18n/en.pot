@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-10-09T10:56:24.909Z\n"
-"PO-Revision-Date: 2024-10-09T10:56:24.909Z\n"
+"POT-Creation-Date: 2024-10-16T14:36:22.158Z\n"
+"PO-Revision-Date: 2024-10-16T14:36:22.158Z\n"
 
 msgid "Low"
 msgstr ""
@@ -82,6 +82,9 @@ msgid "Indicates required"
 msgstr ""
 
 msgid "Cancel"
+msgstr ""
+
+msgid "Edit Action Plan"
 msgstr ""
 
 msgid "Edit Details"
@@ -186,13 +189,25 @@ msgstr ""
 msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
+msgid "Incident Action Plan saved successfully"
+msgstr ""
+
+msgid "Incident Response Actions saved successfully"
+msgstr ""
+
 msgid "Incident Management Team Member saved successfully"
 msgstr ""
 
-msgid "Incident Action Plan"
+msgid "Create an incident action plan"
 msgstr ""
 
-msgid "Cholera in NW Province, June 2023"
+msgid "No plan has been created for this incident"
+msgstr ""
+
+msgid "Create IAP"
+msgstr ""
+
+msgid "Incident Action Plan"
 msgstr ""
 
 msgid "Incident Management Team Builder"

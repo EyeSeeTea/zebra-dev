@@ -5,6 +5,10 @@ import { FormState } from "../../components/form/FormState";
 import { User } from "../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../components/utils/option";
 import { mapDiseaseOutbreakEventToInitialFormState } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
+import {
+    mapIncidentActionPlanToInitialFormState,
+    mapIncidentResponseActionToInitialFormState,
+} from "./incident-action/mapIncidentActionToInitialFormState";
 import { mapIncidentManagementTeamMemberToInitialFormState } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import {
     mapRiskAssessmentQuestionnaireToInitialFormState,
@@ -25,6 +29,10 @@ export function mapEntityToFormState(
             return mapRiskAssessmentSummaryToInitialFormState(configurableForm);
         case "risk-assessment-questionnaire":
             return mapRiskAssessmentQuestionnaireToInitialFormState(configurableForm);
+        case "incident-action-plan":
+            return mapIncidentActionPlanToInitialFormState(configurableForm);
+        case "incident-response-action":
+            return mapIncidentResponseActionToInitialFormState(configurableForm);
         case "incident-management-team-member-assignment":
             return mapIncidentManagementTeamMemberToInitialFormState(configurableForm);
     }

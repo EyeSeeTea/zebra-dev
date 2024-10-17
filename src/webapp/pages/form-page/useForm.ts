@@ -16,6 +16,10 @@ import {
     addNewCustomQuestionSection,
     getAnotherOptionSection,
 } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
+import {
+    addNewResponseActionSection,
+    getAnotherResponseActionSection,
+} from "./incident-action/mapIncidentActionToInitialFormState";
 import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
@@ -99,6 +103,7 @@ export function useForm(formType: FormType, id?: Id): State {
 
     const handleAddNew = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm) return;
+
         switch (configurableForm.type) {
             case "risk-assessment-questionnaire": {
                 setFormState(prevState => {
@@ -144,10 +149,52 @@ export function useForm(formType: FormType, id?: Id): State {
                 });
                 break;
             }
+            case "incident-response-action":
+                setFormState(prevState => {
+                    if (prevState.kind === "loaded") {
+                        const otherSections = prevState.data.sections.filter(
+                            section => section.id !== "addNewResponseActionSection"
+                        );
+                        const addAnotherSection = getAnotherResponseActionSection();
+                        const newResponseActionSection = addNewResponseActionSection(
+                            prevState.data.sections
+                        );
+
+                        const updatedData = {
+                            ...prevState.data,
+                            sections: [
+                                ...otherSections,
+                                newResponseActionSection,
+                                addAnotherSection,
+                            ],
+                        };
+
+                        const allNewFields = newResponseActionSection.fields;
+
+                        const updatedAndValidatedData = allNewFields.reduce(
+                            (acc, updatedFields) => {
+                                return updateAndValidateFormState(
+                                    acc,
+                                    updatedFields,
+                                    configurableForm
+                                );
+                            },
+                            updatedData
+                        );
+
+                        return {
+                            kind: "loaded",
+                            data: updatedAndValidatedData,
+                        };
+                    } else {
+                        return prevState;
+                    }
+                });
+                break;
             default:
                 break;
         }
-    }, [configurableForm, formState.kind]);
+    }, [configurableForm, formState]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {
@@ -180,6 +227,7 @@ export function useForm(formType: FormType, id?: Id): State {
             currentUser.username,
             configurableForm
         );
+
         compositionRoot.save.execute(formData).run(
             diseaseOutbreakEventId => {
                 setIsLoading(false);
@@ -233,6 +281,22 @@ export function useForm(formType: FormType, id?: Id): State {
                             type: "success",
                         });
                         break;
+                    case "incident-action-plan":
+                        goTo(RouteName.CREATE_FORM, {
+                            formType: "incident-response-action",
+                        });
+                        setGlobalMessage({
+                            text: i18n.t(`Incident Action Plan saved successfully`),
+                            type: "success",
+                        });
+                        break;
+                    case "incident-response-action":
+                        if (currentEventTracker?.id) goTo(RouteName.INCIDENT_ACTION_PLAN);
+                        setGlobalMessage({
+                            text: i18n.t(`Incident Response Actions saved successfully`),
+                            type: "success",
+                        });
+                        break;
 
                     case "incident-management-team-member-assignment":
                         if (currentEventTracker?.id)
@@ -270,15 +334,20 @@ export function useForm(formType: FormType, id?: Id): State {
                         id: currentEventTracker.id,
                     });
                     break;
+                case "incident-action-plan":
+                case "incident-response-action":
+                    goTo(RouteName.INCIDENT_ACTION_PLAN);
+                    break;
                 default:
                     goTo(RouteName.EVENT_TRACKER, {
                         id: currentEventTracker.id,
                     });
+                    break;
             }
         } else {
             goTo(RouteName.DASHBOARD);
         }
-    }, [currentEventTracker, goTo, formType]);
+    }, [currentEventTracker, formType, goTo]);
 
     return {
         formLabels,

@@ -10,6 +10,8 @@ import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
 import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
 import { RiskAssessmentQuestionnaire } from "./risk-assessment/RiskAssessmentQuestionnaire";
+import { ActionPlanAttrs } from "./incident-action-plan/ActionPlan";
+import { ResponseAction } from "./incident-action-plan/ResponseAction";
 import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
 import { Role } from "./incident-management-team/Role";
 
@@ -50,6 +52,17 @@ export type RiskAssessmentQuestionnaireOptions = {
     risk: Option[];
 };
 
+export type IncidentActionPlanOptions = {
+    iapType: Option[];
+    phoecLevel: Option[];
+};
+
+export type IncidentResponseActionOptions = {
+    searchAssignRO: TeamMember[];
+    status: Option[];
+    verification: Option[];
+};
+
 export type FormLables = {
     errors: Record<string, string>;
 };
@@ -86,6 +99,20 @@ export type RiskAssessmentQuestionnaireFormData = BaseFormData & {
     options: RiskAssessmentQuestionnaireOptions;
 };
 
+export type ActionPlanFormData = BaseFormData & {
+    type: "incident-action-plan";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: Maybe<ActionPlanAttrs>;
+    options: IncidentActionPlanOptions;
+};
+
+export type ResponseActionFormData = BaseFormData & {
+    type: "incident-response-action";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: ResponseAction[];
+    options: IncidentResponseActionOptions;
+};
+
 export type IncidentManagementTeamRoleOptions = {
     roles: Role[];
     teamMembers: TeamMember[];
@@ -106,4 +133,6 @@ export type ConfigurableForm =
     | RiskAssessmentGradingFormData
     | RiskAssessmentSummaryFormData
     | RiskAssessmentQuestionnaireFormData
+    | ActionPlanFormData
+    | ResponseActionFormData
     | IncidentManagementTeamMemberFormData;

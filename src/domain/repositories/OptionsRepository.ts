@@ -48,4 +48,10 @@ export interface OptionsRepository {
     getLikelihoodOption(optionCode: Code): FutureData<Option>;
     getConsequencesOptions(): FutureData<Option[]>;
     getConsequencesOption(optionCode: Code): FutureData<Option>;
+    getIapTypeOptions(): FutureData<Option[]>;
+    getPhoecLevelOptions(): FutureData<Option[]>;
+    getStatusOptions(): FutureData<Option[]>;
+    getStatusOption(optionCode: Code): FutureData<Option>;
+    getVerificationOptions(): FutureData<Option[]>;
+    getVerificationOption(optionCode: Code): FutureData<Option>;
 }
