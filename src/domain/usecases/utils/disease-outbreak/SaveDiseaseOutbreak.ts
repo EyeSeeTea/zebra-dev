@@ -17,12 +17,13 @@ export function saveDiseaseOutbreak(
         teamMemberRepository: TeamMemberRepository;
         roleRepository: RoleRepository;
     },
-    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs
 ): FutureData<Id> {
     return repositories.diseaseOutbreakEventRepository
-        .save(diseaseOutbreakEventBaseAttrs)
-        .flatMap(() => {
-            return saveIncidentManagerTeamMemberRole(repositories, diseaseOutbreakEventBaseAttrs);
+        .save(diseaseOutbreakEvent)
+        .flatMap((diseaseOutbreakId: Id) => {
+            const diseaseOutbreakEventWithId = { ...diseaseOutbreakEvent, id: diseaseOutbreakId };
+            return saveIncidentManagerTeamMemberRole(repositories, diseaseOutbreakEventWithId);
         });
 }
 
