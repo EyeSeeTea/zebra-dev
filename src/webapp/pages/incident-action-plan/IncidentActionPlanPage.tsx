@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
-import { useParams } from "react-router-dom";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import { useIncidentActionPlan } from "./useIncidentActionPlan";
 import { Box, Typography } from "@material-ui/core";
@@ -13,10 +12,9 @@ import { Loader } from "../../components/loader/Loader";
 import { ResponseActionTable } from "./ResponseActionTable";
 
 export const IncidentActionPlanPage: React.FC = React.memo(() => {
-    const { id } = useParams<{
-        id: string;
-    }>();
     const { getCurrentEventTracker } = useCurrentEventTracker();
+    const currentEventTracker = getCurrentEventTracker();
+    const id = currentEventTracker?.id || "";
 
     const {
         actionPlanSummary,
@@ -42,7 +40,7 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
     return (
         <Layout
             title={i18n.t("Incident Action Plan")}
-            subtitle={i18n.t(getCurrentEventTracker()?.name || "")}
+            subtitle={i18n.t(currentEventTracker?.name || "")}
         >
             {!actionPlanSummary && responseActionRows.length === 0 && !summaryError && <Loader />}
             {!incidentActionExists ? (
