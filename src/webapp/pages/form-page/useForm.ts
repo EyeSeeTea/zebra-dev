@@ -20,7 +20,6 @@ import {
     addNewResponseActionSection,
     getAnotherResponseActionSection,
 } from "./incident-action/mapIncidentActionToInitialFormState";
-import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
     text: string;
