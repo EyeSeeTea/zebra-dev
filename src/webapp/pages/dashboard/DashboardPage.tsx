@@ -9,14 +9,15 @@ import { useCardCounts } from "./useCardCounts";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
 import { MultipleSelector } from "../../components/selector/MultipleSelector";
-import { Id } from "../../../domain/entities/Ref";
-import { Maybe } from "../../../utils/ts-utils";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
-import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAlertsActiveVerifiedFilters } from "./useAlertsActiveVerifiedFilters";
 import { MapSection } from "../../components/map/MapSection";
 import { Selector } from "../../components/selector/Selector";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
+import { PerformanceMetric717, use717Performance } from "./use717Performance";
+import { Loader } from "../../components/loader/Loader";
+import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
+import LoaderContainer from "../../components/loader/LoaderContainer";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -36,29 +37,32 @@ export const DashboardPage: React.FC = React.memo(() => {
         setOrder,
         columnRules,
         editRiskAssessmentColumns,
+        isLoading: performanceOverviewLoading,
     } = usePerformanceOverview();
 
-    const { cardCounts } = useCardCounts(
+    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance("dashboard");
+    const { cardCounts, isLoading: cardCountsLoading } = useCardCounts(
         singleSelectFilters,
         multiSelectFilters,
         dateRangeFilter.value
     );
 
-    const { goTo } = useRoutes();
     const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
+    const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
 
     useEffect(() => {
         //On navigating to the dashboard page, reset the current event tracker id
         resetCurrentEventTrackerId();
     });
 
-    const goToEvent = (id: Maybe<Id>) => {
-        if (!id) return;
-        goTo(RouteName.EVENT_TRACKER, { id });
-    };
-
-    return (
-        <Layout title={i18n.t("Dashboard")} showCreateEvent>
+    return performanceOverviewLoading || _717CardsLoading ? (
+        <Loader />
+    ) : (
+        <Layout
+            title={i18n.t("Dashboard")}
+            showCreateEvent
+            lastAnalyticsRuntime={lastAnalyticsRuntime}
+        >
             <Section title={i18n.t("Respond, alert, watch")}>
                 <FiltersContainer>
                     {selectorFiltersConfig.map(({ id, label, placeholder, options, type }) => {
@@ -100,16 +104,18 @@ export const DashboardPage: React.FC = React.memo(() => {
                         />
                     </FilterContainer>
                 </FiltersContainer>
-                <GridWrapper>
-                    {cardCounts.map((cardCount, index) => (
-                        <StyledStatsCard
-                            key={index}
-                            stat={cardCount.total.toString()}
-                            title={i18n.t(cardCount.name)}
-                            fillParent
-                        />
-                    ))}
-                </GridWrapper>
+                <LoaderContainer loading={cardCountsLoading}>
+                    <GridWrapper>
+                        {cardCounts.map((cardCount, index) => (
+                            <StyledStatsCard
+                                key={index}
+                                stat={cardCount.total.toString()}
+                                title={i18n.t(cardCount.name)}
+                                fillParent
+                            />
+                        ))}
+                    </GridWrapper>
+                </LoaderContainer>
             </Section>
             <Section title={i18n.t("All public health events")}>
                 <MapSection
@@ -119,7 +125,23 @@ export const DashboardPage: React.FC = React.memo(() => {
                     dateRangeFilter={dateRangeFilter.value}
                 />
             </Section>
-            <Section title={i18n.t("7-1-7 performance")}>TBD</Section>
+            <Section title={i18n.t("7-1-7 performance")}>
+                <GridWrapper>
+                    {performanceMetrics717.map(
+                        (perfMetric717: PerformanceMetric717, index: number) => (
+                            <StatsCard
+                                key={index}
+                                stat={`${perfMetric717.primaryValue}`}
+                                title={perfMetric717.title}
+                                pretitle={`${perfMetric717.secondaryValue} ${i18n.t("events")}`}
+                                color={perfMetric717.color}
+                                fillParent
+                                isPercentage
+                            />
+                        )
+                    )}
+                </GridWrapper>
+            </Section>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>
                     <StatisticTable
@@ -130,7 +152,6 @@ export const DashboardPage: React.FC = React.memo(() => {
                         setOrder={setOrder}
                         columnRules={columnRules}
                         editRiskAssessmentColumns={editRiskAssessmentColumns}
-                        goToEvent={goToEvent}
                     />
                 </StatisticTableWrapper>
             </Section>
@@ -138,14 +159,14 @@ export const DashboardPage: React.FC = React.memo(() => {
     );
 });
 
-const GridWrapper = styled.div`
+export const GridWrapper = styled.div`
     width: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 10px;
 `;
 
-const StyledStatsCard = styled(StatsCard)`
+export const StyledStatsCard = styled(StatsCard)`
     width: 220px;
 `;
 
