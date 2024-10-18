@@ -485,7 +485,7 @@ function mapFormStateToIncidentManagementTeamMember(
     formState: FormState,
     formData: IncidentManagementTeamMemberFormData
 ): TeamMember {
-    const { options, incidentManagementTeamRoleId } = formData;
+    const { options, incidentManagementTeamRoleId, eventTrackerDetails } = formData;
     const { roles, teamMembers } = options;
 
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
@@ -515,6 +515,7 @@ function mapFormStateToIncidentManagementTeamMember(
         ...(filteredTeamMemberAssignedRoles || []),
         {
             id: incidentManagementTeamRoleId || "",
+            diseaseOutbreakId: eventTrackerDetails.id,
             roleId: teamRoleSelected?.id || "",
             name: teamRoleSelected?.name || "",
             reportsToUsername: reportsToUserNameSelected,

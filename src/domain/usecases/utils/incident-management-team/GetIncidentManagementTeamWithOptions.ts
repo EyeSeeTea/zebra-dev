@@ -6,7 +6,7 @@ import { IncidentManagementTeamMemberFormData } from "../../../entities/Configur
 import { DiseaseOutbreakEvent } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
 import { Id } from "../../../entities/Ref";
-import { IncidentManagementTeamRepository } from "../../../repositories/IncidentManagementTeamRepository";
+import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
 import { RoleRepository } from "../../../repositories/RoleRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 import { getIncidentManagementTeamById } from "./GetIncidentManagementTeamById";
@@ -17,7 +17,7 @@ export function getIncidentManagementTeamWithOptions(
     repositories: {
         roleRepository: RoleRepository;
         teamMemberRepository: TeamMemberRepository;
-        incidentManagementTeamRepository: IncidentManagementTeamRepository;
+        diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     }
 ): FutureData<IncidentManagementTeamMemberFormData> {
     return Future.joinObj({
