@@ -16,6 +16,7 @@ import {
     RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES,
 } from "../consts/IncidentManagementTeamBuilderConstants";
 import { D2ProgramStageDataElementsMetadata } from "./MetadataHelper";
+import { IncidentManagementTeamInAggregateRoot } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 
 export function mapD2EventsToIncidentManagementTeam(
     diseaseOutbreakId: Id,
@@ -188,4 +189,20 @@ function getValueFromIncidentManagementTeamMember(
             teamRoleAssigned?.reportsToUsername ?? "",
         ...rolesObjByCode,
     };
+}
+
+export function mapD2EventsToIncidentManagementTeamInAggregateRoot(
+    d2Events: D2TrackerEvent[]
+): IncidentManagementTeamInAggregateRoot {
+    const incidentManagementTeamMembers = d2Events.map(event => {
+        const teamMemberAssignedUsername = getValueById(
+            event.dataValues,
+            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.teamMemberAssigned
+        );
+        return teamMemberAssignedUsername;
+    });
+
+    return new IncidentManagementTeamInAggregateRoot({
+        teamHierarchy: _c(incidentManagementTeamMembers).compact().toArray(),
+    });
 }

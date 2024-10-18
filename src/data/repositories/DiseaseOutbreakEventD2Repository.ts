@@ -22,8 +22,13 @@ import { IncidentManagementTeam } from "../../domain/entities/incident-managemen
 import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import {
     mapD2EventsToIncidentManagementTeam,
+    mapD2EventsToIncidentManagementTeamInAggregateRoot,
     mapIncidentManagementTeamMemberToD2Event,
 } from "./utils/IncidentManagementTeamMapper";
+import {
+    DiseaseOutbreakEventAggregateRoot,
+    IncidentManagementTeamInAggregateRoot,
+} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -257,6 +262,51 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                         return Future.success(undefined);
                     }
                 });
+            });
+    }
+
+    getAggregateRoot(id: Id): FutureData<DiseaseOutbreakEventAggregateRoot> {
+        return this.get(id).flatMap(diseaseOutbreakEventBase => {
+            return this.getIncidentManagementTeamInAggregateRoot(id).flatMap(
+                incidentManagementTeam => {
+                    //TO DO: create and get riskAssessment/incidentActionPlan entity with only the properties necessary to be able to get/save, the others to display are composed in the presentation layer
+                    const diseaseOutbreakEvent: DiseaseOutbreakEventAggregateRoot =
+                        new DiseaseOutbreakEventAggregateRoot({
+                            ...diseaseOutbreakEventBase,
+                            riskAssessment: undefined,
+                            incidentActionPlan: undefined,
+                            incidentManagementTeam: incidentManagementTeam,
+                        });
+                    return Future.success(diseaseOutbreakEvent);
+                }
+            );
+        });
+    }
+
+    private getIncidentManagementTeamInAggregateRoot(
+        diseaseOutbreakId: Id
+    ): FutureData<IncidentManagementTeamInAggregateRoot> {
+        return apiToFuture(
+            this.api.tracker.events.get({
+                program: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                trackedEntity: diseaseOutbreakId,
+                programStage: RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID,
+                fields: {
+                    dataValues: {
+                        dataElement: dataElementFields,
+                        value: true,
+                    },
+                    trackedEntity: true,
+                    event: true,
+                },
+            })
+        )
+            .flatMap(response =>
+                assertOrError(response.instances, `Incident management team not found`)
+            )
+            .flatMap(d2Events => {
+                return Future.success(mapD2EventsToIncidentManagementTeamInAggregateRoot(d2Events));
             });
     }
 

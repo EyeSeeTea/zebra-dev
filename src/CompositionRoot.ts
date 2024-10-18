@@ -55,6 +55,7 @@ import { SystemRepository } from "./domain/repositories/SystemRepository";
 import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
+import { GetDiseaseOutbreakEventAggregateRootByIdUseCase } from "./domain/usecases/GetDiseaseOutbreakEventAggregateRootByIdUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -91,6 +92,9 @@ function getCompositionRoot(repositories: Repositories) {
             ),
             deleteIncidentManagementTeamMemberRole:
                 new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
+            getAggregateRoot: new GetDiseaseOutbreakEventAggregateRootByIdUseCase(
+                repositories.diseaseOutbreakEventRepository
+            ),
         },
         performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
