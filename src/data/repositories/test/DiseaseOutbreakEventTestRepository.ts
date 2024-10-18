@@ -1,3 +1,4 @@
+import { OutbreakData } from "../../../domain/entities/alert/OutbreakAlert";
 import {
     DataSource,
     DiseaseOutbreakEvent,
@@ -106,6 +107,74 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
+            },
+        ]);
+    }
+    getEventByDiseaseOrHazardType(
+        _filter: OutbreakData
+    ): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
+        return Future.success([
+            {
+                id: "1",
+                name: "Disease Outbreak 1",
+                dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                created: new Date(),
+                lastUpdated: new Date(),
+                createdByName: "createdByName",
+                hazardType: "Biological:Animal",
+                mainSyndromeCode: undefined,
+                suspectedDiseaseCode: undefined,
+                notificationSourceCode: "1",
+                areasAffectedDistrictIds: [],
+                areasAffectedProvinceIds: [],
+                incidentStatus: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
+                emerged: { date: new Date(), narrative: "emerged" },
+                detected: { date: new Date(), narrative: "detected" },
+                notified: { date: new Date(), narrative: "notified" },
+                earlyResponseActions: {
+                    initiateInvestigation: new Date(),
+                    conductEpidemiologicalAnalysis: new Date(),
+                    laboratoryConfirmation: { date: new Date(), na: false },
+                    appropriateCaseManagement: { date: new Date(), na: false },
+                    initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
+                    initiateRiskCommunication: { date: new Date(), na: false },
+                    establishCoordination: new Date(),
+                    responseNarrative: "responseNarrative",
+                },
+                incidentManagerName: "incidentManager",
+                notes: undefined,
+                status: "ACTIVE",
+            },
+            {
+                id: "2",
+                name: "Disease Outbreak 2",
+                dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                created: new Date(),
+                lastUpdated: new Date(),
+                createdByName: "createdByName2",
+                hazardType: "Biological:Human",
+                mainSyndromeCode: "2",
+                suspectedDiseaseCode: undefined,
+                notificationSourceCode: "2",
+                areasAffectedDistrictIds: [],
+                areasAffectedProvinceIds: [],
+                incidentStatus: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
+                emerged: { date: new Date(), narrative: "emerged" },
+                detected: { date: new Date(), narrative: "detected" },
+                notified: { date: new Date(), narrative: "notified" },
+                earlyResponseActions: {
+                    initiateInvestigation: new Date(),
+                    conductEpidemiologicalAnalysis: new Date(),
+                    laboratoryConfirmation: { date: new Date(), na: false },
+                    appropriateCaseManagement: { date: new Date(), na: false },
+                    initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
+                    initiateRiskCommunication: { date: new Date(), na: false },
+                    establishCoordination: new Date(),
+                    responseNarrative: "responseNarrative",
+                },
+                incidentManagerName: "incidentManager",
+                notes: undefined,
+                status: "COMPLETED",
             },
         ]);
     }

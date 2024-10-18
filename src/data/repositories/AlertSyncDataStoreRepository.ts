@@ -6,10 +6,13 @@ import {
     AlertSyncRepository,
 } from "../../domain/repositories/AlertSyncRepository";
 import { apiToFuture, FutureData } from "../api-futures";
-import { getOutbreakKey, getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
+import { getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
 import { Maybe } from "../../utils/ts-utils";
 import { DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
-import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
+import {
+    AlertSynchronizationData,
+    getOutbreakKey,
+} from "../../domain/entities/alert/AlertSynchronizationData";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { RTSL_ZEBRA_ALERTS_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import { assertOrError } from "./utils/AssertOrError";
@@ -24,14 +27,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
     }
 
     saveAlertSyncData(options: AlertSyncOptions): FutureData<void> {
-        const {
-            alert,
-            dataSource,
-            hazardTypeCode,
-            suspectedDiseaseCode,
-            hazardTypes,
-            suspectedDiseases,
-        } = options;
+        const { alert, outbreakValue, dataSource, hazardTypes, suspectedDiseases } = options;
 
         return this.getAlertTrackedEntity(alert).flatMap(alertTrackedEntity => {
             const verificationStatus = getAlertValueFromMap(
@@ -42,7 +38,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
             if (verificationStatus === VerificationStatus.RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED) {
                 const outbreakKey = getOutbreakKey({
                     dataSource: dataSource,
-                    outbreakValue: suspectedDiseaseCode || hazardTypeCode,
+                    outbreakValue: outbreakValue,
                     hazardTypes: hazardTypes,
                     suspectedDiseases: suspectedDiseases,
                 });
@@ -72,7 +68,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
         });
     }
 
-    public getAlertTrackedEntity(alert: Alert): FutureData<D2TrackerTrackedEntity> {
+    private getAlertTrackedEntity(alert: Alert): FutureData<D2TrackerTrackedEntity> {
         return apiToFuture(
             this.api.tracker.trackedEntities.get({
                 program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
@@ -104,7 +100,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
         trackedEntity: D2TrackerTrackedEntity,
         outbreakKey: string
     ): AlertSynchronizationData {
-        const { alert, nationalDiseaseOutbreakEventId, dataSource } = options;
+        const { alert, dataSource, nationalDiseaseOutbreakEventId } = options;
         const outbreakType =
             dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS ? "disease" : "hazard";
 
