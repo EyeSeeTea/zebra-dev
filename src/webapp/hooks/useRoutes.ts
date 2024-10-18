@@ -19,6 +19,8 @@ const formTypes = [
     "risk-assessment-grading",
     "risk-assessment-summary",
     "risk-assessment-questionnaire",
+    "incident-action-plan",
+    "incident-response-action",
     "incident-management-team-member-assignment",
 ] as const satisfies FormType[];
 

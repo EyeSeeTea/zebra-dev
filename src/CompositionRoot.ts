@@ -27,6 +27,9 @@ import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
 import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
 import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
 import { RiskAssessmentTestRepository } from "./data/repositories/test/RiskAssessmentTestRepository";
+import { IncidentActionRepository } from "./domain/repositories/IncidentActionRepository";
+import { IncidentActionD2Repository } from "./data/repositories/IncidentActionD2Repository";
+import { IncidentActionTestRepository } from "./data/repositories/test/IncidentActionTestRepository";
 import { MapConfigRepository } from "./domain/repositories/MapConfigRepository";
 import { MapConfigD2Repository } from "./data/repositories/MapConfigD2Repository";
 import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestRepository";
@@ -42,6 +45,8 @@ import { AlertSyncDataStoreTestRepository } from "./data/repositories/test/Alert
 import { AlertSyncRepository } from "./domain/repositories/AlertSyncRepository";
 import { DataStoreClient } from "./data/DataStoreClient";
 import { GetTotalCardCountsUseCase } from "./domain/usecases/GetTotalCardCountsUseCase";
+import { GetIncidentActionByIdUseCase } from "./domain/usecases/GetIncidentActionByIdUseCase";
+import { UpdateIncidentResponseActionUseCase } from "./domain/usecases/UpdateIncidentResponseActionUseCase";
 import { RoleRepository } from "./domain/repositories/RoleRepository";
 import { RoleD2Repository } from "./data/repositories/RoleD2Repository";
 import { RoleTestRepository } from "./data/repositories/test/RoleTestRepository";
@@ -67,6 +72,7 @@ type Repositories = {
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
     riskAssessmentRepository: RiskAssessmentRepository;
+    incidentActionRepository: IncidentActionRepository;
     mapConfigRepository: MapConfigRepository;
     performanceOverviewRepository: PerformanceOverviewRepository;
     roleRepository: RoleRepository;
@@ -89,6 +95,12 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertSyncRepository,
                 repositories.optionsRepository
             ),
+        },
+        incidentActionPlan: {
+            get: new GetIncidentActionByIdUseCase(repositories),
+            updateResponseAction: new UpdateIncidentResponseActionUseCase(repositories),
+        },
+        incidentManagementTeam: {
             deleteIncidentManagementTeamMemberRole:
                 new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
         },
@@ -127,6 +139,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
+        incidentActionRepository: new IncidentActionD2Repository(api),
         mapConfigRepository: new MapConfigD2Repository(api),
         performanceOverviewRepository: new PerformanceOverviewD2Repository(api, dataStoreClient),
         roleRepository: new RoleD2Repository(api),
@@ -147,6 +160,7 @@ export function getTestCompositionRoot() {
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
         riskAssessmentRepository: new RiskAssessmentTestRepository(),
+        incidentActionRepository: new IncidentActionTestRepository(),
         mapConfigRepository: new MapConfigTestRepository(),
         performanceOverviewRepository: new PerformanceOverviewTestRepository(),
         roleRepository: new RoleTestRepository(),
