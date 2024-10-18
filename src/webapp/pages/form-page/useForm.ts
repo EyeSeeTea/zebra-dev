@@ -65,7 +65,12 @@ export function useForm(formType: FormType, id?: Id): State {
     const currentEventTracker = getCurrentEventTracker();
 
     useEffect(() => {
-        if (currentEventTrackerState?.id === currentEventTracker?.id) return;
+        if (
+            currentEventTrackerState &&
+            currentEventTracker &&
+            currentEventTrackerState?.id === currentEventTracker?.id
+        )
+            return;
 
         compositionRoot.getWithOptions.execute(formType, currentEventTracker, id).run(
             formData => {
@@ -91,10 +96,10 @@ export function useForm(formType: FormType, id?: Id): State {
         );
     }, [
         compositionRoot.getWithOptions,
+        currentEventTracker,
+        currentEventTrackerState,
         formType,
         id,
-        currentEventTracker,
-        currentEventTrackerState?.id,
     ]);
 
     const handleAddNew = useCallback(() => {

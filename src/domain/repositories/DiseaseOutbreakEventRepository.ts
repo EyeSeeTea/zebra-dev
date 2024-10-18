@@ -18,18 +18,10 @@ export interface DiseaseOutbreakEventRepository {
     saveIncidentManagementTeamMemberRole(
         teamMemberRole: TeamRole,
         incidentManagementTeamMember: TeamMember,
-        diseaseOutbreakId: Id,
-        roles: Role[]
+        diseaseOutbreakId: Id
     ): FutureData<void>;
     deleteIncidentManagementTeamMemberRole(
-        teamMemberRole: TeamRole,
-        incidentManagementTeamMember: TeamMember,
         diseaseOutbreakId: Id,
-        roles: Role[]
+        incidentManagementTeamRoleId: Id
     ): FutureData<void>;
-    getIncidentManagementTeamMember(
-        username: Id,
-        diseaseOutbreakId: Id,
-        roles: Role[]
-    ): FutureData<TeamMember>;
 }

@@ -11,7 +11,6 @@ import { TeamMember, TeamRole } from "../../../domain/entities/incident-manageme
 import { Id, ConfigLabel } from "../../../domain/entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/DiseaseOutbreakEventRepository";
 import { FutureData } from "../../api-futures";
-import { INCIDENT_MANAGER_ROLE } from "../consts/IncidentManagementTeamBuilderConstants";
 
 export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventRepository {
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs> {
@@ -141,44 +140,15 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
     saveIncidentManagementTeamMemberRole(
         _teamMemberRole: TeamRole,
         _incidentManagementTeamMember: TeamMember,
-        _diseaseOutbreakId: Id,
-        _roles: Role[]
+        _diseaseOutbreakId: Id
     ): FutureData<void> {
         return Future.success(undefined);
     }
 
     deleteIncidentManagementTeamMemberRole(
-        _teamMemberRole: TeamRole,
-        _incidentManagementTeamMember: TeamMember,
         _diseaseOutbreakId: Id,
-        _roles: Role[]
+        _incidentManagementTeamRoleId: Id
     ): FutureData<void> {
         return Future.success(undefined);
-    }
-
-    getIncidentManagementTeamMember(
-        username: Id,
-        _diseaseOutbreakId: Id,
-        _roles: Role[]
-    ): FutureData<TeamMember> {
-        const teamMember: TeamMember = new TeamMember({
-            id: username,
-            username: username,
-            name: `Team Member Name ${username}`,
-            email: `email@email.com`,
-            phone: `121-1234`,
-            teamRoles: [
-                {
-                    id: "role",
-                    name: "role",
-                    roleId: INCIDENT_MANAGER_ROLE,
-                    reportsToUsername: "reportsToUsername",
-                },
-            ],
-            status: "Available",
-            photo: new URL("https://www.example.com"),
-            workPosition: "workPosition",
-        });
-        return Future.success(teamMember);
     }
 }

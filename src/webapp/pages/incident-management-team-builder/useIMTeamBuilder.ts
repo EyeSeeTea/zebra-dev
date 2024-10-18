@@ -151,9 +151,9 @@ export function useIMTeamBuilder(id: Id): State {
             role => role.id === selectedHierarchyItemId
         );
 
-        if (teamMember && teamRoleToDelete) {
+        if (teamMember && teamRoleToDelete?.id) {
             compositionRoot.diseaseOutbreakEvent.deleteIncidentManagementTeamMemberRole
-                .execute(teamRoleToDelete, teamMember, id)
+                .execute(id, teamRoleToDelete.id)
                 .run(
                     () => {
                         setGlobalMessage({
@@ -162,6 +162,7 @@ export function useIMTeamBuilder(id: Id): State {
                         });
                         getIncidentManagementTeam();
                         onOpenDeleteModalData(undefined);
+                        setSelectedHierarchyItemId("");
                     },
                     err => {
                         console.debug(err);
@@ -170,6 +171,7 @@ export function useIMTeamBuilder(id: Id): State {
                             type: "error",
                         });
                         onOpenDeleteModalData(undefined);
+                        setSelectedHierarchyItemId("");
                     }
                 );
         } else {

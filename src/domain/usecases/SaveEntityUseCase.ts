@@ -88,8 +88,7 @@ export class SaveEntityUseCase {
                     return this.options.diseaseOutbreakEventRepository.saveIncidentManagementTeamMemberRole(
                         teamRoleToSave,
                         formData.entity,
-                        formData.eventTrackerDetails.id,
-                        formData.options.roles
+                        formData.eventTrackerDetails.id
                     );
                 }
             }

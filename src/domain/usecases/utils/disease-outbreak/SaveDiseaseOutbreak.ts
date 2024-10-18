@@ -2,7 +2,6 @@ import { FutureData } from "../../../../data/api-futures";
 import { INCIDENT_MANAGER_ROLE } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { DiseaseOutbreakEventBaseAttrs } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
-import { Role } from "../../../entities/incident-management-team/Role";
 import { TeamMember, TeamRole } from "../../../entities/incident-management-team/TeamMember";
 import { Id } from "../../../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
@@ -15,12 +14,13 @@ export function saveDiseaseOutbreak(
         teamMemberRepository: TeamMemberRepository;
         roleRepository: RoleRepository;
     },
-    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs
 ): FutureData<Id> {
     return repositories.diseaseOutbreakEventRepository
-        .save(diseaseOutbreakEventBaseAttrs)
-        .flatMap(() => {
-            return saveIncidentManagerTeamMemberRole(repositories, diseaseOutbreakEventBaseAttrs);
+        .save(diseaseOutbreakEvent)
+        .flatMap((diseaseOutbreakId: Id) => {
+            const diseaseOutbreakEventWithId = { ...diseaseOutbreakEvent, id: diseaseOutbreakId };
+            return saveIncidentManagerTeamMemberRole(repositories, diseaseOutbreakEventWithId);
         });
 }
 
@@ -61,15 +61,13 @@ function saveIncidentManagerTeamMemberRole(
                         diseaseOutbreakEventBaseAttrs,
                         incidentManagerTeamMemberFound,
                         incidentManagerTeamRole,
-                        teamMembers,
-                        roles
+                        teamMembers
                     );
                 } else {
                     return createNewIncidentManager(
                         repositories,
                         diseaseOutbreakEventBaseAttrs,
-                        teamMembers,
-                        roles
+                        teamMembers
                     );
                 }
             });
@@ -84,8 +82,7 @@ function changeIncidentManager(
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
     oldIncidentManager: TeamMember,
     oldIncidentManagerTeamRole: TeamRole,
-    teamMembers: TeamMember[],
-    roles: Role[]
+    teamMembers: TeamMember[]
 ): FutureData<Id> {
     if (oldIncidentManager.username !== diseaseOutbreakEventBaseAttrs.incidentManagerName) {
         const newIncidentManager = teamMembers.find(
@@ -103,24 +100,22 @@ function changeIncidentManager(
         const newIncidentManagerTeamRole: TeamRole = {
             id: "",
             name: "",
+            diseaseOutbreakId: diseaseOutbreakEventBaseAttrs.id,
             roleId: INCIDENT_MANAGER_ROLE,
             reportsToUsername: undefined,
         };
 
         return repositories.diseaseOutbreakEventRepository
             .deleteIncidentManagementTeamMemberRole(
-                oldIncidentManagerTeamRole,
-                oldIncidentManager,
                 diseaseOutbreakEventBaseAttrs.id,
-                roles
+                oldIncidentManagerTeamRole.id
             )
             .flatMap(() => {
                 return repositories.diseaseOutbreakEventRepository
                     .saveIncidentManagementTeamMemberRole(
                         newIncidentManagerTeamRole,
                         newIncidentManager,
-                        diseaseOutbreakEventBaseAttrs.id,
-                        roles
+                        diseaseOutbreakEventBaseAttrs.id
                     )
                     .flatMap(() => Future.success(diseaseOutbreakEventBaseAttrs.id));
             });
@@ -135,8 +130,7 @@ function createNewIncidentManager(
         teamMemberRepository: TeamMemberRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
-    teamMembers: TeamMember[],
-    roles: Role[]
+    teamMembers: TeamMember[]
 ): FutureData<Id> {
     const newIncidentManager = teamMembers.find(
         teamMember => teamMember.username === diseaseOutbreakEventBaseAttrs.incidentManagerName
@@ -153,6 +147,7 @@ function createNewIncidentManager(
     const incidentManagerTeamRole: TeamRole = {
         id: "",
         name: "",
+        diseaseOutbreakId: diseaseOutbreakEventBaseAttrs.id,
         roleId: INCIDENT_MANAGER_ROLE,
         reportsToUsername: undefined,
     };
@@ -160,8 +155,7 @@ function createNewIncidentManager(
         .saveIncidentManagementTeamMemberRole(
             incidentManagerTeamRole,
             newIncidentManager,
-            diseaseOutbreakEventBaseAttrs.id,
-            roles
+            diseaseOutbreakEventBaseAttrs.id
         )
         .flatMap(() => Future.success(diseaseOutbreakEventBaseAttrs.id));
 }

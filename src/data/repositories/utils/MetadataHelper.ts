@@ -1,4 +1,7 @@
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
+import { SelectedPick } from "@eyeseetea/d2-api/api";
+import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
+
 import { Id, Ref } from "../../../domain/entities/Ref";
 import { D2Api } from "../../../types/d2-api";
 import { apiToFuture, FutureData } from "../../api-futures";
@@ -64,6 +67,7 @@ export function getProgramStage(api: D2Api, stageId: Id) {
                         id: true,
                         valueType: true,
                         code: true,
+                        name: true,
                     },
                 },
             },
@@ -73,3 +77,15 @@ export function getProgramStage(api: D2Api, stageId: Id) {
         })
     );
 }
+
+export type D2ProgramStageDataElementsMetadata = {
+    dataElement: SelectedPick<
+        D2DataElementSchema,
+        {
+            id: true;
+            valueType: true;
+            code: true;
+            name: true;
+        }
+    >;
+};

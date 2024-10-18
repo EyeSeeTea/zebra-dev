@@ -57,7 +57,6 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.teamMemberRepository
                     ),
                     incidentManagementTeam: getIncidentManagementTeamById(id, this.options),
-                    roles: this.options.roleRepository.getAll(),
                 }).flatMap(
                     ({
                         mainSyndrome,
@@ -67,27 +66,27 @@ export class GetDiseaseOutbreakByIdUseCase {
                         areasAffectedDistricts,
                         riskAssessment,
                         incidentManagementTeam,
-                        roles,
                     }) => {
-                        return this.options.diseaseOutbreakEventRepository
-                            .getIncidentManagementTeamMember(incidentManagerName, id, roles)
-                            .flatMap(incidentManager => {
-                                const diseaseOutbreakEvent: DiseaseOutbreakEvent =
-                                    new DiseaseOutbreakEvent({
-                                        ...diseaseOutbreakEventBase,
-                                        createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
-                                        mainSyndrome: mainSyndrome,
-                                        suspectedDisease: suspectedDisease,
-                                        notificationSource: notificationSource,
-                                        areasAffectedProvinces: areasAffectedProvinces,
-                                        areasAffectedDistricts: areasAffectedDistricts,
-                                        incidentManager: incidentManager,
-                                        riskAssessment: riskAssessment,
-                                        incidentActionPlan: undefined, //TO DO : FIXME populate once incidentActionPlan repo is implemented
-                                        incidentManagementTeam: incidentManagementTeam,
-                                    });
-                                return Future.success(diseaseOutbreakEvent);
-                            });
+                        const incidentManager = incidentManagementTeam?.teamHierarchy?.find(
+                            teamMember => teamMember.username === incidentManagerName
+                        );
+
+                        const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent(
+                            {
+                                ...diseaseOutbreakEventBase,
+                                createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
+                                mainSyndrome: mainSyndrome,
+                                suspectedDisease: suspectedDisease,
+                                notificationSource: notificationSource,
+                                areasAffectedProvinces: areasAffectedProvinces,
+                                areasAffectedDistricts: areasAffectedDistricts,
+                                incidentManager: incidentManager,
+                                riskAssessment: riskAssessment,
+                                incidentActionPlan: undefined, //TO DO : FIXME populate once incidentActionPlan repo is implemented
+                                incidentManagementTeam: incidentManagementTeam,
+                            }
+                        );
+                        return Future.success(diseaseOutbreakEvent);
                     }
                 );
             });
