@@ -7,10 +7,9 @@ import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { FormSummary } from "../../components/form/form-summary/FormSummary";
-import { Visualisation } from "../../components/visualisation/Visualisation";
+import { Chart } from "../../components/chart/Chart";
 import { Section } from "../../components/section/Section";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
-import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { useDiseaseOutbreakEvent } from "./useDiseaseOutbreakEvent";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
@@ -18,16 +17,12 @@ import { MapSection } from "../../components/map/MapSection";
 import LoaderContainer from "../../components/loader/LoaderContainer";
 import { useMapFilters } from "./useMapFilters";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
-
-// TODO: Add every section here
-export type VisualizationTypes =
-    | "ALL_EVENTS_MAP"
-    | "EVENT_TRACKER_AREAS_AFFECTED_MAP"
-    | "RISK_ASSESSMENT_HISTORY_LINE_CHART"
-    | "EVENT_TRACKER_CASES_BAR_CHART"
-    | "EVENT_TRACKER_DEATHS_BAR_CHART"
-    | "EVENT_TRACKER_OVERVIEW_CARDS"
-    | "EVENT_TRACKER_717_CARDS";
+import { NoticeBox } from "../../components/notice-box/NoticeBox";
+import { PerformanceMetric717, use717Performance } from "../dashboard/use717Performance";
+import { GridWrapper, StyledStatsCard } from "../dashboard/DashboardPage";
+import { StatsCard } from "../../components/stats-card/StatsCard";
+import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
+import { useOverviewCards } from "./useOverviewCards";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -52,6 +47,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         useDiseaseOutbreakEvent(id);
     const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
         useCurrentEventTracker();
+    const currentEventTracker = getCurrentEventTracker();
+    const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
+
+    const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
 
     const { dateRangeFilter } = useMapFilters();
 
@@ -61,25 +60,24 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
+    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance(
+        "event_tracker",
+        id
+    );
+
     useEffect(() => {
         if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
     }, [changeCurrentEventTrackerId, eventTrackerDetails, id]);
 
-    const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
     return (
-        <Layout title={i18n.t("Event Tracker")}>
+        <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
             <FormSummary
                 id={id}
                 formType="disease-outbreak-event"
                 formSummary={formSummary}
                 summaryError={summaryError}
             />
-            <Section
-                title={i18n.t("Districts Affected")}
-                titleVariant="secondary"
-                hasSeparator
-                lastUpdated={lastUpdated}
-            >
+            <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
                 <DurationFilterContainer>
                     <DateRangePicker
                         value={dateRangeFilter.value || []}
@@ -90,14 +88,15 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 </DurationFilterContainer>
                 <LoaderContainer
                     loading={
-                        !getCurrentEventTracker()?.suspectedDiseaseCode &&
-                        !getCurrentEventTracker()?.hazardType
+                        !currentEventTracker?.suspectedDiseaseCode &&
+                        !currentEventTracker?.hazardType &&
+                        areOverviewCardsLoading
                     }
                 >
                     <MapSection
                         mapKey="event_tracker"
-                        eventDiseaseCode={getCurrentEventTracker()?.suspectedDiseaseCode}
-                        eventHazardCode={getCurrentEventTracker()?.hazardType}
+                        eventDiseaseCode={currentEventTracker?.suspectedDiseaseCode}
+                        eventHazardCode={currentEventTracker?.hazardType}
                         dateRangeFilter={dateRangeFilter.value || []}
                     />
                 </LoaderContainer>
@@ -131,28 +130,76 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     )
                 }
                 titleVariant="secondary"
-                lastUpdated={lastUpdated}
             >
-                <BasicTable columns={riskAssessmentColumns} rows={riskAssessmentRows} />
+                {riskAssessmentRows.length > 0 ? (
+                    <BasicTable columns={riskAssessmentColumns} rows={riskAssessmentRows} />
+                ) : (
+                    <NoticeBox title={i18n.t("Risk assessment incomplete")}>
+                        {i18n.t("Risks associated with this event have not yet been assessed.")}
+                    </NoticeBox>
+                )}
                 <Box sx={{ m: 5 }} />
+                {!!currentEventTracker?.riskAssessment?.grading?.length && (
+                    <Chart
+                        title="Risk Assessment History"
+                        chartType="risk-assessment-history"
+                        chartKey={
+                            currentEventTracker?.suspectedDisease?.name ||
+                            currentEventTracker?.hazardType
+                        }
+                    />
+                )}
             </Section>
-            <Visualisation
-                type="RISK_ASSESSMENT_HISTORY_LINE_CHART"
-                title="Risk Assessment History"
-            />
-            <Visualisation
-                type="EVENT_TRACKER_OVERVIEW_CARDS"
-                title="Overview"
+            <Section title="Overview" hasSeparator={true} titleVariant="secondary">
+                <GridWrapper>
+                    {overviewCards?.map((card, index) => (
+                        <StyledStatsCard
+                            key={index}
+                            stat={card.value.toString()}
+                            title={i18n.t(card.name)}
+                            fillParent
+                        />
+                    ))}
+                </GridWrapper>
+            </Section>
+
+            <Section hasSeparator={true}>
+                <Chart
+                    title="Cases"
+                    chartType="cases"
+                    chartKey={
+                        currentEventTracker?.suspectedDisease?.name ||
+                        currentEventTracker?.hazardType
+                    }
+                />
+                <Chart
+                    title="Deaths"
+                    chartType="deaths"
+                    chartKey={
+                        currentEventTracker?.suspectedDisease?.name ||
+                        currentEventTracker?.hazardType
+                    }
+                />
+            </Section>
+            <Section
+                title={i18n.t("7-1-7 performance")}
                 hasSeparator={true}
-                lastUpdated={lastUpdated}
-            />
-            <Visualisation type="EVENT_TRACKER_CASES_BAR_CHART" title="Cases" hasSeparator={true} />
-            <Visualisation type="EVENT_TRACKER_CASES_BAR_CHART" title="Deaths" />
-            <Visualisation
-                type="EVENT_TRACKER_717_CARDS"
-                title="7-1-7 performance"
-                hasSeparator={true}
-            />
+                titleVariant="secondary"
+            >
+                <GridWrapper>
+                    {performanceMetrics717.map(
+                        (perfMetric: PerformanceMetric717, index: number) => (
+                            <StatsCard
+                                key={index}
+                                stat={`${perfMetric.primaryValue}`}
+                                title={perfMetric.title}
+                                color={perfMetric.color}
+                                fillParent
+                            />
+                        )
+                    )}
+                </GridWrapper>
+            </Section>
         </Layout>
     );
 });

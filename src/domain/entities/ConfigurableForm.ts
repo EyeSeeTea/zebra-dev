@@ -1,6 +1,6 @@
 import { Maybe } from "../../utils/ts-utils";
 import { TeamMember } from "./incident-management-team/TeamMember";
-import { Option } from "./Ref";
+import { Id, Option } from "./Ref";
 import { Rule } from "./Rule";
 import {
     DiseaseOutbreakEvent,
@@ -10,6 +10,8 @@ import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
 import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
 import { RiskAssessmentQuestionnaire } from "./risk-assessment/RiskAssessmentQuestionnaire";
+import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
+import { Role } from "./incident-management-team/Role";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -84,8 +86,24 @@ export type RiskAssessmentQuestionnaireFormData = BaseFormData & {
     options: RiskAssessmentQuestionnaireOptions;
 };
 
+export type IncidentManagementTeamRoleOptions = {
+    roles: Role[];
+    teamMembers: TeamMember[];
+    incidentManagers: TeamMember[];
+};
+
+export type IncidentManagementTeamMemberFormData = BaseFormData & {
+    type: "incident-management-team-member-assignment";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: Maybe<TeamMember>;
+    incidentManagementTeamRoleId: Maybe<Id>;
+    currentIncidentManagementTeam: Maybe<IncidentManagementTeam>;
+    options: IncidentManagementTeamRoleOptions;
+};
+
 export type ConfigurableForm =
     | DiseaseOutbreakEventFormData
     | RiskAssessmentGradingFormData
     | RiskAssessmentSummaryFormData
-    | RiskAssessmentQuestionnaireFormData;
+    | RiskAssessmentQuestionnaireFormData
+    | IncidentManagementTeamMemberFormData;

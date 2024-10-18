@@ -166,6 +166,8 @@ export function toggleSectionVisibilityByFieldValue(
     fieldValue: FormFieldState["value"],
     rule: Rule
 ): FormSectionState {
+    if (rule.type !== "toggleSectionsVisibilityByFieldValue") return section;
+
     if (rule.sectionIds.includes(section.id)) {
         const subsections = section.subsections?.map(subsection => {
             return toggleSectionVisibilityByFieldValue(subsection, fieldValue, rule);
@@ -197,6 +199,92 @@ export function toggleSectionVisibilityByFieldValue(
             ...section,
             subsections: section.subsections?.map(subsection =>
                 toggleSectionVisibilityByFieldValue(subsection, fieldValue, rule)
+            ),
+        };
+    }
+}
+
+export function disableFieldsByFieldValueInSection(
+    section: FormSectionState,
+    fieldValue: FormFieldState["value"],
+    rule: Rule
+): FormSectionState {
+    if (rule.type !== "disableFieldsByFieldValue") return section;
+
+    if (rule.sectionIdsWithDisableFields.includes(section.id)) {
+        const subsections = section.subsections?.map(subsection => {
+            return disableFieldsByFieldValueInSection(subsection, fieldValue, rule);
+        });
+
+        const fieldsInSection: FormFieldState[] = section.fields.map(field => {
+            return rule.disableFieldIds.includes(field.id)
+                ? {
+                      ...field,
+                      disabled: fieldValue === rule.fieldValue,
+                  }
+                : field;
+        });
+
+        return section.subsections
+            ? {
+                  ...section,
+                  fields: fieldsInSection,
+                  subsections: subsections,
+              }
+            : {
+                  ...section,
+                  fields: fieldsInSection,
+              };
+    } else {
+        return {
+            ...section,
+            subsections: section.subsections?.map(subsection =>
+                disableFieldsByFieldValueInSection(subsection, fieldValue, rule)
+            ),
+        };
+    }
+}
+
+export function disableFieldOptionWithSameFieldValueInSection(
+    section: FormSectionState,
+    fieldValue: FormFieldState["value"],
+    rule: Rule
+): FormSectionState {
+    if (rule.type !== "disableFieldOptionWithSameFieldValue") return section;
+
+    if (rule.sectionsWithFieldsToDisableOption.includes(section.id)) {
+        const subsections = section.subsections?.map(subsection => {
+            return disableFieldOptionWithSameFieldValueInSection(subsection, fieldValue, rule);
+        });
+
+        const fieldsInSection: FormFieldState[] = section.fields.map(field => {
+            return rule.fieldIdsToDisableOption.includes(field.id) &&
+                (field.type === "select" || field.type === "user" || field.type === "radio")
+                ? ({
+                      ...field,
+                      options: field.options?.map(option => ({
+                          ...option,
+                          disabled: option.value === fieldValue,
+                      })),
+                  } as FormFieldState)
+                : field;
+        });
+
+        return section.subsections
+            ? {
+                  ...section,
+                  fields: fieldsInSection,
+                  subsections: subsections,
+              }
+            : {
+                  ...section,
+                  fields: fieldsInSection,
+              };
+    } else {
+        return {
+            ...section,
+            subsections: section.subsections?.map(subsection =>
+                disableFieldOptionWithSameFieldValueInSection(subsection, fieldValue, rule)
             ),
         };
     }

@@ -12,7 +12,6 @@ import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as UIOption } from "../../../components/utils/option";
 import { mapTeamMemberToUser, mapToPresentationOptions } from "../mapEntityToFormState";
-import { getDateAsLocaleDateTimeString } from "../../../../data/repositories/utils/DateTimeHelper";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { RiskAssessmentQuestionnaire } from "../../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { Maybe } from "../../../../utils/ts-utils";
@@ -49,10 +48,6 @@ export function mapRiskGradingToInitialFormState(
         id: "",
         title: "Risk Assessment Grading",
         subtitle: riskFormaData.eventTrackerDetails.name,
-        titleDescripton: "Last updated",
-        subtitleDescripton: getDateAsLocaleDateTimeString(
-            riskFormaData.eventTrackerDetails.lastUpdated
-        ),
         saveButtonLabel: "Save",
         isValid: false,
         sections: [
@@ -260,10 +255,6 @@ export function mapRiskAssessmentSummaryToInitialFormState(
         id: riskAssessmentSummary?.id ?? "",
         title: "Risk Assessment Summary",
         subtitle: riskFormaData.eventTrackerDetails.name,
-        titleDescripton: "Last updated",
-        subtitleDescripton: getDateAsLocaleDateTimeString(
-            riskFormaData.eventTrackerDetails.lastUpdated
-        ),
         saveButtonLabel: "Save & Continue",
         isValid: riskAssessmentSummary ? true : false,
         sections: [

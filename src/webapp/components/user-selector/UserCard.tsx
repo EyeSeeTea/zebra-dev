@@ -10,6 +10,7 @@ type UserCardProps = {
 };
 export const UserCard: React.FC<UserCardProps> = React.memo(props => {
     const { selectedUser } = props;
+
     return (
         <AvatarContainer>
             <AvatarCard avatarSize="medium" alt={selectedUser?.alt} src={selectedUser?.src}>
@@ -18,21 +19,23 @@ export const UserCard: React.FC<UserCardProps> = React.memo(props => {
                         <TextBold>{selectedUser?.label}</TextBold>
 
                         {selectedUser?.workPosition && <Text>{selectedUser?.workPosition}</Text>}
+
+                        {selectedUser?.teamRoles && <Text>{selectedUser?.teamRoles}</Text>}
+                        {selectedUser?.phone && <Text>{selectedUser?.phone}</Text>}
+                        {selectedUser?.email && (
+                            <StyledLink href={`mailto:${selectedUser?.email}`}>
+                                {selectedUser?.email}
+                            </StyledLink>
+                        )}
                     </Content>
 
-                    <Content>
-                        <Text>{selectedUser?.phone}</Text>
+                    {selectedUser?.status && (
+                        <div>
+                            <TextBold>{i18n.t("Status: ", { nsSeparator: false })}</TextBold>
 
-                        <StyledLink href={`mailto:${selectedUser?.email}`}>
-                            {selectedUser?.email}
-                        </StyledLink>
-                    </Content>
-
-                    <div>
-                        <TextBold>{i18n.t("Status: ", { nsSeparator: false })}</TextBold>
-
-                        {selectedUser?.status && <Text>{selectedUser?.status}</Text>}
-                    </div>
+                            {selectedUser?.status && <Text>{selectedUser?.status}</Text>}
+                        </div>
+                    )}
                 </Container>
             </AvatarCard>
         </AvatarContainer>

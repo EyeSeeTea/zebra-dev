@@ -43,6 +43,7 @@ import {
     RiskAssessmentSummaryFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
+import { getPopulatedDataElement, getValueById } from "./helpers";
 
 type D2ProgramStageDataElementsMetadata = {
     dataElement: SelectedPick<
@@ -220,18 +221,6 @@ function mapRiskAssessmentQuestionnaireToDataElements(
     }
 }
 
-function getPopulatedDataElement(dataElement: Id, value: Maybe<string>): DataValue {
-    const populatedDataElement: DataValue = {
-        dataElement: dataElement,
-        value: value ?? "",
-        updatedAt: new Date().toISOString(),
-        storedBy: "",
-        createdAt: new Date().toISOString(),
-        providedElsewhere: false,
-    };
-    return populatedDataElement;
-}
-
 function getRiskAssessmentTrackerEvent(
     programStageId: Id,
     id: Maybe<Id>,
@@ -254,6 +243,7 @@ function getRiskAssessmentTrackerEvent(
 }
 
 export function mapDataElementsToRiskAssessmentGrading(
+    lastUpdated: string | undefined,
     dataValues: DataValue[]
 ): RiskAssessmentGrading {
     const populationValue = getValueById(dataValues, riskAssessmentGradingIds.populationAtRisk);
@@ -273,7 +263,7 @@ export function mapDataElementsToRiskAssessmentGrading(
 
     const riskAssessmentGrading: RiskAssessmentGrading = RiskAssessmentGrading.create({
         id: "",
-        lastUpdated: new Date(),
+        lastUpdated: lastUpdated ? new Date(lastUpdated) : undefined,
         populationAtRisk: RiskAssessmentGrading.getOptionTypeByCodePopulation(populationValue),
         attackRate: RiskAssessmentGrading.getOptionTypeByCodeWeighted(attackRateValue),
         geographicalSpread:
@@ -415,8 +405,4 @@ export function mapDataElementsToCustomRiskAssessmentQuestionnaire(
     };
 
     return customQuestion;
-}
-
-function getValueById(dataValues: DataValue[], dataElement: string): Maybe<string> {
-    return dataValues.find(dataValue => dataValue.dataElement === dataElement)?.value;
 }

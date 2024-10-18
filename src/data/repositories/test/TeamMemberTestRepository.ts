@@ -12,9 +12,10 @@ export class TeamMemberTestRepository implements TeamMemberRepository {
             name: `Team Member Name test`,
             email: `email@email.com`,
             phone: `121-1234`,
-            role: { id: "1", name: "role" },
+            teamRoles: undefined,
             status: "Available",
             photo: new URL("https://www.example.com"),
+            workPosition: "workPosition",
         });
 
         return Future.success([teamMember]);
@@ -26,9 +27,26 @@ export class TeamMemberTestRepository implements TeamMemberRepository {
             name: `Team Member Name test`,
             email: `email@email.com`,
             phone: `121-1234`,
-            role: { id: "1", name: "role" },
+            teamRoles: undefined,
             status: "Available",
             photo: new URL("https://www.example.com"),
+            workPosition: "workPosition",
+        });
+
+        return Future.success([teamMember]);
+    }
+
+    getForIncidentManagementTeamMembers(): FutureData<TeamMember[]> {
+        const teamMember: TeamMember = new TeamMember({
+            id: "incidentManagementTeamMember",
+            username: "incidentManagementTeamMember",
+            name: `Team Member Name test`,
+            email: `email@email.com`,
+            phone: `121-1234`,
+            teamRoles: undefined,
+            status: "Available",
+            photo: new URL("https://www.example.com"),
+            workPosition: "workPosition",
         });
 
         return Future.success([teamMember]);
@@ -41,9 +59,10 @@ export class TeamMemberTestRepository implements TeamMemberRepository {
             name: `Team Member Name test`,
             email: `email@email.com`,
             phone: `121-1234`,
-            role: { id: "1", name: "role" },
+            teamRoles: undefined,
             status: "Available",
             photo: new URL("https://www.example.com"),
+            workPosition: "workPosition",
         });
 
         return Future.success([teamMember]);
@@ -56,9 +75,10 @@ export class TeamMemberTestRepository implements TeamMemberRepository {
             name: `Team Member Name ${id}`,
             email: `email@email.com`,
             phone: `121-1234`,
-            role: { id: "1", name: "role" },
+            teamRoles: undefined,
             status: "Available",
             photo: new URL("https://www.example.com"),
+            workPosition: "workPosition",
         });
 
         return Future.success(teamMember);

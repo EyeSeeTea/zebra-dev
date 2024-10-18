@@ -3,7 +3,10 @@ import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-even
 import {
     TotalCardCounts,
     PerformanceOverviewMetrics,
+    PerformanceMetrics717,
 } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { OverviewCard } from "../entities/PerformanceOverview";
+import { Id } from "../entities/Ref";
 
 export interface PerformanceOverviewRepository {
     getPerformanceOverviewMetrics(
@@ -15,4 +18,7 @@ export interface PerformanceOverviewRepository {
         multiSelectFilters?: Record<string, string[]>,
         dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]>;
+    getDashboard717Performance(): FutureData<PerformanceMetrics717[]>;
+    getEventTracker717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]>;
+    getEventTrackerOverviewMetrics(type: string): FutureData<OverviewCard[]>;
 }

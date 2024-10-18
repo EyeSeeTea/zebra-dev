@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-09-12T14:10:04.460Z\n"
+"POT-Creation-Date: 2024-10-09T10:56:24.909Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -86,6 +86,15 @@ msgstr ""
 msgid "Edit Details"
 msgstr ""
 
+msgid "Notes"
+msgstr ""
+
+msgid "Edit Profile"
+msgstr ""
+
+msgid "Currently assigned:"
+msgstr ""
+
 msgid "Create Event"
 msgstr ""
 
@@ -131,6 +140,9 @@ msgstr ""
 msgid "7-1-7 performance"
 msgstr ""
 
+msgid "events"
+msgstr ""
+
 msgid "Performance overview"
 msgstr ""
 
@@ -146,13 +158,19 @@ msgstr ""
 msgid "Add new Assessment"
 msgstr ""
 
+msgid "Risk assessment incomplete"
+msgstr ""
+
+msgid "Risks associated with this event have not yet been assessed."
+msgstr ""
+
 msgid "N/A"
 msgstr ""
 
 msgid "Add another"
 msgstr ""
 
-msgid "Create Event form cannot be loaded"
+msgid "Form cannot be loaded"
 msgstr ""
 
 msgid "Disease Outbreak saved successfully"
@@ -167,6 +185,9 @@ msgstr ""
 msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
+msgid "Incident Management Team Member saved successfully"
+msgstr ""
+
 msgid "Incident Action Plan"
 msgstr ""
 
@@ -174,6 +195,18 @@ msgid "Cholera in NW Province, June 2023"
 msgstr ""
 
 msgid "Incident Management Team Builder"
+msgstr ""
+
+msgid "Edit Role"
+msgstr ""
+
+msgid "Assign Role"
+msgstr ""
+
+msgid "Delete Role"
+msgstr ""
+
+msgid "Delete team role"
 msgstr ""
 
 msgid "Resources"
