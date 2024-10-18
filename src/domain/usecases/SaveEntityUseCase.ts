@@ -8,7 +8,6 @@ import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakE
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
-import { RoleRepository } from "../repositories/RoleRepository";
 
 export class SaveEntityUseCase {
     constructor(
@@ -16,7 +15,6 @@ export class SaveEntityUseCase {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             riskAssessmentRepository: RiskAssessmentRepository;
             teamMemberRepository: TeamMemberRepository;
-            roleRepository: RoleRepository;
         }
     ) {}
 
@@ -28,7 +26,6 @@ export class SaveEntityUseCase {
                     {
                         diseaseOutbreakEventRepository: this.options.diseaseOutbreakEventRepository,
                         teamMemberRepository: this.options.teamMemberRepository,
-                        roleRepository: this.options.roleRepository,
                     },
                     formData.entity
                 );
@@ -68,7 +65,6 @@ export class SaveEntityUseCase {
                                         diseaseOutbreakEventRepository:
                                             this.options.diseaseOutbreakEventRepository,
                                         teamMemberRepository: this.options.teamMemberRepository,
-                                        roleRepository: this.options.roleRepository,
                                     },
                                     updatedDiseaseOutbreakEvent
                                 );

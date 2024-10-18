@@ -6,7 +6,6 @@ import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakE
 import { OptionsRepository } from "../repositories/OptionsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
-import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getIncidentManagementTeamById } from "./utils/incident-management-team/GetIncidentManagementTeamById";
 import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
@@ -19,7 +18,6 @@ export class GetDiseaseOutbreakByIdUseCase {
             teamMemberRepository: TeamMemberRepository;
             orgUnitRepository: OrgUnitRepository;
             riskAssessmentRepository: RiskAssessmentRepository;
-            roleRepository: RoleRepository;
         }
     ) {}
 

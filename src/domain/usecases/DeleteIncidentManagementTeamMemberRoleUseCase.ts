@@ -1,13 +1,11 @@
 import { FutureData } from "../../data/api-futures";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
-import { RoleRepository } from "../repositories/RoleRepository";
 
 export class DeleteIncidentManagementTeamMemberRoleUseCase {
     constructor(
         private options: {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
-            roleRepository: RoleRepository;
         }
     ) {}
 

@@ -6,7 +6,6 @@ import {
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../domain/entities/generic/Future";
 import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
-import { Role } from "../../../domain/entities/incident-management-team/Role";
 import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Id, ConfigLabel } from "../../../domain/entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/DiseaseOutbreakEventRepository";
@@ -127,8 +126,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
 
     getIncidentManagementTeam(
         _diseaseOutbreakId: Id,
-        _teamMembers: TeamMember[],
-        _roles: Role[]
+        _teamMembers: TeamMember[]
     ): FutureData<IncidentManagementTeam> {
         return Future.success(
             new IncidentManagementTeam({

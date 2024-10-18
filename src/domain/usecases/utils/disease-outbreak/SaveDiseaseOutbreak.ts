@@ -5,14 +5,12 @@ import { Future } from "../../../entities/generic/Future";
 import { TeamMember, TeamRole } from "../../../entities/incident-management-team/TeamMember";
 import { Id } from "../../../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
-import { RoleRepository } from "../../../repositories/RoleRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
 export function saveDiseaseOutbreak(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         teamMemberRepository: TeamMemberRepository;
-        roleRepository: RoleRepository;
     },
     diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs
 ): FutureData<Id> {
@@ -28,16 +26,12 @@ function saveIncidentManagerTeamMemberRole(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         teamMemberRepository: TeamMemberRepository;
-        roleRepository: RoleRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
 ): FutureData<Id> {
-    return Future.joinObj({
-        roles: repositories.roleRepository.getAll(),
-        teamMembers: repositories.teamMemberRepository.getAll(),
-    }).flatMap(({ roles, teamMembers }) => {
+    return repositories.teamMemberRepository.getAll().flatMap(teamMembers => {
         return repositories.diseaseOutbreakEventRepository
-            .getIncidentManagementTeam(diseaseOutbreakEventBaseAttrs.id, teamMembers, roles)
+            .getIncidentManagementTeam(diseaseOutbreakEventBaseAttrs.id, teamMembers)
             .flatMap(incidentManagementTeam => {
                 const incidentManagerTeamMemberFound = incidentManagementTeam?.teamHierarchy?.find(
                     teamMember =>

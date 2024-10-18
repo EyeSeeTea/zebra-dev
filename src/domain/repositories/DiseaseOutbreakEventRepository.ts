@@ -1,7 +1,6 @@
 import { FutureData } from "../../data/api-futures";
 import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { IncidentManagementTeam } from "../entities/incident-management-team/IncidentManagementTeam";
-import { Role } from "../entities/incident-management-team/Role";
 import { TeamMember, TeamRole } from "../entities/incident-management-team/TeamMember";
 import { ConfigLabel, Id } from "../entities/Ref";
 
@@ -12,8 +11,7 @@ export interface DiseaseOutbreakEventRepository {
     getConfigStrings(): FutureData<ConfigLabel[]>;
     getIncidentManagementTeam(
         diseaseOutbreakId: Id,
-        teamMembers: TeamMember[],
-        roles: Role[]
+        teamMembers: TeamMember[]
     ): FutureData<IncidentManagementTeam>;
     saveIncidentManagementTeamMemberRole(
         teamMemberRole: TeamRole,
