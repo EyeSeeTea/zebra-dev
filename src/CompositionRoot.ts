@@ -95,14 +95,12 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertSyncRepository,
                 repositories.optionsRepository
             ),
+            deleteIncidentManagementTeamMemberRole:
+                new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
         },
         incidentActionPlan: {
             get: new GetIncidentActionByIdUseCase(repositories),
             updateResponseAction: new UpdateIncidentResponseActionUseCase(repositories),
-        },
-        incidentManagementTeam: {
-            deleteIncidentManagementTeamMemberRole:
-                new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
         },
         performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
