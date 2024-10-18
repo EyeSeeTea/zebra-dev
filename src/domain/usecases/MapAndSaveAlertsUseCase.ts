@@ -11,8 +11,8 @@ import {
 import { logger } from "../../utils/logger";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 import { UserGroupRepository } from "../repositories/UserGroupRepository";
-import { AlertData, OutbreakData } from "../entities/alert/AlertData";
-import { AlertDataRepository } from "../repositories/AlertDataRepository";
+import { OutbreakAlert, OutbreakData, OutbreakDataType } from "../entities/alert/OutbreakAlert";
+import { OutbreakAlertRepository } from "../repositories/OutbreakAlertRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { getOutbreakKey } from "../entities/alert/AlertSynchronizationData";
 import { promiseMap } from "../../utils/promiseMap";
@@ -21,7 +21,7 @@ export class MapAndSaveAlertsUseCase {
     constructor(
         private options: {
             alertRepository: AlertRepository;
-            alertDataRepository: AlertDataRepository;
+            outbreakAlertRepository: OutbreakAlertRepository;
             alertSyncRepository: AlertSyncRepository;
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             notificationRepository: NotificationRepository;
@@ -32,7 +32,7 @@ export class MapAndSaveAlertsUseCase {
 
     public async execute(): Promise<void> {
         const { hazardTypes, suspectedDiseases } = await this.getOptions();
-        const alertData = await this.options.alertDataRepository.get().toPromise();
+        const alertData = await this.options.outbreakAlertRepository.get().toPromise();
 
         logger.info(
             `${alertData.length} event(s) found in the Zebra Alerts program with no national event id.`
@@ -61,16 +61,13 @@ export class MapAndSaveAlertsUseCase {
     }
 
     private async mapDiseaseOutbreakToAlertsAndSave(
-        alertData: AlertData[],
+        alertData: OutbreakAlert[],
         outbreakData: OutbreakData,
         hazardTypes: Option[],
         suspectedDiseases: Option[]
     ): Promise<void> {
         const diseaseOutbreakEvents = await this.getDiseaseOutbreakEvents(outbreakData);
-        const dataSource =
-            outbreakData.type === "disease"
-                ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
-                : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
+        const dataSource = this.getDataSource(outbreakData);
 
         if (diseaseOutbreakEvents.length > 1) {
             const outbreakKey = getOutbreakKey({
@@ -97,6 +94,15 @@ export class MapAndSaveAlertsUseCase {
         });
     }
 
+    private getDataSource(outbreakData: OutbreakData): DataSource {
+        const mapping: Record<OutbreakDataType, DataSource> = {
+            disease: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+            hazard: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+        };
+
+        return mapping[outbreakData.type];
+    }
+
     private getDiseaseOutbreakEvents(
         outbreakData: OutbreakData
     ): Promise<DiseaseOutbreakEventBaseAttrs[]> {
@@ -115,7 +121,7 @@ export class MapAndSaveAlertsUseCase {
     }
 
     private mapAndSaveAlertData(
-        alertData: AlertData,
+        alertData: OutbreakAlert,
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[],
         hazardTypes: Option[],
         suspectedDiseases: Option[]
@@ -149,7 +155,7 @@ export class MapAndSaveAlertsUseCase {
     }
 
     private async notifyNationalWatchStaff(
-        alertData: AlertData,
+        alertData: OutbreakAlert,
         alertOutbreakType: string,
         outbreakName: string
     ): Promise<void> {
@@ -167,7 +173,7 @@ export class MapAndSaveAlertsUseCase {
     }
 
     private async updateAlertData(options: {
-        alertData: AlertData;
+        alertData: OutbreakAlert;
         diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs;
         hazardTypes: Option[];
         suspectedDiseases: Option[];
@@ -200,7 +206,7 @@ export class MapAndSaveAlertsUseCase {
     }
 }
 
-function getUniqueFilters(alerts: AlertData[]): OutbreakData[] {
+function getUniqueFilters(alerts: OutbreakAlert[]): OutbreakData[] {
     return _(alerts)
         .uniqBy(alertData => alertData.outbreakData.value)
         .map(alertData => alertData.outbreakData)

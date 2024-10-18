@@ -1,4 +1,4 @@
-import { OutbreakData } from "../../../domain/entities/alert/AlertData";
+import { OutbreakData } from "../../../domain/entities/alert/OutbreakAlert";
 import {
     DataSource,
     DiseaseOutbreakEvent,

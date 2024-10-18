@@ -3,12 +3,14 @@ import { NotificationOptions } from "../../repositories/NotificationRepository";
 import { DataSource } from "../disease-outbreak-event/DiseaseOutbreakEvent";
 import { Alert } from "./Alert";
 
+export type OutbreakDataType = "disease" | "hazard";
+
 export type OutbreakData = {
-    type: "disease" | "hazard";
+    type: OutbreakDataType;
     value: Maybe<string>;
 };
 
-export type AlertData = {
+export type OutbreakAlert = {
     alert: Alert;
     dataSource: DataSource;
     outbreakData: OutbreakData;

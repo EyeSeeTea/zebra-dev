@@ -6,12 +6,14 @@ import {
 import { apiToFuture, FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
 import { UserGroup } from "../../domain/entities/UserGroup";
-import { AlertData } from "../../domain/entities/alert/AlertData";
+import { OutbreakAlert } from "../../domain/entities/alert/OutbreakAlert";
+import i18n from "../../utils/i18n";
+
 export class NotificationD2Repository implements NotificationRepository {
     constructor(private api: D2Api) {}
 
     notifyNationalWatchStaff(
-        alertData: AlertData,
+        alertData: OutbreakAlert,
         outbreakName: string,
         userGroups: UserGroup[]
     ): FutureData<void> {
@@ -31,7 +33,7 @@ function buildNotificationText(outbreakKey: string, notificationData: Notificati
     const { detectionDate, emergenceDate, incidentManager, notificationDate, verificationStatus } =
         notificationData;
 
-    return `There has been a new Outbreak detected for ${outbreakKey} in zm Zambia Ministry of Health.
+    return i18n.t(`There has been a new Outbreak detected for ${outbreakKey} in zm Zambia Ministry of Health.
 
 Please see the details of the outbreak below:
 
@@ -39,5 +41,5 @@ Emergence date: ${emergenceDate}
 Detection Date :  ${detectionDate}
 Notification Date :  ${notificationDate}
 Incident Manager :  ${incidentManager}
-Verification Status :  ${verificationStatus}`;
+Verification Status :  ${verificationStatus}`);
 }

@@ -1,6 +1,8 @@
 import { Maybe } from "../../../utils/ts-utils";
+import { OutbreakValueCode } from "../../repositories/AlertRepository";
 import { DataSource } from "../disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id, Option } from "../Ref";
+import { OutbreakDataType } from "./OutbreakAlert";
 
 export type AlertSynchronizationData = {
     lastSyncTime: string;
@@ -16,12 +18,12 @@ export type AlertSynchronizationData = {
         deaths: string;
     }[];
 } & {
-    [key in "disease" | "hazard"]?: string;
+    [key in OutbreakDataType]?: string;
 };
 
 export function getOutbreakKey(options: {
     dataSource: DataSource;
-    outbreakValue: Maybe<string>;
+    outbreakValue: Maybe<OutbreakValueCode>;
     hazardTypes: Option[];
     suspectedDiseases: Option[];
 }): string {

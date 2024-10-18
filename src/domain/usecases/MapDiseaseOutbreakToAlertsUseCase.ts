@@ -33,12 +33,14 @@ export class MapDiseaseOutbreakToAlertsUseCase {
         if (!diseaseOutbreakEventId)
             return Future.error(new Error("Disease Outbreak Event Id is required"));
 
+        const outbreakValue = hazardTypeCode ?? suspectedDiseaseCode;
+
         return this.alertRepository
             .updateAlerts({
                 dataSource: dataSource,
                 eventId: diseaseOutbreakEventId,
                 incidentStatus: incidentStatus,
-                outbreakValue: hazardTypeCode ?? suspectedDiseaseCode,
+                outbreakValue: outbreakValue,
             })
             .flatMap((alerts: Alert[]) =>
                 Future.joinObj({
@@ -52,7 +54,7 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                                     alert: alert,
                                     nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
                                     dataSource: dataSource,
-                                    outbreakValue: hazardTypeCode ?? suspectedDiseaseCode,
+                                    outbreakValue: outbreakValue,
                                     hazardTypes: hazardTypes,
                                     suspectedDiseases: suspectedDiseases,
                                 })

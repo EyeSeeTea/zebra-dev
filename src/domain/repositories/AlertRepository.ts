@@ -11,9 +11,11 @@ export interface AlertRepository {
     updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]>;
 }
 
+export type OutbreakValueCode = string;
+
 export type AlertOptions = {
     dataSource: DataSource;
     eventId: Id;
-    outbreakValue: Maybe<string>;
+    outbreakValue: Maybe<OutbreakValueCode>;
     incidentStatus: NationalIncidentStatus;
 };

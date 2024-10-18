@@ -1,10 +1,10 @@
 import { FutureData } from "../../data/api-futures";
-import { AlertData } from "../entities/alert/AlertData";
+import { OutbreakAlert } from "../entities/alert/OutbreakAlert";
 import { UserGroup } from "../entities/UserGroup";
 
 export interface NotificationRepository {
     notifyNationalWatchStaff(
-        alertData: AlertData,
+        alertData: OutbreakAlert,
         outbreakName: string,
         userGroups: UserGroup[]
     ): FutureData<void>;

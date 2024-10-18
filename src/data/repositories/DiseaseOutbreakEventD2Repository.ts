@@ -13,7 +13,7 @@ import { getProgramTEAsMetadata } from "./utils/MetadataHelper";
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
-import { OutbreakData } from "../../domain/entities/alert/AlertData";
+import { OutbreakData, OutbreakDataType } from "../../domain/entities/alert/OutbreakAlert";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -56,7 +56,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 programId: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
                 filter: {
-                    id: this.getOutbreakFilterId(filter),
+                    id: this.getDiseaseOutbreakFilterId(filter),
                     value: filter.value,
                 },
             })
@@ -67,8 +67,13 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         });
     }
 
-    private getOutbreakFilterId(filter: OutbreakData): string {
-        return filter.type === "disease" ? RTSL_ZEBRA_DISEASE_TEA_ID : RTSL_ZEBRA_HAZARD_TEA_ID;
+    private getDiseaseOutbreakFilterId(filter: OutbreakData): string {
+        const mapping: Record<OutbreakDataType, TrackedEntityAttributeId> = {
+            disease: RTSL_ZEBRA_DISEASE_TEA_ID,
+            hazard: RTSL_ZEBRA_HAZARD_TEA_ID,
+        };
+
+        return mapping[filter.type];
     }
 
     save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<Id> {
@@ -120,3 +125,5 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
 
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
 const RTSL_ZEBRA_HAZARD_TEA_ID = "Dzrw3Tf0ukB";
+
+type TrackedEntityAttributeId = Id;

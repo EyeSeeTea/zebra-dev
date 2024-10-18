@@ -1,6 +1,6 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
-import { AlertData, OutbreakData } from "../../domain/entities/alert/AlertData";
-import { AlertDataRepository } from "../../domain/repositories/AlertDataRepository";
+import { OutbreakAlert, OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
+import { OutbreakAlertRepository } from "../../domain/repositories/OutbreakAlertRepository";
 import { Attribute, D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
@@ -20,18 +20,17 @@ import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
 import { NotificationOptions } from "../../domain/repositories/NotificationRepository";
 
-export class AlertDataD2Repository implements AlertDataRepository {
+export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
     constructor(private api: D2Api) {}
 
-    get(): FutureData<AlertData[]> {
-        return this.getAlertTrackedEntities().flatMap(alertTEIs => {
-            const alertsWithNoEventId = this.getAlertData(alertTEIs);
-
-            return alertsWithNoEventId;
+    get(): FutureData<OutbreakAlert[]> {
+        return this.getAlertTrackedEntities().map(alertTEIs => {
+            return this.getOutbreakAlerts(alertTEIs);
         });
     }
 
-    private getAlertData(alertTrackedEntities: D2TrackerTrackedEntity[]): FutureData<AlertData[]> {
+    private getOutbreakAlerts(alertTrackedEntities: D2TrackerTrackedEntity[]): OutbreakAlert[] {
+        // these are alerts that have no national event id
         const alertsWithNoEventId = _(alertTrackedEntities)
             .compactMap(trackedEntity => {
                 const { diseaseType, hazardType, nationalEventId } =
@@ -42,11 +41,10 @@ export class AlertDataD2Repository implements AlertDataRepository {
 
                 if (!outbreakData) return undefined;
 
-                const dataSource = diseaseType
-                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
-                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
+                const dataSource = this.getAlertDataSource(diseaseType, hazardType);
+                if (!dataSource) return undefined;
 
-                const alertData: AlertData = this.buildAlertData(
+                const alertData: OutbreakAlert = this.buildAlertData(
                     trackedEntity,
                     outbreakData,
                     dataSource,
@@ -57,7 +55,16 @@ export class AlertDataD2Repository implements AlertDataRepository {
             })
             .value();
 
-        return Future.success(alertsWithNoEventId);
+        return alertsWithNoEventId;
+    }
+
+    private getAlertDataSource(
+        diseaseType: Maybe<Attribute>,
+        hazardType: Maybe<Attribute>
+    ): Maybe<DataSource> {
+        if (diseaseType) return DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS;
+        else if (hazardType) return DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
+        else return undefined;
     }
 
     private buildAlertData(
@@ -65,7 +72,7 @@ export class AlertDataD2Repository implements AlertDataRepository {
         outbreakData: OutbreakData,
         dataSource: DataSource,
         notificationOptions: NotificationOptions
-    ): AlertData {
+    ): OutbreakAlert {
         if (!trackedEntity.trackedEntity || !trackedEntity.orgUnit)
             throw new Error(`Alert data not found for ${outbreakData.value}`);
 
@@ -84,6 +91,7 @@ export class AlertDataD2Repository implements AlertDataRepository {
         diseaseType: Maybe<Attribute>,
         hazardType: Maybe<Attribute>
     ): Maybe<OutbreakData> {
+        // use a full mapping (record/switch)
         return diseaseType
             ? { value: diseaseType.value, type: "disease" }
             : hazardType

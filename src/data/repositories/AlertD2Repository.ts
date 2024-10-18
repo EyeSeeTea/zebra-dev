@@ -16,7 +16,7 @@ import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEnti
 import { Maybe } from "../../utils/ts-utils";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Alert } from "../../domain/entities/alert/Alert";
-import { OutbreakData } from "../../domain/entities/alert/AlertData";
+import { OutbreakData, OutbreakDataType } from "../../domain/entities/alert/OutbreakAlert";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
 
 export class AlertD2Repository implements AlertRepository {
@@ -94,26 +94,31 @@ export class AlertD2Repository implements AlertRepository {
     }
 
     private getOutbreakFilterId(filter: OutbreakData): string {
-        return filter.type === "disease"
-            ? RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID
-            : RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID;
+        const mapping: Record<OutbreakDataType, TrackedEntityAttributeId> = {
+            disease: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
+            hazard: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
+        };
+
+        return mapping[filter.type];
     }
 
     private getAlertOutbreakData(
         dataSource: DataSource,
         outbreakValue: Maybe<string>
     ): OutbreakData {
-        switch (dataSource) {
-            case DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS:
-                return {
-                    type: "disease",
-                    value: outbreakValue,
-                };
-            case DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS:
-                return {
-                    type: "hazard",
-                    value: outbreakValue,
-                };
-        }
+        const mapping: Record<DataSource, OutbreakData> = {
+            [DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS]: {
+                type: "disease",
+                value: outbreakValue,
+            },
+            [DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS]: {
+                type: "hazard",
+                value: outbreakValue,
+            },
+        };
+
+        return mapping[dataSource];
     }
 }
+
+type TrackedEntityAttributeId = Id;

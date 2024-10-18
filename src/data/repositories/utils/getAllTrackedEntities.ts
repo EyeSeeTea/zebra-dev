@@ -63,4 +63,4 @@ const fields = {
             event: true,
         },
     },
-};
+} as const;
