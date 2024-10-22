@@ -460,9 +460,9 @@ function mapFormStateToRiskAssessmentQuestionnaire(
                     formData.options,
                     index.toString()
                 );
-            const idWithoutIdentifier = customSection.id.replace("additionalQuestions", "");
+
             return {
-                id: idWithoutIdentifier.length < 11 ? "" : idWithoutIdentifier, //TO DO : Temp fix
+                id: customSection.id.replace("additionalQuestions", "").replace(`_${index}`, ""),
                 question: allFields.find(field => field.id.includes(`custom-question${index}`))
                     ?.value as string,
                 likelihood: likelihoodOption,

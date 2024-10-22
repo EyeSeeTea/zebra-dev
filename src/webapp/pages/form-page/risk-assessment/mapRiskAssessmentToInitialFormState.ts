@@ -754,7 +754,7 @@ function getRiskAssessmentCustomQuestionSection(
         options;
     const riskAssesssmentQuestionFormSection: FormSectionState = {
         title: title,
-        id: questionId ? `${id}${questionId}` : `${id}${index}`,
+        id: questionId ? `${id}${questionId}` : `${id}_${index}`,
         isVisible: true,
         fields: [
             {

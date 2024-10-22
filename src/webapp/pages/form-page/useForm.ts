@@ -67,9 +67,6 @@ export function useForm(formType: FormType, id?: Id): State {
     const currentEventTracker = getCurrentEventTracker();
 
     useEffect(() => {
-        // if (currentEventTracker?.id && currentEventTrackerState?.id === currentEventTracker?.id)
-        //     return;
-
         compositionRoot.getWithOptions.execute(formType, currentEventTracker, id).run(
             formData => {
                 setConfigurableForm(formData);
