@@ -279,10 +279,7 @@ export function useForm(formType: FormType, id?: Id): State {
                         });
                         break;
                     case "incident-response-action":
-                        if (currentEventTracker?.id)
-                            goTo(RouteName.INCIDENT_ACTION_PLAN, {
-                                id: currentEventTracker.id,
-                            });
+                        if (currentEventTracker?.id) goTo(RouteName.INCIDENT_ACTION_PLAN);
                         setGlobalMessage({
                             text: i18n.t(`Incident Response Actions saved successfully`),
                             type: "success",
@@ -325,12 +322,9 @@ export function useForm(formType: FormType, id?: Id): State {
                         id: currentEventTracker.id,
                     });
                     break;
-
                 case "incident-action-plan":
                 case "incident-response-action":
-                    goTo(RouteName.INCIDENT_ACTION_PLAN, {
-                        id: currentEventTracker.id,
-                    });
+                    goTo(RouteName.INCIDENT_ACTION_PLAN);
                     break;
                 default:
                     goTo(RouteName.EVENT_TRACKER, {
