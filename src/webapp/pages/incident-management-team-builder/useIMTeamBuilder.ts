@@ -107,9 +107,18 @@ export function useIMTeamBuilder(id: Id): State {
             );
 
             const isIncidentManagerRoleSelected = selectedRole?.roleId === INCIDENT_MANAGER_ROLE;
+            const isParentReporting = incidentManagementTeamItemSelected
+                ? !!incidentManagementTeam?.teamHierarchy.find(teamMember =>
+                      teamMember.teamRoles?.some(
+                          teamRole =>
+                              teamRole.reportsToUsername ===
+                              incidentManagementTeamItemSelected?.username
+                      )
+                  )
+                : false;
 
             setSelectedHierarchyItemId(selection);
-            setDisableDeletion(isIncidentManagerRoleSelected);
+            setDisableDeletion(isIncidentManagerRoleSelected || isParentReporting);
         },
         [incidentManagementTeam?.teamHierarchy]
     );
@@ -161,6 +170,7 @@ export function useIMTeamBuilder(id: Id): State {
                         });
                         getIncidentManagementTeam();
                         onOpenDeleteModalData(undefined);
+                        setSelectedHierarchyItemId("");
                     },
                     err => {
                         console.debug(err);
@@ -169,6 +179,7 @@ export function useIMTeamBuilder(id: Id): State {
                             type: "error",
                         });
                         onOpenDeleteModalData(undefined);
+                        setSelectedHierarchyItemId("");
                     }
                 );
         } else {
