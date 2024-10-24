@@ -1,5 +1,5 @@
 import { Maybe } from "../../../utils/ts-utils";
-import { NamedRef } from "../Ref";
+import { Id, NamedRef } from "../Ref";
 import { Struct } from "../generic/Struct";
 
 type PhoneNumber = string;
@@ -7,7 +7,8 @@ type Email = string;
 type IncidentManagerStatus = "Available" | "Unavailable";
 
 export type TeamRole = NamedRef & {
-    roleId: string;
+    diseaseOutbreakId: Id;
+    roleId: Id;
     reportsToUsername: Maybe<string>;
 };
 

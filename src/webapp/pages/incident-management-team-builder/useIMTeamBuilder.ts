@@ -12,6 +12,9 @@ import { IncidentManagementTeam } from "../../../domain/entities/incident-manage
 import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
 import { INCIDENT_MANAGER_ROLE } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import _c from "../../../domain/entities/generic/Collection";
+import { IncidentManagementTeamInAggregateRoot } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
+import { Role } from "../../../domain/entities/incident-management-team/Role";
+import { Future } from "../../../domain/entities/generic/Future";
 
 type GlobalMessage = {
     text: string;
@@ -57,14 +60,32 @@ export function useIMTeamBuilder(id: Id): State {
     const [searchTerm, setSearchTerm] = useState<string>("");
 
     const getIncidentManagementTeam = useCallback(() => {
-        compositionRoot.incidentManagementTeam.get.execute(id).run(
-            incidentManagementTeam => {
-                setIncidentManagementTeam(incidentManagementTeam);
-                setIncidentManagementTeamHierarchyItems(
-                    mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
-                        incidentManagementTeam?.teamHierarchy
-                    )
-                );
+        Future.joinObj({
+            diseaseOutbreakEventAggregateRoot:
+                compositionRoot.diseaseOutbreakEvent.getAggregateRoot.execute(id),
+            teamMembers: compositionRoot.teamMembers.getForIncidentManagementTeam.execute(),
+            roles: compositionRoot.roles.getAll.execute(),
+        }).run(
+            ({ diseaseOutbreakEventAggregateRoot, teamMembers, roles }) => {
+                if (diseaseOutbreakEventAggregateRoot.incidentManagementTeam) {
+                    const incidentManagementTeam = buildIncidentManagementTeam(
+                        id,
+                        diseaseOutbreakEventAggregateRoot.incidentManagementTeam,
+                        teamMembers,
+                        roles
+                    );
+                    setIncidentManagementTeam(incidentManagementTeam);
+                    setIncidentManagementTeamHierarchyItems(
+                        mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
+                            incidentManagementTeam?.teamHierarchy
+                        )
+                    );
+                } else {
+                    setGlobalMessage({
+                        text: `Incident Management Team not found`,
+                        type: "error",
+                    });
+                }
             },
             err => {
                 console.debug(err);
@@ -74,7 +95,12 @@ export function useIMTeamBuilder(id: Id): State {
                 });
             }
         );
-    }, [compositionRoot.incidentManagementTeam.get, id]);
+    }, [
+        compositionRoot.diseaseOutbreakEvent.getAggregateRoot,
+        compositionRoot.roles.getAll,
+        compositionRoot.teamMembers.getForIncidentManagementTeam,
+        id,
+    ]);
 
     useEffect(() => {
         getIncidentManagementTeam();
@@ -150,9 +176,9 @@ export function useIMTeamBuilder(id: Id): State {
             role => role.id === selectedHierarchyItemId
         );
 
-        if (teamMember && teamRoleToDelete) {
-            compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRole
-                .execute(teamRoleToDelete, teamMember, id)
+        if (teamMember && teamRoleToDelete?.id) {
+            compositionRoot.diseaseOutbreakEvent.deleteIncidentManagementTeamMemberRole
+                .execute(id, teamRoleToDelete.id)
                 .run(
                     () => {
                         setGlobalMessage({
@@ -161,6 +187,7 @@ export function useIMTeamBuilder(id: Id): State {
                         });
                         getIncidentManagementTeam();
                         onOpenDeleteModalData(undefined);
+                        setSelectedHierarchyItemId("");
                     },
                     err => {
                         console.debug(err);
@@ -169,6 +196,7 @@ export function useIMTeamBuilder(id: Id): State {
                             type: "error",
                         });
                         onOpenDeleteModalData(undefined);
+                        setSelectedHierarchyItemId("");
                     }
                 );
         } else {
@@ -178,7 +206,7 @@ export function useIMTeamBuilder(id: Id): State {
             });
         }
     }, [
-        compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRole,
+        compositionRoot.diseaseOutbreakEvent.deleteIncidentManagementTeamMemberRole,
         disableDeletion,
         getIncidentManagementTeam,
         id,
@@ -235,6 +263,55 @@ export function useIMTeamBuilder(id: Id): State {
         searchTerm,
         onSearchChange,
     };
+}
+
+function buildIncidentManagementTeam(
+    diseaseOutbreakId: Id,
+    diseaseOutbreakEventIncidentManagementTeam: IncidentManagementTeamInAggregateRoot,
+    teamMembers: TeamMember[],
+    roles: Role[]
+): IncidentManagementTeam {
+    const imTeamMembers: TeamMember[] = _c(
+        diseaseOutbreakEventIncidentManagementTeam.teamHierarchy.map(imTeamMember => {
+            const teamMember = teamMembers.find(tm => tm.username === imTeamMember.username);
+            if (teamMember) {
+                const teamRoles: TeamRole[] = _c(
+                    imTeamMember.teamRoles.map(teamRole => {
+                        const role = roles.find(r => r.id === teamRole.roleId);
+                        if (role) {
+                            return {
+                                id: teamRole.id,
+                                name: role.name,
+                                diseaseOutbreakId: diseaseOutbreakId,
+                                roleId: teamRole.roleId,
+                                reportsToUsername: teamRole.reportsToUsername,
+                            };
+                        }
+                    })
+                )
+                    .compact()
+                    .toArray();
+
+                return new TeamMember({
+                    id: teamMember.id,
+                    name: teamMember.name,
+                    username: teamMember.username,
+                    phone: teamMember.phone,
+                    email: teamMember.email,
+                    status: teamMember.status,
+                    photo: teamMember.photo,
+                    teamRoles: teamRoles,
+                    workPosition: teamMember.workPosition,
+                });
+            }
+        })
+    )
+        .compact()
+        .toArray();
+
+    return new IncidentManagementTeam({
+        teamHierarchy: imTeamMembers,
+    });
 }
 
 function mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(

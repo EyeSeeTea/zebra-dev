@@ -36,7 +36,7 @@ export class TeamMemberTestRepository implements TeamMemberRepository {
         return Future.success([teamMember]);
     }
 
-    getForIncidentManagementTeamMembers(): FutureData<TeamMember[]> {
+    getForIncidentManagementTeam(): FutureData<TeamMember[]> {
         const teamMember: TeamMember = new TeamMember({
             id: "incidentManagementTeamMember",
             username: "incidentManagementTeamMember",

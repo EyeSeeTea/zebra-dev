@@ -45,10 +45,6 @@ import { GetTotalCardCountsUseCase } from "./domain/usecases/GetTotalCardCountsU
 import { RoleRepository } from "./domain/repositories/RoleRepository";
 import { RoleD2Repository } from "./data/repositories/RoleD2Repository";
 import { RoleTestRepository } from "./data/repositories/test/RoleTestRepository";
-import { IncidentManagementTeamTestRepository } from "./data/repositories/test/IncidentManagementTeamTestRepository";
-import { IncidentManagementTeamD2Repository } from "./data/repositories/IncidentManagementTeamD2Repository";
-import { IncidentManagementTeamRepository } from "./domain/repositories/IncidentManagementTeamRepository";
-import { GetIncidentManagementTeamByIdUseCase } from "./domain/usecases/GetIncidentManagementTeamByIdUseCase";
 import { DeleteIncidentManagementTeamMemberRoleUseCase } from "./domain/usecases/DeleteIncidentManagementTeamMemberRoleUseCase";
 import { ChartConfigRepository } from "./domain/repositories/ChartConfigRepository";
 import { GetChartConfigByTypeUseCase } from "./domain/usecases/GetChartConfigByTypeUseCase";
@@ -59,6 +55,9 @@ import { SystemRepository } from "./domain/repositories/SystemRepository";
 import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
+import { GetDiseaseOutbreakEventAggregateRootByIdUseCase } from "./domain/usecases/GetDiseaseOutbreakEventAggregateRootByIdUseCase";
+import { GetAllRolesUseCase } from "./domain/usecases/GetAllRolesUseCase";
+import { GetTeamMembersForIncidentManagementTeamUseCase } from "./domain/usecases/GetTeamMembersForIncidentManagementTeamUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -74,7 +73,6 @@ type Repositories = {
     mapConfigRepository: MapConfigRepository;
     performanceOverviewRepository: PerformanceOverviewRepository;
     roleRepository: RoleRepository;
-    incidentManagementTeamRepository: IncidentManagementTeamRepository;
     chartConfigRepository: ChartConfigRepository;
     systemRepository: SystemRepository;
 };
@@ -94,11 +92,11 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertSyncRepository,
                 repositories.optionsRepository
             ),
-        },
-        incidentManagementTeam: {
-            get: new GetIncidentManagementTeamByIdUseCase(repositories),
             deleteIncidentManagementTeamMemberRole:
                 new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
+            getAggregateRoot: new GetDiseaseOutbreakEventAggregateRootByIdUseCase(
+                repositories.diseaseOutbreakEventRepository
+            ),
         },
         performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
@@ -121,6 +119,14 @@ function getCompositionRoot(repositories: Repositories) {
         charts: {
             getCases: new GetChartConfigByTypeUseCase(repositories.chartConfigRepository),
         },
+        teamMembers: {
+            getForIncidentManagementTeam: new GetTeamMembersForIncidentManagementTeamUseCase(
+                repositories.teamMemberRepository
+            ),
+        },
+        roles: {
+            getAll: new GetAllRolesUseCase(repositories.roleRepository),
+        },
     };
 }
 
@@ -138,7 +144,6 @@ export function getWebappCompositionRoot(api: D2Api) {
         mapConfigRepository: new MapConfigD2Repository(api),
         performanceOverviewRepository: new PerformanceOverviewD2Repository(api, dataStoreClient),
         roleRepository: new RoleD2Repository(api),
-        incidentManagementTeamRepository: new IncidentManagementTeamD2Repository(api),
         chartConfigRepository: new ChartConfigD2Repository(dataStoreClient),
         systemRepository: new SystemD2Repository(api),
     };
@@ -159,7 +164,6 @@ export function getTestCompositionRoot() {
         mapConfigRepository: new MapConfigTestRepository(),
         performanceOverviewRepository: new PerformanceOverviewTestRepository(),
         roleRepository: new RoleTestRepository(),
-        incidentManagementTeamRepository: new IncidentManagementTeamTestRepository(),
         chartConfigRepository: new ChartConfigTestRepository(),
         systemRepository: new SystemTestRepository(),
     };

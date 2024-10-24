@@ -38,7 +38,7 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
         return this.getTeamMembersByUserGroup(RTSL_ZEBRA_RISKASSESSOR);
     }
 
-    getForIncidentManagementTeamMembers(): FutureData<TeamMember[]> {
+    getForIncidentManagementTeam(): FutureData<TeamMember[]> {
         return this.getTeamMembersByUserGroup(RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_MEMBERS);
     }
 
