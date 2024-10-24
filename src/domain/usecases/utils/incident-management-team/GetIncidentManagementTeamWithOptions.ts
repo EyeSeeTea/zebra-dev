@@ -22,7 +22,7 @@ export function getIncidentManagementTeamWithOptions(
 ): FutureData<IncidentManagementTeamMemberFormData> {
     return Future.joinObj({
         roles: repositories.roleRepository.getAll(),
-        teamMembers: repositories.teamMemberRepository.getForIncidentManagementTeamMembers(),
+        teamMembers: repositories.teamMemberRepository.getForIncidentManagementTeam(),
         incidentManagers: repositories.teamMemberRepository.getIncidentManagers(),
         incidentManagementTeam: getIncidentManagementTeamById(eventTrackerDetails.id, repositories),
     }).flatMap(({ roles, teamMembers, incidentManagers, incidentManagementTeam }) => {

@@ -56,6 +56,8 @@ import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
 import { GetDiseaseOutbreakEventAggregateRootByIdUseCase } from "./domain/usecases/GetDiseaseOutbreakEventAggregateRootByIdUseCase";
+import { GetAllRolesUseCase } from "./domain/usecases/GetAllRolesUseCase";
+import { GetTeamMembersForIncidentManagementTeamUseCase } from "./domain/usecases/GetTeamMembersForIncidentManagementTeamUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -116,6 +118,14 @@ function getCompositionRoot(repositories: Repositories) {
         },
         charts: {
             getCases: new GetChartConfigByTypeUseCase(repositories.chartConfigRepository),
+        },
+        teamMembers: {
+            getForIncidentManagementTeam: new GetTeamMembersForIncidentManagementTeamUseCase(
+                repositories.teamMemberRepository
+            ),
+        },
+        roles: {
+            getAll: new GetAllRolesUseCase(repositories.roleRepository),
         },
     };
 }

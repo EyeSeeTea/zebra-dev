@@ -16,7 +16,10 @@ import {
     RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES,
 } from "../consts/IncidentManagementTeamBuilderConstants";
 import { D2ProgramStageDataElementsMetadata } from "./MetadataHelper";
-import { IncidentManagementTeamInAggregateRoot } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
+import {
+    IncidentManagementTeamInAggregateRoot,
+    IncidentManagementTeamRole,
+} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 
 export function mapD2EventsToIncidentManagementTeam(
     diseaseOutbreakId: Id,
@@ -192,17 +195,85 @@ function getValueFromIncidentManagementTeamMember(
 }
 
 export function mapD2EventsToIncidentManagementTeamInAggregateRoot(
-    d2Events: D2TrackerEvent[]
+    d2Events: D2TrackerEvent[],
+    incidentManagementTeamProgramStageDataElements: D2ProgramStageDataElementsMetadata[]
 ): IncidentManagementTeamInAggregateRoot {
-    const incidentManagementTeamMembers = d2Events.map(event => {
-        const teamMemberAssignedUsername = getValueById(
-            event.dataValues,
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.teamMemberAssigned
-        );
-        return teamMemberAssignedUsername;
-    });
+    const incidentManagementTeamRolesByUsername = getIncidentManagementTeamRolesByUsername(
+        d2Events,
+        incidentManagementTeamProgramStageDataElements
+    );
+
+    const incidentManagementTeamMembers = Object.keys(incidentManagementTeamRolesByUsername).map(
+        username => {
+            const teamRoles = incidentManagementTeamRolesByUsername[username];
+            return teamRoles
+                ? {
+                      username: username,
+                      teamRoles: teamRoles,
+                  }
+                : null;
+        }
+    );
 
     return new IncidentManagementTeamInAggregateRoot({
         teamHierarchy: _c(incidentManagementTeamMembers).compact().toArray(),
     });
+}
+
+function getIncidentManagementTeamRolesByUsername(
+    d2Events: D2TrackerEvent[],
+    incidentManagementTeamProgramStageDataElements: D2ProgramStageDataElementsMetadata[]
+): Record<string, IncidentManagementTeamRole[]> {
+    return d2Events.reduce(
+        (acc: Record<string, IncidentManagementTeamRole[]>, event: D2TrackerEvent) => {
+            const teamMemberAssignedUsername = getValueById(
+                event.dataValues,
+                RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.teamMemberAssigned
+            );
+
+            if (!teamMemberAssignedUsername) {
+                return acc;
+            }
+
+            const teamRoles = incidentManagementTeamProgramStageDataElements.reduce(
+                (accTeamRoles: IncidentManagementTeamRole[], programStage) => {
+                    const roleId = programStage.dataElement.id;
+                    const reportsToUsername = getValueById(
+                        event.dataValues,
+                        RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES.reportsToUsername
+                    );
+
+                    if (getValueById(event.dataValues, roleId) === "true") {
+                        return [
+                            ...accTeamRoles,
+                            {
+                                id: event.event,
+                                roleId: roleId,
+                                reportsToUsername: reportsToUsername,
+                            },
+                        ];
+                    }
+
+                    return accTeamRoles;
+                },
+                []
+            );
+
+            if (acc[teamMemberAssignedUsername]) {
+                return {
+                    ...acc,
+                    [teamMemberAssignedUsername]: [
+                        ...(acc[teamMemberAssignedUsername] || []),
+                        ...teamRoles,
+                    ],
+                };
+            } else {
+                return {
+                    ...acc,
+                    [teamMemberAssignedUsername]: teamRoles,
+                };
+            }
+        },
+        {}
+    );
 }

@@ -12,7 +12,7 @@ export function getIncidentManagementTeamById(
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     }
 ): FutureData<Maybe<IncidentManagementTeam>> {
-    return repositories.teamMemberRepository.getAll().flatMap(teamMembers => {
+    return repositories.teamMemberRepository.getForIncidentManagementTeam().flatMap(teamMembers => {
         return repositories.diseaseOutbreakEventRepository.getIncidentManagementTeam(
             diseaseOutbreakId,
             teamMembers

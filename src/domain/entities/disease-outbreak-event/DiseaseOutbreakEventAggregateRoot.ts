@@ -33,10 +33,19 @@ export type DiseaseOutbreakEventAggregateRootBaseAttrs = NamedRef & {
     notes: Maybe<string>;
 };
 
-type IncidentManagementTeamMemberUsername = string;
+export type IncidentManagementTeamRole = {
+    id: Id;
+    roleId: Id;
+    reportsToUsername: Maybe<string>;
+};
+
+type IncidentManagementTeamMember = {
+    username: string;
+    teamRoles: IncidentManagementTeamRole[];
+};
 
 interface IncidentManagementTeamAttrsInAggregateRoot {
-    teamHierarchy: IncidentManagementTeamMemberUsername[];
+    teamHierarchy: IncidentManagementTeamMember[];
 }
 
 export class IncidentManagementTeamInAggregateRoot extends Struct<IncidentManagementTeamAttrsInAggregateRoot>() {}
