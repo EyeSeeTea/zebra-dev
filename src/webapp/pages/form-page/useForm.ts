@@ -9,7 +9,11 @@ import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
 import { updateAndValidateFormState } from "./disease-outbreak-event/utils/updateDiseaseOutbreakEventFormState";
 import { FormFieldState } from "../../components/form/FormFieldsState";
 import { FormType } from "./FormPage";
-import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
+import {
+    ConfigurableForm,
+    DiseaseOutbreakEventFormData,
+    FormLables,
+} from "../../../domain/entities/ConfigurableForm";
 import { mapEntityToFormState } from "./mapEntityToFormState";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import {
@@ -54,7 +58,7 @@ type State = {
 };
 
 export function useForm(formType: FormType, id?: Id): State {
-    const { compositionRoot, currentUser } = useAppContext();
+    const { compositionRoot, currentUser, appConfiguration } = useAppContext();
     const { goTo } = useRoutes();
     const { getCurrentEventTracker } = useCurrentEventTracker();
 
@@ -67,27 +71,35 @@ export function useForm(formType: FormType, id?: Id): State {
     const currentEventTracker = getCurrentEventTracker();
 
     useEffect(() => {
-        compositionRoot.getWithOptions.execute(formType, currentEventTracker, id).run(
-            formData => {
-                setConfigurableForm(formData);
-                setFormLabels(formData.labels);
-                setFormState({
-                    kind: "loaded",
-                    data: mapEntityToFormState(formData, !!id),
-                });
-            },
-            error => {
-                setFormState({
-                    kind: "error",
-                    message: i18n.t(`Form cannot be loaded`),
-                });
-                setGlobalMessage({
-                    text: i18n.t(`An error occurred while loading form: ${error.message}`),
-                    type: "error",
-                });
-            }
-        );
-    }, [compositionRoot.getWithOptions, formType, id, currentEventTracker]);
+        compositionRoot.getWithOptions
+            .execute(formType, currentEventTracker, appConfiguration, id)
+            .run(
+                formData => {
+                    setConfigurableForm(formData);
+                    setFormLabels(formData.labels);
+                    setFormState({
+                        kind: "loaded",
+                        data: mapEntityToFormState(formData, !!id),
+                    });
+                },
+                error => {
+                    setFormState({
+                        kind: "error",
+                        message: i18n.t(`Form cannot be loaded`),
+                    });
+                    setGlobalMessage({
+                        text: i18n.t(`An error occurred while loading form: ${error.message}`),
+                        type: "error",
+                    });
+                }
+            );
+    }, [
+        compositionRoot.getWithOptions,
+        formType,
+        id,
+        currentEventTracker,
+        appConfiguration.eventTrackerConfigurations,
+    ]);
 
     const handleAddNew = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm) return;
@@ -224,7 +236,12 @@ export function useForm(formType: FormType, id?: Id): State {
                     case "disease-outbreak-event":
                         if (diseaseOutbreakEventId && formData.entity) {
                             compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
-                                .execute(diseaseOutbreakEventId, formData.entity)
+                                .execute(
+                                    diseaseOutbreakEventId,
+                                    formData.entity,
+                                    appConfiguration.eventTrackerConfigurations.hazardTypes,
+                                    appConfiguration.eventTrackerConfigurations.suspectedDiseases
+                                )
                                 .run(
                                     () => {},
                                     err => {
@@ -309,9 +326,11 @@ export function useForm(formType: FormType, id?: Id): State {
         formState,
         configurableForm,
         currentUser.username,
-        compositionRoot,
-        currentEventTracker,
+        compositionRoot.save,
+        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
+        currentEventTracker?.id,
         goTo,
+        appConfiguration,
     ]);
 
     const onCancelForm = useCallback(() => {

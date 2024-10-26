@@ -3,6 +3,7 @@ import {
     riskAssessmentGradingOptionCodeMap,
     riskAssessmentSummaryCodes,
 } from "../../../../data/repositories/consts/RiskAssessmentConstants";
+import { AppConfigurations } from "../../../entities/AppConfigurations";
 import {
     RiskAssessmentGradingFormData,
     RiskAssessmentQuestionnaireFormData,
@@ -27,52 +28,52 @@ import {
     MediumWeightedOption,
     RiskAssessmentGrading,
 } from "../../../entities/risk-assessment/RiskAssessmentGrading";
-import { OptionsRepository } from "../../../repositories/OptionsRepository";
-import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
 export function getRiskAssessmentGradingWithOptions(
-    optionsRepository: OptionsRepository,
-    eventTrackerDetails: DiseaseOutbreakEvent
-): FutureData<RiskAssessmentGradingFormData> {
-    return Future.joinObj(
-        {
-            populationAtRisk: optionsRepository.getPopulationAtRisks(),
-            lowMediumHigh: optionsRepository.getLowMediumHighWeightedOptions(),
-            geographicalSpread: optionsRepository.getGeographicalSpreads(),
-            capacity: optionsRepository.getCapacities(),
-            capability: optionsRepository.getCapabilities(),
+    eventTrackerDetails: DiseaseOutbreakEvent,
+    appConfig: AppConfigurations
+): RiskAssessmentGradingFormData {
+    const riskGradingFormData: RiskAssessmentGradingFormData = {
+        type: "risk-assessment-grading",
+        eventTrackerDetails: eventTrackerDetails,
+        entity: undefined,
+        options: {
+            populationAtRisk: appConfig.riskAssessmentGradingConfigurations.populationAtRisk.map(
+                mapRiskAssessmentGradingWeightedOptionToOption
+            ),
+            attackRate: appConfig.riskAssessmentGradingConfigurations.lowMediumHigh.map(
+                mapRiskAssessmentGradingWeightedOptionToOption
+            ),
+            geographicalSpread:
+                appConfig.riskAssessmentGradingConfigurations.geographicalSpread.map(
+                    mapRiskAssessmentGradingWeightedOptionToOption
+                ),
+            complexity: appConfig.riskAssessmentGradingConfigurations.lowMediumHigh.map(
+                mapRiskAssessmentGradingWeightedOptionToOption
+            ),
+            capacity: appConfig.riskAssessmentGradingConfigurations.capacity.map(
+                mapRiskAssessmentGradingWeightedOptionToOption
+            ),
+            reputationalRisk: appConfig.riskAssessmentGradingConfigurations.lowMediumHigh.map(
+                mapRiskAssessmentGradingWeightedOptionToOption
+            ),
+            severity: appConfig.riskAssessmentGradingConfigurations.lowMediumHigh.map(
+                mapRiskAssessmentGradingWeightedOptionToOption
+            ),
+            capability: appConfig.riskAssessmentGradingConfigurations.capability.map(
+                mapRiskAssessmentGradingWeightedOptionToOption
+            ),
         },
-        { concurrency: 5 }
-    ).flatMap(({ populationAtRisk, lowMediumHigh, geographicalSpread, capacity, capability }) => {
-        const riskGradingFormData: RiskAssessmentGradingFormData = {
-            type: "risk-assessment-grading",
-            eventTrackerDetails: eventTrackerDetails,
-            entity: undefined,
-            options: {
-                populationAtRisk: populationAtRisk.map(
-                    mapRiskAssessmentGradingWeightedOptionToOption
-                ),
-                attackRate: lowMediumHigh.map(mapRiskAssessmentGradingWeightedOptionToOption),
-                geographicalSpread: geographicalSpread.map(
-                    mapRiskAssessmentGradingWeightedOptionToOption
-                ),
-                complexity: lowMediumHigh.map(mapRiskAssessmentGradingWeightedOptionToOption),
-                capacity: capacity.map(mapRiskAssessmentGradingWeightedOptionToOption),
-                reputationalRisk: lowMediumHigh.map(mapRiskAssessmentGradingWeightedOptionToOption),
-                severity: lowMediumHigh.map(mapRiskAssessmentGradingWeightedOptionToOption),
-                capability: capability.map(mapRiskAssessmentGradingWeightedOptionToOption),
-            },
 
-            // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
-            labels: {
-                errors: {
-                    field_is_required: "This field is required",
-                },
+        // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
+        labels: {
+            errors: {
+                field_is_required: "This field is required",
             },
-            rules: [],
-        };
-        return Future.success(riskGradingFormData);
-    });
+        },
+        rules: [],
+    };
+    return riskGradingFormData;
 }
 function mapRiskAssessmentGradingWeightedOptionToOption(
     weightedOption:
@@ -90,99 +91,85 @@ function mapRiskAssessmentGradingWeightedOptionToOption(
 
 export function getRiskAssessmentSummaryWithOptions(
     eventTrackerDetails: DiseaseOutbreakEvent,
-    optionsRepository: OptionsRepository,
-    teamMemberRepository: TeamMemberRepository
-): FutureData<RiskAssessmentSummaryFormData> {
+    appConfig: AppConfigurations
+): RiskAssessmentSummaryFormData {
     //Every Disease Outbreak can have only one Risk Assessment Summary, so if it has been saved already, then populate it.
-    return Future.joinObj(
-        {
-            lowMediumHighOptions: optionsRepository.getLowMediumHighOptions(),
-            riskAssessors: teamMemberRepository.getRiskAssessors(),
+    const riskSummaryFormData: RiskAssessmentSummaryFormData = {
+        type: "risk-assessment-summary",
+        eventTrackerDetails: eventTrackerDetails,
+        entity: eventTrackerDetails.riskAssessment?.summary,
+        options: {
+            overallRiskNational: appConfig.riskAssessmentSummaryConfigurations.overallRiskNational,
+            overallRiskRegional: appConfig.riskAssessmentSummaryConfigurations.overallRiskRegional,
+            overallRiskGlobal: appConfig.riskAssessmentSummaryConfigurations.overallRiskGlobal,
+            overAllConfidencNational:
+                appConfig.riskAssessmentSummaryConfigurations.overAllConfidencNational,
+            overAllConfidencRegional:
+                appConfig.riskAssessmentSummaryConfigurations.overAllConfidencRegional,
+            overAllConfidencGlobal:
+                appConfig.riskAssessmentSummaryConfigurations.overAllConfidencGlobal,
+            riskAssessors: appConfig.riskAssessmentSummaryConfigurations.riskAssessors,
         },
-        { concurrency: 2 }
-    ).flatMap(({ lowMediumHighOptions, riskAssessors }) => {
-        const riskSummaryFormData: RiskAssessmentSummaryFormData = {
-            type: "risk-assessment-summary",
-            eventTrackerDetails: eventTrackerDetails,
-            entity: eventTrackerDetails.riskAssessment?.summary,
-            options: {
-                overallRiskNational: lowMediumHighOptions,
-                overallRiskRegional: lowMediumHighOptions,
-                overallRiskGlobal: lowMediumHighOptions,
-                overAllConfidencNational: lowMediumHighOptions,
-                overAllConfidencRegional: lowMediumHighOptions,
-                overAllConfidencGlobal: lowMediumHighOptions,
-                riskAssessors: riskAssessors,
-            },
 
-            // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
-            labels: {
-                errors: {
-                    field_is_required: "This field is required",
-                },
+        // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
+        labels: {
+            errors: {
+                field_is_required: "This field is required",
             },
-            rules: [
-                {
-                    type: "toggleSectionsVisibilityByFieldValue",
-                    fieldId: riskAssessmentSummaryCodes.addAnotherRiskAssessor1,
-                    fieldValue: true,
-                    sectionIds: [`${riskAssessmentSummaryCodes.riskAssessor2}-section`],
-                },
-                {
-                    type: "toggleSectionsVisibilityByFieldValue",
-                    fieldId: riskAssessmentSummaryCodes.addAnotherRiskAssessor2,
-                    fieldValue: true,
-                    sectionIds: [`${riskAssessmentSummaryCodes.riskAssessor3}-section`],
-                },
-                {
-                    type: "toggleSectionsVisibilityByFieldValue",
-                    fieldId: riskAssessmentSummaryCodes.addAnotherRiskAssessor3,
-                    fieldValue: true,
-                    sectionIds: [`${riskAssessmentSummaryCodes.riskAssessor4}-section`],
-                },
-                {
-                    type: "toggleSectionsVisibilityByFieldValue",
-                    fieldId: riskAssessmentSummaryCodes.addAnotherRiskAssessor4,
-                    fieldValue: true,
-                    sectionIds: [`${riskAssessmentSummaryCodes.riskAssessor5}-section`],
-                },
-            ],
-        };
-        return Future.success(riskSummaryFormData);
-    });
+        },
+        rules: [
+            {
+                type: "toggleSectionsVisibilityByFieldValue",
+                fieldId: riskAssessmentSummaryCodes.addAnotherRiskAssessor1,
+                fieldValue: true,
+                sectionIds: [`${riskAssessmentSummaryCodes.riskAssessor2}-section`],
+            },
+            {
+                type: "toggleSectionsVisibilityByFieldValue",
+                fieldId: riskAssessmentSummaryCodes.addAnotherRiskAssessor2,
+                fieldValue: true,
+                sectionIds: [`${riskAssessmentSummaryCodes.riskAssessor3}-section`],
+            },
+            {
+                type: "toggleSectionsVisibilityByFieldValue",
+                fieldId: riskAssessmentSummaryCodes.addAnotherRiskAssessor3,
+                fieldValue: true,
+                sectionIds: [`${riskAssessmentSummaryCodes.riskAssessor4}-section`],
+            },
+            {
+                type: "toggleSectionsVisibilityByFieldValue",
+                fieldId: riskAssessmentSummaryCodes.addAnotherRiskAssessor4,
+                fieldValue: true,
+                sectionIds: [`${riskAssessmentSummaryCodes.riskAssessor5}-section`],
+            },
+        ],
+    };
+
+    return riskSummaryFormData;
 }
 
 export function getRiskAssessmentQuestionnaireWithOptions(
     eventTrackerDetails: DiseaseOutbreakEvent,
-    optionsRepository: OptionsRepository
+    appConfig: AppConfigurations
 ): FutureData<RiskAssessmentQuestionnaireFormData> {
     //Every Disease Outbreak can have only one Risk Assessment Questionnaire, so if it has been saved already, then populate it.
-    return Future.joinObj(
-        {
-            likelihoodOptions: optionsRepository.getLikelihoodOptions(),
-            consequencesOptions: optionsRepository.getConsequencesOptions(),
-            riskOptions: optionsRepository.getLowMediumHighOptions(),
+    const riskQuestionnaireFormData: RiskAssessmentQuestionnaireFormData = {
+        type: "risk-assessment-questionnaire",
+        eventTrackerDetails: eventTrackerDetails,
+        entity: eventTrackerDetails.riskAssessment?.questionnaire,
+        options: {
+            likelihood: appConfig.riskAssessmentQuestionnaireConfigurations.likelihood,
+            consequences: appConfig.riskAssessmentQuestionnaireConfigurations.consequences,
+            risk: appConfig.riskAssessmentQuestionnaireConfigurations.risk,
         },
-        { concurrency: 3 }
-    ).flatMap(({ likelihoodOptions, consequencesOptions, riskOptions }) => {
-        const riskQuestionnaireFormData: RiskAssessmentQuestionnaireFormData = {
-            type: "risk-assessment-questionnaire",
-            eventTrackerDetails: eventTrackerDetails,
-            entity: eventTrackerDetails.riskAssessment?.questionnaire,
-            options: {
-                likelihood: likelihoodOptions,
-                consequences: consequencesOptions,
-                risk: riskOptions,
-            },
 
-            // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
-            labels: {
-                errors: {
-                    field_is_required: "This field is required",
-                },
+        // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
+        labels: {
+            errors: {
+                field_is_required: "This field is required",
             },
-            rules: [],
-        };
-        return Future.success(riskQuestionnaireFormData);
-    });
+        },
+        rules: [],
+    };
+    return Future.success(riskQuestionnaireFormData);
 }

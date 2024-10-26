@@ -35,8 +35,22 @@ function App(props: AppProps) {
             const currentUser = await compositionRoot.users.getCurrent.execute().toPromise();
             if (!currentUser) throw new Error("User not logged in");
             const orgUnits = await compositionRoot.orgUnits.getAll.execute().toPromise();
+
+            console.time("AppConfigFetch");
+            const appConfigs = await compositionRoot.diseaseOutbreakEvent.getConfigurations
+                .execute()
+                .toPromise();
+            console.timeEnd("AppConfigFetch");
+
             const isDev = process.env.NODE_ENV === "development";
-            setAppContext({ currentUser, compositionRoot, isDev, api, orgUnits });
+            setAppContext({
+                currentUser,
+                compositionRoot,
+                isDev,
+                api,
+                orgUnits,
+                appConfiguration: appConfigs,
+            });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
         }

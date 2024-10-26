@@ -12,13 +12,14 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
             this.api.metadata.get({
                 organisationUnits: {
                     fields: d2OrgUnitFields,
+                    filter: { level: { in: ["2", "3"] } },
                 },
             })
         ).map(response => {
-            const d2OrgUnitsProvinceOrDistrict = response.organisationUnits.filter(
-                ou => ou.level === 2 || ou.level === 3
-            );
-            return this.mapD2OrgUnitsToOrgUnits(d2OrgUnitsProvinceOrDistrict);
+            // const d2OrgUnitsProvinceOrDistrict = response.organisationUnits.filter(
+            //     ou => ou.level === 2 || ou.level === 3
+            // );
+            return this.mapD2OrgUnitsToOrgUnits(response.organisationUnits);
         });
     }
 

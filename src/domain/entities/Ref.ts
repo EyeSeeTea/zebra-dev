@@ -15,6 +15,8 @@ export interface CodedNamedRef extends NamedRef {
 
 export type Option = NamedRef;
 
+export type ConfigurationOption = CodedNamedRef;
+
 export type ConfigLabel = {
     key: string;
     label: string;

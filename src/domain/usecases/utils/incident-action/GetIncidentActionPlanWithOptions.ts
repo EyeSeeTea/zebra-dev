@@ -1,67 +1,53 @@
 import { FutureData } from "../../../../data/api-futures";
+import { AppConfigurations } from "../../../entities/AppConfigurations";
 import { ActionPlanFormData, ResponseActionFormData } from "../../../entities/ConfigurableForm";
 import { DiseaseOutbreakEvent } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
-import { OptionsRepository } from "../../../repositories/OptionsRepository";
-import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
 export function getIncidentActionPlanWithOptions(
     eventTrackerDetails: DiseaseOutbreakEvent,
-    optionsRepository: OptionsRepository
+    appConfig: AppConfigurations
 ): FutureData<ActionPlanFormData> {
-    return Future.joinObj({
-        iapTypeOptions: optionsRepository.getIapTypeOptions(),
-        phoecLevelOptions: optionsRepository.getPhoecLevelOptions(),
-    }).flatMap(({ iapTypeOptions, phoecLevelOptions }) => {
-        const incidentActionPlanFormData: ActionPlanFormData = {
-            type: "incident-action-plan",
-            eventTrackerDetails: eventTrackerDetails,
-            entity: eventTrackerDetails.incidentActionPlan?.actionPlan,
-            options: {
-                iapType: iapTypeOptions,
-                phoecLevel: phoecLevelOptions,
+    const incidentActionPlanFormData: ActionPlanFormData = {
+        type: "incident-action-plan",
+        eventTrackerDetails: eventTrackerDetails,
+        entity: eventTrackerDetails.incidentActionPlan?.actionPlan,
+        options: {
+            iapType: appConfig.incidentActionPlanConfigurations.iapType,
+            phoecLevel: appConfig.incidentActionPlanConfigurations.phoecLevel,
+        },
+        // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
+        labels: {
+            errors: {
+                field_is_required: "This field is required",
             },
-            // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
-            labels: {
-                errors: {
-                    field_is_required: "This field is required",
-                },
-            },
-            rules: [],
-        };
-
-        return Future.success(incidentActionPlanFormData);
-    });
+        },
+        rules: [],
+    };
+    return Future.success(incidentActionPlanFormData);
 }
 
 export function getIncidentResponseActionWithOptions(
     eventTrackerDetails: DiseaseOutbreakEvent,
-    optionsRepository: OptionsRepository,
-    teamMemberRepository: TeamMemberRepository
+    appConfig: AppConfigurations
 ): FutureData<ResponseActionFormData> {
-    return Future.joinObj({
-        responsibleOfficers: teamMemberRepository.getAll(),
-        statusOptions: optionsRepository.getStatusOptions(),
-        verificationOptions: optionsRepository.getVerificationOptions(),
-    }).flatMap(({ responsibleOfficers, statusOptions, verificationOptions }) => {
-        const incidentResponseActionData: ResponseActionFormData = {
-            type: "incident-response-action",
-            eventTrackerDetails: eventTrackerDetails,
-            entity: eventTrackerDetails.incidentActionPlan?.responseActions ?? [],
-            options: {
-                searchAssignRO: responsibleOfficers,
-                status: statusOptions,
-                verification: verificationOptions,
+    const incidentResponseActionData: ResponseActionFormData = {
+        type: "incident-response-action",
+        eventTrackerDetails: eventTrackerDetails,
+        entity: eventTrackerDetails.incidentActionPlan?.responseActions ?? [],
+        options: {
+            searchAssignRO: appConfig.incidentResponseActionConfigurations.searchAssignRO,
+            status: appConfig.incidentResponseActionConfigurations.status,
+            verification: appConfig.incidentResponseActionConfigurations.verification,
+        },
+        // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
+        labels: {
+            errors: {
+                field_is_required: "This field is required",
             },
-            // TODO: Get labels from Datastore used in mapEntityToInitialFormState to create initial form state
-            labels: {
-                errors: {
-                    field_is_required: "This field is required",
-                },
-            },
-            rules: [],
-        };
+        },
+        rules: [],
+    };
 
-        return Future.success(incidentResponseActionData);
-    });
+    return Future.success(incidentResponseActionData);
 }
