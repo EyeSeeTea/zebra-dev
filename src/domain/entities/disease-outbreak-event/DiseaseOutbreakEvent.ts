@@ -3,7 +3,7 @@ import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
 import { IncidentManagementTeam } from "../incident-management-team/IncidentManagementTeam";
 import { TeamMember } from "../incident-management-team/TeamMember";
 import { OrgUnit } from "../OrgUnit";
-import { Code, Id, NamedRef, Option } from "../Ref";
+import { Code, Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
@@ -86,9 +86,6 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     incidentActionPlan: Maybe<IncidentActionPlan>;
     incidentManagementTeam: Maybe<IncidentManagementTeam>;
 };
-
-
-
 
 /**
  * Note: DiseaseOutbreakEvent represents Event in the Figma.

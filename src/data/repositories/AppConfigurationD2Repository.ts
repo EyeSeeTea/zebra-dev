@@ -9,6 +9,7 @@ import { getHazardTypeByCode } from "./consts/DiseaseOutbreakConstants";
 import { Future } from "../../domain/entities/generic/Future";
 import { AppConfigurations } from "../../domain/entities/AppConfigurations";
 import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
+
 const MAIN_SYNDROME_OPTION_SET_CODE = "AGENTS";
 export const SUSPECTED_DISEASE_OPTION_SET_CODE = "RTSL_ZEB_OS_DISEASE";
 export const NOTIFICATION_SOURCE_OPTION_SET_CODE = "RTSL_ZEB_OS_SOURCE";
@@ -16,7 +17,7 @@ const optionSetCode = {
     dataSources: "RTSL_ZEB_OS_DATA_SOURCE",
     hazardTypes: "RTSL_ZEB_OS_HAZARD_TYPE",
     hazardTypesByCode: "RTSL_ZEB_OS_HAZARD_TYPE",
-    mainSyndromes: "AGENTS",
+    mainSyndromes: MAIN_SYNDROME_OPTION_SET_CODE,
     suspectedDiseases: SUSPECTED_DISEASE_OPTION_SET_CODE,
     notificationSources: NOTIFICATION_SOURCE_OPTION_SET_CODE,
     incidentStatus: "RTSL_ZEB_OS_INCIDENT_STATUS",

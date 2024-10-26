@@ -9,11 +9,7 @@ import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
 import { updateAndValidateFormState } from "./disease-outbreak-event/utils/updateDiseaseOutbreakEventFormState";
 import { FormFieldState } from "../../components/form/FormFieldsState";
 import { FormType } from "./FormPage";
-import {
-    ConfigurableForm,
-    DiseaseOutbreakEventFormData,
-    FormLables,
-} from "../../../domain/entities/ConfigurableForm";
+import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
 import { mapEntityToFormState } from "./mapEntityToFormState";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import {
@@ -99,6 +95,7 @@ export function useForm(formType: FormType, id?: Id): State {
         id,
         currentEventTracker,
         appConfiguration.eventTrackerConfigurations,
+        appConfiguration,
     ]);
 
     const handleAddNew = useCallback(() => {

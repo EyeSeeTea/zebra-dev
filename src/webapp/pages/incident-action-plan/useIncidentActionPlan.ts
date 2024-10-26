@@ -110,7 +110,7 @@ export function useIncidentActionPlan(id: Id) {
                 setGlobalMessage(`Event tracker with id: ${id} does not exist`);
             }
         );
-    }, [compositionRoot, id, changeCurrentEventTracker, getCurrentEventTracker]);
+    }, [compositionRoot, id, changeCurrentEventTracker, getCurrentEventTracker, appConfiguration]);
 
     return {
         incidentActionExists: incidentActionExists,
