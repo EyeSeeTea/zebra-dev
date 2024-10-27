@@ -1,10 +1,10 @@
-import { AppConfigurations } from "../../../domain/entities/AppConfigurations";
+import { SelectableOptions } from "../../../domain/entities/AppConfigurations";
 import { Future } from "../../../domain/entities/generic/Future";
-import { AppConfigurationRepository } from "../../../domain/repositories/AppConfigurationRepository";
+import { ConfigurationsRepository } from "../../../domain/repositories/ConfigurationsRepository";
 import { FutureData } from "../../api-futures";
 
-export class AppConfigurationTestRepository implements AppConfigurationRepository {
-    getAppConfigurations(): FutureData<AppConfigurations> {
+export class ConfigurationsTestRepository implements ConfigurationsRepository {
+    getSelectableOptions(): FutureData<SelectableOptions> {
         return Future.success({
             eventTrackerConfigurations: {
                 dataSources: [],

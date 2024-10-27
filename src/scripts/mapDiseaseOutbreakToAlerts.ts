@@ -28,7 +28,7 @@ import { FutureData } from "../data/api-futures";
 import { Alert } from "../domain/entities/alert/Alert";
 import { AlertOptions } from "../domain/repositories/AlertRepository";
 import { Option } from "../domain/entities/Ref";
-import { AppConfigurationD2Repository } from "../data/repositories/AppConfigurationD2Repository";
+import { ConfigurationsD2Repository } from "../data/repositories/ConfigurationsD2Repository";
 
 //TO DO : Fetch from metadata on app load
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
@@ -66,12 +66,12 @@ function main() {
             const alertRepository = new AlertD2Repository(api);
             const alertSyncRepository = new AlertSyncDataStoreRepository(api);
             const notificationRepository = new NotificationD2Repository(api);
-            const appConfigurationRepository = new AppConfigurationD2Repository(api);
+            const configurationsRepository = new ConfigurationsD2Repository(api);
             const notifyWatchStaffUseCase = new NotifyWatchStaffUseCase(notificationRepository);
 
             return Future.joinObj({
                 alertTrackedEntities: getAlertTrackedEntities(),
-                appConfig: appConfigurationRepository.getAppConfigurations(),
+                appConfig: configurationsRepository.getSelectableOptions(),
             }).run(
                 ({ alertTrackedEntities, appConfig }) => {
                     const { hazardTypes, suspectedDiseases } = appConfig.eventTrackerConfigurations;

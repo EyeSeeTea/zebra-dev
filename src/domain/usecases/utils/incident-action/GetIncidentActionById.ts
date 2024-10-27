@@ -1,6 +1,6 @@
 import { FutureData } from "../../../../data/api-futures";
 import { Maybe } from "../../../../utils/ts-utils";
-import { AppConfigurations } from "../../../entities/AppConfigurations";
+import { Configurations } from "../../../entities/AppConfigurations";
 import { Future } from "../../../entities/generic/Future";
 import { ActionPlan } from "../../../entities/incident-action-plan/ActionPlan";
 import { IncidentActionPlan } from "../../../entities/incident-action-plan/IncidentActionPlan";
@@ -15,8 +15,10 @@ import { IncidentActionRepository } from "../../../repositories/IncidentActionRe
 export function getIncidentAction(
     diseaseOutbreakId: Id,
     incidentActionRepository: IncidentActionRepository,
-    appConfig: AppConfigurations
+    configurations: Configurations
 ): FutureData<Maybe<IncidentActionPlan>> {
+    const { incidentResponseActionConfigurations: responseActionConfig } =
+        configurations.selectableOptions;
     return incidentActionRepository
         .getIncidentActionPlan(diseaseOutbreakId)
         .flatMap(incidentActionPlan => {
@@ -36,11 +38,9 @@ export function getIncidentAction(
             return incidentActionRepository
                 .getIncidentResponseActions(diseaseOutbreakId)
                 .flatMap(responseActionDataValues => {
-                    const searchAssignROOptions =
-                        appConfig.incidentResponseActionConfigurations.searchAssignRO;
-                    const statusOptions = appConfig.incidentResponseActionConfigurations.status;
-                    const verificationOptions =
-                        appConfig.incidentResponseActionConfigurations.verification;
+                    const searchAssignROOptions = responseActionConfig.searchAssignRO;
+                    const statusOptions = responseActionConfig.status;
+                    const verificationOptions = responseActionConfig.verification;
 
                     const responseActions =
                         responseActionDataValues?.map(responseActionDataValue => {

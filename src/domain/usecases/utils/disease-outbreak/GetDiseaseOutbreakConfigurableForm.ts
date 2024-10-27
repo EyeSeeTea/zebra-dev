@@ -1,28 +1,39 @@
 import { FutureData } from "../../../../data/api-futures";
-import { FormLables } from "../../../entities/ConfigurableForm";
-import {
-    DataSource,
-    DiseaseOutbreakEventBaseAttrs,
-} from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEventFormData, FormLables } from "../../../entities/ConfigurableForm";
+import { DataSource } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
 import { Id } from "../../../entities/Ref";
 import { Rule } from "../../../entities/Rule";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
-import { Maybe } from "../../../../utils/ts-utils";
+import { Configurations } from "../../../entities/AppConfigurations";
 
-export function getDiseaseOutbreakRulesLabels(
+export function getDiseaseOutbreakConfigurableForm(
     options: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     },
+    configurations: Configurations,
     id?: Id
-): FutureData<{ entity: Maybe<DiseaseOutbreakEventBaseAttrs>; rules: Rule[]; labels: FormLables }> {
+): FutureData<DiseaseOutbreakEventFormData> {
     const { rules, labels } = getEventTrackerLabelsRules();
+
+    const diseaseOutbreakForm: DiseaseOutbreakEventFormData = {
+        type: "disease-outbreak-event",
+        entity: undefined,
+        rules: rules,
+        labels: labels,
+        options: configurations.selectableOptions.eventTrackerConfigurations,
+    };
+
     if (id) {
         return options.diseaseOutbreakEventRepository.get(id).flatMap(diseaseOutbreakEventBase => {
-            return Future.success({ entity: diseaseOutbreakEventBase, rules, labels });
+            const populatedDiseaseOutbreakForm: DiseaseOutbreakEventFormData = {
+                ...diseaseOutbreakForm,
+                entity: diseaseOutbreakEventBase,
+            };
+            return Future.success(populatedDiseaseOutbreakForm);
         });
     } else {
-        return Future.success({ entity: undefined, rules, labels });
+        return Future.success(diseaseOutbreakForm);
     }
 }
 

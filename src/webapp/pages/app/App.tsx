@@ -49,7 +49,7 @@ function App(props: AppProps) {
                 isDev,
                 api,
                 orgUnits,
-                appConfiguration: appConfigs,
+                configurations: appConfigs,
             });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);

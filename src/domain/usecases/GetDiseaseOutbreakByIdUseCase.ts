@@ -1,5 +1,5 @@
 import { FutureData } from "../../data/api-futures";
-import { AppConfigurations } from "../entities/AppConfigurations";
+import { Configurations } from "../entities/AppConfigurations";
 import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
@@ -27,7 +27,7 @@ export class GetDiseaseOutbreakByIdUseCase {
         }
     ) {}
 
-    public execute(id: Id, appConfig: AppConfigurations): FutureData<DiseaseOutbreakEvent> {
+    public execute(id: Id, configurations: Configurations): FutureData<DiseaseOutbreakEvent> {
         return this.options.diseaseOutbreakEventRepository
             .get(id)
             .flatMap(diseaseOutbreakEventBase => {
@@ -40,15 +40,18 @@ export class GetDiseaseOutbreakByIdUseCase {
                     areasAffectedProvinceIds,
                 } = diseaseOutbreakEventBase;
 
-                const mainSyndrome = appConfig.eventTrackerConfigurations.mainSyndromes.find(
-                    mainSyndrome => mainSyndrome.id === mainSyndromeCode
-                );
+                const { selectableOptions } = configurations;
+
+                const mainSyndrome =
+                    selectableOptions.eventTrackerConfigurations.mainSyndromes.find(
+                        mainSyndrome => mainSyndrome.id === mainSyndromeCode
+                    );
                 const suspectedDisease =
-                    appConfig.eventTrackerConfigurations.suspectedDiseases.find(
+                    selectableOptions.eventTrackerConfigurations.suspectedDiseases.find(
                         suspectedDisease => suspectedDisease.id === suspectedDiseaseCode
                     );
                 const notificationSource =
-                    appConfig.eventTrackerConfigurations.notificationSources.find(
+                    selectableOptions.eventTrackerConfigurations.notificationSources.find(
                         notificationSource => notificationSource.id === notificationSourceCode
                     );
 
@@ -56,27 +59,25 @@ export class GetDiseaseOutbreakByIdUseCase {
                     return Future.error(new Error("Notification source not found"));
 
                 return Future.joinObj({
-                    // mainSyndrome: mainSyndromeCode
-                    //     ? this.options.optionsRepository.getMainSyndrome(mainSyndromeCode)
-                    //     : Future.success(undefined),
-                    // suspectedDisease: suspectedDiseaseCode
-                    //     ? this.options.optionsRepository.getSuspectedDisease(suspectedDiseaseCode)
-                    //     : Future.success(undefined),
-                    // notificationSource:
-                    //     this.options.optionsRepository.getNotificationSource(
-                    //         notificationSourceCode
-                    //     ),
                     areasAffectedProvinces:
                         this.options.orgUnitRepository.get(areasAffectedProvinceIds),
                     areasAffectedDistricts:
                         this.options.orgUnitRepository.get(areasAffectedDistrictIds),
-                    riskAssessment: getAll(id, this.options.riskAssessmentRepository, appConfig),
+                    riskAssessment: getAll(
+                        id,
+                        this.options.riskAssessmentRepository,
+                        configurations
+                    ),
                     incidentAction: getIncidentAction(
                         id,
                         this.options.incidentActionRepository,
-                        appConfig
+                        configurations
                     ),
-                    incidentManagementTeam: getIncidentManagementTeamById(id, this.options),
+                    incidentManagementTeam: getIncidentManagementTeamById(
+                        id,
+                        this.options,
+                        configurations
+                    ),
                     roles: this.options.roleRepository.getAll(),
                 }).flatMap(
                     ({

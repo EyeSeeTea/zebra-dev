@@ -21,7 +21,7 @@ import { MapDiseaseOutbreakToAlertsUseCase } from "./domain/usecases/MapDiseaseO
 import { AlertRepository } from "./domain/repositories/AlertRepository";
 import { AlertTestRepository } from "./data/repositories/test/AlertTestRepository";
 import { Get717PerformanceUseCase } from "./domain/usecases/Get717PerformanceUseCase";
-import { GetEntityWithOptionsUseCase } from "./domain/usecases/GetEntityWithOptionsUseCase";
+import { GetConfigurableFormUseCase } from "./domain/usecases/GetConfigurableFormUseCase";
 import { SaveEntityUseCase } from "./domain/usecases/SaveEntityUseCase";
 import { RiskAssessmentRepository } from "./domain/repositories/RiskAssessmentRepository";
 import { RiskAssessmentD2Repository } from "./data/repositories/RiskAssessmentD2Repository";
@@ -63,10 +63,10 @@ import { SystemRepository } from "./domain/repositories/SystemRepository";
 import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
-import { GetAllAppConfigurationsUseCase } from "./domain/usecases/GetAllAppConfigurationsUseCase";
-import { AppConfigurationRepository } from "./domain/repositories/AppConfigurationRepository";
-import { AppConfigurationD2Repository } from "./data/repositories/AppConfigurationD2Repository";
-import { AppConfigurationTestRepository } from "./data/repositories/test/AppConfigurationTestRepository";
+import { GetConfigurationsUseCase } from "./domain/usecases/GetConfigurationsUseCase";
+import { ConfigurationsRepository } from "./domain/repositories/ConfigurationsRepository";
+import { ConfigurationsD2Repository } from "./data/repositories/ConfigurationsD2Repository";
+import { ConfigurationsTestRepository } from "./data/repositories/test/ConfigurationsTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -75,7 +75,6 @@ type Repositories = {
     diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     alertRepository: AlertRepository;
     alertSyncRepository: AlertSyncRepository;
-
     teamMemberRepository: TeamMemberRepository;
     orgUnitRepository: OrgUnitRepository;
     riskAssessmentRepository: RiskAssessmentRepository;
@@ -86,12 +85,12 @@ type Repositories = {
     incidentManagementTeamRepository: IncidentManagementTeamRepository;
     chartConfigRepository: ChartConfigRepository;
     systemRepository: SystemRepository;
-    eventTrackerConfigurationRespository: AppConfigurationRepository;
+    configurationsRepository: ConfigurationsRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
     return {
-        getWithOptions: new GetEntityWithOptionsUseCase(repositories),
+        getConfigurableForm: new GetConfigurableFormUseCase(repositories),
         save: new SaveEntityUseCase(repositories),
         users: {
             getCurrent: new GetCurrentUserUseCase(repositories.usersRepository),
@@ -103,8 +102,8 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.alertRepository,
                 repositories.alertSyncRepository
             ),
-            getConfigurations: new GetAllAppConfigurationsUseCase(
-                repositories.eventTrackerConfigurationRespository,
+            getConfigurations: new GetConfigurationsUseCase(
+                repositories.configurationsRepository,
                 repositories.teamMemberRepository
             ),
         },
@@ -148,7 +147,6 @@ export function getWebappCompositionRoot(api: D2Api) {
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(api),
         alertRepository: new AlertD2Repository(api),
         alertSyncRepository: new AlertSyncDataStoreRepository(api),
-
         teamMemberRepository: new TeamMemberD2Repository(api),
         orgUnitRepository: new OrgUnitD2Repository(api),
         riskAssessmentRepository: new RiskAssessmentD2Repository(api),
@@ -159,7 +157,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         incidentManagementTeamRepository: new IncidentManagementTeamD2Repository(api),
         chartConfigRepository: new ChartConfigD2Repository(dataStoreClient),
         systemRepository: new SystemD2Repository(api),
-        eventTrackerConfigurationRespository: new AppConfigurationD2Repository(api),
+        configurationsRepository: new ConfigurationsD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -171,7 +169,6 @@ export function getTestCompositionRoot() {
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventTestRepository(),
         alertRepository: new AlertTestRepository(),
         alertSyncRepository: new AlertSyncDataStoreTestRepository(),
-
         teamMemberRepository: new TeamMemberTestRepository(),
         orgUnitRepository: new OrgUnitTestRepository(),
         riskAssessmentRepository: new RiskAssessmentTestRepository(),
@@ -182,7 +179,7 @@ export function getTestCompositionRoot() {
         incidentManagementTeamRepository: new IncidentManagementTeamTestRepository(),
         chartConfigRepository: new ChartConfigTestRepository(),
         systemRepository: new SystemTestRepository(),
-        eventTrackerConfigurationRespository: new AppConfigurationTestRepository(),
+        configurationsRepository: new ConfigurationsTestRepository(),
     };
 
     return getCompositionRoot(repositories);

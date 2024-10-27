@@ -54,7 +54,7 @@ type State = {
 };
 
 export function useForm(formType: FormType, id?: Id): State {
-    const { compositionRoot, currentUser, appConfiguration } = useAppContext();
+    const { compositionRoot, currentUser, configurations } = useAppContext();
     const { goTo } = useRoutes();
     const { getCurrentEventTracker } = useCurrentEventTracker();
 
@@ -67,8 +67,8 @@ export function useForm(formType: FormType, id?: Id): State {
     const currentEventTracker = getCurrentEventTracker();
 
     useEffect(() => {
-        compositionRoot.getWithOptions
-            .execute(formType, currentEventTracker, appConfiguration, id)
+        compositionRoot.getConfigurableForm
+            .execute(formType, currentEventTracker, configurations, id)
             .run(
                 formData => {
                     setConfigurableForm(formData);
@@ -89,14 +89,7 @@ export function useForm(formType: FormType, id?: Id): State {
                     });
                 }
             );
-    }, [
-        compositionRoot.getWithOptions,
-        formType,
-        id,
-        currentEventTracker,
-        appConfiguration.eventTrackerConfigurations,
-        appConfiguration,
-    ]);
+    }, [compositionRoot.getConfigurableForm, formType, id, currentEventTracker, configurations]);
 
     const handleAddNew = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm) return;
@@ -215,6 +208,7 @@ export function useForm(formType: FormType, id?: Id): State {
     );
 
     const onPrimaryButtonClick = useCallback(() => {
+        const { eventTrackerConfigurations } = configurations.selectableOptions;
         if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
 
         setIsLoading(true);
@@ -225,7 +219,7 @@ export function useForm(formType: FormType, id?: Id): State {
             configurableForm
         );
 
-        compositionRoot.save.execute(formData).run(
+        compositionRoot.save.execute(formData, configurations).run(
             diseaseOutbreakEventId => {
                 setIsLoading(false);
 
@@ -236,8 +230,8 @@ export function useForm(formType: FormType, id?: Id): State {
                                 .execute(
                                     diseaseOutbreakEventId,
                                     formData.entity,
-                                    appConfiguration.eventTrackerConfigurations.hazardTypes,
-                                    appConfiguration.eventTrackerConfigurations.suspectedDiseases
+                                    eventTrackerConfigurations.hazardTypes,
+                                    eventTrackerConfigurations.suspectedDiseases
                                 )
                                 .run(
                                     () => {},
@@ -320,6 +314,7 @@ export function useForm(formType: FormType, id?: Id): State {
             }
         );
     }, [
+        configurations,
         formState,
         configurableForm,
         currentUser.username,
@@ -327,7 +322,6 @@ export function useForm(formType: FormType, id?: Id): State {
         compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
         currentEventTracker?.id,
         goTo,
-        appConfiguration,
     ]);
 
     const onCancelForm = useCallback(() => {

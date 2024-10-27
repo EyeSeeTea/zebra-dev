@@ -29,7 +29,7 @@ export type UIIncidentActionOptions = {
 };
 
 export function useIncidentActionPlan(id: Id) {
-    const { compositionRoot, appConfiguration } = useAppContext();
+    const { compositionRoot, configurations: appConfiguration } = useAppContext();
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
 
     const [incidentAction, setIncidentAction] = useState<Option[] | undefined>();

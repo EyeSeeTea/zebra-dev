@@ -31,7 +31,7 @@ export type FormSummaryData = {
     notes: string;
 };
 export function useDiseaseOutbreakEvent(id: Id) {
-    const { compositionRoot, appConfiguration } = useAppContext();
+    const { compositionRoot, configurations: appConfiguration } = useAppContext();
     const [formSummary, setFormSummary] = useState<FormSummaryData>();
     const [summaryError, setSummaryError] = useState<string>();
     const [riskAssessmentRows, setRiskAssessmentRows] = useState<TableRowType[]>([]);

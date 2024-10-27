@@ -1,6 +1,6 @@
 import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
-import { AppConfigurations } from "../entities/AppConfigurations";
+import { Configurations } from "../entities/AppConfigurations";
 import { IncidentActionPlan } from "../entities/incident-action-plan/IncidentActionPlan";
 import { Id } from "../entities/Ref";
 import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
@@ -15,7 +15,7 @@ export class GetIncidentActionByIdUseCase {
 
     public execute(
         diseaseOutbreakEventId: Id,
-        appConfiguration: AppConfigurations
+        appConfiguration: Configurations
     ): FutureData<Maybe<IncidentActionPlan>> {
         return getIncidentAction(
             diseaseOutbreakEventId,

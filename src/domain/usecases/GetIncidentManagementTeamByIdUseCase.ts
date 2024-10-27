@@ -1,5 +1,6 @@
 import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
+import { Configurations } from "../entities/AppConfigurations";
 import { IncidentManagementTeam } from "../entities/incident-management-team/IncidentManagementTeam";
 import { Id } from "../entities/Ref";
 import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
@@ -16,7 +17,10 @@ export class GetIncidentManagementTeamByIdUseCase {
         }
     ) {}
 
-    public execute(diseaseOutbreakEventId: Id): FutureData<Maybe<IncidentManagementTeam>> {
-        return getIncidentManagementTeamById(diseaseOutbreakEventId, this.options);
+    public execute(
+        diseaseOutbreakEventId: Id,
+        configurations: Configurations
+    ): FutureData<Maybe<IncidentManagementTeam>> {
+        return getIncidentManagementTeamById(diseaseOutbreakEventId, this.options, configurations);
     }
 }

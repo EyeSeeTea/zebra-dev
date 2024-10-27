@@ -40,7 +40,7 @@ type State = {
 };
 
 export function useIMTeamBuilder(id: Id): State {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, configurations } = useAppContext();
     const { goTo } = useRoutes();
 
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
@@ -57,7 +57,7 @@ export function useIMTeamBuilder(id: Id): State {
     const [searchTerm, setSearchTerm] = useState<string>("");
 
     const getIncidentManagementTeam = useCallback(() => {
-        compositionRoot.incidentManagementTeam.get.execute(id).run(
+        compositionRoot.incidentManagementTeam.get.execute(id, configurations).run(
             incidentManagementTeam => {
                 setIncidentManagementTeam(incidentManagementTeam);
                 setIncidentManagementTeamHierarchyItems(

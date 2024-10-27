@@ -5,6 +5,7 @@ import {
     RiskAssessmentQuestionnaireOptions,
     RiskAssessmentSummaryOptions,
 } from "./ConfigurableForm";
+import { TeamMember } from "./incident-management-team/TeamMember";
 
 import {
     LowPopulationAtRisk,
@@ -23,7 +24,7 @@ import {
     Capability2,
 } from "./risk-assessment/RiskAssessmentGrading";
 
-export type AppConfigurations = {
+export type SelectableOptions = {
     eventTrackerConfigurations: DiseaseOutbreakEventOptions;
     riskAssessmentGradingConfigurations: {
         populationAtRisk: Array<
@@ -40,4 +41,12 @@ export type AppConfigurations = {
     riskAssessmentQuestionnaireConfigurations: RiskAssessmentQuestionnaireOptions;
     incidentActionPlanConfigurations: IncidentActionPlanOptions;
     incidentResponseActionConfigurations: IncidentResponseActionOptions;
+};
+export type Configurations = {
+    selectableOptions: SelectableOptions;
+    teamMembers: {
+        all: TeamMember[];
+        riskAssessors: TeamMember[];
+        incidentManagers: TeamMember[];
+    };
 };
