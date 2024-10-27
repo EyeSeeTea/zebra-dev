@@ -63,8 +63,6 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     mainSyndromeCode: Maybe<Code>;
     suspectedDiseaseCode: Maybe<Code>;
     notificationSourceCode: Code;
-    areasAffectedProvinceIds: Id[];
-    areasAffectedDistrictIds: Id[];
     incidentStatus: NationalIncidentStatus;
     emerged: DateWithNarrative;
     detected: DateWithNarrative;
@@ -79,8 +77,6 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     mainSyndrome: Maybe<NamedRef>;
     suspectedDisease: Maybe<NamedRef>;
     notificationSource: NamedRef;
-    areasAffectedProvinces: OrgUnit[];
-    areasAffectedDistricts: OrgUnit[];
     incidentManager: Maybe<TeamMember>; //TO DO : make mandatory once form rules applied.
     riskAssessment: Maybe<RiskAssessment>;
     incidentActionPlan: Maybe<IncidentActionPlan>;

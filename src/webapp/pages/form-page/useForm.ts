@@ -318,8 +318,7 @@ export function useForm(formType: FormType, id?: Id): State {
         formState,
         configurableForm,
         currentUser.username,
-        compositionRoot.save,
-        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
+        compositionRoot,
         currentEventTracker?.id,
         goTo,
     ]);

@@ -117,12 +117,8 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode ?? "",
         RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode ?? "",
         RTSL_ZEB_TEA_NOTIFICATION_SOURCE: diseaseOutbreak.notificationSourceCode,
-        RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES: getOUTextFromList(
-            diseaseOutbreak.areasAffectedProvinceIds
-        ),
-        RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS: getOUTextFromList(
-            diseaseOutbreak.areasAffectedDistrictIds
-        ),
+        RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES: "",
+        RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS: "",
         RTSL_ZEB_TEA_INCIDENT_STATUS: diseaseOutbreak.incidentStatus,
         RTSL_ZEB_TEA_DATE_EMERGED: getDateAsIsoString(diseaseOutbreak.emerged.date),
         RTSL_ZEB_TEA_DATE_EMERGED_NARRATIVE: diseaseOutbreak.emerged.narrative,

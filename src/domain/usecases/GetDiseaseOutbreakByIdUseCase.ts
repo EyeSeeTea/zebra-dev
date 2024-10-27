@@ -36,8 +36,6 @@ export class GetDiseaseOutbreakByIdUseCase {
                     suspectedDiseaseCode,
                     notificationSourceCode,
                     incidentManagerName,
-                    areasAffectedDistrictIds,
-                    areasAffectedProvinceIds,
                 } = diseaseOutbreakEventBase;
 
                 const { selectableOptions } = configurations;
@@ -59,10 +57,6 @@ export class GetDiseaseOutbreakByIdUseCase {
                     return Future.error(new Error("Notification source not found"));
 
                 return Future.joinObj({
-                    areasAffectedProvinces:
-                        this.options.orgUnitRepository.get(areasAffectedProvinceIds),
-                    areasAffectedDistricts:
-                        this.options.orgUnitRepository.get(areasAffectedDistrictIds),
                     riskAssessment: getAll(
                         id,
                         this.options.riskAssessmentRepository,
@@ -79,36 +73,25 @@ export class GetDiseaseOutbreakByIdUseCase {
                         configurations
                     ),
                     roles: this.options.roleRepository.getAll(),
-                }).flatMap(
-                    ({
-                        areasAffectedProvinces,
-                        areasAffectedDistricts,
-                        riskAssessment,
-                        incidentAction,
-                        incidentManagementTeam,
-                        roles,
-                    }) => {
-                        return this.options.incidentManagementTeamRepository
-                            .getIncidentManagementTeamMember(incidentManagerName, id, roles)
-                            .flatMap(incidentManager => {
-                                const diseaseOutbreakEvent: DiseaseOutbreakEvent =
-                                    new DiseaseOutbreakEvent({
-                                        ...diseaseOutbreakEventBase,
-                                        createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
-                                        mainSyndrome: mainSyndrome,
-                                        suspectedDisease: suspectedDisease,
-                                        notificationSource: notificationSource,
-                                        areasAffectedProvinces: areasAffectedProvinces,
-                                        areasAffectedDistricts: areasAffectedDistricts,
-                                        incidentManager: incidentManager,
-                                        riskAssessment: riskAssessment,
-                                        incidentActionPlan: incidentAction,
-                                        incidentManagementTeam: incidentManagementTeam,
-                                    });
-                                return Future.success(diseaseOutbreakEvent);
-                            });
-                    }
-                );
+                }).flatMap(({ riskAssessment, incidentAction, incidentManagementTeam, roles }) => {
+                    return this.options.incidentManagementTeamRepository
+                        .getIncidentManagementTeamMember(incidentManagerName, id, roles)
+                        .flatMap(incidentManager => {
+                            const diseaseOutbreakEvent: DiseaseOutbreakEvent =
+                                new DiseaseOutbreakEvent({
+                                    ...diseaseOutbreakEventBase,
+                                    createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
+                                    mainSyndrome: mainSyndrome,
+                                    suspectedDisease: suspectedDisease,
+                                    notificationSource: notificationSource,
+                                    incidentManager: incidentManager,
+                                    riskAssessment: riskAssessment,
+                                    incidentActionPlan: incidentAction,
+                                    incidentManagementTeam: incidentManagementTeam,
+                                });
+                            return Future.success(diseaseOutbreakEvent);
+                        });
+                });
             });
     }
 }

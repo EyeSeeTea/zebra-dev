@@ -54,8 +54,6 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         mainSyndromeCode: fromMap("mainSyndrome"),
         suspectedDiseaseCode: fromMap("suspectedDisease"),
         notificationSourceCode: fromMap("notificationSource"),
-        areasAffectedProvinceIds: getMultipleOUFromText(fromMap("areasAffectedProvinces")),
-        areasAffectedDistrictIds: getMultipleOUFromText(fromMap("areasAffectedDistricts")),
         incidentStatus: incidentStatus,
         emerged: {
             date: new Date(fromMap("emergedDate")),

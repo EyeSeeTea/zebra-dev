@@ -16,9 +16,6 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
                 },
             })
         ).map(response => {
-            // const d2OrgUnitsProvinceOrDistrict = response.organisationUnits.filter(
-            //     ou => ou.level === 2 || ou.level === 3
-            // );
             return this.mapD2OrgUnitsToOrgUnits(response.organisationUnits);
         });
     }
