@@ -36,7 +36,7 @@ function App(props: AppProps) {
             if (!currentUser) throw new Error("User not logged in");
             const orgUnits = await compositionRoot.orgUnits.getAll.execute().toPromise();
 
-            const appConfigs = await compositionRoot.diseaseOutbreakEvent.getConfigurations
+            const configurations = await compositionRoot.diseaseOutbreakEvent.getConfigurations
                 .execute()
                 .toPromise();
 
@@ -47,7 +47,7 @@ function App(props: AppProps) {
                 isDev,
                 api,
                 orgUnits,
-                configurations: appConfigs,
+                configurations,
             });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
