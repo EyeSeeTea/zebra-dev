@@ -181,10 +181,6 @@ export function getHazardTypeFromString(hazardTypeString: string): HazardType | 
     );
 }
 
-function getOUTextFromList(OUs: string[]): string {
-    return OUs[0] ?? ""; //TO DO : Handle multiple provinces/districts once metadata change is done
-}
-
 function getNaValue(naValue: Maybe<boolean>): string {
     return naValue ? "true" : "";
 }

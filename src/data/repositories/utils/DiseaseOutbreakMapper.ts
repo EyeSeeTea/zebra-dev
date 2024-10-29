@@ -96,11 +96,6 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
     return diseaseOutbreak;
 }
 
-function getMultipleOUFromText(text: string): string[] {
-    //TO DO : FIXME handle multiple provinces when metadata change is done
-    return [text].filter(ou => ou !== "");
-}
-
 export function mapDiseaseOutbreakEventToTrackedEntityAttributes(
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs,
     attributesMetadata: D2TrackedEntityAttribute[]
