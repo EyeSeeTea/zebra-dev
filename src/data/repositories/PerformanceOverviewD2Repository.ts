@@ -433,7 +433,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     private getCasesAndDeathsFromDatastore(
         key: string | undefined
     ): FutureData<{ cases: number; deaths: number }> {
-        // return Future.success({ cases: 0, deaths: 0 });
         if (!key) return Future.success({ cases: 0, deaths: 0 });
         return this.datastore.getObject<AlertSynchronizationData>(key).flatMap(data => {
             if (!data) return Future.success({ cases: 0, deaths: 0 });

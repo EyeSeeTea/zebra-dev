@@ -36,11 +36,9 @@ function App(props: AppProps) {
             if (!currentUser) throw new Error("User not logged in");
             const orgUnits = await compositionRoot.orgUnits.getAll.execute().toPromise();
 
-            console.time("AppConfigFetch");
             const appConfigs = await compositionRoot.diseaseOutbreakEvent.getConfigurations
                 .execute()
                 .toPromise();
-            console.timeEnd("AppConfigFetch");
 
             const isDev = process.env.NODE_ENV === "development";
             setAppContext({

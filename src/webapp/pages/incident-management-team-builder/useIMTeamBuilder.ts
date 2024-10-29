@@ -74,7 +74,7 @@ export function useIMTeamBuilder(id: Id): State {
                 });
             }
         );
-    }, [compositionRoot.incidentManagementTeam.get, id]);
+    }, [compositionRoot.incidentManagementTeam.get, configurations, id]);
 
     useEffect(() => {
         getIncidentManagementTeam();

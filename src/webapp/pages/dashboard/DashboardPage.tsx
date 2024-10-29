@@ -53,11 +53,7 @@ export const DashboardPage: React.FC = React.memo(() => {
     useEffect(() => {
         //On navigating to the dashboard page, reset the current event tracker id
         resetCurrentEventTrackerId();
-        console.time("DashboardPage");
-        if (!performanceOverviewLoading && !_717CardsLoading) {
-            console.timeEnd("DashboardPage");
-        }
-    });
+    }, [resetCurrentEventTrackerId]);
 
     return performanceOverviewLoading || _717CardsLoading ? (
         <Loader />

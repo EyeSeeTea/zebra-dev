@@ -66,25 +66,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     );
 
     useEffect(() => {
-        console.time("EventTrackerPage");
         if (eventTrackerDetails) {
             changeCurrentEventTrackerId(eventTrackerDetails);
         }
-
-        if (
-            (currentEventTracker?.suspectedDiseaseCode || currentEventTracker?.hazardType) &&
-            !areOverviewCardsLoading
-        ) {
-            console.timeEnd("EventTrackerPage");
-        }
-    }, [
-        areOverviewCardsLoading,
-        changeCurrentEventTrackerId,
-        currentEventTracker?.hazardType,
-        currentEventTracker?.suspectedDiseaseCode,
-        eventTrackerDetails,
-        id,
-    ]);
+    }, [changeCurrentEventTrackerId, eventTrackerDetails]);
 
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
