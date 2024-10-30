@@ -24,7 +24,6 @@ import {
     DiseaseNames,
     PerformanceMetrics717,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
-import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
@@ -47,6 +46,11 @@ type EventTrackerOverview = {
     confirmedCasesId: Id;
     deathsId: Id;
     probableCasesId: Id;
+};
+
+type IdValue = {
+    id: Id;
+    value: string;
 };
 
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
@@ -181,11 +185,22 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     if (!currentEventTrackerOverviewId)
                         return Future.error(
                             new Error(
-                                `Event Tracke Overview Ids for type ${type} not found in datastore`
+                                `Event Tracker Overview Ids for type ${type} not found in datastore`
                             )
                         );
                     return Future.success(currentEventTrackerOverviewId);
                 });
+            });
+    }
+
+    private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<EventTrackerOverview[]> {
+        return this.datastore
+            .getObject<EventTrackerOverview[]>(EVENT_TRACKER_OVERVIEW_DATASTORE_KEY)
+            .flatMap(nullableEventTrackerOverviewIds => {
+                return assertOrError(
+                    nullableEventTrackerOverviewIds,
+                    EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+                );
             });
     }
 
@@ -316,46 +331,123 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                 endDate: DEFAULT_END_DATE,
             })
         ).flatMap(indicatorsProgramFuture => {
-            const mappedIndicators =
-                indicatorsProgramFuture?.rows.map((row: string[]) =>
-                    this.mapRowToBaseIndicator(
-                        row,
-                        indicatorsProgramFuture.headers,
-                        indicatorsProgramFuture.metaData
+            return this.getAllEventTrackerOverviewIdsFromDatastore().flatMap(
+                eventTrackerOverviews => {
+                    const mappedIndicators =
+                        indicatorsProgramFuture?.rows.map((row: string[]) =>
+                            this.mapRowToBaseIndicator(
+                                row,
+                                indicatorsProgramFuture.headers,
+                                indicatorsProgramFuture.metaData
+                            )
+                        ) || [];
+
+                    const keys = _(
+                        diseaseOutbreakEvents.map(
+                            diseaseOutbreak =>
+                                diseaseOutbreak.suspectedDiseaseCode || diseaseOutbreak.hazardType
+                        )
                     )
-                ) || [];
+                        .compact()
+                        .uniq()
+                        .value();
 
-            const performanceOverviewMetrics = diseaseOutbreakEvents.map(event => {
-                const baseIndicator = mappedIndicators.find(indicator => indicator.id === event.id);
-                const key = baseIndicator?.suspectedDisease || baseIndicator?.hazardType;
+                    const eventTrackerOverviewsForKeys = eventTrackerOverviews.filter(overview =>
+                        keys.includes(overview.key)
+                    );
 
-                return this.getCasesAndDeathsFromDatastore(key).map(casesAndDeaths => {
-                    const duration = `${moment()
-                        .diff(moment(event.emerged.date), "days")
-                        .toString()}d`;
-                    if (!baseIndicator) {
-                        return {
-                            id: event.id,
-                            event: event.name,
-                            manager: event.incidentManagerName,
-                            duration: duration,
-                            nationalIncidentStatus: event.incidentStatus,
-                            cases: casesAndDeaths.cases.toString(),
-                            deaths: casesAndDeaths.deaths.toString(),
-                        } as PerformanceOverviewMetrics;
-                    }
-                    return {
-                        ...baseIndicator,
-                        nationalIncidentStatus: event.incidentStatus,
-                        manager: event.incidentManagerName,
-                        duration: duration,
-                        cases: casesAndDeaths.cases.toString(),
-                        deaths: casesAndDeaths.deaths.toString(),
-                    } as PerformanceOverviewMetrics;
-                });
-            });
+                    const casesIndicatorIds = eventTrackerOverviewsForKeys.map(
+                        overview => overview.suspectedCasesId
+                    );
 
-            return Future.sequential(performanceOverviewMetrics);
+                    const deathsIndicatorIds = eventTrackerOverviewsForKeys.map(
+                        overview => overview.deathsId
+                    );
+
+                    return Future.joinObj({
+                        allCases: this.getAnalyticsByIndicators(casesIndicatorIds),
+                        allDeaths: this.getAnalyticsByIndicators(deathsIndicatorIds),
+                    }).flatMap(({ allCases, allDeaths }) => {
+                        const performanceOverviewMetrics: FutureData<PerformanceOverviewMetrics>[] =
+                            diseaseOutbreakEvents.map(event => {
+                                const baseIndicator = mappedIndicators.find(
+                                    indicator => indicator.id === event.id
+                                );
+
+                                const key = event.hazardType || event.suspectedDiseaseCode;
+                                if (!key)
+                                    return Future.error(
+                                        new Error(
+                                            `No hazard type or suspected disease found for event : ${event.id}`
+                                        )
+                                    );
+                                const currentEventTrackerOverview =
+                                    eventTrackerOverviewsForKeys.find(
+                                        overview => overview.key === key
+                                    );
+
+                                const currentCases = allCases.find(
+                                    caseIdValue =>
+                                        caseIdValue.id ===
+                                        currentEventTrackerOverview?.suspectedCasesId
+                                );
+
+                                const currentDeaths = allDeaths.find(
+                                    death => death.id === currentEventTrackerOverview?.deathsId
+                                );
+
+                                const duration = `${moment()
+                                    .diff(moment(event.emerged.date), "days")
+                                    .toString()}d`;
+
+                                if (!baseIndicator) {
+                                    const metrics = {
+                                        id: event.id,
+                                        event: event.name,
+                                        manager: event.incidentManagerName,
+                                        duration: duration,
+                                        nationalIncidentStatus: event.incidentStatus,
+                                        cases: currentCases?.value || "",
+                                        deaths: currentDeaths?.value || "",
+                                    } as PerformanceOverviewMetrics;
+                                    return Future.success(metrics);
+                                } else {
+                                    const metrics = {
+                                        ...baseIndicator,
+                                        nationalIncidentStatus: event.incidentStatus,
+                                        manager: event.incidentManagerName,
+                                        duration: duration,
+                                        cases: currentCases?.value || "",
+                                        deaths: currentDeaths?.value || "",
+                                    } as PerformanceOverviewMetrics;
+                                    return Future.success(metrics);
+                                }
+                            });
+
+                        return Future.sequential(performanceOverviewMetrics);
+                    });
+                }
+            );
+        });
+    }
+
+    private getAnalyticsByIndicators(ids: Id[]): FutureData<IdValue[]> {
+        return apiToFuture(
+            this.api.analytics.get({
+                dimension: [`dx:${ids.join(";")}`],
+                startDate: DEFAULT_START_DATE,
+                endDate: DEFAULT_END_DATE,
+                includeMetadataDetails: true,
+            })
+        ).flatMap(response => {
+            const analytics = _(
+                response.rows.map(row => {
+                    if (row[0] && row[1]) return { id: row[0], value: parseInt(row[1]).toString() };
+                })
+            )
+                .compact()
+                .value();
+            return Future.success(analytics);
         });
     }
 
@@ -427,25 +519,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     EVENT_TRACKER_717_IDS
                 )
             );
-        });
-    }
-
-    private getCasesAndDeathsFromDatastore(
-        key: string | undefined
-    ): FutureData<{ cases: number; deaths: number }> {
-        if (!key) return Future.success({ cases: 0, deaths: 0 });
-        return this.datastore.getObject<AlertSynchronizationData>(key).flatMap(data => {
-            if (!data) return Future.success({ cases: 0, deaths: 0 });
-            const casesDeaths = data.alerts.reduce(
-                (acc, alert) => {
-                    acc.cases += parseInt(alert.suspectedCases) || 0;
-                    acc.deaths += parseInt(alert.deaths) || 0;
-                    return acc;
-                },
-                { cases: 0, deaths: 0 }
-            );
-
-            return Future.success(casesDeaths);
         });
     }
 
