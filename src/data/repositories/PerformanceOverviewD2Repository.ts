@@ -6,10 +6,10 @@ import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
-    eventTrackerCountsIndicatorMap,
     PERFORMANCE_METRICS_717_IDS,
     IndicatorsId,
     EVENT_TRACKER_717_IDS,
+    EventTrackerCountIndicator,
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
 import {
@@ -23,11 +23,17 @@ import {
     PerformanceOverviewMetrics,
     DiseaseNames,
     PerformanceMetrics717,
+    IncidentStatus,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
 import { assertOrError } from "./utils/AssertOrError";
+import {
+    getProgramIndicatorsFromDatastore,
+    ProgramIndicatorsDatastore,
+    ProgramIndicatorsDatastoreKey,
+} from "./common/getProgramIndicatorsFromDatastore";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -62,50 +68,90 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         multiSelectFilters?: Record<string, string[]>,
         dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]> {
-        return apiToFuture(
-            this.api.analytics.get({
-                dimension: [
-                    `dx:${eventTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
-                    `ou:${
-                        multiSelectFilters && multiSelectFilters?.province?.length
-                            ? multiSelectFilters.province.join(";")
-                            : allProvincesIds.join(";")
-                    }`,
-                ],
-                startDate:
-                    dateRangeFilter?.length && dateRangeFilter[0]
-                        ? dateRangeFilter[0]
-                        : DEFAULT_START_DATE,
-                endDate:
-                    dateRangeFilter?.length && dateRangeFilter[1]
-                        ? dateRangeFilter[1]
-                        : DEFAULT_END_DATE,
-                includeMetadataDetails: true,
-            })
-        ).map(analyticsResponse => {
-            const totalCardCounts =
-                this.mapAnalyticsRowsToTotalCardCounts(
-                    analyticsResponse.rows,
-                    singleSelectFilters
-                ) || [];
+        return getProgramIndicatorsFromDatastore(
+            this.datastore,
+            ProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts
+        ).flatMap(activeVerifiedAlerts => {
+            const eventTrackerCountsIndicatorMap =
+                this.mapActiveVerfiedAlertsToEventTrackerCountIndicator(activeVerifiedAlerts);
+            return apiToFuture(
+                this.api.analytics.get({
+                    dimension: [
+                        `dx:${eventTrackerCountsIndicatorMap.map(({ id }) => id).join(";")}`,
+                        `ou:${
+                            multiSelectFilters && multiSelectFilters?.province?.length
+                                ? multiSelectFilters.province.join(";")
+                                : allProvincesIds.join(";")
+                        }`,
+                    ],
+                    startDate:
+                        dateRangeFilter?.length && dateRangeFilter[0]
+                            ? dateRangeFilter[0]
+                            : DEFAULT_START_DATE,
+                    endDate:
+                        dateRangeFilter?.length && dateRangeFilter[1]
+                            ? dateRangeFilter[1]
+                            : DEFAULT_END_DATE,
+                    includeMetadataDetails: true,
+                })
+            ).map(analyticsResponse => {
+                const totalCardCounts =
+                    this.mapAnalyticsRowsToTotalCardCounts(
+                        eventTrackerCountsIndicatorMap,
+                        analyticsResponse.rows,
+                        singleSelectFilters
+                    ) || [];
 
-            const uniqueTotalCardCounts = totalCardCounts.reduce((acc, totalCardCount) => {
-                const existingEntry = acc[totalCardCount.name];
+                const uniqueTotalCardCounts = totalCardCounts.reduce((acc, totalCardCount) => {
+                    const existingEntry = acc[totalCardCount.name];
 
-                if (existingEntry) {
-                    existingEntry.total += totalCardCount.total;
-                    acc[totalCardCount.name] = existingEntry;
-                } else {
-                    acc[totalCardCount.name] = totalCardCount;
-                }
-                return acc;
-            }, {} as Record<string, TotalCardCounts>);
+                    if (existingEntry) {
+                        existingEntry.total += totalCardCount.total;
+                        acc[totalCardCount.name] = existingEntry;
+                    } else {
+                        acc[totalCardCount.name] = totalCardCount;
+                    }
+                    return acc;
+                }, {} as Record<string, TotalCardCounts>);
 
-            return Object.values(uniqueTotalCardCounts);
+                return Object.values(uniqueTotalCardCounts);
+            });
         });
     }
 
+    mapActiveVerfiedAlertsToEventTrackerCountIndicator(
+        activeVerifiedAlerts: Maybe<ProgramIndicatorsDatastore[]>
+    ): EventTrackerCountIndicator[] {
+        if (!activeVerifiedAlerts) return [];
+        return _(
+            activeVerifiedAlerts.map(activeVerified => {
+                if (activeVerified.disease === "ALL") return;
+
+                if (activeVerified.disease) {
+                    const eventTrackerCount: EventTrackerCountIndicator = {
+                        id: activeVerified.id,
+                        type: "disease",
+                        name: activeVerified.disease as DiseaseNames,
+                        incidentStatus: activeVerified.incidentStatus as IncidentStatus,
+                    };
+                    return eventTrackerCount;
+                } else {
+                    const eventTrackerCount: EventTrackerCountIndicator = {
+                        id: activeVerified.id,
+                        type: "hazard",
+                        name: activeVerified.hazardType as HazardNames,
+                        incidentStatus: activeVerified.incidentStatus as IncidentStatus,
+                    };
+                    return eventTrackerCount;
+                }
+            })
+        )
+            .compact()
+            .value();
+    }
+
     mapAnalyticsRowsToTotalCardCounts = (
+        eventTrackerCountsIndicatorMap: EventTrackerCountIndicator[],
         rowData: string[][],
         filters?: Record<string, string>
     ): TotalCardCounts[] => {
