@@ -45,8 +45,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { goTo } = useRoutes();
     const { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails } =
         useDiseaseOutbreakEvent(id);
-    const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
-        useCurrentEventTracker();
+    const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
 
@@ -67,9 +66,9 @@ export const EventTrackerPage: React.FC = React.memo(() => {
 
     useEffect(() => {
         if (eventTrackerDetails) {
-            changeCurrentEventTrackerId(eventTrackerDetails);
+            changeCurrentEventTracker(eventTrackerDetails);
         }
-    }, [changeCurrentEventTrackerId, eventTrackerDetails]);
+    }, [changeCurrentEventTracker, eventTrackerDetails]);
 
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>

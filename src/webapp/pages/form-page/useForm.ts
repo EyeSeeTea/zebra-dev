@@ -20,6 +20,7 @@ import {
     addNewResponseActionSection,
     getAnotherResponseActionSection,
 } from "./incident-action/mapIncidentActionToInitialFormState";
+import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 
 export type GlobalMessage = {
     text: string;
@@ -65,6 +66,7 @@ export function useForm(formType: FormType, id?: Id): State {
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
     const currentEventTracker = getCurrentEventTracker();
+    const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
 
     useEffect(() => {
         compositionRoot.getConfigurableForm
@@ -75,7 +77,7 @@ export function useForm(formType: FormType, id?: Id): State {
                     setFormLabels(formData.labels);
                     setFormState({
                         kind: "loaded",
-                        data: mapEntityToFormState(formData, !!id),
+                        data: mapEntityToFormState(formData, !!id, existingEventTrackerTypes),
                     });
                 },
                 error => {
@@ -89,7 +91,7 @@ export function useForm(formType: FormType, id?: Id): State {
                     });
                 }
             );
-    }, [compositionRoot.getConfigurableForm, formType, id, currentEventTracker, configurations]);
+    }, [compositionRoot.getConfigurableForm, formType, id, currentEventTracker, configurations, existingEventTrackerTypes]);
 
     const handleAddNew = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm) return;

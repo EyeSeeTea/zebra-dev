@@ -8,6 +8,10 @@ import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
+import {
+    DiseaseNames,
+    HazardNames,
+} from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -83,7 +87,8 @@ type ResponseActionsSubsectionKeys =
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapDiseaseOutbreakEventToInitialFormState(
     diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
-    editMode: boolean
+    editMode: boolean,
+    existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
 ): FormState {
     const { entity: diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
@@ -96,13 +101,21 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         incidentStatus,
     } = options;
 
-    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
+    //If An Event Tracker has already been created for a given suspected disease or harzd type,
+    //then do not allow to create another one. Remove it from dropwdown options
+    const filteredHazardTypes = hazardTypes.filter(hazardType => {
+        return !existingEventTrackerTypes.includes(hazardType.name as HazardNames);
+    });
+    const filteredSuspectedDiseases = suspectedDiseases.filter(suspectedDisease => {
+        return !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames);
+    });
 
+    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
     const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
-    const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
+    const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(filteredHazardTypes);
     const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
     const suspectedDiseasesOptions: PresentationOption[] =
-        mapToPresentationOptions(suspectedDiseases);
+        mapToPresentationOptions(filteredSuspectedDiseases);
     const notificationSourcesOptions: PresentationOption[] =
         mapToPresentationOptions(notificationSources);
     const incidentStatusOptions: PresentationOption[] = mapToPresentationOptions(incidentStatus);
