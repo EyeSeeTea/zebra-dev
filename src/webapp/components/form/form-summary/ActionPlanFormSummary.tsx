@@ -78,4 +78,5 @@ const SummaryContainer = styled.div`
     margin-top: 0rem;
     color: ${props => props.theme.palette.text.hint};
     gap: 1rem;
+    white-space: pre-line;
 `;

@@ -127,4 +127,5 @@ const SummaryColumn = styled.div`
 
 const StyledType = styled(Typography)`
     color: ${props => props.theme.palette.text.hint};
+    white-space: pre-line;
 `;

@@ -91,7 +91,14 @@ export function useForm(formType: FormType, id?: Id): State {
                     });
                 }
             );
-    }, [compositionRoot.getConfigurableForm, formType, id, currentEventTracker, configurations, existingEventTrackerTypes]);
+    }, [
+        compositionRoot.getConfigurableForm,
+        formType,
+        id,
+        currentEventTracker,
+        configurations,
+        existingEventTrackerTypes,
+    ]);
 
     const handleAddNew = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm) return;
