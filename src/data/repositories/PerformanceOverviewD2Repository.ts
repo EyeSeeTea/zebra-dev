@@ -509,7 +509,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
                 return {
                     ...indicator,
-                    value: value ? parseFloat(value) : ("N/A" as const),
+                    value: value ? parseFloat(value) : ("Inc" as const),
                     type: indicator.type,
                 };
             })

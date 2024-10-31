@@ -7,10 +7,14 @@ import { Id } from "../../../domain/entities/Ref";
 
 type CardColors = StatsCardProps["color"];
 
+const DAYS_DETECTION = "Days to detection";
+const DAYS_NOTIFICATION = "Days to notification";
+const DAYS_RESPONSE = "Days to early response";
+
 export type PerformanceMetric717 = {
     title: string;
-    primaryValue: number | "N/A";
-    secondaryValue: number | "N/A";
+    primaryValue: number | "Inc";
+    secondaryValue: number | "Inc";
     color: CardColors;
 };
 export type PerformanceMetric717State = {
@@ -29,18 +33,36 @@ export function use717Performance(
     const [performanceMetrics717, setPerformanceMetrics717] = useState<PerformanceMetric717[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const getColor = useCallback((key: string, value: number | "N/A"): CardColors => {
-        if (value === "N/A") {
-            return "grey";
-        } else if (key === "allTargets") {
-            return "grey";
-        } else if (value >= 50) {
-            return "green";
-        } else if (value > 0) {
-            return "red";
-        }
-        return "normal";
-    }, []);
+    const getColor = useCallback(
+        (key: string, value: number | "Inc", type: "dashboard" | "event_tracker"): CardColors => {
+            if (type === "dashboard") {
+                switch (key) {
+                    case "allTargets":
+                        return "grey";
+                    default:
+                        if (value === "Inc") {
+                            return "red";
+                        } else if (value >= 50) {
+                            return "green";
+                        } else if (value > 0) {
+                            return "red";
+                        } else {
+                            return "normal";
+                        }
+                }
+            } else {
+                switch (key) {
+                    case DAYS_DETECTION:
+                        return value === "Inc" ? "red" : value <= 7 ? "green" : "red";
+                    case DAYS_NOTIFICATION:
+                        return value === "Inc" ? "red" : value <= 1 ? "green" : "red";
+                    case DAYS_RESPONSE:
+                        return value === "Inc" ? "red" : value <= 7 ? "green" : "red";
+                }
+            }
+        },
+        []
+    );
 
     const transformData = useCallback(
         (performanceMetrics: PerformanceMetrics717[]) => {
@@ -65,11 +87,11 @@ export function use717Performance(
                     title: title,
                     primaryValue: primaryValue,
                     secondaryValue: secondaryValue,
-                    color: getColor(key, primaryValue),
+                    color: getColor(key, primaryValue, type),
                 };
             });
         },
-        [getColor]
+        [getColor, type]
     );
 
     useEffect(() => {
