@@ -71,10 +71,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         earlyResponseActions: {
             initiateInvestigation: new Date(fromMap("initiateInvestigation")),
             conductEpidemiologicalAnalysis: new Date(fromMap("conductEpidemiologicalAnalysis")),
-            laboratoryConfirmation: {
-                date: new Date(fromMap("laboratoryConfirmationDate")),
-                na: fromMap("laboratoryConfirmationNA") === "true",
-            },
+            laboratoryConfirmation: new Date(fromMap("laboratoryConfirmation")),
             appropriateCaseManagement: {
                 date: new Date(fromMap("appropriateCaseManagementDate")),
                 na: fromMap("appropriateCaseManagementNA") === "true",
@@ -87,7 +84,10 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
                 date: new Date(fromMap("initiateRiskCommunicationDate")),
                 na: fromMap("initiateRiskCommunicationNA") === "true",
             },
-            establishCoordination: new Date(fromMap("establishCoordination")),
+            establishCoordination: {
+                date: new Date(fromMap("establishCoordinationDate")),
+                na: fromMap("establishCoordinationNA") === "true",
+            },
             responseNarrative: fromMap("responseNarrative"),
         },
         notes: fromMap("notes"),

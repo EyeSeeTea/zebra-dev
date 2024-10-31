@@ -44,11 +44,11 @@ type DateWithNA = {
 type EarlyResponseActions = {
     initiateInvestigation: Date;
     conductEpidemiologicalAnalysis: Date;
-    laboratoryConfirmation: DateWithNA;
+    laboratoryConfirmation: Date;
     appropriateCaseManagement: DateWithNA;
     initiatePublicHealthCounterMeasures: DateWithNA;
     initiateRiskCommunication: DateWithNA;
-    establishCoordination: Date;
+    establishCoordination: DateWithNA;
     responseNarrative: string;
 };
 

@@ -202,16 +202,10 @@ function mapFormStateToDiseaseOutbreakEvent(
                 diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
                 allFields
             ) as Date,
-            laboratoryConfirmation: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationNA,
-                    allFields
-                ),
-            },
+            laboratoryConfirmation: getDateFieldValue(
+                diseaseOutbreakEventFieldIds.laboratoryConfirmation,
+                allFields
+            ) as Date,
             appropriateCaseManagement: {
                 date: getDateFieldValue(
                     diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
@@ -242,10 +236,16 @@ function mapFormStateToDiseaseOutbreakEvent(
                     allFields
                 ),
             },
-            establishCoordination: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.establishCoordination,
-                allFields
-            ) as Date,
+            establishCoordination: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationNa,
+                    allFields
+                ),
+            },
             responseNarrative: getStringFieldValue(
                 diseaseOutbreakEventFieldIds.responseNarrative,
                 allFields

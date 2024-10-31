@@ -9,8 +9,8 @@ type CardColors = StatsCardProps["color"];
 
 export type PerformanceMetric717 = {
     title: string;
-    primaryValue: number;
-    secondaryValue: number;
+    primaryValue: number | "N/A";
+    secondaryValue: number | "N/A";
     color: CardColors;
 };
 export type PerformanceMetric717State = {
@@ -29,8 +29,10 @@ export function use717Performance(
     const [performanceMetrics717, setPerformanceMetrics717] = useState<PerformanceMetric717[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const getColor = useCallback((key: string, value: number): CardColors => {
-        if (key === "allTargets") {
+    const getColor = useCallback((key: string, value: number | "N/A"): CardColors => {
+        if (value === "N/A") {
+            return "grey";
+        } else if (key === "allTargets") {
             return "grey";
         } else if (value >= 50) {
             return "green";

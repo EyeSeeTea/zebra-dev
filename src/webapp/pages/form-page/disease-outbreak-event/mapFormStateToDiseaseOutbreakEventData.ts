@@ -22,7 +22,7 @@ type DateFieldIdsToValidate =
     | "notifiedDate"
     | "initiateInvestigation"
     | "conductEpidemiologicalAnalysis"
-    | "establishCoordination";
+    | "laboratoryConfirmation";
 
 export function mapFormStateToDiseaseOutbreakEventData(
     formState: FormState,
@@ -96,16 +96,7 @@ export function mapFormStateToDiseaseOutbreakEventData(
         earlyResponseActions: {
             initiateInvestigation: dateValuesByFieldId.initiateInvestigation,
             conductEpidemiologicalAnalysis: dateValuesByFieldId.conductEpidemiologicalAnalysis,
-            laboratoryConfirmation: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationNA,
-                    allFields
-                ),
-            },
+            laboratoryConfirmation: dateValuesByFieldId.laboratoryConfirmation,
             appropriateCaseManagement: {
                 date: getDateFieldValue(
                     diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
@@ -136,7 +127,16 @@ export function mapFormStateToDiseaseOutbreakEventData(
                     allFields
                 ),
             },
-            establishCoordination: dateValuesByFieldId.establishCoordination,
+            establishCoordination: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationNa,
+                    allFields
+                ),
+            },
             responseNarrative: getStringFieldValue(
                 diseaseOutbreakEventFieldIds.responseNarrative,
                 allFields
@@ -182,6 +182,8 @@ function getValidDateValuesByFieldIdFromFields(
         conductEpidemiologicalAnalysis: getFromAllFields(
             diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis
         ),
-        establishCoordination: getFromAllFields(diseaseOutbreakEventFieldIds.establishCoordination),
+        laboratoryConfirmation: getFromAllFields(
+            diseaseOutbreakEventFieldIds.laboratoryConfirmation
+        ),
     };
 }

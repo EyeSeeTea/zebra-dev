@@ -27,15 +27,15 @@ export const diseaseOutbreakEventFieldIds = {
     notifiedNarrative: "notifiedNarrative",
     initiateInvestigation: "initiateInvestigation",
     conductEpidemiologicalAnalysis: "conductEpidemiologicalAnalysis",
-    laboratoryConfirmationDate: "laboratoryConfirmationDate",
-    laboratoryConfirmationNA: "laboratoryConfirmationNA",
+    laboratoryConfirmation: "laboratoryConfirmation",
     appropriateCaseManagementDate: "appropriateCaseManagementDate",
     appropriateCaseManagementNA: "appropriateCaseManagementNA",
     initiatePublicHealthCounterMeasuresDate: "initiatePublicHealthCounterMeasuresDate",
     initiatePublicHealthCounterMeasuresNA: "initiatePublicHealthCounterMeasuresNA",
     initiateRiskCommunicationDate: "initiateRiskCommunicationDate",
     initiateRiskCommunicationNA: "initiateRiskCommunicationNA",
-    establishCoordination: "establishCoordination",
+    establishCoordinationNa: "establishCoordinationNa",
+    establishCoordinationDate: "establishCoordinationDate",
     responseNarrative: "responseNarrative",
     incidentManagerName: "incidentManagerName",
     notes: "notes",
@@ -163,31 +163,16 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: fromIdsDictionary("laboratoryConfirmationDate"),
+                    id: fromIdsDictionary("laboratoryConfirmation"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
                     type: "date",
                     value:
-                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.date ||
-                        null,
+                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation || null,
                     width: "200px",
-                    hasNotApplicable: true,
                     required: true,
                     showIsRequired: false,
-                    disabled: diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.na,
-                },
-                {
-                    id: fromIdsDictionary("laboratoryConfirmationNA"),
-                    label: i18n.t("N/A"),
-                    isVisible: true,
-                    errors: [],
-                    type: "boolean",
-                    value:
-                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.na ||
-                        false,
-                    width: "65px",
-                    notApplicableFieldId: fromIdsDictionary("laboratoryConfirmationDate"),
                 },
             ],
         },
@@ -309,15 +294,31 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: fromIdsDictionary("establishCoordination"),
+                    id: fromIdsDictionary("establishCoordinationDate"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
                     type: "date",
-                    value: diseaseOutbreakEvent?.earlyResponseActions.establishCoordination || null,
+                    value:
+                        diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.date ||
+                        null,
                     width: "200px",
+                    hasNotApplicable: true,
                     required: true,
                     showIsRequired: false,
+                    disabled: diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.na,
+                },
+                {
+                    id: fromIdsDictionary("establishCoordinationNa"),
+                    label: i18n.t("N/A"),
+                    isVisible: true,
+                    errors: [],
+                    type: "boolean",
+                    value:
+                        diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.na ||
+                        false,
+                    width: "65px",
+                    notApplicableFieldId: fromIdsDictionary("establishCoordinationDate"),
                 },
             ],
         },
