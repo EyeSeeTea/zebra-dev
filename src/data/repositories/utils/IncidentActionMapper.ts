@@ -95,7 +95,9 @@ export function mapDataElementsToIncidentResponseActions(
         };
     });
 
-    return incidentResponseActions;
+    //DHIS returns events last updated first, zebra app needs it in order of creation,
+    //so we reverse the order
+    return incidentResponseActions.reverse();
 }
 
 export function mapIncidentActionToDataElements(
