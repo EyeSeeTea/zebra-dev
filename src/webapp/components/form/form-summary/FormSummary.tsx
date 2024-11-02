@@ -34,13 +34,15 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
         goTo(RouteName.DASHBOARD);
     }, [summaryError, snackbar, goTo]);
 
+    const onEditClick = useCallback(() => {
+        goTo(RouteName.EDIT_FORM, { formType: formType, id: id });
+    }, [formType, goTo, id]);
+
     const editButton = (
         <Button
             variant="outlined"
             color="secondary"
-            onClick={() => {
-                goTo(RouteName.EDIT_FORM, { formType: formType, id: id }); //TO DO : Change to dynamic formType when available
-            }}
+            onClick={onEditClick}
             startIcon={<EditOutlined />}
         >
             {i18n.t("Edit Details")}

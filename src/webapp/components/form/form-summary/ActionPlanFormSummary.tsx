@@ -31,13 +31,15 @@ export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React
         goTo(RouteName.DASHBOARD);
     }, [summaryError, snackbar, goTo]);
 
+    const goToActionPlan = useCallback(() => {
+        goTo(RouteName.EDIT_FORM, { formType: formType, id: id });
+    }, [formType, goTo, id]);
+
     const editButton = (
         <Button
             variant="outlined"
             color="secondary"
-            onClick={() => {
-                goTo(RouteName.EDIT_FORM, { formType: formType, id: id }); //TO DO : Change to dynamic formType when available
-            }}
+            onClick={goToActionPlan}
             startIcon={<EditOutlined />}
         >
             {i18n.t("Edit Action Plan")}

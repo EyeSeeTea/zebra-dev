@@ -21,6 +21,8 @@ import {
     getAnotherResponseActionSection,
 } from "./incident-action/mapIncidentActionToInitialFormState";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
+import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
 export type GlobalMessage = {
     text: string;
@@ -58,15 +60,15 @@ export function useForm(formType: FormType, id?: Id): State {
     const { compositionRoot, currentUser, configurations } = useAppContext();
     const { goTo } = useRoutes();
     const { getCurrentEventTracker } = useCurrentEventTracker();
-
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [formState, setFormState] = useState<FormLoadState>({ kind: "loading" });
     const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
-
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
     const currentEventTracker = getCurrentEventTracker();
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
+    useCheckWritePermission(formType);
+    const snackbar = useSnackbar();
 
     useEffect(() => {
         compositionRoot.getConfigurableForm
@@ -98,6 +100,8 @@ export function useForm(formType: FormType, id?: Id): State {
         currentEventTracker,
         configurations,
         existingEventTrackerTypes,
+        snackbar,
+        goTo,
     ]);
 
     const handleAddNew = useCallback(() => {
