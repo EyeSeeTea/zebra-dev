@@ -6,8 +6,6 @@ import { BasicTable, TableColumn, TableRowType } from "../../components/table/Ba
 import { Box, Button } from "@material-ui/core";
 import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import { Maybe } from "../../../utils/ts-utils";
-import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
-import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
 type ResponseActionTableProps = {
     onChange: (value: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => void;
