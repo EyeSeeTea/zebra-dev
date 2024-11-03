@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
@@ -141,6 +141,40 @@ export function useDiseaseOutbreakEvent(id: Id) {
             return [];
         }
     };
+    const orderByRiskAssessmentDate = useCallback(
+        (direction: "asc" | "desc") => {
+            setRiskAssessmentRows(prevRows => {
+                if (direction === "asc") {
+                    const sortedRows = prevRows.sort((a, b) => {
+                        if (!a.riskAssessmentDate) return -1;
+                        if (!b.riskAssessmentDate) return 1;
 
-    return { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails };
+                        const dateA = new Date(a.riskAssessmentDate).toISOString();
+                        const dateB = new Date(b.riskAssessmentDate).toISOString();
+                        return dateA < dateB ? -1 : dateA > dateB ? 1 : 0;
+                    });
+                    return sortedRows;
+                } else {
+                    const sortedRows = prevRows.sort((a, b) => {
+                        if (!a.riskAssessmentDate) return -1;
+                        if (!b.riskAssessmentDate) return -1;
+
+                        const dateA = new Date(a.riskAssessmentDate).toISOString();
+                        const dateB = new Date(b.riskAssessmentDate).toISOString();
+                        return dateA < dateB ? 1 : dateA > dateB ? -1 : 0;
+                    });
+                    return sortedRows;
+                }
+            });
+        },
+        [setRiskAssessmentRows]
+    );
+
+    return {
+        formSummary,
+        summaryError,
+        riskAssessmentRows,
+        eventTrackerDetails,
+        orderByRiskAssessmentDate,
+    };
 }

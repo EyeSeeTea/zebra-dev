@@ -51,7 +51,7 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
                 console.error(err);
             }
         );
-    }, []);
+    }, [compositionRoot, id, snackbar]);
 
     const editButton = (
         <Button

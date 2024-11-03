@@ -1,10 +1,18 @@
-import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TableSortLabel,
+} from "@material-ui/core";
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
 import i18n from "../../../utils/i18n";
 import { Option } from "../utils/option";
 import { Cell } from "./Cell";
+import _c from "../../../domain/entities/generic/Collection";
 
 const noop = () => {};
 
@@ -34,18 +42,41 @@ interface BasicTableProps {
     rows: TableRowType[];
     onChange?: (cell: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => void;
     showRowIndex?: boolean;
+    onOrderBy?: (direction: "asc" | "desc") => void;
 }
 
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
-    ({ columns, rows, onChange = noop, showRowIndex = false }) => {
+    ({ columns, rows, onChange = noop, showRowIndex = false, onOrderBy }) => {
+        const [order, setOrder] = useState<"asc" | "desc">();
+
+        const orderBy = useCallback(() => {
+            const updatedOrder = order === "asc" ? "desc" : "asc";
+            setOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
+            onOrderBy && onOrderBy(updatedOrder);
+        }, [onOrderBy, order]);
+
         return (
             <StyledTable stickyHeader>
                 <TableHead>
                     <TableRow>
                         {showRowIndex && <TableCell />}
-                        {columns.map(({ value, label }) => (
-                            <TableCell key={value}>{i18n.t(label)}</TableCell>
-                        ))}
+                        {columns.map(({ value, label }) =>
+                            label === "Assessment Date" ? (
+                                <TableCell key={value} sortDirection={order}>
+                                    <TableSortLabel
+                                        direction={order}
+                                        onClick={orderBy}
+                                        active={true}
+                                    >
+                                        {label}
+                                    </TableSortLabel>
+                                </TableCell>
+                            ) : (
+                                <TableCell key={value} sortDirection={order}>
+                                    {i18n.t(label)}
+                                </TableCell>
+                            )
+                        )}
                     </TableRow>
                 </TableHead>
                 <TableBody>

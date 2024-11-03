@@ -42,8 +42,13 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         id: string;
     }>();
     const { goTo } = useRoutes();
-    const { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails } =
-        useDiseaseOutbreakEvent(id);
+    const {
+        formSummary,
+        summaryError,
+        riskAssessmentRows,
+        eventTrackerDetails,
+        orderByRiskAssessmentDate,
+    } = useDiseaseOutbreakEvent(id);
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
@@ -130,7 +135,11 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 titleVariant="secondary"
             >
                 {riskAssessmentRows.length > 0 ? (
-                    <BasicTable columns={riskAssessmentColumns} rows={riskAssessmentRows} />
+                    <BasicTable
+                        columns={riskAssessmentColumns}
+                        rows={riskAssessmentRows}
+                        onOrderBy={orderByRiskAssessmentDate}
+                    />
                 ) : (
                     <NoticeBox title={i18n.t("Risk assessment incomplete")}>
                         {i18n.t("Risks associated with this event have not yet been assessed.")}
