@@ -10,7 +10,6 @@ export type IncidentActionOptions = {
 };
 
 interface IncidentActionPlanAttrs extends Ref {
-    lastUpdated: Date;
     actionPlan: Maybe<ActionPlan>;
     responseActions: ResponseAction[];
     incidentActionOptions: IncidentActionOptions;

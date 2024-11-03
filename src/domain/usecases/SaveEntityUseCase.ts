@@ -12,6 +12,7 @@ import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { Configurations } from "../entities/AppConfigurations";
+import moment from "moment";
 
 export class SaveEntityUseCase {
     constructor(
@@ -75,7 +76,7 @@ export class SaveEntityUseCase {
                             ) {
                                 const updatedDiseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs = {
                                     ...diseaseOutbreakEventBase,
-                                    lastUpdated: new Date(),
+                                    lastUpdated: moment.utc().toDate(),
                                     incidentManagerName: updatedIncidentManager,
                                 };
 

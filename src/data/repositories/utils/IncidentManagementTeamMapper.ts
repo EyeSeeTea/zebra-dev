@@ -15,6 +15,7 @@ import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
 import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES } from "../consts/IncidentManagementTeamBuilderConstants";
 import { Role } from "../../../domain/entities/incident-management-team/Role";
+import { getDateAsLocaleDateTimeString, getISODateAsLocaleDateString } from "./DateTimeHelper";
 
 export function mapD2EventsToIncidentManagementTeam(
     d2Events: D2TrackerEvent[],
@@ -48,8 +49,17 @@ export function mapD2EventsToIncidentManagementTeam(
         []
     );
 
+    const sortedByUpdatedDates = d2Events.sort(function (a, b) {
+        if (!a.updatedAt) return -1;
+        if (!b.updatedAt) return 1;
+        return a.updatedAt < b.updatedAt ? -1 : a.updatedAt > b.updatedAt ? 1 : 0;
+    });
+
     return new IncidentManagementTeam({
         teamHierarchy: teamHierarchy,
+        lastUpdated: sortedByUpdatedDates[0]?.updatedAt
+            ? getISODateAsLocaleDateString(sortedByUpdatedDates[0]?.updatedAt)
+            : undefined,
     });
 }
 

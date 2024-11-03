@@ -7,9 +7,8 @@ import {
     DiseaseOutbreakEvent,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
-    getDateAsLocaleDateString,
-    getDateAsLocaleDateTimeString,
     getDateAsMonthYearString,
+    getISODateAsLocaleDateString,
 } from "../../../data/repositories/utils/DateTimeHelper";
 
 import { User } from "../../components/user-selector/UserSelector";
@@ -72,7 +71,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
                 {
                     label: "Last updated",
                     value: diseaseOutbreakEvent.lastUpdated
-                        ? getDateAsLocaleDateTimeString(diseaseOutbreakEvent.lastUpdated)
+                        ? diseaseOutbreakEvent.lastUpdated.toString()
                         : "",
                 },
                 dataSourceLabelValue,
@@ -106,7 +105,9 @@ export function useDiseaseOutbreakEvent(id: Id) {
         if (diseaseOutbreakEvent.riskAssessment) {
             return diseaseOutbreakEvent.riskAssessment.grading.map(riskAssessmentGrading => ({
                 riskAssessmentDate: riskAssessmentGrading.lastUpdated
-                    ? getDateAsLocaleDateString(riskAssessmentGrading.lastUpdated)
+                    ? getISODateAsLocaleDateString(
+                          riskAssessmentGrading.lastUpdated.toISOString()
+                      ).toDateString()
                     : "",
                 grade: RiskAssessmentGrading.getTranslatedLabel(
                     riskAssessmentGrading.getGrade().getOrThrow()

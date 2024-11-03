@@ -137,6 +137,7 @@ export class IncidentManagementTeamD2Repository implements IncidentManagementTea
                     },
                     trackedEntity: true,
                     event: true,
+                    updatedAt: true,
                 },
             })
         )

@@ -152,8 +152,8 @@ export function mapFormStateToDiseaseOutbreakEventData(
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
         status: diseaseOutbreakEvent?.status || "ACTIVE",
-        created: diseaseOutbreakEvent?.created || new Date(),
-        lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
+        created: diseaseOutbreakEvent?.created,
+        lastUpdated: diseaseOutbreakEvent?.lastUpdated,
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
         ...diseaseOutbreakEventEditableData,
     };

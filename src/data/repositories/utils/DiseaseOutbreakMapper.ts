@@ -17,7 +17,7 @@ import _ from "../../../domain/entities/generic/Collection";
 import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2TrackedEntityAttributeSchema } from "../../../types/d2-api";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
-import { getCurrentTimeString } from "./DateTimeHelper";
+import { getCurrentTimeString, getISODateAsLocaleDateString } from "./DateTimeHelper";
 
 type D2TrackedEntityAttribute = {
     trackedEntityAttribute: SelectedPick<
@@ -47,8 +47,12 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         status: trackedEntity.enrollments?.[0]?.status ?? "ACTIVE", //Zebra Outbreak has only one enrollment
         name: fromMap("name"),
         dataSource: dataSource,
-        created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : undefined,
-        lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : undefined,
+        created: trackedEntity.createdAt
+            ? getISODateAsLocaleDateString(trackedEntity.createdAt)
+            : undefined,
+        lastUpdated: trackedEntity.updatedAt
+            ? getISODateAsLocaleDateString(trackedEntity.updatedAt)
+            : undefined,
         createdByName: undefined,
         hazardType: getHazardTypeByCode(fromMap("hazardType")),
         mainSyndromeCode: fromMap("mainSyndrome"),

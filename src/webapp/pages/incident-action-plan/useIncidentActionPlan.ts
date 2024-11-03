@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
-import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { TableColumn, TableRowType } from "../../components/table/BasicTable";
 import {
     getIAPTypeByCode,
@@ -91,7 +90,14 @@ export function useIncidentActionPlan(id: Id) {
                 const incidentActionExists = !!incidentActionPlan?.actionPlan?.id;
                 const incidentActionOptions = incidentActionPlan?.incidentActionOptions;
                 const currentEventTracker = getCurrentEventTracker();
-                if (incidentActionExists && currentEventTracker) {
+                if (
+                    incidentActionExists &&
+                    currentEventTracker &&
+                    (currentEventTracker.incidentActionPlan?.actionPlan?.lastUpdated !==
+                        incidentActionPlan.actionPlan?.lastUpdated ||
+                        currentEventTracker.incidentActionPlan?.responseActions.length !==
+                            incidentActionPlan.responseActions.length)
+                ) {
                     const updatedEventTracker = new DiseaseOutbreakEvent({
                         ...currentEventTracker,
                         incidentActionPlan: incidentActionPlan,
@@ -128,7 +134,7 @@ const getIncidentActionFormSummary = (incidentActionPlan: Maybe<IncidentActionPl
 
     const iapTypeCode = incidentActionPlan.actionPlan?.iapType ?? "";
     const phoecLevelCode = incidentActionPlan.actionPlan?.phoecLevel ?? "";
-    const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
+    const lastUpdated = incidentActionPlan.actionPlan?.lastUpdated?.toString() ?? "";
 
     return [
         {

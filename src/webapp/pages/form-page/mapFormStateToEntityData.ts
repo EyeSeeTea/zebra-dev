@@ -261,8 +261,8 @@ function mapFormStateToDiseaseOutbreakEvent(
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
         status: diseaseOutbreakEvent?.status || "ACTIVE",
-        created: diseaseOutbreakEvent?.created || new Date(),
-        lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
+        created: diseaseOutbreakEvent?.created,
+        lastUpdated: diseaseOutbreakEvent?.lastUpdated,
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
         ...diseaseOutbreakEventEditableData,
     };
@@ -523,6 +523,7 @@ function mapFormStateToIncidentActionPlan(
     )?.value as string;
 
     const incidentActionPlan: ActionPlanAttrs = {
+        lastUpdated: new Date(),
         iapType: iapType,
         phoecLevel: phoecLevel,
         id: formData.entity?.id ?? "",

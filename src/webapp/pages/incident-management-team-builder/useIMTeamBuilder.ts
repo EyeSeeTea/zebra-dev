@@ -216,7 +216,7 @@ export function useIMTeamBuilder(id: Id): State {
         [incidentManagementTeam?.teamHierarchy, incidentManagementTeamHierarchyItems]
     );
 
-    const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
+    const lastUpdated = incidentManagementTeam?.lastUpdated?.toString() ?? "";
 
     return {
         globalMessage,

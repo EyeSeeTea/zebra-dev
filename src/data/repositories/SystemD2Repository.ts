@@ -19,22 +19,14 @@ export class SystemD2Repository implements SystemRepository {
                 new Date(lastAnalyticsTablePartitionSuccess) >
                     new Date(info.lastAnalyticsTableSuccess)
             ) {
-                return getDateAsLocaleDateTimeString(new Date(lastAnalyticsTablePartitionSuccess));
+                return getDateAsLocaleDateTimeString(lastAnalyticsTablePartitionSuccess);
             }
             //Else, return the lastAnalyticsTableSuccess time
             else if (info.lastAnalyticsTableSuccess) {
-                return getDateAsLocaleDateTimeString(new Date(info.lastAnalyticsTableSuccess));
+                return getDateAsLocaleDateTimeString(info.lastAnalyticsTableSuccess.toISOString());
             } else {
                 return "Unable to fetch last analytics runtime";
             }
-
-            //@ts-ignore
-            if (info.lastAnalyticsTablePartitionSuccess)
-                return getDateAsLocaleDateTimeString(
-                    //@ts-ignore
-                    new Date(info.lastAnalyticsTablePartitionSuccess)
-                );
-            else return "Unable to fetch last analytics runtime";
         });
     }
 }
