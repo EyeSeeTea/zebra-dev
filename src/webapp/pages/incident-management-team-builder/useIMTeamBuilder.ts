@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
-import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { User } from "../../components/user-selector/UserSelector";
 import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
 import { IMTeamHierarchyOption } from "../../components/im-team-hierarchy/IMTeamHierarchyView";

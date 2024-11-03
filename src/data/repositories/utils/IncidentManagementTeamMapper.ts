@@ -15,7 +15,7 @@ import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2DataElementSchema } from "@eyeseetea/d2-api/2.36";
 import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES } from "../consts/IncidentManagementTeamBuilderConstants";
 import { Role } from "../../../domain/entities/incident-management-team/Role";
-import { getDateAsLocaleDateTimeString, getISODateAsLocaleDateString } from "./DateTimeHelper";
+import { getISODateAsLocaleDateString } from "./DateTimeHelper";
 
 export function mapD2EventsToIncidentManagementTeam(
     d2Events: D2TrackerEvent[],
