@@ -6,14 +6,16 @@ import { Box, Button, Typography } from "@material-ui/core";
 import { UserCard } from "../../user-selector/UserCard";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import { EditOutlined } from "@material-ui/icons";
+import { CheckOutlined } from "@material-ui/icons";
 import { Loader } from "../../loader/Loader";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { FormSummaryData } from "../../../pages/event-tracker/useDiseaseOutbreakEvent";
 import { Maybe } from "../../../../utils/ts-utils";
 import { FormType } from "../../../pages/form-page/FormPage";
 import { Id } from "../../../../domain/entities/Ref";
+import { useAppContext } from "../../../contexts/app-context";
 
-export type FormSummaryProps = {
+export type EventTrackerFormSummaryProps = {
     id: Id;
     formType: FormType;
     formSummary: Maybe<FormSummaryData>;
@@ -22,7 +24,8 @@ export type FormSummaryProps = {
 
 const ROW_COUNT = 3;
 
-export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
+export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = React.memo(props => {
+    const { compositionRoot } = useAppContext();
     const { id, formType, formSummary, summaryError } = props;
     const { goTo } = useRoutes();
     const snackbar = useSnackbar();
@@ -38,6 +41,18 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
         goTo(RouteName.EDIT_FORM, { formType: formType, id: id });
     }, [formType, goTo, id]);
 
+    const onCompleteClick = useCallback(() => {
+        compositionRoot.diseaseOutbreakEvent.complete.execute(id).run(
+            () => {
+                snackbar.success(i18n.t("Event completed"));
+            },
+            err => {
+                snackbar.error(i18n.t(`Failed to complete event: ${err.message}`));
+                console.error(err);
+            }
+        );
+    }, []);
+
     const editButton = (
         <Button
             variant="outlined"
@@ -46,6 +61,17 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
             startIcon={<EditOutlined />}
         >
             {i18n.t("Edit Details")}
+        </Button>
+    );
+
+    const completeButton = (
+        <Button
+            variant="outlined"
+            color="secondary"
+            onClick={onCompleteClick}
+            startIcon={<CheckOutlined />}
+        >
+            {i18n.t("Complete Event")}
         </Button>
     );
 
@@ -66,6 +92,7 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
                 title={formSummary.subTitle}
                 hasSeparator={true}
                 headerButton={editButton}
+                secondaryHeaderButton={completeButton}
                 titleVariant="secondary"
             >
                 <SummaryContainer>

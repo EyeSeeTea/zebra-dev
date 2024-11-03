@@ -67,6 +67,7 @@ import { GetConfigurationsUseCase } from "./domain/usecases/GetConfigurationsUse
 import { ConfigurationsRepository } from "./domain/repositories/ConfigurationsRepository";
 import { ConfigurationsD2Repository } from "./data/repositories/ConfigurationsD2Repository";
 import { ConfigurationsTestRepository } from "./data/repositories/test/ConfigurationsTestRepository";
+import { CompleteEventTrackerUseCase } from "./domain/usecases/CompleteEventTrackerUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -106,6 +107,7 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.configurationsRepository,
                 repositories.teamMemberRepository
             ),
+            complete: new CompleteEventTrackerUseCase(repositories),
         },
         incidentActionPlan: {
             get: new GetIncidentActionByIdUseCase(repositories),

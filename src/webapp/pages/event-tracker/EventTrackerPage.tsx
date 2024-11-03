@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
-import { FormSummary } from "../../components/form/form-summary/FormSummary";
+import { EventTrackerFormSummary } from "../../components/form/form-summary/EventTrackerFormSummary";
 import { Chart } from "../../components/chart/Chart";
 import { Section } from "../../components/section/Section";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
@@ -69,7 +69,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
 
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
-            <FormSummary
+            <EventTrackerFormSummary
                 id={id}
                 formType="disease-outbreak-event"
                 formSummary={formSummary}
