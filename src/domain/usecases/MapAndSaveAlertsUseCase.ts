@@ -95,11 +95,6 @@ export class MapAndSaveAlertsUseCase {
     }
 
     private getDataSource(outbreakData: OutbreakData): DataSource {
-        const mapping: Record<OutbreakDataType, DataSource> = {
-            disease: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
-            hazard: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
-        };
-
         return mapping[outbreakData.type];
     }
 
@@ -212,5 +207,10 @@ function getUniqueFilters(alerts: OutbreakAlert[]): OutbreakData[] {
         .map(alertData => alertData.outbreakData)
         .value();
 }
+
+const mapping: Record<OutbreakDataType, DataSource> = {
+    disease: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+    hazard: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+};
 
 const RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE = "RTSL_ZEBRA_NATONAL_WATCH_STAFF";

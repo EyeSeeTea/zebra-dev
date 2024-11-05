@@ -29,10 +29,9 @@ export function getApiInstanceFromEnvVariables() {
     if (!process.env.VITE_DHIS2_AUTH)
         throw new Error("VITE_DHIS2_AUTH must be set in the .env file");
 
-    const username = process.env.VITE_DHIS2_AUTH.split(":")[0] ?? "";
-    const password = process.env.VITE_DHIS2_AUTH.split(":")[1] ?? "";
+    const [username, password] = process.env.VITE_DHIS2_AUTH.split(":");
 
-    if (username === "" || password === "") {
+    if (!username || !password) {
         throw new Error("VITE_DHIS2_AUTH must be in the format 'username:password'");
     }
 
