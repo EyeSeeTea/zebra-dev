@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
+import { formatQuarterString } from "../../../data/repositories/utils/DateTimeHelper";
 import { TableColumn, TableRowType } from "../../components/table/BasicTable";
 import {
     getIAPTypeByCode,
@@ -197,7 +198,7 @@ const mapIncidentResponseActionToTableRows = (
             searchAssignRO: responseAction.searchAssignRO?.username ?? "",
             status: getStatusTypeByCode(responseAction.status) ?? "",
             verification: getVerificationTypeByCode(responseAction.verification) ?? "",
-            timeLine: responseAction.timeLine,
+            timeLine: formatQuarterString(responseAction.dueDate),
             dueDate: responseAction.dueDate.toISOString(),
         }));
     } else {

@@ -350,17 +350,6 @@ function getResponseActionSection(options: {
                 disabled: false,
             },
             {
-                id: `${responseActionConstants.timeLine}_${index}`,
-                label: "Time line",
-                isVisible: true,
-                errors: [],
-                value: incidentResponseAction?.timeLine || "",
-                type: "text",
-                required: true,
-                showIsRequired: true,
-                disabled: false,
-            },
-            {
                 id: `${responseActionConstants.status}_${index}`,
                 label: "Status",
                 isVisible: true,

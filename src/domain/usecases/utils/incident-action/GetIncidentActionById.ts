@@ -65,7 +65,6 @@ export function getIncidentAction(
                                 dueDate: responseActionDataValue?.dueDate
                                     ? new Date(responseActionDataValue.dueDate)
                                     : new Date(),
-                                timeLine: responseActionDataValue?.timeLine ?? "",
                                 status: status,
                                 verification: verification,
                             });
