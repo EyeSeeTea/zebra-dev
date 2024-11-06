@@ -34,6 +34,8 @@ export class OptionsD2Repository implements OptionsRepository {
     private likelihoodOptions: Map<string, Option> = new Map();
     private consequencesOptions: Map<string, Option> = new Map();
     private lowMediumHighOptions: Map<string, Option> = new Map();
+    private statusOptions: Map<string, Option> = new Map();
+    private verificationOptions: Map<string, Option> = new Map();
 
     getMainSyndrome(optionCode: Code): FutureData<Option> {
         return this.get(optionCode, MAIN_SYNDROME_OPTION_SET_CODE);
@@ -160,6 +162,40 @@ export class OptionsD2Repository implements OptionsRepository {
                 return RiskAssessmentGrading.getOptionTypeByCodeCapability(capability.id);
             });
         });
+    }
+
+    // Incident action plan options
+    getIapTypeOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_IAP_TYPE");
+    }
+
+    getPhoecLevelOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_PHOEC_ACT_LEVEL");
+    }
+
+    // Incident response action options
+    getStatusOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_STATUS");
+    }
+
+    getStatusOption(optionCode: Code): FutureData<Option> {
+        if (this.statusOptions.has(optionCode)) {
+            const cachedOption = this.statusOptions.get(optionCode);
+            if (cachedOption) return Future.success(cachedOption);
+        }
+        return this.get(optionCode, "RTSL_ZEB_OS_STATUS");
+    }
+
+    getVerificationOptions(): FutureData<Option[]> {
+        return this.getOptionSetByCode("RTSL_ZEB_OS_VERIFICATION");
+    }
+
+    getVerificationOption(optionCode: Code): FutureData<Option> {
+        if (this.verificationOptions.has(optionCode)) {
+            const cachedOption = this.verificationOptions.get(optionCode);
+            if (cachedOption) return Future.success(cachedOption);
+        }
+        return this.get(optionCode, "RTSL_ZEB_OS_VERIFICATION");
     }
 
     private getOptionSetByCode(code: string): FutureData<Option[]> {
