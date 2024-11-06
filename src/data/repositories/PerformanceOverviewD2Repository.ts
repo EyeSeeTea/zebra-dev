@@ -24,8 +24,8 @@ import {
     DiseaseNames,
     PerformanceMetrics717,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
-import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
 import { OrgUnit } from "../../domain/entities/OrgUnit";
+import { AlertSynchronizationData } from "../../domain/entities/alert/AlertSynchronizationData";
 import { Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
 import { assertOrError } from "./utils/AssertOrError";

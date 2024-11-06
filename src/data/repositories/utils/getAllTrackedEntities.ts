@@ -4,12 +4,18 @@ import {
     TrackedEntitiesGetResponse,
 } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Id } from "../../../domain/entities/Ref";
+import { Maybe } from "../../../utils/ts-utils";
 
 export async function getAllTrackedEntitiesAsync(
     api: D2Api,
-    programId: Id,
-    orgUnitId: Id
+    options: {
+        programId: Id;
+        orgUnitId: Id;
+        ouMode?: "SELECTED" | "DESCENDANTS";
+        filter?: { id: string; value: Maybe<string> };
+    }
 ): Promise<D2TrackerTrackedEntity[]> {
+    const { programId, orgUnitId, ouMode, filter } = options;
     const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
     const pageSize = 250;
@@ -22,18 +28,12 @@ export async function getAllTrackedEntitiesAsync(
                 .get({
                     program: programId,
                     orgUnit: orgUnitId,
+                    ouMode: ouMode,
                     totalPages: true,
                     page: page,
                     pageSize: pageSize,
-                    fields: {
-                        attributes: true,
-                        orgUnit: true,
-                        trackedEntity: true,
-                        trackedEntityType: true,
-                        enrollments: {
-                            status: true,
-                        },
-                    },
+                    fields: fields,
+                    filter: filter ? `${filter.id}:eq:${filter.value}` : undefined,
                 })
                 .getData();
 
@@ -46,3 +46,21 @@ export async function getAllTrackedEntitiesAsync(
         return [];
     }
 }
+
+const fields = {
+    attributes: true,
+    orgUnit: true,
+    trackedEntity: true,
+    trackedEntityType: true,
+    enrollments: {
+        status: true,
+        events: {
+            createdAt: true,
+            dataValues: {
+                dataElement: true,
+                value: true,
+            },
+            event: true,
+        },
+    },
+} as const;
