@@ -10,6 +10,7 @@ import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { getIncidentManagementTeamById } from "./utils/incident-management-team/GetIncidentManagementTeamById";
 import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
 
 export class GetDiseaseOutbreakByIdUseCase {
@@ -60,25 +61,28 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.riskAssessmentRepository,
                         configurations
                     ),
-                    roles: this.options.roleRepository.getAll(),
-                }).flatMap(({ riskAssessment, roles }) => {
-                    return this.options.incidentManagementTeamRepository
-                        .getIncidentManagementTeamMember(incidentManagerName, id, roles)
-                        .flatMap(incidentManager => {
-                            const diseaseOutbreakEvent: DiseaseOutbreakEvent =
-                                new DiseaseOutbreakEvent({
-                                    ...diseaseOutbreakEventBase,
-                                    createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
-                                    mainSyndrome: mainSyndrome,
-                                    suspectedDisease: suspectedDisease,
-                                    notificationSource: notificationSource,
-                                    incidentManager: incidentManager,
-                                    riskAssessment: riskAssessment,
-                                    incidentActionPlan: undefined, //IAP is fetched on menu click. It is not needed here.
-                                    incidentManagementTeam: undefined, //IMT is fetched on menu click. It is not needed here.
-                                });
-                            return Future.success(diseaseOutbreakEvent);
-                        });
+                    incidentManagementTeam: getIncidentManagementTeamById(
+                        id,
+                        this.options,
+                        configurations
+                    ),
+                }).flatMap(({ riskAssessment, incidentManagementTeam }) => {
+                    const incidentManager = incidentManagementTeam?.teamHierarchy?.find(
+                        teamMember => teamMember.username === incidentManagerName
+                    );
+
+                    const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent({
+                        ...diseaseOutbreakEventBase,
+                        createdBy: undefined, //TO DO : FIXME populate once metadata change is done.
+                        mainSyndrome: mainSyndrome,
+                        suspectedDisease: suspectedDisease,
+                        notificationSource: notificationSource,
+                        incidentManager: incidentManager,
+                        riskAssessment: riskAssessment,
+                        incidentActionPlan: undefined, //IAP is fetched on menu click. It is not needed here.
+                        incidentManagementTeam: undefined, //IMT is fetched on menu click. It is not needed here.
+                    });
+                    return Future.success(diseaseOutbreakEvent);
                 });
             });
     }

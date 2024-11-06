@@ -16,25 +16,21 @@ type GlobalMessage = {
     type: "warning" | "success" | "error";
 };
 
-export type ProfileModalData = {
-    teamMember: TeamMember;
-    teamRole: TeamRole;
-};
-
 type State = {
     globalMessage: Maybe<GlobalMessage>;
     incidentManagementTeamHierarchyItems: Maybe<IMTeamHierarchyOption[]>;
-    selectedHierarchyItemId: string;
+    selectedHierarchyItemIds: Id[];
     onSelectHierarchyItem: (nodeId: string, selected: boolean) => void;
     goToIncidentManagementTeamRole: () => void;
     onDeleteIncidentManagementTeamMember: () => void;
     incidentManagerUser: Maybe<User>;
     lastUpdated: string;
-    openDeleteModalData: ProfileModalData | undefined;
-    onOpenDeleteModalData: (selectedHierarchyItemId: Id | undefined) => void;
+    openDeleteModalData: TeamMember[] | undefined;
+    onOpenDeleteModalData: (selectedHierarchyItemId: Id[] | undefined) => void;
     disableDeletion: boolean;
     onSearchChange: (term: string) => void;
     searchTerm: string;
+    defaultTeamRolesExpanded: Maybe<Id[]>;
 };
 
 export function useIMTeamBuilder(id: Id): State {
@@ -46,9 +42,12 @@ export function useIMTeamBuilder(id: Id): State {
     const [incidentManagementTeam, setIncidentManagementTeam] = useState<
         IncidentManagementTeam | undefined
     >();
-    const [selectedHierarchyItemId, setSelectedHierarchyItemId] = useState<string>("");
+    const [selectedHierarchyItemIds, setSelectedHierarchyItemIds] = useState<Id[]>([]);
     const [disableDeletion, setDisableDeletion] = useState(false);
-    const [openDeleteModalData, setOpenDeleteModalData] = useState<ProfileModalData | undefined>(
+    const [defaultTeamRolesExpanded, setDefaultTeamRolesExpanded] = useState<Id[] | undefined>(
+        undefined
+    );
+    const [openDeleteModalData, setOpenDeleteModalData] = useState<TeamMember[] | undefined>(
         undefined
     );
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -57,6 +56,7 @@ export function useIMTeamBuilder(id: Id): State {
         compositionRoot.incidentManagementTeam.get.execute(id, configurations).run(
             incidentManagementTeam => {
                 setIncidentManagementTeam(incidentManagementTeam);
+                setDefaultTeamRolesExpanded(getDefaultTeamRolesExpanded(incidentManagementTeam));
                 setIncidentManagementTeamHierarchyItems(
                     mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
                         incidentManagementTeam?.teamHierarchy
@@ -78,58 +78,66 @@ export function useIMTeamBuilder(id: Id): State {
     }, [getIncidentManagementTeam]);
 
     const goToIncidentManagementTeamRole = useCallback(() => {
-        if (selectedHierarchyItemId) {
+        if (selectedHierarchyItemIds.length === 1 && selectedHierarchyItemIds[0]) {
             goTo(RouteName.EDIT_FORM, {
                 formType: "incident-management-team-member-assignment",
-                id: selectedHierarchyItemId,
+                id: selectedHierarchyItemIds[0],
             });
-        } else {
+        } else if (selectedHierarchyItemIds.length === 0) {
             goTo(RouteName.CREATE_FORM, {
                 formType: "incident-management-team-member-assignment",
             });
         }
-    }, [goTo, selectedHierarchyItemId]);
+    }, [goTo, selectedHierarchyItemIds]);
 
     const onSelectHierarchyItem = useCallback(
         (nodeId: string, selected: boolean) => {
-            const selection = selected ? nodeId : "";
-            const incidentManagementTeamItemSelected = selection
-                ? incidentManagementTeam?.teamHierarchy.find(teamMember =>
-                      teamMember.teamRoles?.some(role => role.id === selection)
-                  )
-                : undefined;
+            const newSelection = selected
+                ? [...selectedHierarchyItemIds, nodeId]
+                : selectedHierarchyItemIds.filter(id => id !== nodeId);
 
-            const selectedRole = incidentManagementTeamItemSelected?.teamRoles?.find(
-                role => role.id === selection
+            const incidentManagementTeamItemsSelected =
+                incidentManagementTeam?.teamHierarchy.filter(teamMember =>
+                    teamMember.teamRoles?.some(role => newSelection.includes(role.id))
+                );
+
+            const isIncidentManagerRoleSelected = !!incidentManagementTeamItemsSelected?.some(
+                item => {
+                    return item.teamRoles?.some(role => role.roleId === INCIDENT_MANAGER_ROLE);
+                }
             );
 
-            const isIncidentManagerRoleSelected = selectedRole?.roleId === INCIDENT_MANAGER_ROLE;
+            const selectedItemsUsernames = incidentManagementTeamItemsSelected?.map(
+                ({ username }) => username
+            );
 
-            setSelectedHierarchyItemId(selection);
-            setDisableDeletion(isIncidentManagerRoleSelected);
+            const hasSomeParentReporting = !!incidentManagementTeam?.teamHierarchy.some(
+                teamMember =>
+                    teamMember.teamRoles?.some(teamRole =>
+                        selectedItemsUsernames?.includes(teamRole.reportsToUsername || "")
+                    )
+            );
+
+            setSelectedHierarchyItemIds(newSelection);
+            setDisableDeletion(isIncidentManagerRoleSelected || hasSomeParentReporting);
         },
-        [incidentManagementTeam?.teamHierarchy]
+        [incidentManagementTeam?.teamHierarchy, selectedHierarchyItemIds]
     );
 
     const onOpenDeleteModalData = useCallback(
-        (selectedHierarchyItemId: Id | undefined) => {
-            if (!selectedHierarchyItemId) {
+        (selectedHierarchyItemIds: Id[] | undefined) => {
+            if (!selectedHierarchyItemIds?.length) {
                 setOpenDeleteModalData(undefined);
             } else {
-                const incidentManagementTeamItem = incidentManagementTeam?.teamHierarchy.find(
-                    teamMember =>
-                        teamMember.teamRoles?.some(role => role.id === selectedHierarchyItemId)
-                );
+                const incidentManagementTeamItemsSelected =
+                    incidentManagementTeam?.teamHierarchy.filter(teamMember =>
+                        teamMember.teamRoles?.some(role =>
+                            selectedHierarchyItemIds.includes(role.id)
+                        )
+                    );
 
-                const selectedRole = incidentManagementTeamItem?.teamRoles?.find(
-                    role => role.id === selectedHierarchyItemId
-                );
-
-                if (incidentManagementTeamItem && selectedRole) {
-                    setOpenDeleteModalData({
-                        teamRole: selectedRole,
-                        teamMember: incidentManagementTeamItem,
-                    });
+                if (incidentManagementTeamItemsSelected) {
+                    setOpenDeleteModalData(incidentManagementTeamItemsSelected);
                 }
             }
         },
@@ -137,51 +145,41 @@ export function useIMTeamBuilder(id: Id): State {
     );
 
     const onDeleteIncidentManagementTeamMember = useCallback(() => {
-        if (disableDeletion) return;
+        if (disableDeletion || !selectedHierarchyItemIds.length) return;
 
-        const teamMember = incidentManagementTeam?.teamHierarchy.find(teamMember =>
-            teamMember.teamRoles?.some(role => role.id === selectedHierarchyItemId)
-        );
-
-        const teamRoleToDelete = teamMember?.teamRoles?.find(
-            role => role.id === selectedHierarchyItemId
-        );
-
-        if (teamMember && teamRoleToDelete) {
-            compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRole
-                .execute(teamRoleToDelete, teamMember, id)
-                .run(
-                    () => {
-                        setGlobalMessage({
-                            text: `${teamMember.name} deleted from Incident Management Team`,
-                            type: "success",
-                        });
-                        getIncidentManagementTeam();
-                        onOpenDeleteModalData(undefined);
-                    },
-                    err => {
-                        console.debug(err);
-                        setGlobalMessage({
-                            text: `Error deleting ${teamMember.name} from Incident Management Team`,
-                            type: "error",
-                        });
-                        onOpenDeleteModalData(undefined);
-                    }
-                );
-        } else {
-            setGlobalMessage({
-                text: `Error deleting team member from Incident Management Team`,
-                type: "error",
-            });
-        }
+        compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRoles
+            .execute(id, selectedHierarchyItemIds)
+            .run(
+                () => {
+                    setGlobalMessage({
+                        text: `${
+                            selectedHierarchyItemIds.length > 1 ? "Team members" : "Team member"
+                        } deleted from Incident Management Team`,
+                        type: "success",
+                    });
+                    getIncidentManagementTeam();
+                    onOpenDeleteModalData(undefined);
+                    setSelectedHierarchyItemIds([]);
+                },
+                err => {
+                    console.debug(err);
+                    setGlobalMessage({
+                        text: `Error deleting ${
+                            selectedHierarchyItemIds.length > 1 ? "team members" : "team member"
+                        } from Incident Management Team`,
+                        type: "error",
+                    });
+                    onOpenDeleteModalData(undefined);
+                    setSelectedHierarchyItemIds([]);
+                }
+            );
     }, [
-        compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRole,
+        compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRoles,
         disableDeletion,
         getIncidentManagementTeam,
         id,
-        incidentManagementTeam?.teamHierarchy,
         onOpenDeleteModalData,
-        selectedHierarchyItemId,
+        selectedHierarchyItemIds,
     ]);
 
     const incidentManagerUser = useMemo(() => {
@@ -220,7 +218,7 @@ export function useIMTeamBuilder(id: Id): State {
     return {
         globalMessage,
         incidentManagementTeamHierarchyItems,
-        selectedHierarchyItemId,
+        selectedHierarchyItemIds,
         onSelectHierarchyItem,
         goToIncidentManagementTeamRole,
         incidentManagerUser,
@@ -231,6 +229,7 @@ export function useIMTeamBuilder(id: Id): State {
         disableDeletion,
         searchTerm,
         onSearchChange,
+        defaultTeamRolesExpanded,
     };
 }
 
@@ -315,7 +314,9 @@ function filterIncidentManagementTeamHierarchy(
                 searchTerm
             );
 
-            const isMatch = item.teamRole.toLowerCase().includes(searchTerm.toLowerCase());
+            const isMatch =
+                item.teamRole.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.member?.name.toLowerCase().includes(searchTerm.toLowerCase());
 
             if (isMatch || filteredChildren.length > 0) {
                 return {
@@ -329,4 +330,12 @@ function filterIncidentManagementTeamHierarchy(
     )
         .compact()
         .toArray();
+}
+
+function getDefaultTeamRolesExpanded(incidentManagementTeam: Maybe<IncidentManagementTeam>): Id[] {
+    return (
+        incidentManagementTeam?.teamHierarchy.flatMap(teamMember => {
+            return teamMember?.teamRoles?.map(teamRole => teamRole.id) || [];
+        }) || []
+    );
 }

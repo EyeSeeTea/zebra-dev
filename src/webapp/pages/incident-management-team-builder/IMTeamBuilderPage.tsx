@@ -27,10 +27,11 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
         incidentManagerUser,
         lastUpdated,
         incidentManagementTeamHierarchyItems,
-        selectedHierarchyItemId,
+        selectedHierarchyItemIds,
         openDeleteModalData,
         disableDeletion,
         searchTerm,
+        defaultTeamRolesExpanded,
         onSearchChange,
         onSelectHierarchyItem,
         goToIncidentManagementTeamRole,
@@ -49,7 +50,9 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
             title={i18n.t("Incident Management Team Builder")}
             subtitle={getCurrentEventTracker()?.name || ""}
         >
-            <LoaderContainer loading={!incidentManagementTeamHierarchyItems}>
+            <LoaderContainer
+                loading={!incidentManagementTeamHierarchyItems || !defaultTeamRolesExpanded}
+            >
                 <UserCardContainer>
                     {incidentManagerUser && <UserCard selectedUser={incidentManagerUser} />}
                 </UserCardContainer>
@@ -58,60 +61,76 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
                     lastUpdated={lastUpdated}
                     headerButton={
                         <ButtonsContainer>
-                            <Button
-                                variant="outlined"
-                                color="secondary"
-                                startIcon={
-                                    selectedHierarchyItemId ? <IconEditItems24 /> : <IconUser24 />
-                                }
-                                onClick={goToIncidentManagementTeamRole}
-                            >
-                                {selectedHierarchyItemId
-                                    ? i18n.t("Edit Role")
-                                    : i18n.t("Assign Role")}
-                            </Button>
+                            {selectedHierarchyItemIds.length > 1 ? null : (
+                                <Button
+                                    variant="outlined"
+                                    color="secondary"
+                                    startIcon={
+                                        selectedHierarchyItemIds.length === 1 &&
+                                        selectedHierarchyItemIds[0] ? (
+                                            <IconEditItems24 />
+                                        ) : (
+                                            <IconUser24 />
+                                        )
+                                    }
+                                    onClick={goToIncidentManagementTeamRole}
+                                >
+                                    {selectedHierarchyItemIds.length === 1 &&
+                                    selectedHierarchyItemIds[0]
+                                        ? i18n.t("Edit Role")
+                                        : i18n.t("Assign Role")}
+                                </Button>
+                            )}
 
-                            {selectedHierarchyItemId && (
+                            {selectedHierarchyItemIds.length ? (
                                 <Button
                                     variant="outlined"
                                     color="secondary"
                                     disabled={disableDeletion}
                                     startIcon={<DeleteOutline />}
-                                    onClick={() => onOpenDeleteModalData(selectedHierarchyItemId)}
+                                    onClick={() => onOpenDeleteModalData(selectedHierarchyItemIds)}
                                 >
-                                    {i18n.t("Delete Role")}
+                                    {selectedHierarchyItemIds.length > 1
+                                        ? i18n.t("Delete Roles")
+                                        : i18n.t("Delete Role")}
                                 </Button>
-                            )}
+                            ) : null}
                         </ButtonsContainer>
                     }
                 >
-                    <IMTeamHierarchyView
-                        items={incidentManagementTeamHierarchyItems || []}
-                        selectedItemId={selectedHierarchyItemId}
-                        onSelectedItemChange={onSelectHierarchyItem}
-                        diseaseOutbreakEventName={getCurrentEventTracker()?.name || ""}
-                        onSearchChange={onSearchChange}
-                        searchTerm={searchTerm}
-                    />
+                    {!incidentManagementTeamHierarchyItems || !defaultTeamRolesExpanded ? null : (
+                        <IMTeamHierarchyView
+                            items={incidentManagementTeamHierarchyItems || []}
+                            selectedItemIds={selectedHierarchyItemIds}
+                            onSelectedItemChange={onSelectHierarchyItem}
+                            diseaseOutbreakEventName={getCurrentEventTracker()?.name || ""}
+                            onSearchChange={onSearchChange}
+                            searchTerm={searchTerm}
+                            defaultTeamRolesExpanded={defaultTeamRolesExpanded || []}
+                        />
+                    )}
 
                     <SimpleModal
                         open={!!openDeleteModalData}
                         onClose={() => onOpenDeleteModalData(undefined)}
-                        title={i18n.t("Delete team role")}
+                        title={i18n.t("Confirm deletion")}
                         closeLabel={i18n.t("Cancel")}
                         footerButtons={
                             <Button onClick={onDeleteIncidentManagementTeamMember}>
-                                {i18n.t("Delete Role")}
+                                {i18n.t("Delete")}
                             </Button>
                         }
                     >
                         {openDeleteModalData && (
-                            <RoleAndMemberWrapper>
-                                <RoleWrapper>{openDeleteModalData.teamRole.name}: </RoleWrapper>
-                                <MemberWrapper>
-                                    {openDeleteModalData.teamMember.name}{" "}
-                                </MemberWrapper>
-                            </RoleAndMemberWrapper>
+                            <Text>
+                                {i18n.t(
+                                    `Are you sure you want to delete ${
+                                        openDeleteModalData.length > 1
+                                            ? "these team roles"
+                                            : "this team role"
+                                    }?`
+                                )}
+                            </Text>
                         )}
                     </SimpleModal>
                 </Section>
@@ -130,19 +149,7 @@ const ButtonsContainer = styled.div`
     gap: 8px;
 `;
 
-const RoleAndMemberWrapper = styled.div`
-    display: flex;
-    align-items: center;
-    gap: 4px;
-`;
-
-const RoleWrapper = styled.div`
-    font-weight: 700;
-    font-size: 0.875rem;
-    color: ${props => props.theme.palette.common.grey900};
-`;
-
-const MemberWrapper = styled.div`
+const Text = styled.div`
     font-weight: 400;
     font-size: 0.875rem;
     color: ${props => props.theme.palette.common.grey900};

@@ -101,7 +101,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                 title: "Reports to...",
                 id: SECTION_IDS.reportsTo,
                 isVisible: true,
-                required: false,
+                required: teamRoleToAssing?.roleId !== INCIDENT_MANAGER_ROLE,
                 fields: [
                     {
                         id: incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername,
@@ -115,8 +115,8 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                             disabled: user.value === incidentManagementTeamMember?.username,
                         })),
                         value: teamRoleToAssing?.reportsToUsername || "",
-                        required: false,
-                        showIsRequired: false,
+                        required: teamRoleToAssing?.roleId !== INCIDENT_MANAGER_ROLE,
+                        showIsRequired: teamRoleToAssing?.roleId !== INCIDENT_MANAGER_ROLE,
                         disabled: false,
                     },
                 ],

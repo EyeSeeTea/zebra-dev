@@ -53,7 +53,7 @@ import { IncidentManagementTeamTestRepository } from "./data/repositories/test/I
 import { IncidentManagementTeamD2Repository } from "./data/repositories/IncidentManagementTeamD2Repository";
 import { IncidentManagementTeamRepository } from "./domain/repositories/IncidentManagementTeamRepository";
 import { GetIncidentManagementTeamByIdUseCase } from "./domain/usecases/GetIncidentManagementTeamByIdUseCase";
-import { DeleteIncidentManagementTeamMemberRoleUseCase } from "./domain/usecases/DeleteIncidentManagementTeamMemberRoleUseCase";
+import { DeleteIncidentManagementTeamMemberRolesUseCase } from "./domain/usecases/DeleteIncidentManagementTeamMemberRolesUseCase";
 import { ChartConfigRepository } from "./domain/repositories/ChartConfigRepository";
 import { GetChartConfigByTypeUseCase } from "./domain/usecases/GetChartConfigByTypeUseCase";
 import { ChartConfigTestRepository } from "./data/repositories/test/ChartConfigTestRepository";
@@ -115,8 +115,8 @@ function getCompositionRoot(repositories: Repositories) {
         },
         incidentManagementTeam: {
             get: new GetIncidentManagementTeamByIdUseCase(repositories),
-            deleteIncidentManagementTeamMemberRole:
-                new DeleteIncidentManagementTeamMemberRoleUseCase(repositories),
+            deleteIncidentManagementTeamMemberRoles:
+                new DeleteIncidentManagementTeamMemberRolesUseCase(repositories),
         },
         performanceOverview: {
             getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
