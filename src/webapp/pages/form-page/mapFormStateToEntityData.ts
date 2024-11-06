@@ -557,9 +557,6 @@ function mapFormStateToIncidentResponseAction(
             const dueDate = allFields.find(field =>
                 field.id.includes(`${responseActionConstants.dueDate}_${index}`)
             )?.value as Date;
-            const timeLine = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.timeLine}_${index}`)
-            )?.value as string;
 
             const searchAssignROValue = allFields.find(field =>
                 field.id.includes(`${responseActionConstants.searchAssignRO}_${index}`)
@@ -589,7 +586,6 @@ function mapFormStateToIncidentResponseAction(
                 subActivities: subActivities,
                 subPillar: subPillar,
                 dueDate: dueDate,
-                timeLine: timeLine,
                 searchAssignRO: searchAssignRO,
                 status: status.id as Status,
                 verification: verification.id as Verification,
