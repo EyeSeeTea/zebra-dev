@@ -1,4 +1,4 @@
-import i18n from "@eyeseetea/feedback-component/locales";
+import i18n from "../../../utils/i18n";
 import { Code, Ref } from "../Ref";
 import { Struct } from "../generic/Struct";
 import { Either } from "../generic/Either";
