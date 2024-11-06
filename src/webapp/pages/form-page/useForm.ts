@@ -23,6 +23,7 @@ import {
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
     text: string;
@@ -65,12 +66,21 @@ export function useForm(formType: FormType, id?: Id): State {
     const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
+    const [currentEventTrackerState, setCurrentEventTrackerState] =
+        useState<Maybe<DiseaseOutbreakEvent>>();
     const currentEventTracker = getCurrentEventTracker();
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
     useCheckWritePermission(formType);
     const snackbar = useSnackbar();
 
     useEffect(() => {
+        if (
+            currentEventTrackerState &&
+            currentEventTracker &&
+            currentEventTrackerState.id === currentEventTracker.id
+        )
+            return;
+
         compositionRoot.getConfigurableForm
             .execute(formType, currentEventTracker, configurations, id)
             .run(
@@ -81,6 +91,7 @@ export function useForm(formType: FormType, id?: Id): State {
                         kind: "loaded",
                         data: mapEntityToFormState(formData, !!id, existingEventTrackerTypes),
                     });
+                    setCurrentEventTrackerState(currentEventTracker);
                 },
                 error => {
                     setFormState({
@@ -91,6 +102,7 @@ export function useForm(formType: FormType, id?: Id): State {
                         text: i18n.t(`An error occurred while loading form: ${error.message}`),
                         type: "error",
                     });
+                    setCurrentEventTrackerState(currentEventTracker);
                 }
             );
     }, [
@@ -102,6 +114,7 @@ export function useForm(formType: FormType, id?: Id): State {
         existingEventTrackerTypes,
         snackbar,
         goTo,
+        currentEventTrackerState,
     ]);
 
     const handleAddNew = useCallback(() => {
