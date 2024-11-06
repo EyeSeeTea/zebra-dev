@@ -17,6 +17,7 @@ import {
 import { Option } from "../../components/utils/option";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import _c from "../../../domain/entities/generic/Collection";
 
 export type IncidentActionFormSummaryData = {
     subTitle: string;
@@ -190,17 +191,20 @@ const mapIncidentResponseActionToTableRows = (
     incidentActionPlan: Maybe<IncidentActionPlan>
 ): TableRowType[] => {
     if (incidentActionPlan) {
-        return incidentActionPlan.responseActions.map(responseAction => ({
-            id: responseAction.id,
-            mainTask: responseAction.mainTask,
-            subActivities: responseAction.subActivities,
-            subPillar: responseAction.subPillar,
-            searchAssignRO: responseAction.searchAssignRO?.username ?? "",
-            status: getStatusTypeByCode(responseAction.status) ?? "",
-            verification: getVerificationTypeByCode(responseAction.verification) ?? "",
-            timeLine: formatQuarterString(responseAction.dueDate),
-            dueDate: responseAction.dueDate.toISOString(),
-        }));
+        return _c(incidentActionPlan.responseActions)
+            .map(responseAction => ({
+                id: responseAction.id,
+                mainTask: responseAction.mainTask,
+                subActivities: responseAction.subActivities,
+                subPillar: responseAction.subPillar,
+                searchAssignRO: responseAction.searchAssignRO?.username ?? "",
+                status: getStatusTypeByCode(responseAction.status) ?? "",
+                verification: getVerificationTypeByCode(responseAction.verification) ?? "",
+                timeLine: formatQuarterString(responseAction.dueDate),
+                dueDate: responseAction.dueDate.toISOString(),
+            }))
+            .reverse()
+            .value();
     } else {
         return [];
     }
