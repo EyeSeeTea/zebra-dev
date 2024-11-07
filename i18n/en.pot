@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-11-06T08:33:45.167Z\n"
-"PO-Revision-Date: 2024-11-06T08:33:45.167Z\n"
+"POT-Creation-Date: 2024-11-07T10:01:24.520Z\n"
+"PO-Revision-Date: 2024-11-07T10:01:24.520Z\n"
 
 msgid "Low"
 msgstr ""
@@ -103,6 +103,9 @@ msgid "Edit Profile"
 msgstr ""
 
 msgid "Currently assigned:"
+msgstr ""
+
+msgid "Error loading current Incident Management Team"
 msgstr ""
 
 msgid "Create Event"
@@ -216,10 +219,13 @@ msgstr ""
 msgid "Incident Action Plan"
 msgstr ""
 
-msgid "Incident Management Team Builder"
+msgid "Team"
 msgstr ""
 
 msgid "Edit Role"
+msgstr ""
+
+msgid "Incident Management Team Builder"
 msgstr ""
 
 msgid "Assign Role"
