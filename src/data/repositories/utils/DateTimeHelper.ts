@@ -53,7 +53,7 @@ const getQuarter = (month: number): number => Math.ceil((month + 1) / 3);
 
 export function formatQuarterString(date: Date): string {
     const year = date.getFullYear();
-    const month = date.toLocaleString("default", { month: "long" });
+    const month = date.toLocaleString("default", { month: "short" });
     const quarter = getQuarter(date.getMonth());
 
     return `Qtr ${quarter}, ${month} ${year}`;

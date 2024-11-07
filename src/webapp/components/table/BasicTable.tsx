@@ -45,6 +45,8 @@ interface BasicTableProps {
     onOrderBy?: (direction: "asc" | "desc") => void;
 }
 
+const sortableColumnLabels = ["Assessment Date", "Due date"];
+
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
     ({ columns, rows, onChange = noop, showRowIndex = false, onOrderBy }) => {
         const [order, setOrder] = useState<"asc" | "desc">();
@@ -61,7 +63,7 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                     <TableRow>
                         {showRowIndex && <TableCell />}
                         {columns.map(({ value, label }) =>
-                            label === "Assessment Date" ? (
+                            sortableColumnLabels.includes(label) ? (
                                 <TableCell key={value} sortDirection={order}>
                                     <TableSortLabel
                                         direction={order}
