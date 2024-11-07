@@ -71,6 +71,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     notes: Maybe<string>;
 };
 
+// NOTICE: in the future, refactor to use DiseaseOutbreakEventAggregateRoot instead of this entity
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     createdBy: Maybe<TeamMember>;
     mainSyndrome: Maybe<NamedRef>;
