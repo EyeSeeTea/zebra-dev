@@ -88,19 +88,15 @@ export function useIMTeamBuilder(diseaseOutbreakEventId: Id): State {
                 }
             );
 
-            const selectedItemsUsernames = incidentManagementTeamItemsSelected?.map(
-                ({ username }) => username
-            );
-
-            const hasSomeParentReporting = !!incidentManagementTeam?.teamHierarchy.some(
-                teamMember =>
-                    teamMember.teamRoles?.some(teamRole =>
-                        selectedItemsUsernames?.includes(teamRole.reportsToUsername || "")
-                    )
+            const areAllParentsAndAllChildrenSelected = checkIfParentsAndAllChildrenSelected(
+                newSelection,
+                incidentManagementTeam?.teamHierarchy
             );
 
             setSelectedHierarchyItemIds(newSelection);
-            setDisableDeletion(isIncidentManagerRoleSelected || hasSomeParentReporting);
+            setDisableDeletion(
+                isIncidentManagerRoleSelected || !areAllParentsAndAllChildrenSelected
+            );
         },
         [
             incidentManagementTeam?.teamHierarchy,
@@ -197,4 +193,49 @@ export function useIMTeamBuilder(diseaseOutbreakEventId: Id): State {
         constactTableColumns,
         constactTableRows,
     };
+}
+
+function checkIfParentsAndAllChildrenSelected(
+    teamRoleSelection: Id[],
+    incidentManagementTeamHierarchy: Maybe<TeamMember[]>
+): boolean {
+    if (!incidentManagementTeamHierarchy) return true;
+
+    const selectedItemsInTeamHierarchy = incidentManagementTeamHierarchy
+        .map(teamMember => ({
+            ...teamMember,
+            teamRoles: teamMember.teamRoles?.filter(teamRole =>
+                teamRoleSelection.includes(teamRole.id)
+            ),
+        }))
+        .filter(teamMember => teamMember.teamRoles?.length);
+
+    const allTeamRoleChildrenIdsByParentId = getAllTeamRoleChildrenIdsByParentTeamRoleId(
+        incidentManagementTeamHierarchy
+    );
+
+    return selectedItemsInTeamHierarchy.every(teamMember => {
+        const teamRoleChildrenIds = allTeamRoleChildrenIdsByParentId.get(teamMember.username);
+        return (
+            !teamRoleChildrenIds ||
+            teamRoleChildrenIds.every(childId => {
+                return teamRoleSelection.includes(childId);
+            })
+        );
+    });
+}
+
+function getAllTeamRoleChildrenIdsByParentTeamRoleId(teamMembers: TeamMember[]): Map<string, Id[]> {
+    return teamMembers.reduce((acc, teamMember) => {
+        return (
+            teamMember.teamRoles?.reduce((innerAcc, teamRole) => {
+                const parentTeamRoleId = teamRole.reportsToUsername;
+                if (parentTeamRoleId) {
+                    const existingChildren = innerAcc.get(parentTeamRoleId) || [];
+                    innerAcc.set(parentTeamRoleId, [...existingChildren, teamRole.id]);
+                }
+                return innerAcc;
+            }, acc) || acc
+        );
+    }, new Map<string, Id[]>());
 }
