@@ -70,7 +70,8 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
                                 component={NavLink}
                                 to={
                                     value === RouteName.EVENT_TRACKER ||
-                                    value === RouteName.IM_TEAM_BUILDER
+                                    value === RouteName.IM_TEAM_BUILDER ||
+                                    value === RouteName.INCIDENT_ACTION_PLAN
                                         ? routes[value].replace(
                                               ":id",
                                               getCurrentEventTracker()?.id || ""
