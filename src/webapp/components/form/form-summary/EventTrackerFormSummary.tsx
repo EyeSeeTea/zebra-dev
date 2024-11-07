@@ -13,45 +13,32 @@ import { FormSummaryData } from "../../../pages/event-tracker/useDiseaseOutbreak
 import { Maybe } from "../../../../utils/ts-utils";
 import { FormType } from "../../../pages/form-page/FormPage";
 import { Id } from "../../../../domain/entities/Ref";
-import { useAppContext } from "../../../contexts/app-context";
+import { GlobalMessage } from "../../../pages/form-page/useForm";
 
 export type EventTrackerFormSummaryProps = {
     id: Id;
     formType: FormType;
     formSummary: Maybe<FormSummaryData>;
-    summaryError: Maybe<string>;
+    globalMessage: Maybe<GlobalMessage>;
+    onOpenModal: () => void;
 };
 
 const ROW_COUNT = 3;
 
 export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = React.memo(props => {
-    const { compositionRoot } = useAppContext();
-    const { id, formType, formSummary, summaryError } = props;
+    const { id, formType, formSummary, onOpenModal: onCompleteClick, globalMessage } = props;
     const { goTo } = useRoutes();
     const snackbar = useSnackbar();
 
     useEffect(() => {
-        if (!summaryError) return;
+        if (!globalMessage) return;
 
-        snackbar.error(summaryError);
-        goTo(RouteName.DASHBOARD);
-    }, [summaryError, snackbar, goTo]);
+        snackbar[globalMessage.type](globalMessage.text);
+    }, [globalMessage, snackbar]);
 
     const onEditClick = useCallback(() => {
         goTo(RouteName.EDIT_FORM, { formType: formType, id: id });
     }, [formType, goTo, id]);
-
-    const onCompleteClick = useCallback(() => {
-        compositionRoot.diseaseOutbreakEvent.complete.execute(id).run(
-            () => {
-                snackbar.success(i18n.t("Event completed"));
-            },
-            err => {
-                snackbar.error(i18n.t(`Failed to complete event: ${err.message}`));
-                console.error(err);
-            }
-        );
-    }, [compositionRoot, id, snackbar]);
 
     const editButton = (
         <Button
