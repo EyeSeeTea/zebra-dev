@@ -210,12 +210,12 @@ function checkIfParentsAndAllChildrenSelected(
         }))
         .filter(teamMember => teamMember.teamRoles?.length);
 
-    const allTeamRoleChildrenIdsByParentId = getAllTeamRoleChildrenIdsByParentTeamRoleId(
+    const allTeamRoleChildrenIdsByParentUsername = getAllTeamRoleChildrenIdsByParentUsername(
         incidentManagementTeamHierarchy
     );
 
     return selectedItemsInTeamHierarchy.every(teamMember => {
-        const teamRoleChildrenIds = allTeamRoleChildrenIdsByParentId.get(teamMember.username);
+        const teamRoleChildrenIds = allTeamRoleChildrenIdsByParentUsername.get(teamMember.username);
         return (
             !teamRoleChildrenIds ||
             teamRoleChildrenIds.every(childId => {
@@ -225,14 +225,14 @@ function checkIfParentsAndAllChildrenSelected(
     });
 }
 
-function getAllTeamRoleChildrenIdsByParentTeamRoleId(teamMembers: TeamMember[]): Map<string, Id[]> {
+function getAllTeamRoleChildrenIdsByParentUsername(teamMembers: TeamMember[]): Map<string, Id[]> {
     return teamMembers.reduce((acc, teamMember) => {
         return (
             teamMember.teamRoles?.reduce((innerAcc, teamRole) => {
-                const parentTeamRoleId = teamRole.reportsToUsername;
-                if (parentTeamRoleId) {
-                    const existingChildren = innerAcc.get(parentTeamRoleId) || [];
-                    innerAcc.set(parentTeamRoleId, [...existingChildren, teamRole.id]);
+                const parentUsername = teamRole.reportsToUsername;
+                if (parentUsername) {
+                    const existingChildren = innerAcc.get(parentUsername) || [];
+                    innerAcc.set(parentUsername, [...existingChildren, teamRole.id]);
                 }
                 return innerAcc;
             }, acc) || acc

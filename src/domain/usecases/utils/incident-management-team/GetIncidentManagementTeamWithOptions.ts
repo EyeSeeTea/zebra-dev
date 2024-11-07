@@ -51,6 +51,8 @@ export function getIncidentManagementTeamWithOptions(
             labels: {
                 errors: {
                     field_is_required: "This field is required",
+                    cannot_create_cyclycal_dependency:
+                        "Cannot depend on itself in the team hierarchy",
                 },
             },
             rules: [
@@ -61,6 +63,14 @@ export function getIncidentManagementTeamWithOptions(
                         incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername,
                     ],
                     sectionsWithFieldsToDisableOption: [SECTION_IDS.reportsTo],
+                },
+                {
+                    type: "disableFieldOptionWithSameFieldValue",
+                    fieldId: incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername,
+                    fieldIdsToDisableOption: [
+                        incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned,
+                    ],
+                    sectionsWithFieldsToDisableOption: [SECTION_IDS.teamMemberAssigned],
                 },
             ],
         };
