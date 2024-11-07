@@ -11,6 +11,7 @@ import { RiskAssessmentRepository } from "../repositories/RiskAssessmentReposito
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
 import { RoleRepository } from "../repositories/RoleRepository";
+import { Configurations } from "../entities/AppConfigurations";
 
 export class SaveEntityUseCase {
     constructor(
@@ -24,7 +25,10 @@ export class SaveEntityUseCase {
         }
     ) {}
 
-    public execute(formData: ConfigurableForm): FutureData<void | Id> {
+    public execute(
+        formData: ConfigurableForm,
+        configurations: Configurations
+    ): FutureData<void | Id> {
         if (!formData || !formData.entity) return Future.error(new Error("No form data found"));
         switch (formData.type) {
             case "disease-outbreak-event":
@@ -36,7 +40,8 @@ export class SaveEntityUseCase {
                         teamMemberRepository: this.options.teamMemberRepository,
                         roleRepository: this.options.roleRepository,
                     },
-                    formData.entity
+                    formData.entity,
+                    configurations
                 );
             case "risk-assessment-grading":
             case "risk-assessment-summary":
@@ -83,7 +88,8 @@ export class SaveEntityUseCase {
                                         teamMemberRepository: this.options.teamMemberRepository,
                                         roleRepository: this.options.roleRepository,
                                     },
-                                    updatedDiseaseOutbreakEvent
+                                    updatedDiseaseOutbreakEvent,
+                                    configurations
                                 );
                             } else {
                                 return Future.success(undefined);

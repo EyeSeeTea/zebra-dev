@@ -20,10 +20,7 @@ export const Chart: React.FC<ChartProps> = React.memo(props => {
 
     const { id } = useChart(chartType, chartKey);
 
-    const chartUrl =
-        chartType === "risk-assessment-history"
-            ? `${api.baseUrl}/dhis-web-event-visualizer/?id=${id}`
-            : `${api.baseUrl}/dhis-web-data-visualizer/#/${id}`;
+    const chartUrl = `${api.baseUrl}/dhis-web-data-visualizer/#/${id}`;
 
     return (
         <LoaderContainer loading={!id}>

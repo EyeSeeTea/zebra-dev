@@ -54,8 +54,6 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         mainSyndromeCode: fromMap("mainSyndrome"),
         suspectedDiseaseCode: fromMap("suspectedDisease"),
         notificationSourceCode: fromMap("notificationSource"),
-        areasAffectedProvinceIds: getMultipleOUFromText(fromMap("areasAffectedProvinces")),
-        areasAffectedDistrictIds: getMultipleOUFromText(fromMap("areasAffectedDistricts")),
         incidentStatus: incidentStatus,
         emerged: {
             date: new Date(fromMap("emergedDate")),
@@ -96,11 +94,6 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
     };
 
     return diseaseOutbreak;
-}
-
-function getMultipleOUFromText(text: string): string[] {
-    //TO DO : FIXME handle multiple provinces when metadata change is done
-    return [text].filter(ou => ou !== "");
 }
 
 export function mapDiseaseOutbreakEventToTrackedEntityAttributes(

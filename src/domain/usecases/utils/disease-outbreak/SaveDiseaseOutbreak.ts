@@ -1,5 +1,6 @@
 import { FutureData } from "../../../../data/api-futures";
 import { INCIDENT_MANAGER_ROLE } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { Configurations } from "../../../entities/AppConfigurations";
 import { DiseaseOutbreakEventBaseAttrs } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
 import { Role } from "../../../entities/incident-management-team/Role";
@@ -17,13 +18,18 @@ export function saveDiseaseOutbreak(
         teamMemberRepository: TeamMemberRepository;
         roleRepository: RoleRepository;
     },
-    diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs,
+    configurations: Configurations
 ): FutureData<Id> {
     return repositories.diseaseOutbreakEventRepository
         .save(diseaseOutbreakEvent)
         .flatMap((diseaseOutbreakId: Id) => {
             const diseaseOutbreakEventWithId = { ...diseaseOutbreakEvent, id: diseaseOutbreakId };
-            return saveIncidentManagerTeamMemberRole(repositories, diseaseOutbreakEventWithId);
+            return saveIncidentManagerTeamMemberRole(
+                repositories,
+                diseaseOutbreakEventWithId,
+                configurations
+            );
         });
 }
 
@@ -31,15 +37,13 @@ function saveIncidentManagerTeamMemberRole(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
-        teamMemberRepository: TeamMemberRepository;
         roleRepository: RoleRepository;
     },
-    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
+    configurations: Configurations
 ): FutureData<Id> {
-    return Future.joinObj({
-        roles: repositories.roleRepository.getAll(),
-        teamMembers: repositories.teamMemberRepository.getAll(),
-    }).flatMap(({ roles, teamMembers }) => {
+    return repositories.roleRepository.getAll().flatMap(roles => {
+        const teamMembers = configurations.teamMembers.all;
         return repositories.incidentManagementTeamRepository
             .get(diseaseOutbreakEventBaseAttrs.id, teamMembers, roles)
             .flatMap(incidentManagementTeam => {
@@ -84,7 +88,6 @@ function changeIncidentManager(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
-        teamMemberRepository: TeamMemberRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
     oldIncidentManager: TeamMember,
@@ -138,7 +141,6 @@ function createNewIncidentManager(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
-        teamMemberRepository: TeamMemberRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
     teamMembers: TeamMember[],

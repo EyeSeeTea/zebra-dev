@@ -31,14 +31,14 @@ export type FormSummaryData = {
     notes: string;
 };
 export function useDiseaseOutbreakEvent(id: Id) {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, configurations } = useAppContext();
     const [formSummary, setFormSummary] = useState<FormSummaryData>();
     const [summaryError, setSummaryError] = useState<string>();
     const [riskAssessmentRows, setRiskAssessmentRows] = useState<TableRowType[]>([]);
     const [eventTrackerDetails, setEventTrackerDetails] = useState<DiseaseOutbreakEvent>();
 
     useEffect(() => {
-        compositionRoot.diseaseOutbreakEvent.get.execute(id).run(
+        compositionRoot.diseaseOutbreakEvent.get.execute(id, configurations).run(
             diseaseOutbreakEvent => {
                 setFormSummary(mapDiseaseOutbreakEventToFormSummary(diseaseOutbreakEvent));
                 setRiskAssessmentRows(
@@ -51,7 +51,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
                 setSummaryError(`Event tracker with id: ${id} does not exist`);
             }
         );
-    }, [compositionRoot.diseaseOutbreakEvent.get, id]);
+    }, [compositionRoot.diseaseOutbreakEvent.get, configurations, id]);
 
     const mapDiseaseOutbreakEventToFormSummary = (
         diseaseOutbreakEvent: DiseaseOutbreakEvent

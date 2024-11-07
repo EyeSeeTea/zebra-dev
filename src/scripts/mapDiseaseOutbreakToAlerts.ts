@@ -12,7 +12,6 @@ import {
 import _ from "../domain/entities/generic/Collection";
 import { AlertD2Repository } from "../data/repositories/AlertD2Repository";
 import { NotificationD2Repository } from "../data/repositories/NotificationD2Repository";
-import { OptionsD2Repository } from "../data/repositories/OptionsD2Repository";
 import { Future } from "../domain/entities/generic/Future";
 import { getTEAttributeById, getUserGroupByCode } from "../data/repositories/utils/MetadataHelper";
 import { NotifyWatchStaffUseCase } from "../domain/usecases/NotifyWatchStaffUseCase";
@@ -29,6 +28,7 @@ import { FutureData } from "../data/api-futures";
 import { Alert } from "../domain/entities/alert/Alert";
 import { AlertOptions } from "../domain/repositories/AlertRepository";
 import { Option } from "../domain/entities/Ref";
+import { ConfigurationsD2Repository } from "../data/repositories/ConfigurationsD2Repository";
 
 //TO DO : Fetch from metadata on app load
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
@@ -66,16 +66,15 @@ function main() {
             const alertRepository = new AlertD2Repository(api);
             const alertSyncRepository = new AlertSyncDataStoreRepository(api);
             const notificationRepository = new NotificationD2Repository(api);
-            const optionsRepository = new OptionsD2Repository(api);
-
+            const configurationsRepository = new ConfigurationsD2Repository(api);
             const notifyWatchStaffUseCase = new NotifyWatchStaffUseCase(notificationRepository);
 
             return Future.joinObj({
                 alertTrackedEntities: getAlertTrackedEntities(),
-                hazardTypes: optionsRepository.getHazardTypesByCode(),
-                suspectedDiseases: optionsRepository.getSuspectedDiseases(),
+                appConfig: configurationsRepository.getSelectableOptions(),
             }).run(
-                ({ alertTrackedEntities, hazardTypes, suspectedDiseases }) => {
+                ({ alertTrackedEntities, appConfig }) => {
+                    const { hazardTypes, suspectedDiseases } = appConfig.eventTrackerConfigurations;
                     const alertsWithNoEventId =
                         getAlertsWithNoNationalEventId(alertTrackedEntities);
 

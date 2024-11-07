@@ -29,7 +29,7 @@ export type UIIncidentActionOptions = {
 };
 
 export function useIncidentActionPlan(id: Id) {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, configurations: appConfiguration } = useAppContext();
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
 
     const [incidentAction, setIncidentAction] = useState<Option[] | undefined>();
@@ -86,7 +86,7 @@ export function useIncidentActionPlan(id: Id) {
     }, [incidentActionOptions, saveTableOption]);
 
     useEffect(() => {
-        compositionRoot.incidentActionPlan.get.execute(id).run(
+        compositionRoot.incidentActionPlan.get.execute(id, appConfiguration).run(
             incidentActionPlan => {
                 const incidentActionExists = !!incidentActionPlan?.actionPlan?.id;
                 const incidentActionOptions = incidentActionPlan?.incidentActionOptions;
@@ -110,7 +110,7 @@ export function useIncidentActionPlan(id: Id) {
                 setGlobalMessage(`Event tracker with id: ${id} does not exist`);
             }
         );
-    }, [compositionRoot, id, changeCurrentEventTracker, getCurrentEventTracker]);
+    }, [compositionRoot, id, changeCurrentEventTracker, getCurrentEventTracker, appConfiguration]);
 
     return {
         incidentActionExists: incidentActionExists,

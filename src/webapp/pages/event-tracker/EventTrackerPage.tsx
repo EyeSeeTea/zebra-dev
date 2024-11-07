@@ -66,8 +66,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     );
 
     useEffect(() => {
-        if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
-    }, [changeCurrentEventTrackerId, eventTrackerDetails, id]);
+        if (eventTrackerDetails) {
+            changeCurrentEventTrackerId(eventTrackerDetails);
+        }
+    }, [changeCurrentEventTrackerId, eventTrackerDetails]);
 
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
