@@ -1,5 +1,5 @@
 import { D2Api, MetadataPick } from "../../types/d2-api";
-import { TeamMember } from "../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../domain/entities/TeamMember";
 import { Id } from "../../domain/entities/Ref";
 import { TeamMemberRepository } from "../../domain/repositories/TeamMemberRepository";
 import { apiToFuture, FutureData } from "../api-futures";

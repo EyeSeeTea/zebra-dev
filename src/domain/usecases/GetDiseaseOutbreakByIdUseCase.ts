@@ -1,7 +1,9 @@
 import { FutureData } from "../../data/api-futures";
+import { Maybe } from "../../utils/ts-utils";
 import { Configurations } from "../entities/AppConfigurations";
 import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
+import { TeamMember, TeamRole } from "../entities/TeamMember";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
@@ -33,7 +35,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                     incidentManagerName,
                 } = diseaseOutbreakEventBase;
 
-                const { selectableOptions } = configurations;
+                const { selectableOptions, teamMembers, roles } = configurations;
 
                 const mainSyndrome =
                     selectableOptions.eventTrackerConfigurations.mainSyndromes.find(
@@ -57,15 +59,37 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.riskAssessmentRepository,
                         configurations
                     ),
-                    incidentManagementTeam: getIncidentManagementTeamById(
-                        id,
-                        configurations,
-                        this.options
-                    ),
+                    incidentManagementTeam: getIncidentManagementTeamById(id, this.options),
                 }).flatMap(({ riskAssessment, incidentManagementTeam }) => {
                     const incidentManager = incidentManagementTeam?.teamHierarchy?.find(
                         teamMember => teamMember.username === incidentManagerName
                     );
+
+                    const teamRoles: TeamRole[] | undefined = incidentManager?.teamRoles
+                        ? incidentManager.teamRoles.map((teamRole): TeamRole => {
+                              const role = roles.find(role => role.id === teamRole.roleId);
+                              return {
+                                  id: teamRole.id,
+                                  diseaseOutbreakId: id,
+                                  roleId: teamRole.roleId,
+                                  reportsToUsername: teamRole.reportsToUsername,
+                                  name: role?.name || "",
+                              };
+                          })
+                        : undefined;
+
+                    const incidentManagerTeamMemberWithoutRoles =
+                        teamMembers.incidentManagers?.find(teamMember => {
+                            return teamMember.username === incidentManagerName;
+                        });
+
+                    const incidentManagerTeamMember: Maybe<TeamMember> =
+                        incidentManagerTeamMemberWithoutRoles
+                            ? new TeamMember({
+                                  ...incidentManagerTeamMemberWithoutRoles,
+                                  teamRoles: teamRoles,
+                              })
+                            : undefined;
 
                     const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent({
                         ...diseaseOutbreakEventBase,
@@ -73,7 +97,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                         mainSyndrome: mainSyndrome,
                         suspectedDisease: suspectedDisease,
                         notificationSource: notificationSource,
-                        incidentManager: incidentManager,
+                        incidentManager: incidentManagerTeamMember,
                         riskAssessment: riskAssessment,
                         incidentActionPlan: undefined, //IAP is fetched on menu click. It is not needed here.
                         incidentManagementTeam: undefined, //IMT is fetched on menu click. It is not needed here.

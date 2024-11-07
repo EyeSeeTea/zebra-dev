@@ -1,6 +1,6 @@
-import { Maybe } from "../../../utils/ts-utils";
-import { Id, NamedRef } from "../Ref";
-import { Struct } from "../generic/Struct";
+import { Maybe } from "../../utils/ts-utils";
+import { Id, NamedRef } from "./Ref";
+import { Struct } from "./generic/Struct";
 
 type PhoneNumber = string;
 type Email = string;

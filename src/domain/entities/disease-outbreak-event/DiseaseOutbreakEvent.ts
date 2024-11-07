@@ -1,11 +1,11 @@
 import { Struct } from "../generic/Struct";
 import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
-import { IncidentManagementTeam } from "../incident-management-team/IncidentManagementTeam";
-import { TeamMember } from "../incident-management-team/TeamMember";
+import { TeamMember } from "../TeamMember";
 import { Code, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
+import { IncidentManagementTeamInAggregateRoot } from "./DiseaseOutbreakEventAggregateRoot";
 
 export const hazardTypes = [
     "Biological:Human",
@@ -79,7 +79,7 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     incidentManager: Maybe<TeamMember>; //TO DO : make mandatory once form rules applied.
     riskAssessment: Maybe<RiskAssessment>;
     incidentActionPlan: Maybe<IncidentActionPlan>;
-    incidentManagementTeam: Maybe<IncidentManagementTeam>;
+    incidentManagementTeam: Maybe<IncidentManagementTeamInAggregateRoot>;
 };
 
 /**

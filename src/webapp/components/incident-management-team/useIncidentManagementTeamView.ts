@@ -8,11 +8,11 @@ import { Maybe } from "../../../utils/ts-utils";
 import { Id } from "../../../domain/entities/Ref";
 import { useAppContext } from "../../contexts/app-context";
 import { IMTeamHierarchyOption } from "../im-team-hierarchy/IMTeamHierarchyView";
-import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
-import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
+import { IncidentManagementTeam } from "./IncidentManagementTeam";
+import { TeamMember, TeamRole } from "../../../domain/entities/TeamMember";
 import { TableColumn, TableRowType } from "../table/BasicTable";
 import { IncidentManagementTeamInAggregateRoot } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
-import { Role } from "../../../domain/entities/incident-management-team/Role";
+import { Role } from "../../../domain/entities/Role";
 
 type State = {
     incidentManagementTeamHierarchyItems: Maybe<IMTeamHierarchyOption[]>;
@@ -297,8 +297,9 @@ function buildIncidentManagementTeam(
         .compact()
         .toArray();
 
-    return new IncidentManagementTeam({
+    const incidentManagementTeam: IncidentManagementTeam = {
         teamHierarchy: imTeamMembers,
         lastUpdated: diseaseOutbreakEventIncidentManagementTeam.lastUpdated,
-    });
+    };
+    return incidentManagementTeam;
 }

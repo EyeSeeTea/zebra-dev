@@ -1,8 +1,10 @@
 import { FutureData } from "../../data/api-futures";
 import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { DiseaseOutbreakEventAggregateRoot } from "../entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
-import { IncidentManagementTeam } from "../entities/incident-management-team/IncidentManagementTeam";
-import { TeamMember, TeamRole } from "../entities/incident-management-team/TeamMember";
+import {
+    DiseaseOutbreakEventAggregateRoot,
+    IncidentManagementTeamInAggregateRoot,
+} from "../entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
+import { TeamMember, TeamRole } from "../entities/TeamMember";
 import { Id } from "../entities/Ref";
 
 export interface DiseaseOutbreakEventRepository {
@@ -10,9 +12,8 @@ export interface DiseaseOutbreakEventRepository {
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]>;
     save(diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<Id>;
     getIncidentManagementTeam(
-        diseaseOutbreakId: Id,
-        teamMembers: TeamMember[]
-    ): FutureData<IncidentManagementTeam>;
+        diseaseOutbreakId: Id
+    ): FutureData<IncidentManagementTeamInAggregateRoot>;
     saveIncidentManagementTeamMemberRole(
         teamMemberRole: TeamRole,
         incidentManagementTeamMember: TeamMember,

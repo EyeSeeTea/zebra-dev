@@ -2,8 +2,12 @@ import { FutureData } from "../../../../data/api-futures";
 import { INCIDENT_MANAGER_ROLE } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { Configurations } from "../../../entities/AppConfigurations";
 import { DiseaseOutbreakEventBaseAttrs } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    IncidentManagementTeamMember,
+    IncidentManagementTeamRole,
+} from "../../../entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 import { Future } from "../../../entities/generic/Future";
-import { TeamMember, TeamRole } from "../../../entities/incident-management-team/TeamMember";
+import { TeamMember, TeamRole } from "../../../entities/TeamMember";
 import { Id } from "../../../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
 
@@ -35,7 +39,7 @@ function saveIncidentManagerTeamMemberRole(
 ): FutureData<Id> {
     const teamMembers = configurations.teamMembers.all;
     return repositories.diseaseOutbreakEventRepository
-        .getIncidentManagementTeam(diseaseOutbreakEventBaseAttrs.id, teamMembers)
+        .getIncidentManagementTeam(diseaseOutbreakEventBaseAttrs.id)
         .flatMap(incidentManagementTeam => {
             const incidentManagerTeamMemberFound = incidentManagementTeam?.teamHierarchy?.find(
                 teamMember =>
@@ -77,8 +81,8 @@ function changeIncidentManager(
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
-    oldIncidentManager: TeamMember,
-    oldIncidentManagerTeamRole: TeamRole,
+    oldIncidentManager: IncidentManagementTeamMember,
+    oldIncidentManagerTeamRole: IncidentManagementTeamRole,
     teamMembers: TeamMember[]
 ): FutureData<Id> {
     if (oldIncidentManager.username !== diseaseOutbreakEventBaseAttrs.incidentManagerName) {

@@ -1,7 +1,7 @@
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { ConfigurableForm } from "../../../../domain/entities/ConfigurableForm";
 import { DiseaseOutbreakEvent } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { IncidentManagementTeam } from "../../../../domain/entities/incident-management-team/IncidentManagementTeam";
+import { DiseaseOutbreakEventAggregateRoot } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 import { ValidationError } from "../../../../domain/entities/ValidationError";
 import { FormFieldState } from "../../../components/form/FormFieldsState";
 import { getFieldValueByIdFromSections } from "../../../components/form/FormSectionsState";
@@ -80,7 +80,7 @@ function validateFormState(
                 incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned
             ) as string | undefined;
 
-            return IncidentManagementTeam.validateNotCyclicalDependency(
+            return DiseaseOutbreakEventAggregateRoot.validateNotCyclicalDependencyInIncidentManagementTeam(
                 teamMemberAssigned,
                 reportsToUsername,
                 configurableForm?.currentIncidentManagementTeam?.teamHierarchy || [],

@@ -17,11 +17,9 @@ import { getProgramStage, getProgramTEAsMetadata } from "./utils/MetadataHelper"
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
-import { TeamMember, TeamRole } from "../../domain/entities/incident-management-team/TeamMember";
-import { IncidentManagementTeam } from "../../domain/entities/incident-management-team/IncidentManagementTeam";
+import { TeamMember, TeamRole } from "../../domain/entities/TeamMember";
 import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import {
-    mapD2EventsToIncidentManagementTeam,
     mapD2EventsToIncidentManagementTeamInAggregateRoot,
     mapIncidentManagementTeamMemberToD2Event,
 } from "./utils/IncidentManagementTeamMapper";
@@ -142,50 +140,9 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     }
 
     getIncidentManagementTeam(
-        diseaseOutbreakId: Id,
-        teamMembers: TeamMember[]
-    ): FutureData<IncidentManagementTeam> {
-        return getProgramStage(
-            this.api,
-            RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID
-        )
-            .flatMap(incidentManagementTeamBuilderResponse =>
-                assertOrError(
-                    incidentManagementTeamBuilderResponse.objects[0],
-                    `Incident management team builder program stage not found`
-                )
-            )
-            .flatMap(programStageDataElementsMetadata => {
-                return apiToFuture(
-                    this.api.tracker.events.get({
-                        program: RTSL_ZEBRA_PROGRAM_ID,
-                        orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                        trackedEntity: diseaseOutbreakId,
-                        programStage: RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID,
-                        fields: {
-                            dataValues: {
-                                dataElement: dataElementFields,
-                                value: true,
-                            },
-                            trackedEntity: true,
-                            event: true,
-                        },
-                    })
-                )
-                    .flatMap(response =>
-                        assertOrError(response.instances, `Incident management team not found`)
-                    )
-                    .flatMap(d2Events => {
-                        return Future.success(
-                            mapD2EventsToIncidentManagementTeam(
-                                diseaseOutbreakId,
-                                d2Events,
-                                teamMembers,
-                                programStageDataElementsMetadata.programStageDataElements
-                            )
-                        );
-                    });
-            });
+        diseaseOutbreakId: Id
+    ): FutureData<IncidentManagementTeamInAggregateRoot> {
+        return this.getIncidentManagementTeamInAggregateRoot(diseaseOutbreakId);
     }
 
     saveIncidentManagementTeamMemberRole(

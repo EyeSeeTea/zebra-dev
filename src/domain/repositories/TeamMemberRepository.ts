@@ -1,5 +1,5 @@
 import { FutureData } from "../../data/api-futures";
-import { TeamMember } from "../entities/incident-management-team/TeamMember";
+import { TeamMember } from "../entities/TeamMember";
 import { Id } from "../entities/Ref";
 
 export interface TeamMemberRepository {

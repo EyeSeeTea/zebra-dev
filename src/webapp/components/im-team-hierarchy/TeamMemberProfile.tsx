@@ -4,7 +4,7 @@ import { Link } from "@material-ui/core";
 import { IconEditItems24 } from "@dhis2/ui";
 
 import i18n from "../../../utils/i18n";
-import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/TeamMember";
 import { ProfileModal } from "../profile-modal/ProfileModal";
 import { useAppContext } from "../../contexts/app-context";
 import { Button } from "../button/Button";

@@ -4,10 +4,12 @@ import {
     DiseaseOutbreakEventBaseAttrs,
     NationalIncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { DiseaseOutbreakEventAggregateRoot } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
+import {
+    DiseaseOutbreakEventAggregateRoot,
+    IncidentManagementTeamInAggregateRoot,
+} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 import { Future } from "../../../domain/entities/generic/Future";
-import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
-import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember, TeamRole } from "../../../domain/entities/TeamMember";
 import { Id } from "../../../domain/entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/DiseaseOutbreakEventRepository";
 import { FutureData } from "../../api-futures";
@@ -127,11 +129,10 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
     }
 
     getIncidentManagementTeam(
-        _diseaseOutbreakId: Id,
-        _teamMembers: TeamMember[]
-    ): FutureData<IncidentManagementTeam> {
+        _diseaseOutbreakId: Id
+    ): FutureData<IncidentManagementTeamInAggregateRoot> {
         return Future.success(
-            new IncidentManagementTeam({
+            new IncidentManagementTeamInAggregateRoot({
                 teamHierarchy: [],
                 lastUpdated: new Date(),
             })

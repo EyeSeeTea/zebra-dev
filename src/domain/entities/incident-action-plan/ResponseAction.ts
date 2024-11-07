@@ -1,7 +1,7 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { Id } from "../Ref";
 import { Struct } from "../generic/Struct";
-import { TeamMember } from "../incident-management-team/TeamMember";
+import { TeamMember } from "../TeamMember";
 
 export type ResponseActionStatusType = "Not done" | "Pending" | "In Progress" | "Complete";
 export type ResponseActionVerificationType = "Verified" | "Unverified";

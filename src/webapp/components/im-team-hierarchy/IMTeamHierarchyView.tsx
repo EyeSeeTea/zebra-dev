@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { ArrowDropDown, ArrowRight } from "@material-ui/icons";
 
 import { Maybe } from "../../../utils/ts-utils";
-import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/TeamMember";
 import { IMTeamHierarchyItem } from "./IMTeamHierarchyItem";
 import { Id } from "../../../domain/entities/Ref";
 import { SearchInput } from "../search-input/SearchInput";

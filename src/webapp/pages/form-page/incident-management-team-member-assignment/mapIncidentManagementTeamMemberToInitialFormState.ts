@@ -7,6 +7,7 @@ import {
     INCIDENT_MANAGER_ROLE,
     incidentManagementTeamBuilderCodesWithoutRoles,
 } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { TeamMember, TeamRole } from "../../../../domain/entities/TeamMember";
 
 export const TEAM_ROLE_FIELD_ID = "team-role-field";
 export const SECTION_IDS = {
@@ -34,9 +35,35 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
     );
     const teamMemberOptions: User[] = teamMembers.map(tm => mapTeamMemberToUser(tm));
     const incidentManagerOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
+
     const currentIncidentManagementTeamOptions: User[] = (
         currentIncidentManagementTeam?.teamHierarchy || []
-    ).map(tm => mapTeamMemberToUser(tm));
+    )
+        .map(tm => {
+            const teamRoles: TeamRole[] | undefined = tm?.teamRoles
+                ? tm.teamRoles.map((teamRole): TeamRole => {
+                      const role = roles.find(role => role.id === teamRole.roleId);
+                      return {
+                          id: teamRole.id,
+                          diseaseOutbreakId: eventTrackerDetails.id,
+                          roleId: teamRole.roleId,
+                          reportsToUsername: teamRole.reportsToUsername,
+                          name: role?.name || "",
+                      };
+                  })
+                : undefined;
+
+            const teamMemberSelectedWithoutRoles = teamMembers?.find(teamMember => {
+                return teamMember.username === tm?.username;
+            });
+
+            const teamMember = teamMemberSelectedWithoutRoles
+                ? new TeamMember({ ...teamMemberSelectedWithoutRoles, teamRoles })
+                : undefined;
+            return teamMember ? mapTeamMemberToUser(teamMember) : undefined;
+        })
+        .filter((user): user is User => user !== undefined);
+
     const teamRoleToAssing = incidentManagementTeamMember?.teamRoles?.find(
         teamRole => teamRole.id === incidentManagementTeamRoleId
     );

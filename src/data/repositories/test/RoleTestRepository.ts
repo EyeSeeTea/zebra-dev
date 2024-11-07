@@ -1,5 +1,5 @@
 import { Future } from "../../../domain/entities/generic/Future";
-import { Role } from "../../../domain/entities/incident-management-team/Role";
+import { Role } from "../../../domain/entities/Role";
 import { RoleRepository } from "../../../domain/repositories/RoleRepository";
 import { FutureData } from "../../api-futures";
 

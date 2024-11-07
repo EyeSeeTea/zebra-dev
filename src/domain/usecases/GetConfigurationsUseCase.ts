@@ -1,8 +1,8 @@
 import { FutureData } from "../../data/api-futures";
 import { Configurations, SelectableOptions } from "../entities/AppConfigurations";
 import { Future } from "../entities/generic/Future";
-import { Role } from "../entities/incident-management-team/Role";
-import { TeamMember } from "../entities/incident-management-team/TeamMember";
+import { Role } from "../entities/Role";
+import { TeamMember } from "../entities/TeamMember";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { RoleRepository } from "../repositories/RoleRepository";

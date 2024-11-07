@@ -1,5 +1,5 @@
 import { Maybe } from "../../utils/ts-utils";
-import { TeamMember } from "./incident-management-team/TeamMember";
+import { TeamMember } from "./TeamMember";
 import { Id, Option } from "./Ref";
 import { Rule } from "./Rule";
 import {
@@ -12,8 +12,8 @@ import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
 import { RiskAssessmentQuestionnaire } from "./risk-assessment/RiskAssessmentQuestionnaire";
 import { ActionPlanAttrs } from "./incident-action-plan/ActionPlan";
 import { ResponseAction } from "./incident-action-plan/ResponseAction";
-import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
-import { Role } from "./incident-management-team/Role";
+import { Role } from "./Role";
+import { IncidentManagementTeamInAggregateRoot } from "./disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -124,7 +124,7 @@ export type IncidentManagementTeamMemberFormData = BaseFormData & {
     eventTrackerDetails: DiseaseOutbreakEvent;
     entity: Maybe<TeamMember>;
     incidentManagementTeamRoleId: Maybe<Id>;
-    currentIncidentManagementTeam: Maybe<IncidentManagementTeam>;
+    currentIncidentManagementTeam: Maybe<IncidentManagementTeamInAggregateRoot>;
     options: IncidentManagementTeamRoleOptions;
 };
 

@@ -1,5 +1,5 @@
 import { Future } from "../../../domain/entities/generic/Future";
-import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/TeamMember";
 import { Id } from "../../../domain/entities/Ref";
 import { TeamMemberRepository } from "../../../domain/repositories/TeamMemberRepository";
 import { FutureData } from "../../api-futures";

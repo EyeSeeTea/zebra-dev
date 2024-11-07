@@ -6,8 +6,8 @@ import {
     RiskAssessmentQuestionnaireOptions,
     RiskAssessmentSummaryOptions,
 } from "./ConfigurableForm";
-import { Role } from "./incident-management-team/Role";
-import { TeamMember } from "./incident-management-team/TeamMember";
+import { Role } from "./Role";
+import { TeamMember } from "./TeamMember";
 
 import {
     LowPopulationAtRisk,
