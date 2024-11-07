@@ -42,7 +42,7 @@ export const TeamSection: React.FC<TeamSectionProps> = React.memo(props => {
                     startIcon={<IconEditItems24 />}
                     onClick={goToIncidentManagementTeamBuilder}
                 >
-                    {i18n.t("Edit Role")}
+                    {i18n.t("Edit Team")}
                 </Button>
             }
             titleVariant="secondary"
