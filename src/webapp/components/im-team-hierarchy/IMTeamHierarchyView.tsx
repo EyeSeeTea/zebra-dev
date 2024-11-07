@@ -8,6 +8,7 @@ import { TeamMember } from "../../../domain/entities/incident-management-team/Te
 import { IMTeamHierarchyItem } from "./IMTeamHierarchyItem";
 import { Id } from "../../../domain/entities/Ref";
 import { SearchInput } from "../search-input/SearchInput";
+import i18n from "../../../utils/i18n";
 
 export type IMTeamHierarchyOption = {
     id: Id;
@@ -45,6 +46,16 @@ export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.mem
         <IMTeamHierarchyViewContainer>
             <ContentWrapper>
                 <SearchInput value={searchTerm} onChange={onSearchChange} />
+                {isSelectable && searchTerm && selectedItemIds && selectedItemIds?.length > 0 ? (
+                    <CountSelectionText>
+                        {i18n.t(
+                            `{{count}} selected ${selectedItemIds.length > 1 ? "items" : "item"}`,
+                            {
+                                count: selectedItemIds.length,
+                            }
+                        )}
+                    </CountSelectionText>
+                ) : null}
                 <StyledIMTeamHierarchyView
                     disableSelection
                     defaultCollapseIcon={<ArrowDropDown />}
@@ -92,5 +103,12 @@ const StyledIMTeamHierarchyView = styled(TreeViewMUI)`
 const ContentWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    /* gap: 8px; */
+`;
+
+const CountSelectionText = styled.span`
+    margin-block-start: 10px;
+    font-weight: 400;
+    font-size: 0.875rem;
+    color: ${props => props.theme.palette.common.grey900};
 `;

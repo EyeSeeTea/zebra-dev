@@ -72,8 +72,8 @@ export function useIncidentManagementTeamView(id: Id): State {
 
             if (incidentManagementTeamHierarchyItems) {
                 const filteredIncidentManagementTeamHierarchyItems = term
-                    ? filterIncidentManagementTeamHierarchy(
-                          incidentManagementTeamHierarchyItems,
+                    ? filterAndGetFlattenIMTeamHierarchyOptions(
+                          incidentManagementTeam?.teamHierarchy,
                           term
                       )
                     : mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
@@ -110,33 +110,31 @@ export function useIncidentManagementTeamView(id: Id): State {
         getIncidentManagementTeam,
     };
 }
+function createHierarchyItem(item: TeamMember, teamRole: TeamRole): IMTeamHierarchyOption {
+    return {
+        id: teamRole.id,
+        teamRole: teamRole.name,
+        teamRoleId: teamRole.roleId,
+        member: new TeamMember({
+            id: item.id,
+            name: item.name,
+            username: item.username,
+            phone: item.phone,
+            email: item.email,
+            status: item.status,
+            photo: item.photo,
+            teamRoles: item.teamRoles,
+            workPosition: item.workPosition,
+        }),
+        parent: teamRole.reportsToUsername,
+        children: [],
+    };
+}
 
 function getTeamRolesMap(
     incidentManagementTeamHierarchy: Maybe<TeamMember[]>
 ): Record<Id, IMTeamHierarchyOption> | undefined {
     if (incidentManagementTeamHierarchy) {
-        const createHierarchyItem = (
-            item: TeamMember,
-            teamRole: TeamRole
-        ): IMTeamHierarchyOption => ({
-            id: teamRole.id,
-            teamRole: teamRole.name,
-            teamRoleId: teamRole.roleId,
-            member: new TeamMember({
-                id: item.id,
-                name: item.name,
-                username: item.username,
-                phone: item.phone,
-                email: item.email,
-                status: item.status,
-                photo: item.photo,
-                teamRoles: item.teamRoles,
-                workPosition: item.workPosition,
-            }),
-            parent: teamRole.reportsToUsername,
-            children: [],
-        });
-
         return incidentManagementTeamHierarchy.reduce<Record<string, IMTeamHierarchyOption>>(
             (map, item) => {
                 const hierarchyItems = item.teamRoles?.map(teamRole =>
@@ -189,33 +187,29 @@ function buildTree(teamMap: Record<string, IMTeamHierarchyOption>): IMTeamHierar
     }, []);
 }
 
-function filterIncidentManagementTeamHierarchy(
-    items: IMTeamHierarchyOption[],
+function filterAndGetFlattenIMTeamHierarchyOptions(
+    incidentManagementTeamHierarchy: Maybe<TeamMember[]>,
     searchTerm: string
 ): IMTeamHierarchyOption[] {
-    return _c(
-        items.map(item => {
-            const filteredChildren = filterIncidentManagementTeamHierarchy(
-                item.children,
-                searchTerm
-            );
+    if (incidentManagementTeamHierarchy) {
+        return incidentManagementTeamHierarchy.flatMap((teamMember): IMTeamHierarchyOption[] => {
+            const hierarchyItems: IMTeamHierarchyOption[] =
+                teamMember.teamRoles
+                    ?.map((teamRole): IMTeamHierarchyOption | undefined => {
+                        const isMatch =
+                            teamRole.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            teamMember?.name.toLowerCase().includes(searchTerm.toLowerCase());
 
-            const isMatch =
-                item.teamRole.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.member?.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-            if (isMatch || filteredChildren.length > 0) {
-                return {
-                    ...item,
-                    children: filteredChildren,
-                };
-            }
-
-            return null;
-        })
-    )
-        .compact()
-        .toArray();
+                        if (isMatch) {
+                            return createHierarchyItem(teamMember, teamRole);
+                        }
+                    })
+                    ?.filter((item): item is IMTeamHierarchyOption => !!item) || [];
+            return hierarchyItems || [];
+        }, {});
+    } else {
+        return [];
+    }
 }
 
 function getDefaultTeamRolesExpanded(incidentManagementTeam: Maybe<IncidentManagementTeam>): Id[] {
