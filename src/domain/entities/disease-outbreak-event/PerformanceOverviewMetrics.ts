@@ -78,5 +78,5 @@ export type PerformanceMetrics717 = {
     id: string;
     name: string;
     type: "primary" | "secondary";
-    value?: number;
+    value?: number | "Inc";
 };

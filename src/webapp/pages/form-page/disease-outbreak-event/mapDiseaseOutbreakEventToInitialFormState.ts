@@ -8,6 +8,10 @@ import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
+import {
+    DiseaseNames,
+    HazardNames,
+} from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -27,15 +31,15 @@ export const diseaseOutbreakEventFieldIds = {
     notifiedNarrative: "notifiedNarrative",
     initiateInvestigation: "initiateInvestigation",
     conductEpidemiologicalAnalysis: "conductEpidemiologicalAnalysis",
-    laboratoryConfirmationDate: "laboratoryConfirmationDate",
-    laboratoryConfirmationNA: "laboratoryConfirmationNA",
+    laboratoryConfirmation: "laboratoryConfirmation",
     appropriateCaseManagementDate: "appropriateCaseManagementDate",
     appropriateCaseManagementNA: "appropriateCaseManagementNA",
     initiatePublicHealthCounterMeasuresDate: "initiatePublicHealthCounterMeasuresDate",
     initiatePublicHealthCounterMeasuresNA: "initiatePublicHealthCounterMeasuresNA",
     initiateRiskCommunicationDate: "initiateRiskCommunicationDate",
     initiateRiskCommunicationNA: "initiateRiskCommunicationNA",
-    establishCoordination: "establishCoordination",
+    establishCoordinationNa: "establishCoordinationNa",
+    establishCoordinationDate: "establishCoordinationDate",
     responseNarrative: "responseNarrative",
     incidentManagerName: "incidentManagerName",
     notes: "notes",
@@ -83,7 +87,8 @@ type ResponseActionsSubsectionKeys =
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapDiseaseOutbreakEventToInitialFormState(
     diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
-    editMode: boolean
+    editMode: boolean,
+    existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
 ): FormState {
     const { entity: diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
     const {
@@ -96,13 +101,21 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         incidentStatus,
     } = options;
 
-    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
+    //If An Event Tracker has already been created for a given suspected disease or harzd type,
+    //then do not allow to create another one. Remove it from dropwdown options
+    const filteredHazardTypes = hazardTypes.filter(hazardType => {
+        return !existingEventTrackerTypes.includes(hazardType.name as HazardNames);
+    });
+    const filteredSuspectedDiseases = suspectedDiseases.filter(suspectedDisease => {
+        return !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames);
+    });
 
+    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
     const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
-    const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
+    const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(filteredHazardTypes);
     const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
     const suspectedDiseasesOptions: PresentationOption[] =
-        mapToPresentationOptions(suspectedDiseases);
+        mapToPresentationOptions(filteredSuspectedDiseases);
     const notificationSourcesOptions: PresentationOption[] =
         mapToPresentationOptions(notificationSources);
     const incidentStatusOptions: PresentationOption[] = mapToPresentationOptions(incidentStatus);
@@ -163,31 +176,16 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: fromIdsDictionary("laboratoryConfirmationDate"),
+                    id: fromIdsDictionary("laboratoryConfirmation"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
                     type: "date",
                     value:
-                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.date ||
-                        null,
+                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation || null,
                     width: "200px",
-                    hasNotApplicable: true,
                     required: true,
                     showIsRequired: false,
-                    disabled: diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.na,
-                },
-                {
-                    id: fromIdsDictionary("laboratoryConfirmationNA"),
-                    label: i18n.t("N/A"),
-                    isVisible: true,
-                    errors: [],
-                    type: "boolean",
-                    value:
-                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.na ||
-                        false,
-                    width: "65px",
-                    notApplicableFieldId: fromIdsDictionary("laboratoryConfirmationDate"),
                 },
             ],
         },
@@ -309,15 +307,31 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: fromIdsDictionary("establishCoordination"),
+                    id: fromIdsDictionary("establishCoordinationDate"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
                     type: "date",
-                    value: diseaseOutbreakEvent?.earlyResponseActions.establishCoordination || null,
+                    value:
+                        diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.date ||
+                        null,
                     width: "200px",
+                    hasNotApplicable: true,
                     required: true,
                     showIsRequired: false,
+                    disabled: diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.na,
+                },
+                {
+                    id: fromIdsDictionary("establishCoordinationNa"),
+                    label: i18n.t("N/A"),
+                    isVisible: true,
+                    errors: [],
+                    type: "boolean",
+                    value:
+                        diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.na ||
+                        false,
+                    width: "65px",
+                    notApplicableFieldId: fromIdsDictionary("establishCoordinationDate"),
                 },
             ],
         },

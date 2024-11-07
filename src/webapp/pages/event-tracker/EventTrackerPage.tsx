@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Box, Button } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
-
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { FormSummary } from "../../components/form/form-summary/FormSummary";
@@ -45,13 +44,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { goTo } = useRoutes();
     const { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails } =
         useDiseaseOutbreakEvent(id);
-    const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
-        useCurrentEventTracker();
+    const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
-
     const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
-
     const { dateRangeFilter } = useMapFilters();
 
     const goToRiskSummaryForm = useCallback(() => {
@@ -67,9 +63,9 @@ export const EventTrackerPage: React.FC = React.memo(() => {
 
     useEffect(() => {
         if (eventTrackerDetails) {
-            changeCurrentEventTrackerId(eventTrackerDetails);
+            changeCurrentEventTracker(eventTrackerDetails);
         }
-    }, [changeCurrentEventTrackerId, eventTrackerDetails]);
+    }, [changeCurrentEventTracker, eventTrackerDetails]);
 
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>

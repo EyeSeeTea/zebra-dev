@@ -5,6 +5,7 @@ import { FiltersConfig, TableColumn } from "../../components/table/statistic-tab
 import { Maybe } from "../../../utils/ts-utils";
 import { PerformanceOverviewMetrics } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { NationalIncidentStatus } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 
 type State = {
     columns: TableColumn[];
@@ -27,28 +28,7 @@ export function usePerformanceOverview(): State {
     >([]);
     const [isLoading, setIsLoading] = useState(false);
     const [order, setOrder] = useState<Order>();
-
-    useEffect(() => {
-        if (dataPerformanceOverview.length && order) {
-            setDataPerformanceOverview(
-                (prevDataPerformanceOverview: PerformanceOverviewMetrics[]) => {
-                    const newDataPerformanceOverview = _(prevDataPerformanceOverview)
-                        .orderBy([
-                            [
-                                item =>
-                                    Number.isNaN(Number(item[order.name]))
-                                        ? item[order.name]
-                                        : Number(item[order.name]),
-                                order.direction,
-                            ],
-                        ])
-                        .toArray();
-
-                    return newDataPerformanceOverview;
-                }
-            );
-        }
-    }, [order, dataPerformanceOverview]);
+    const { changeExistingEventTrackerTypes } = useExistingEventTrackerTypes();
 
     const getNationalIncidentStatusString = useCallback((status: string): string => {
         switch (status as NationalIncidentStatus) {
@@ -77,12 +57,39 @@ export function usePerformanceOverview(): State {
         },
         [getNationalIncidentStatusString]
     );
+
+    useEffect(() => {
+        if (dataPerformanceOverview.length && order) {
+            setDataPerformanceOverview(
+                (prevDataPerformanceOverview: PerformanceOverviewMetrics[]) => {
+                    const newDataPerformanceOverview = _(prevDataPerformanceOverview)
+                        .orderBy([
+                            [
+                                item =>
+                                    Number.isNaN(Number(item[order.name]))
+                                        ? item[order.name]
+                                        : Number(item[order.name]),
+                                order.direction,
+                            ],
+                        ])
+                        .toArray();
+
+                    return newDataPerformanceOverview;
+                }
+            );
+        }
+    }, [order, dataPerformanceOverview]);
+
     useEffect(() => {
         setIsLoading(true);
         compositionRoot.performanceOverview.getPerformanceOverviewMetrics.execute().run(
-            programIndicators => {
-                const mappedData = programIndicators.map((data: PerformanceOverviewMetrics) =>
-                    mapEntityToTableData(data)
+            performanceOverviewMetrics => {
+                const existingEventTrackerTypes = performanceOverviewMetrics.map(
+                    metric => metric.suspectedDisease || metric.hazardType
+                );
+                changeExistingEventTrackerTypes(existingEventTrackerTypes);
+                const mappedData = performanceOverviewMetrics.map(
+                    (data: PerformanceOverviewMetrics) => mapEntityToTableData(data)
                 );
                 setDataPerformanceOverview(mappedData);
                 setIsLoading(false);
@@ -92,7 +99,11 @@ export function usePerformanceOverview(): State {
                 setIsLoading(false);
             }
         );
-    }, [compositionRoot.performanceOverview.getPerformanceOverviewMetrics, mapEntityToTableData]);
+    }, [
+        changeExistingEventTrackerTypes,
+        compositionRoot.performanceOverview.getPerformanceOverviewMetrics,
+        mapEntityToTableData,
+    ]);
 
     const columns: TableColumn[] = [
         { label: "Event", value: "event" },

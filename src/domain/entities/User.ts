@@ -7,11 +7,19 @@ export interface UserAttrs {
     username: string;
     userRoles: UserRole[];
     userGroups: NamedRef[];
+    hasCaptureAccess: boolean;
 }
 
 export interface UserRole extends NamedRef {
     authorities: string[];
 }
+export type AppDatastoreConfig = {
+    userGroups: {
+        visualizer: string[];
+        capture: string[];
+        admin: string[];
+    };
+};
 
 export class User extends Struct<UserAttrs>() {
     belongToUserGroup(userGroupUid: string): boolean {

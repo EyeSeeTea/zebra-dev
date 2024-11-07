@@ -17,6 +17,7 @@ import { HeaderBar } from "../../components/layout/header-bar/HeaderBar";
 import { D2Api } from "../../../types/d2-api";
 import "./App.css";
 import { CurrentEventTrackerContextProvider } from "../../contexts/CurrentEventTrackerProvider";
+import { ExistingEventTrackerTypesProvider } from "../../contexts/ExistingEventTrackerTypes";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
@@ -73,7 +74,9 @@ function App(props: AppProps) {
                         <div id="app" className="content">
                             <AppContext.Provider value={appContext}>
                                 <CurrentEventTrackerContextProvider>
-                                    <Router />
+                                    <ExistingEventTrackerTypesProvider>
+                                        <Router />
+                                    </ExistingEventTrackerTypesProvider>
                                 </CurrentEventTrackerContextProvider>
                             </AppContext.Provider>
                         </div>

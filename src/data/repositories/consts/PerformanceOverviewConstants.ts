@@ -58,7 +58,7 @@ export const PERFORMANCE_METRICS_717_IDS: PerformanceMetrics717[] = [
     { id: "ZX0uPp3ik81", name: "response", type: "secondary" }, // # events response action started 1 day
 
     { id: "bs4E7tV8QRN", name: "allTargets", type: "primary" }, // % num of alerts detected within 7d date emergence
-    { id: "dr4OT0ql4cl", name: "allTargets", type: "secondary" },
+    { id: "NHP4GvI0O3J", name: "allTargets", type: "secondary" },
 ];
 
 export const EVENT_TRACKER_717_IDS: PerformanceMetrics717[] = [

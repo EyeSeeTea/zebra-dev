@@ -66,8 +66,7 @@ export const diseaseOutbreakCodes = {
     notifiedNarrative: "RTSL_ZEB_TEA_DATE_NOTIFIED_NARRATIVE",
     initiateInvestigation: "RTSL_ZEB_TEA_INITIATE_INVESTIGATION",
     conductEpidemiologicalAnalysis: "RTSL_ZEB_TEA_CONDUCT_EPIDEMIOLOGICAL_ANALYSIS",
-    laboratoryConfirmationNA: "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION_NA",
-    laboratoryConfirmationDate: "RTSL_ZEB_TEA_SPECIFY_DATE1",
+    laboratoryConfirmation: "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION_NA",
     appropriateCaseManagementNA: "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT_NA",
     appropriateCaseManagementDate: "RTSL_ZEB_TEA_SPECIFY_DATE2",
     initiatePublicHealthCounterMeasuresNA: "RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH_NA",
@@ -75,7 +74,8 @@ export const diseaseOutbreakCodes = {
     initiateRiskCommunicationNA: "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION_NA",
     initiateRiskCommunicationDate: "RTSL_ZEB_TEA_SPECIFY_DATE4",
     earliestRespondDate: "RTSL_ZEB_TEA_EARLIEST_RESPOND_DATE",
-    establishCoordination: "RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM",
+    establishCoordinationNA: "RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM",
+    establishCoordinationDate: "RTSL_ZEB_TEA_SPECIFY_DATE5",
     responseNarrative: "RTSL_ZEB_TEA_RESPONSE_NARRATIVE",
     incidentManager: "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER",
     notes: "RTSL_ZEB_TEA_NOTES",
@@ -99,10 +99,10 @@ export function getValueFromDiseaseOutbreak(
         diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.getTime(),
         diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis.getTime(),
         diseaseOutbreak.earlyResponseActions.initiateInvestigation.getTime(),
-        diseaseOutbreak.earlyResponseActions.establishCoordination.getTime(),
+        diseaseOutbreak.earlyResponseActions.establishCoordination.date?.getTime(),
         diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.getTime(),
         diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.getTime(),
-        diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date?.getTime(),
+        diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.getTime(),
     ])
         .compact()
         .value();
@@ -132,11 +132,8 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_CONDUCT_EPIDEMIOLOGICAL_ANALYSIS: getDateAsIsoString(
             diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis
         ),
-        RTSL_ZEB_TEA_LABORATORY_CONFIRMATION_NA: getNaValue(
-            diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.na
-        ),
-        RTSL_ZEB_TEA_SPECIFY_DATE1: getDateAsIsoString(
-            diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.date
+        RTSL_ZEB_TEA_LABORATORY_CONFIRMATION_NA: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.laboratoryConfirmation
         ),
         RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT_NA: getNaValue(
             diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.na
@@ -158,8 +155,11 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_SPECIFY_DATE4: getDateAsIsoString(
             diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date
         ),
-        RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM: getDateAsIsoString(
-            diseaseOutbreak.earlyResponseActions.establishCoordination
+        RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM: getNaValue(
+            diseaseOutbreak.earlyResponseActions.establishCoordination.na
+        ),
+        RTSL_ZEB_TEA_SPECIFY_DATE5: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.establishCoordination.date
         ),
         RTSL_ZEB_TEA_EARLIEST_RESPOND_DATE: getDateAsIsoString(earliestRespondDate),
         RTSL_ZEB_TEA_RESPONSE_NARRATIVE: diseaseOutbreak.earlyResponseActions.responseNarrative,

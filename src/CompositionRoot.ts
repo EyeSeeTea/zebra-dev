@@ -143,7 +143,7 @@ function getCompositionRoot(repositories: Repositories) {
 export function getWebappCompositionRoot(api: D2Api) {
     const dataStoreClient = new DataStoreClient(api);
     const repositories: Repositories = {
-        usersRepository: new UserD2Repository(api),
+        usersRepository: new UserD2Repository(api, dataStoreClient),
         diseaseOutbreakEventRepository: new DiseaseOutbreakEventD2Repository(api),
         alertRepository: new AlertD2Repository(api),
         alertSyncRepository: new AlertSyncDataStoreRepository(api),

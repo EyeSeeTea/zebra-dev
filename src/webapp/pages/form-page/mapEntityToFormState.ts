@@ -1,4 +1,8 @@
 import { ConfigurableForm } from "../../../domain/entities/ConfigurableForm";
+import {
+    DiseaseNames,
+    HazardNames,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../../domain/entities/Ref";
 import { FormState } from "../../components/form/FormState";
@@ -18,11 +22,16 @@ import {
 
 export function mapEntityToFormState(
     configurableForm: ConfigurableForm,
-    editMode?: boolean
+    editMode?: boolean,
+    existingEventTrackerTypes?: (DiseaseNames | HazardNames)[]
 ): FormState {
     switch (configurableForm.type) {
         case "disease-outbreak-event":
-            return mapDiseaseOutbreakEventToInitialFormState(configurableForm, editMode ?? false);
+            return mapDiseaseOutbreakEventToInitialFormState(
+                configurableForm,
+                editMode ?? false,
+                existingEventTrackerTypes ?? []
+            );
         case "risk-assessment-grading":
             return mapRiskGradingToInitialFormState(configurableForm);
         case "risk-assessment-summary":

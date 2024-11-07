@@ -507,12 +507,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
                 if (!indicator) throw new Error(`Unknown Indicator with id ${id} `);
 
-                if (!value) {
-                    return undefined;
-                }
                 return {
                     ...indicator,
-                    value: parseFloat(value),
+                    value: value ? parseFloat(value) : ("Inc" as const),
                     type: indicator.type,
                 };
             })
@@ -610,8 +607,10 @@ function filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
     rows: string[][],
     headers: { name: string; column: string }[]
 ): string[] | undefined {
-    return rows.filter(row => {
+    const filteredRows = rows.filter(row => {
         const teiId = row[headers.findIndex(header => header.name === "tei")];
         return teiId === diseaseOutbreakEventId;
     })[0];
+
+    return filteredRows;
 }

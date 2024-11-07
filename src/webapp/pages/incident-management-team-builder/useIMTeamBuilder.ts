@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
@@ -42,7 +41,6 @@ type State = {
 export function useIMTeamBuilder(id: Id): State {
     const { compositionRoot, configurations } = useAppContext();
     const { goTo } = useRoutes();
-
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [incidentManagementTeamHierarchyItems, setIncidentManagementTeamHierarchyItems] =
         useState<IMTeamHierarchyOption[] | undefined>();

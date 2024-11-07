@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import i18n from "../../../utils/i18n";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { Section } from "../../components/section/Section";
@@ -22,6 +22,12 @@ export const ResponseActionTable: React.FC<ResponseActionTableProps> = React.mem
         const { icon: responseActionIcon, label: responseActionLabel } =
             getResponseActionTableLabel(responseActionRows);
 
+        const goToCreateResponseAction = useCallback(() => {
+            goTo(RouteName.CREATE_FORM, {
+                formType: "incident-response-action",
+            });
+        }, [goTo]);
+
         return (
             <Section
                 title="Response Actions"
@@ -31,11 +37,7 @@ export const ResponseActionTable: React.FC<ResponseActionTableProps> = React.mem
                         variant="outlined"
                         color="secondary"
                         startIcon={responseActionIcon}
-                        onClick={() => {
-                            goTo(RouteName.CREATE_FORM, {
-                                formType: "incident-response-action",
-                            });
-                        }}
+                        onClick={goToCreateResponseAction}
                     >
                         {i18n.t(responseActionLabel)}
                     </Button>
