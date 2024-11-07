@@ -15,6 +15,8 @@ import {
     IncidentActionPlan,
 } from "../../../domain/entities/incident-action-plan/IncidentActionPlan";
 import { Option } from "../../components/utils/option";
+import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
+import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type IncidentActionFormSummaryData = {
     subTitle: string;
@@ -28,6 +30,7 @@ export type UIIncidentActionOptions = {
 
 export function useIncidentActionPlan(id: Id) {
     const { compositionRoot } = useAppContext();
+    const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
 
     const [incidentAction, setIncidentAction] = useState<Option[] | undefined>();
     const [actionPlanSummary, setActionPlanSummary] = useState<IncidentActionFormSummaryData>();
@@ -87,7 +90,15 @@ export function useIncidentActionPlan(id: Id) {
             incidentActionPlan => {
                 const incidentActionExists = !!incidentActionPlan?.actionPlan?.id;
                 const incidentActionOptions = incidentActionPlan?.incidentActionOptions;
+                const currentEventTracker = getCurrentEventTracker();
+                if (incidentActionExists && currentEventTracker) {
+                    const updatedEventTracker = new DiseaseOutbreakEvent({
+                        ...currentEventTracker,
+                        incidentActionPlan: incidentActionPlan,
+                    });
 
+                    changeCurrentEventTracker(updatedEventTracker);
+                }
                 setIncidentActionExists(incidentActionExists);
                 setIncidentActionOptions(mapIncidentActionOptionsToTable(incidentActionOptions));
                 setIncidentAction(getIncidentActionFormSummary(incidentActionPlan));
@@ -99,7 +110,7 @@ export function useIncidentActionPlan(id: Id) {
                 setGlobalMessage(`Event tracker with id: ${id} does not exist`);
             }
         );
-    }, [compositionRoot, id]);
+    }, [compositionRoot, id, changeCurrentEventTracker, getCurrentEventTracker]);
 
     return {
         incidentActionExists: incidentActionExists,

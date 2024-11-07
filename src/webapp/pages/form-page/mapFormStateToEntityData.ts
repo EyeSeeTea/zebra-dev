@@ -460,8 +460,9 @@ function mapFormStateToRiskAssessmentQuestionnaire(
                     formData.options,
                     index.toString()
                 );
+
             return {
-                id: customSection.id.replace("additionalQuestions", ""),
+                id: customSection.id.replace("additionalQuestions", "").replace(`_${index}`, ""),
                 question: allFields.find(field => field.id.includes(`custom-question${index}`))
                     ?.value as string,
                 likelihood: likelihoodOption,
