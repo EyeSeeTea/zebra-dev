@@ -11,10 +11,10 @@ import LoaderContainer from "../../components/loader/LoaderContainer";
 import { UserCard } from "../../components/user-selector/UserCard";
 import { Section } from "../../components/section/Section";
 import { Button } from "../../components/button/Button";
-import { IMTeamHierarchyView } from "../../components/im-team-hierarchy/IMTeamHierarchyView";
 import { useIMTeamBuilder } from "./useIMTeamBuilder";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import { SimpleModal } from "../../components/simple-modal/SimpleModal";
+import { IncidentManagementTeamView } from "../../components/incident-management-team/IncidentManagementTeamView";
 
 export const IMTeamBuilderPage: React.FC = React.memo(() => {
     const { id } = useParams<{
@@ -32,6 +32,8 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
         disableDeletion,
         searchTerm,
         defaultTeamRolesExpanded,
+        constactTableColumns,
+        constactTableRows,
         onSearchChange,
         onSelectHierarchyItem,
         goToIncidentManagementTeamRole,
@@ -99,14 +101,19 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
                     }
                 >
                     {!incidentManagementTeamHierarchyItems || !defaultTeamRolesExpanded ? null : (
-                        <IMTeamHierarchyView
-                            items={incidentManagementTeamHierarchyItems || []}
-                            selectedItemIds={selectedHierarchyItemIds}
-                            onSelectedItemChange={onSelectHierarchyItem}
-                            diseaseOutbreakEventName={getCurrentEventTracker()?.name || ""}
+                        <IncidentManagementTeamView
+                            incidentManagementTeamHierarchyItems={
+                                incidentManagementTeamHierarchyItems
+                            }
+                            selectedHierarchyItemIds={selectedHierarchyItemIds}
+                            onSelectHierarchyItem={onSelectHierarchyItem}
                             onSearchChange={onSearchChange}
                             searchTerm={searchTerm}
-                            defaultTeamRolesExpanded={defaultTeamRolesExpanded || []}
+                            defaultTeamRolesExpanded={defaultTeamRolesExpanded}
+                            diseaseOutbreakEventName={getCurrentEventTracker()?.name || ""}
+                            constactTableColumns={constactTableColumns}
+                            constactTableRows={constactTableRows}
+                            isSelectable={true}
                         />
                     )}
 

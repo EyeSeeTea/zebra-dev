@@ -20,12 +20,13 @@ export type IMTeamHierarchyOption = {
 
 type IMTeamHierarchyViewProps = {
     items: IMTeamHierarchyOption[];
-    selectedItemIds: Id[];
-    onSelectedItemChange: (nodeId: Id, selected: boolean) => void;
+    selectedItemIds?: Id[];
+    onSelectedItemChange?: (nodeId: Id, selected: boolean) => void;
     diseaseOutbreakEventName: string;
     onSearchChange: (term: string) => void;
     searchTerm: string;
     defaultTeamRolesExpanded: Id[];
+    isSelectable?: boolean;
 };
 
 export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.memo(props => {
@@ -37,6 +38,7 @@ export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.mem
         searchTerm,
         onSearchChange,
         defaultTeamRolesExpanded,
+        isSelectable = false,
     } = props;
 
     return (
@@ -59,6 +61,7 @@ export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.mem
                             onSelectedChange={onSelectedItemChange}
                             diseaseOutbreakEventName={diseaseOutbreakEventName}
                             subChildren={item.children}
+                            isSelectable={isSelectable}
                         />
                     ))}
                 </StyledIMTeamHierarchyView>

@@ -15,10 +15,11 @@ type IMTeamHierarchyItemProps = {
     teamRole: string;
     member: Maybe<TeamMember>;
     disabled?: boolean;
-    onSelectedChange: (nodeId: string, selected: boolean) => void;
+    onSelectedChange?: (nodeId: string, selected: boolean) => void;
     subChildren: IMTeamHierarchyOption[];
     diseaseOutbreakEventName: string;
-    selectedItemIds: Id[];
+    selectedItemIds?: Id[];
+    isSelectable?: boolean;
 };
 
 export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.memo(props => {
@@ -31,23 +32,28 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
         subChildren,
         diseaseOutbreakEventName,
         selectedItemIds,
+        isSelectable = false,
     } = props;
 
     const [openMemberProfile, setOpenMemberProfile] = React.useState(false);
 
     const onCheckboxChange = React.useCallback(
         (isChecked: boolean) => {
-            !disabled && onSelectedChange(nodeId, isChecked);
+            if (onSelectedChange && isSelectable && !disabled) {
+                onSelectedChange(nodeId, isChecked);
+            }
         },
-        [disabled, nodeId, onSelectedChange]
+        [disabled, nodeId, onSelectedChange, isSelectable]
     );
 
     const onTeamRoleClick = React.useCallback(
         (event: React.MouseEvent<Element, MouseEvent>) => {
-            event.preventDefault();
-            !disabled && onSelectedChange(nodeId, !selectedItemIds.includes(nodeId));
+            if (isSelectable && onSelectedChange && selectedItemIds) {
+                event.preventDefault();
+                !disabled && onSelectedChange(nodeId, !selectedItemIds.includes(nodeId));
+            }
         },
-        [disabled, nodeId, onSelectedChange, selectedItemIds]
+        [disabled, nodeId, onSelectedChange, selectedItemIds, isSelectable]
     );
 
     const onMemberClick = React.useCallback(
@@ -61,28 +67,22 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
         [member]
     );
 
-    const onLabelClick = React.useCallback(
-        (event: React.MouseEvent<Element, MouseEvent>) => {
-            event.preventDefault();
-            !disabled && onSelectedChange(nodeId, !selectedItemIds.includes(nodeId));
-        },
-        [disabled, nodeId, onSelectedChange, selectedItemIds]
-    );
-
     return (
         <>
             <StyledIMTeamHierarchyItem
                 nodeId={nodeId}
                 aria-disabled={disabled}
-                onLabelClick={onLabelClick}
+                onLabelClick={onTeamRoleClick}
                 label={
                     <LabelWrapper>
-                        <Checkbox
-                            id={`team-role-hierarchy-checkbox-${nodeId}`}
-                            checked={selectedItemIds.includes(nodeId)}
-                            onChange={onCheckboxChange}
-                            disabled={disabled}
-                        />
+                        {isSelectable && selectedItemIds && (
+                            <Checkbox
+                                id={`team-role-hierarchy-checkbox-${nodeId}`}
+                                checked={selectedItemIds.includes(nodeId)}
+                                onChange={onCheckboxChange}
+                                disabled={disabled}
+                            />
+                        )}
 
                         <RoleAndMemberWrapper>
                             <IconUser24 color="#4A5768" />
@@ -106,6 +106,7 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
                         onSelectedChange={onSelectedChange}
                         diseaseOutbreakEventName={diseaseOutbreakEventName}
                         subChildren={child.children}
+                        isSelectable={isSelectable}
                     />
                 ))}
             </StyledIMTeamHierarchyItem>

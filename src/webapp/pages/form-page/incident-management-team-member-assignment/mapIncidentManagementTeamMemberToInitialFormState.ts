@@ -117,7 +117,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                         value: teamRoleToAssing?.reportsToUsername || "",
                         required: teamRoleToAssing?.roleId !== INCIDENT_MANAGER_ROLE,
                         showIsRequired: teamRoleToAssing?.roleId !== INCIDENT_MANAGER_ROLE,
-                        disabled: false,
+                        disabled: teamRoleToAssing?.roleId === INCIDENT_MANAGER_ROLE,
                     },
                 ],
             },

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
@@ -6,10 +6,11 @@ import { User } from "../../components/user-selector/UserSelector";
 import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
 import { IMTeamHierarchyOption } from "../../components/im-team-hierarchy/IMTeamHierarchyView";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
-import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
-import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { INCIDENT_MANAGER_ROLE } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import _c from "../../../domain/entities/generic/Collection";
+import { useIncidentManagementTeamView } from "../../components/incident-management-team/useIncidentManagementTeamView";
+import { TableColumn, TableRowType } from "../../components/table/BasicTable";
 
 type GlobalMessage = {
     text: string;
@@ -31,51 +32,31 @@ type State = {
     onSearchChange: (term: string) => void;
     searchTerm: string;
     defaultTeamRolesExpanded: Maybe<Id[]>;
+    constactTableColumns: TableColumn[];
+    constactTableRows: TableRowType[];
 };
 
-export function useIMTeamBuilder(id: Id): State {
-    const { compositionRoot, configurations } = useAppContext();
+export function useIMTeamBuilder(diseaseOutbreakEventId: Id): State {
+    const { compositionRoot } = useAppContext();
     const { goTo } = useRoutes();
+    const {
+        incidentManagementTeamHierarchyItems,
+        incidentManagementTeam,
+        selectedHierarchyItemIds,
+        setSelectedHierarchyItemIds,
+        onSearchChange,
+        searchTerm,
+        defaultTeamRolesExpanded,
+        getIncidentManagementTeam,
+        constactTableColumns,
+        constactTableRows,
+    } = useIncidentManagementTeamView(diseaseOutbreakEventId);
+
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
-    const [incidentManagementTeamHierarchyItems, setIncidentManagementTeamHierarchyItems] =
-        useState<IMTeamHierarchyOption[] | undefined>();
-    const [incidentManagementTeam, setIncidentManagementTeam] = useState<
-        IncidentManagementTeam | undefined
-    >();
-    const [selectedHierarchyItemIds, setSelectedHierarchyItemIds] = useState<Id[]>([]);
     const [disableDeletion, setDisableDeletion] = useState(false);
-    const [defaultTeamRolesExpanded, setDefaultTeamRolesExpanded] = useState<Id[] | undefined>(
-        undefined
-    );
     const [openDeleteModalData, setOpenDeleteModalData] = useState<TeamMember[] | undefined>(
         undefined
     );
-    const [searchTerm, setSearchTerm] = useState<string>("");
-
-    const getIncidentManagementTeam = useCallback(() => {
-        compositionRoot.incidentManagementTeam.get.execute(id, configurations).run(
-            incidentManagementTeam => {
-                setIncidentManagementTeam(incidentManagementTeam);
-                setDefaultTeamRolesExpanded(getDefaultTeamRolesExpanded(incidentManagementTeam));
-                setIncidentManagementTeamHierarchyItems(
-                    mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
-                        incidentManagementTeam?.teamHierarchy
-                    )
-                );
-            },
-            err => {
-                console.debug(err);
-                setGlobalMessage({
-                    text: `Error loading current Incident Management Team`,
-                    type: "error",
-                });
-            }
-        );
-    }, [compositionRoot.incidentManagementTeam.get, configurations, id]);
-
-    useEffect(() => {
-        getIncidentManagementTeam();
-    }, [getIncidentManagementTeam]);
 
     const goToIncidentManagementTeamRole = useCallback(() => {
         if (selectedHierarchyItemIds.length === 1 && selectedHierarchyItemIds[0]) {
@@ -121,7 +102,11 @@ export function useIMTeamBuilder(id: Id): State {
             setSelectedHierarchyItemIds(newSelection);
             setDisableDeletion(isIncidentManagerRoleSelected || hasSomeParentReporting);
         },
-        [incidentManagementTeam?.teamHierarchy, selectedHierarchyItemIds]
+        [
+            incidentManagementTeam?.teamHierarchy,
+            selectedHierarchyItemIds,
+            setSelectedHierarchyItemIds,
+        ]
     );
 
     const onOpenDeleteModalData = useCallback(
@@ -148,7 +133,7 @@ export function useIMTeamBuilder(id: Id): State {
         if (disableDeletion || !selectedHierarchyItemIds.length) return;
 
         compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRoles
-            .execute(id, selectedHierarchyItemIds)
+            .execute(diseaseOutbreakEventId, selectedHierarchyItemIds)
             .run(
                 () => {
                     setGlobalMessage({
@@ -176,10 +161,11 @@ export function useIMTeamBuilder(id: Id): State {
     }, [
         compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRoles,
         disableDeletion,
+        diseaseOutbreakEventId,
         getIncidentManagementTeam,
-        id,
         onOpenDeleteModalData,
         selectedHierarchyItemIds,
+        setSelectedHierarchyItemIds,
     ]);
 
     const incidentManagerUser = useMemo(() => {
@@ -190,28 +176,6 @@ export function useIMTeamBuilder(id: Id): State {
             return mapTeamMemberToUser(incidentManagerTeamMember);
         }
     }, [incidentManagementTeam?.teamHierarchy]);
-
-    const onSearchChange = useCallback(
-        (term: string) => {
-            setSearchTerm(term);
-
-            if (incidentManagementTeamHierarchyItems) {
-                const filteredIncidentManagementTeamHierarchyItems = term
-                    ? filterIncidentManagementTeamHierarchy(
-                          incidentManagementTeamHierarchyItems,
-                          term
-                      )
-                    : mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
-                          incidentManagementTeam?.teamHierarchy
-                      );
-
-                setIncidentManagementTeamHierarchyItems(
-                    filteredIncidentManagementTeamHierarchyItems
-                );
-            }
-        },
-        [incidentManagementTeam?.teamHierarchy, incidentManagementTeamHierarchyItems]
-    );
 
     const lastUpdated = incidentManagementTeam?.lastUpdated?.toString() ?? "";
 
@@ -230,112 +194,7 @@ export function useIMTeamBuilder(id: Id): State {
         searchTerm,
         onSearchChange,
         defaultTeamRolesExpanded,
+        constactTableColumns,
+        constactTableRows,
     };
-}
-
-function mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
-    incidentManagementTeamHierarchy: Maybe<TeamMember[]>
-): IMTeamHierarchyOption[] {
-    if (incidentManagementTeamHierarchy) {
-        const createHierarchyItem = (
-            item: TeamMember,
-            teamRole: TeamRole
-        ): IMTeamHierarchyOption => ({
-            id: teamRole.id,
-            teamRole: teamRole.name,
-            teamRoleId: teamRole.roleId,
-            member: new TeamMember({
-                id: item.id,
-                name: item.name,
-                username: item.username,
-                phone: item.phone,
-                email: item.email,
-                status: item.status,
-                photo: item.photo,
-                teamRoles: item.teamRoles,
-                workPosition: item.workPosition,
-            }),
-            parent: teamRole.reportsToUsername,
-            children: [],
-        });
-
-        const teamMap = incidentManagementTeamHierarchy.reduce<
-            Record<string, IMTeamHierarchyOption>
-        >((map, item) => {
-            const hierarchyItems = item.teamRoles?.map(teamRole =>
-                createHierarchyItem(item, teamRole)
-            );
-
-            return !hierarchyItems || hierarchyItems?.length === 0
-                ? map
-                : hierarchyItems.reduce(
-                      (acc, hierarchyItem) => ({
-                          ...acc,
-                          [hierarchyItem.id]: hierarchyItem,
-                      }),
-                      map
-                  );
-        }, {});
-
-        return buildTree(teamMap);
-    } else {
-        return [];
-    }
-}
-
-function buildTree(teamMap: Record<string, IMTeamHierarchyOption>): IMTeamHierarchyOption[] {
-    const findChildren = (parentUsername: string): IMTeamHierarchyOption[] =>
-        Object.values(teamMap)
-            .filter(item => item.parent === parentUsername)
-            .reduce<IMTeamHierarchyOption[]>((acc, item) => {
-                const children = findChildren(item.member?.username || "");
-                return [...acc, { ...item, children: [...item.children, ...children] }];
-            }, []);
-
-    return Object.values(teamMap).reduce<IMTeamHierarchyOption[]>((acc, item) => {
-        const isRoot = !item.parent;
-        if (isRoot) {
-            const children = findChildren(item.member?.username || "");
-            return [...acc, { ...item, children: [...item.children, ...children] }];
-        }
-
-        return acc;
-    }, []);
-}
-
-function filterIncidentManagementTeamHierarchy(
-    items: IMTeamHierarchyOption[],
-    searchTerm: string
-): IMTeamHierarchyOption[] {
-    return _c(
-        items.map(item => {
-            const filteredChildren = filterIncidentManagementTeamHierarchy(
-                item.children,
-                searchTerm
-            );
-
-            const isMatch =
-                item.teamRole.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.member?.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-            if (isMatch || filteredChildren.length > 0) {
-                return {
-                    ...item,
-                    children: filteredChildren,
-                };
-            }
-
-            return null;
-        })
-    )
-        .compact()
-        .toArray();
-}
-
-function getDefaultTeamRolesExpanded(incidentManagementTeam: Maybe<IncidentManagementTeam>): Id[] {
-    return (
-        incidentManagementTeam?.teamHierarchy.flatMap(teamMember => {
-            return teamMember?.teamRoles?.map(teamRole => teamRole.id) || [];
-        }) || []
-    );
 }
