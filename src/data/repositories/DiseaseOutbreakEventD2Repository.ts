@@ -2,7 +2,7 @@ import { D2Api } from "../../types/d2-api";
 import { DiseaseOutbreakEventRepository } from "../../domain/repositories/DiseaseOutbreakEventRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { Id, ConfigLabel } from "../../domain/entities/Ref";
+import { Id } from "../../domain/entities/Ref";
 import {
     mapDiseaseOutbreakEventToTrackedEntityAttributes,
     mapTrackedEntityAttributesToDiseaseOutbreak,
@@ -13,6 +13,7 @@ import { getProgramTEAsMetadata } from "./utils/MetadataHelper";
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
+import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -84,8 +85,44 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         );
     }
 
-    getConfigStrings(): FutureData<ConfigLabel[]> {
-        throw new Error("Method not implemented.");
+    complete(id: Id): FutureData<void> {
+        return apiToFuture(
+            this.api.tracker.enrollments.get({
+                fields: {
+                    enrollment: true,
+                    enrolledAt: true,
+                    occurredAt: true,
+                },
+                trackedEntity: id,
+                enrolledBefore: new Date().toISOString(),
+                program: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            })
+        ).flatMap(enrollmentResponse => {
+            const currentEnrollment = enrollmentResponse.instances[0];
+            const currentEnrollmentId = currentEnrollment?.enrollment;
+            if (!currentEnrollment || !currentEnrollmentId) {
+                return Future.error(new Error(`Enrollment not found for Event Tracker`));
+            }
+
+            const enrollment: D2TrackerEnrollment = {
+                ...currentEnrollment,
+                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                program: RTSL_ZEBRA_PROGRAM_ID,
+                trackedEntity: id,
+                status: "COMPLETED",
+            };
+
+            return apiToFuture(
+                this.api.tracker.post({ importStrategy: "UPDATE" }, { enrollments: [enrollment] })
+            ).flatMap(response => {
+                if (response.status !== "OK") {
+                    return Future.error(
+                        new Error(`Error completing disease outbreak event : ${response.message}`)
+                    );
+                } else return Future.success(undefined);
+            });
+        });
     }
 
     //TO DO : Implement delete/archive after requirement confirmation
