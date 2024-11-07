@@ -29,7 +29,7 @@ export function getDateAsMonthYearString(date: Date): string {
 
 export function getDateAsLocaleDateTimeString(date: string): string {
     try {
-        return new Date(`${date}Z`).toString();
+        return moment(date).local().toDate().toString();
     } catch (e) {
         console.debug(e);
         return "";
