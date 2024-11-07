@@ -1,27 +1,34 @@
 import { Id } from "../Ref";
 
-export type DiseaseNames =
-    | "AFP"
-    | "Acute VHF"
-    | "Acute respiratory"
-    | "Anthrax"
-    | "Bacterial meningitis"
-    | "COVID19"
-    | "Cholera"
-    | "Diarrhoea with blood"
-    | "Measles"
-    | "Monkeypox"
-    | "Neonatal tetanus"
-    | "Plague"
-    | "SARIs"
-    | "Typhoid fever"
-    | "Zika fever";
+export const diseaseNames = [
+    "AFP",
+    "Acute VHF",
+    "Acute respiratory",
+    "Anthrax",
+    "Bacterial meningitis",
+    "COVID19",
+    "Cholera",
+    "Diarrhoea with blood",
+    "Measles",
+    "Monkeypox",
+    "Neonatal tetanus",
+    "Plague",
+    "SARIs",
+    "Typhoid fever",
+    "Zika fever",
+] as const;
+export type DiseaseNames = (typeof diseaseNames)[number];
 
-export type HazardNames =
-    | "Biological: Animal"
-    | "Biological: Human"
-    | "Biological: Human and Animal"
-    | "Environmental";
+export const hazardNames = [
+    "Biological: Animal",
+    "Biological: Human",
+    "Biological: Human and Animal",
+    "Environmental",
+    // "Chemical",
+    // "Unknown",
+] as const;
+
+export type HazardNames = (typeof hazardNames)[number];
 
 export type PerformanceOverviewMetrics = {
     id: Id;
@@ -46,7 +53,7 @@ export type PerformanceOverviewMetrics = {
     nationalIncidentStatus: string;
 };
 
-export type IncidentStatus = "Watch" | "Alert" | "Respond";
+export type IncidentStatus = "Watch" | "Alert" | "Respond" | "All";
 
 type BaseCounts = {
     name: DiseaseNames | HazardNames;

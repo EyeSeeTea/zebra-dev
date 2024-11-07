@@ -3,7 +3,10 @@ import _c from "../../../domain/entities/generic/Collection";
 import { useAppContext } from "../../contexts/app-context";
 import { OrgUnit } from "../../../domain/entities/OrgUnit";
 import { Option } from "../../components/utils/option";
-import { eventTrackerCountsIndicatorMap } from "../../../data/repositories/consts/PerformanceOverviewConstants";
+import {
+    diseaseNames,
+    hazardNames,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type SelectorFiltersConfig = {
     id: string;
@@ -76,16 +79,19 @@ export function useAlertsActiveVerifiedFilters(): State {
     // Initialize filter options based on eventTrackerCountsIndicatorMap
     useEffect(() => {
         const buildSelectorFiltersConfig = (): SelectorFiltersConfig[] => {
-            const createOptions = (key: "disease" | "hazard") =>
-                _c(eventTrackerCountsIndicatorMap)
-                    .filter(value => value.type === key)
-                    .uniqBy(value => value.name)
-                    .map(value => ({
-                        value: value.name,
-                        label: value.name,
-                    }))
-
-                    .value();
+            const createOptions = (key: "disease" | "hazard") => {
+                if (key === "disease") {
+                    return diseaseNames.map(diseaseName => ({
+                        value: diseaseName,
+                        label: diseaseName,
+                    }));
+                } else {
+                    return hazardNames.map(hazardName => ({
+                        value: hazardName,
+                        label: hazardName,
+                    }));
+                }
+            };
 
             const diseaseOptions = createOptions("disease");
             const hazardOptions = createOptions("hazard");
