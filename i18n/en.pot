@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-11-07T10:23:53.316Z\n"
-"PO-Revision-Date: 2024-11-07T10:23:53.316Z\n"
+"POT-Creation-Date: 2024-11-07T18:07:55.779Z\n"
+"PO-Revision-Date: 2024-11-07T18:07:55.779Z\n"
 
 msgid "Low"
 msgstr ""
@@ -103,6 +103,9 @@ msgid "Edit Profile"
 msgstr ""
 
 msgid "Currently assigned:"
+msgstr ""
+
+msgid "Incident Management Team not found"
 msgstr ""
 
 msgid "Error loading current Incident Management Team"
