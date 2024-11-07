@@ -74,6 +74,7 @@ export function useForm(formType: FormType, id?: Id): State {
     const snackbar = useSnackbar();
 
     useEffect(() => {
+        // NOTICE: This if is to avoid infinite loop when the form page is reloaded from browser
         if (
             currentEventTrackerState &&
             currentEventTracker &&
