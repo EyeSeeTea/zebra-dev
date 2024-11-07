@@ -45,7 +45,9 @@ export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.mem
     return (
         <IMTeamHierarchyViewContainer>
             <ContentWrapper>
-                <SearchInput value={searchTerm} onChange={onSearchChange} />
+                <SearchInputContainer>
+                    <SearchInput value={searchTerm} onChange={onSearchChange} />
+                </SearchInputContainer>
                 {isSelectable && searchTerm && selectedItemIds && selectedItemIds?.length > 0 ? (
                     <CountSelectionText>
                         {i18n.t(
@@ -103,12 +105,14 @@ const StyledIMTeamHierarchyView = styled(TreeViewMUI)`
 const ContentWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    /* gap: 8px; */
 `;
 
 const CountSelectionText = styled.span`
-    margin-block-start: 10px;
     font-weight: 400;
     font-size: 0.875rem;
     color: ${props => props.theme.palette.common.grey900};
+`;
+
+const SearchInputContainer = styled.div`
+    margin-block-end: 10px;
 `;
