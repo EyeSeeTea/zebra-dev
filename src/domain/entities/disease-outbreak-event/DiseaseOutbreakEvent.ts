@@ -71,7 +71,6 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     notes: Maybe<string>;
 };
 
-// NOTICE: in the future, refactor to use DiseaseOutbreakEventAggregateRoot instead of this entity
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     createdBy: Maybe<TeamMember>;
     mainSyndrome: Maybe<NamedRef>;
@@ -88,6 +87,9 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
  * Not using event as it is a keyword and can also be confused with dhis event
  **/
 
+/**
+ * @deprecated In the future, refactor to use `DiseaseOutbreakEventAggregateRoot` entity instead
+ */
 export class DiseaseOutbreakEvent extends Struct<DiseaseOutbreakEventAttrs>() {
     //TODO: Add required validations if exists:
     static validate(_data: DiseaseOutbreakEventBaseAttrs): ValidationError[] {

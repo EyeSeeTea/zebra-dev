@@ -1,6 +1,5 @@
 import {
     DataSource,
-    DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
     NationalIncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -120,7 +119,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
         ]);
     }
 
-    save(_diseaseOutbreak: DiseaseOutbreakEvent): FutureData<Id> {
+    save(_diseaseOutbreak: DiseaseOutbreakEventBaseAttrs): FutureData<Id> {
         return Future.success("");
     }
 
