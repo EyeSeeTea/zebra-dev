@@ -246,6 +246,11 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                 status: [],
                 verification: [],
             },
+            incidentManagementTeamRoleConfigurations: {
+                roles: [],
+                teamMembers: [],
+                incidentManagers: [],
+            },
         };
         return selectableOptions;
     }

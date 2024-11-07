@@ -1,10 +1,12 @@
 import {
     DiseaseOutbreakEventOptions,
     IncidentActionPlanOptions,
+    IncidentManagementTeamRoleOptions,
     IncidentResponseActionOptions,
     RiskAssessmentQuestionnaireOptions,
     RiskAssessmentSummaryOptions,
 } from "./ConfigurableForm";
+import { Role } from "./incident-management-team/Role";
 import { TeamMember } from "./incident-management-team/TeamMember";
 
 import {
@@ -41,6 +43,7 @@ export type SelectableOptions = {
     riskAssessmentQuestionnaireConfigurations: RiskAssessmentQuestionnaireOptions;
     incidentActionPlanConfigurations: IncidentActionPlanOptions;
     incidentResponseActionConfigurations: IncidentResponseActionOptions;
+    incidentManagementTeamRoleConfigurations: IncidentManagementTeamRoleOptions;
 };
 export type Configurations = {
     selectableOptions: SelectableOptions;
@@ -48,6 +51,6 @@ export type Configurations = {
         all: TeamMember[];
         riskAssessors: TeamMember[];
         incidentManagers: TeamMember[];
-        forIncidentManagementTeam: TeamMember[];
     };
+    roles: Role[];
 };

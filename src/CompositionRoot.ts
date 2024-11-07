@@ -60,8 +60,6 @@ import { SystemD2Repository } from "./data/repositories/SystemD2Repository";
 import { SystemTestRepository } from "./data/repositories/test/SystemTestRepository";
 import { GetOverviewCardsUseCase } from "./domain/usecases/GetOverviewCardsUseCase";
 import { GetDiseaseOutbreakEventAggregateRootByIdUseCase } from "./domain/usecases/GetDiseaseOutbreakEventAggregateRootByIdUseCase";
-import { GetAllRolesUseCase } from "./domain/usecases/GetAllRolesUseCase";
-import { GetTeamMembersForIncidentManagementTeamUseCase } from "./domain/usecases/GetTeamMembersForIncidentManagementTeamUseCase";
 import { GetConfigurationsUseCase } from "./domain/usecases/GetConfigurationsUseCase";
 import { ConfigurationsRepository } from "./domain/repositories/ConfigurationsRepository";
 import { ConfigurationsD2Repository } from "./data/repositories/ConfigurationsD2Repository";
@@ -106,10 +104,7 @@ function getCompositionRoot(repositories: Repositories) {
             getAggregateRoot: new GetDiseaseOutbreakEventAggregateRootByIdUseCase(
                 repositories.diseaseOutbreakEventRepository
             ),
-            getConfigurations: new GetConfigurationsUseCase(
-                repositories.configurationsRepository,
-                repositories.teamMemberRepository
-            ),
+            getConfigurations: new GetConfigurationsUseCase(repositories),
             complete: new CompleteEventTrackerUseCase(repositories),
         },
         incidentActionPlan: {
@@ -136,14 +131,6 @@ function getCompositionRoot(repositories: Repositories) {
         },
         charts: {
             getCases: new GetChartConfigByTypeUseCase(repositories.chartConfigRepository),
-        },
-        teamMembers: {
-            getForIncidentManagementTeam: new GetTeamMembersForIncidentManagementTeamUseCase(
-                repositories.teamMemberRepository
-            ),
-        },
-        roles: {
-            getAll: new GetAllRolesUseCase(repositories.roleRepository),
         },
     };
 }

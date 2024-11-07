@@ -14,6 +14,6 @@ export function getIncidentManagementTeamById(
 ): FutureData<Maybe<IncidentManagementTeam>> {
     return repositories.diseaseOutbreakEventRepository.getIncidentManagementTeam(
         diseaseOutbreakId,
-        configurations.teamMembers.forIncidentManagementTeam
+        configurations.teamMembers.all
     );
 }

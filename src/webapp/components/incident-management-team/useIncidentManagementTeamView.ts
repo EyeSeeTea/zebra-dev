@@ -13,7 +13,6 @@ import { TeamMember, TeamRole } from "../../../domain/entities/incident-manageme
 import { TableColumn, TableRowType } from "../table/BasicTable";
 import { IncidentManagementTeamInAggregateRoot } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 import { Role } from "../../../domain/entities/incident-management-team/Role";
-import { Future } from "../../../domain/entities/generic/Future";
 
 type State = {
     incidentManagementTeamHierarchyItems: Maybe<IMTeamHierarchyOption[]>;
@@ -29,7 +28,7 @@ type State = {
 };
 
 export function useIncidentManagementTeamView(id: Id): State {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, configurations } = useAppContext();
     const snackbar = useSnackbar();
 
     const [incidentManagementTeamHierarchyItems, setIncidentManagementTeamHierarchyItems] =
@@ -45,18 +44,15 @@ export function useIncidentManagementTeamView(id: Id): State {
     const [constactTableRows, setConstactTableRows] = useState<TableRowType[]>([]);
 
     const getIncidentManagementTeam = useCallback(() => {
-        Future.joinObj({
-            diseaseOutbreakEventAggregateRoot:
-                compositionRoot.diseaseOutbreakEvent.getAggregateRoot.execute(id),
-            teamMembers: compositionRoot.teamMembers.getForIncidentManagementTeam.execute(),
-            roles: compositionRoot.roles.getAll.execute(),
-        }).run(
-            ({ diseaseOutbreakEventAggregateRoot, teamMembers, roles }) => {
+        compositionRoot.diseaseOutbreakEvent.getAggregateRoot.execute(id).run(
+            diseaseOutbreakEventAggregateRoot => {
+                const { teamMembers, roles } = configurations;
+
                 if (diseaseOutbreakEventAggregateRoot.incidentManagementTeam) {
                     const incidentManagementTeam = buildIncidentManagementTeam(
                         id,
                         diseaseOutbreakEventAggregateRoot.incidentManagementTeam,
-                        teamMembers,
+                        teamMembers.all,
                         roles
                     );
                     setIncidentManagementTeam(incidentManagementTeam);
@@ -80,13 +76,7 @@ export function useIncidentManagementTeamView(id: Id): State {
                 snackbar.error(i18n.t(`Error loading current Incident Management Team`));
             }
         );
-    }, [
-        compositionRoot.diseaseOutbreakEvent.getAggregateRoot,
-        compositionRoot.roles.getAll,
-        compositionRoot.teamMembers.getForIncidentManagementTeam,
-        id,
-        snackbar,
-    ]);
+    }, [compositionRoot.diseaseOutbreakEvent.getAggregateRoot, configurations, id, snackbar]);
 
     useEffect(() => {
         getIncidentManagementTeam();

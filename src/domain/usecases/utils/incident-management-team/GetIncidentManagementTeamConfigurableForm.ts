@@ -20,14 +20,13 @@ export function getIncidentManagementConfigurableForm(
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     }
 ): FutureData<IncidentManagementTeamMemberFormData> {
-    return Future.joinObj({
-        roles: repositories.roleRepository.getAll(),
-        incidentManagementTeam: getIncidentManagementTeamById(
-            eventTrackerDetails.id,
-            configurations,
-            repositories
-        ),
-    }).flatMap(({ roles, incidentManagementTeam }) => {
+    return getIncidentManagementTeamById(
+        eventTrackerDetails.id,
+        configurations,
+        repositories
+    ).flatMap(incidentManagementTeam => {
+        const { incidentManagementTeamRoleConfigurations } = configurations.selectableOptions;
+
         const teamMemberSelected = incidentManagementTeam?.teamHierarchy.find(teamMember =>
             teamMember.teamRoles?.some(teamRole => teamRole.id === incidentManagementTeamRoleId)
         );
@@ -39,11 +38,11 @@ export function getIncidentManagementConfigurableForm(
             incidentManagementTeamRoleId: incidentManagementTeamRoleId,
             currentIncidentManagementTeam: incidentManagementTeam,
             options: {
-                roles: roles,
-                teamMembers: configurations.teamMembers.forIncidentManagementTeam.filter(
+                roles: incidentManagementTeamRoleConfigurations.roles,
+                teamMembers: incidentManagementTeamRoleConfigurations.teamMembers.filter(
                     teamMembers => teamMembers.status === "Available"
                 ),
-                incidentManagers: configurations.teamMembers.incidentManagers.filter(
+                incidentManagers: incidentManagementTeamRoleConfigurations.incidentManagers.filter(
                     teamMembers => teamMembers.status === "Available"
                 ),
             },

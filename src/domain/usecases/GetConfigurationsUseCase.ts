@@ -1,45 +1,53 @@
 import { FutureData } from "../../data/api-futures";
 import { Configurations, SelectableOptions } from "../entities/AppConfigurations";
 import { Future } from "../entities/generic/Future";
+import { Role } from "../entities/incident-management-team/Role";
 import { TeamMember } from "../entities/incident-management-team/TeamMember";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { RoleRepository } from "../repositories/RoleRepository";
 
 export class GetConfigurationsUseCase {
     constructor(
-        private configurationsRepository: ConfigurationsRepository,
-        private teamMemberRepository: TeamMemberRepository
+        private options: {
+            teamMemberRepository: TeamMemberRepository;
+            roleRepository: RoleRepository;
+            configurationsRepository: ConfigurationsRepository;
+        }
     ) {}
 
     public execute(): FutureData<Configurations> {
-        return this.teamMemberRepository.getIncidentManagers().flatMap(managers => {
-            return this.teamMemberRepository.getRiskAssessors().flatMap(riskAssessors => {
-                return this.teamMemberRepository.getAll().flatMap(teamMembers => {
-                    return this.teamMemberRepository
+        return this.options.teamMemberRepository.getIncidentManagers().flatMap(managers => {
+            return this.options.teamMemberRepository.getRiskAssessors().flatMap(riskAssessors => {
+                return this.options.teamMemberRepository.getAll().flatMap(teamMembers => {
+                    return this.options.teamMemberRepository
                         .getForIncidentManagementTeam()
                         .flatMap(teamMembersForIncidentManagementTeam => {
-                            return this.configurationsRepository
-                                .getSelectableOptions()
-                                .flatMap(selectableOptionsResponse => {
-                                    const selectableOptions: SelectableOptions =
-                                        this.mapOptionsAndTeamMembersToSelectableOptions(
-                                            selectableOptionsResponse,
-                                            managers,
-                                            riskAssessors,
-                                            teamMembers
-                                        );
-                                    const configurations: Configurations = {
-                                        selectableOptions: selectableOptions,
-                                        teamMembers: {
-                                            all: teamMembers,
-                                            riskAssessors: riskAssessors,
-                                            incidentManagers: managers,
-                                            forIncidentManagementTeam:
+                            return this.options.roleRepository.getAll().flatMap(roles => {
+                                return this.options.configurationsRepository
+                                    .getSelectableOptions()
+                                    .flatMap(selectableOptionsResponse => {
+                                        const selectableOptions: SelectableOptions =
+                                            this.mapOptionsAndTeamMembersToSelectableOptions(
+                                                selectableOptionsResponse,
+                                                managers,
+                                                riskAssessors,
+                                                teamMembers,
                                                 teamMembersForIncidentManagementTeam,
-                                        },
-                                    };
-                                    return Future.success(configurations);
-                                });
+                                                roles
+                                            );
+                                        const configurations: Configurations = {
+                                            selectableOptions: selectableOptions,
+                                            teamMembers: {
+                                                all: teamMembers,
+                                                riskAssessors: riskAssessors,
+                                                incidentManagers: managers,
+                                            },
+                                            roles: roles,
+                                        };
+                                        return Future.success(configurations);
+                                    });
+                            });
                         });
                 });
             });
@@ -50,7 +58,9 @@ export class GetConfigurationsUseCase {
         selectableOptionsResponse: SelectableOptions,
         managers: TeamMember[],
         riskAssessors: TeamMember[],
-        teamMembers: TeamMember[]
+        allTeamMembers: TeamMember[],
+        teamMembersForIncidentManagementTeam: TeamMember[],
+        roles: Role[]
     ): SelectableOptions {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
@@ -72,7 +82,13 @@ export class GetConfigurationsUseCase {
             },
             incidentResponseActionConfigurations: {
                 ...selectableOptionsResponse.incidentResponseActionConfigurations,
-                searchAssignRO: teamMembers,
+                searchAssignRO: allTeamMembers,
+            },
+            incidentManagementTeamRoleConfigurations: {
+                ...selectableOptionsResponse.incidentManagementTeamRoleConfigurations,
+                roles: roles,
+                teamMembers: teamMembersForIncidentManagementTeam,
+                incidentManagers: managers,
             },
         };
 
