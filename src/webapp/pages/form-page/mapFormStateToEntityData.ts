@@ -17,11 +17,13 @@ import {
 import {
     ConfigurableForm,
     DiseaseOutbreakEventFormData,
+    ActionPlanFormData,
     IncidentManagementTeamMemberFormData,
     RiskAssessmentGradingFormData,
     RiskAssessmentQuestionnaireFormData,
     RiskAssessmentQuestionnaireOptions,
     RiskAssessmentSummaryFormData,
+    ResponseActionFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
@@ -35,6 +37,16 @@ import {
     RiskAssessmentQuestion,
     RiskAssessmentQuestionnaire,
 } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
+import { ActionPlanAttrs } from "../../../domain/entities/incident-action-plan/ActionPlan";
+import {
+    actionPlanConstants as actionPlanConstants,
+    responseActionConstants,
+} from "../../../data/repositories/consts/IncidentActionConstants";
+import {
+    ResponseAction,
+    Status,
+    Verification,
+} from "../../../domain/entities/incident-action-plan/ResponseAction";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
@@ -84,6 +96,24 @@ export function mapFormStateToEntityData(
                 entity: riskQuestionnaire,
             };
             return riskQuestionnaireForm;
+        }
+        case "incident-action-plan": {
+            const actionPlan = mapFormStateToIncidentActionPlan(formState, formData);
+            const actionPlanForm: ActionPlanFormData = {
+                ...formData,
+                entity: actionPlan,
+            };
+
+            return actionPlanForm;
+        }
+        case "incident-response-action": {
+            const responseActions = mapFormStateToIncidentResponseAction(formState, formData);
+            const responseActionForm: ResponseActionFormData = {
+                ...formData,
+                entity: responseActions,
+            };
+
+            return responseActionForm;
         }
 
         case "incident-management-team-member-assignment": {
@@ -172,16 +202,10 @@ function mapFormStateToDiseaseOutbreakEvent(
                 diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
                 allFields
             ) as Date,
-            laboratoryConfirmation: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationNA,
-                    allFields
-                ),
-            },
+            laboratoryConfirmation: getDateFieldValue(
+                diseaseOutbreakEventFieldIds.laboratoryConfirmation,
+                allFields
+            ) as Date,
             appropriateCaseManagement: {
                 date: getDateFieldValue(
                     diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
@@ -212,10 +236,16 @@ function mapFormStateToDiseaseOutbreakEvent(
                     allFields
                 ),
             },
-            establishCoordination: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.establishCoordination,
-                allFields
-            ) as Date,
+            establishCoordination: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationNa,
+                    allFields
+                ),
+            },
             responseNarrative: getStringFieldValue(
                 diseaseOutbreakEventFieldIds.responseNarrative,
                 allFields
@@ -231,8 +261,8 @@ function mapFormStateToDiseaseOutbreakEvent(
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
         status: diseaseOutbreakEvent?.status || "ACTIVE",
-        created: diseaseOutbreakEvent?.created || new Date(),
-        lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
+        created: diseaseOutbreakEvent?.created,
+        lastUpdated: diseaseOutbreakEvent?.lastUpdated,
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
         ...diseaseOutbreakEventEditableData,
     };
@@ -430,8 +460,9 @@ function mapFormStateToRiskAssessmentQuestionnaire(
                     formData.options,
                     index.toString()
                 );
+
             return {
-                id: customSection.id.replace("additionalQuestions", ""),
+                id: customSection.id.replace("additionalQuestions", "").replace(`_${index}`, ""),
                 question: allFields.find(field => field.id.includes(`custom-question${index}`))
                     ?.value as string,
                 likelihood: likelihoodOption,
@@ -453,6 +484,123 @@ function mapFormStateToRiskAssessmentQuestionnaire(
             additionalQuestions: additionalQuestions,
         });
     return riskAssessmentQuestionnaire;
+}
+
+function mapFormStateToIncidentActionPlan(
+    formState: FormState,
+    formData: ActionPlanFormData
+): ActionPlanAttrs {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const iapType = allFields.find(field => field.id.includes(actionPlanConstants.iapType))
+        ?.value as string;
+
+    const phoecLevel = allFields.find(field => field.id.includes(actionPlanConstants.phoecLevel))
+        ?.value as string;
+
+    const criticalInfoRequirements = allFields.find(field =>
+        field.id.includes(actionPlanConstants.criticalInfoRequirements)
+    )?.value as string;
+
+    const planningAssumptions = allFields.find(field =>
+        field.id.includes(actionPlanConstants.planningAssumptions)
+    )?.value as string;
+
+    const responseObjectives = allFields.find(field =>
+        field.id.includes(actionPlanConstants.responseObjectives)
+    )?.value as string;
+
+    const responseStrategies = allFields.find(field =>
+        field.id.includes(actionPlanConstants.responseStrategies)
+    )?.value as string;
+
+    const expectedResults = allFields.find(field =>
+        field.id.includes(actionPlanConstants.expectedResults)
+    )?.value as string;
+
+    const responseActivitiesNarrative = allFields.find(field =>
+        field.id.includes(actionPlanConstants.responseActivitiesNarrative)
+    )?.value as string;
+
+    const incidentActionPlan: ActionPlanAttrs = {
+        lastUpdated: new Date(),
+        iapType: iapType,
+        phoecLevel: phoecLevel,
+        id: formData.entity?.id ?? "",
+        criticalInfoRequirements: criticalInfoRequirements,
+        planningAssumptions: planningAssumptions,
+        responseObjectives: responseObjectives,
+        responseStrategies: responseStrategies,
+        expectedResults: expectedResults,
+        responseActivitiesNarrative: responseActivitiesNarrative,
+    };
+
+    return incidentActionPlan;
+}
+
+function mapFormStateToIncidentResponseAction(
+    formState: FormState,
+    formData: ResponseActionFormData
+): ResponseAction[] {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const incidentResponseActions: ResponseAction[] = formState.sections
+        .filter(section => !section.id.includes("addNewResponseActionSection"))
+        .map((_, index): ResponseAction => {
+            const mainTask = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.mainTask}_${index}`)
+            )?.value as string;
+            const subActivities = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.subActivities}_${index}`)
+            )?.value as string;
+            const subPillar = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.subPillar}_${index}`)
+            )?.value as string;
+            const dueDate = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.dueDate}_${index}`)
+            )?.value as Date;
+            const timeLine = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.timeLine}_${index}`)
+            )?.value as string;
+
+            const searchAssignROValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.searchAssignRO}_${index}`)
+            )?.value as string;
+            const searchAssignRO = formData.options.searchAssignRO.find(
+                option => option.id === searchAssignROValue
+            );
+            if (!searchAssignRO) throw new Error("Responsible officer not found");
+
+            const statusValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.status}_${index}`)
+            )?.value as string;
+            const status = formData.options.status.find(option => option.id === statusValue);
+            if (!status) throw new Error("Status not found");
+
+            const verificationValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.verification}_${index}`)
+            )?.value as string;
+            const verification = formData.options.verification.find(
+                option => option.id === verificationValue
+            );
+            if (!verification) throw new Error("Verification not found");
+
+            const responseAction = new ResponseAction({
+                id: formData.entity?.[index]?.id ?? "",
+                mainTask: mainTask,
+                subActivities: subActivities,
+                subPillar: subPillar,
+                dueDate: dueDate,
+                timeLine: timeLine,
+                searchAssignRO: searchAssignRO,
+                status: status.id as Status,
+                verification: verification.id as Verification,
+            });
+
+            return responseAction;
+        });
+
+    return incidentResponseActions;
 }
 
 function getRiskAssessmentQuestionsWithOption(

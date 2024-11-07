@@ -6,7 +6,7 @@ import { Id } from "../../../domain/entities/Ref";
 import { FormState } from "../../components/form/FormState";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
-import { updateAndValidateFormState } from "./disease-outbreak-event/utils/updateDiseaseOutbreakEventFormState";
+import { updateAndValidateFormState } from "./utils/updateDiseaseOutbreakEventFormState";
 import { FormFieldState } from "../../components/form/FormFieldsState";
 import { FormType } from "./FormPage";
 import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
@@ -16,6 +16,12 @@ import {
     addNewCustomQuestionSection,
     getAnotherOptionSection,
 } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
+import {
+    addNewResponseActionSection,
+    getAnotherResponseActionSection,
+} from "./incident-action/mapIncidentActionToInitialFormState";
+import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
+import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
 import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
@@ -51,59 +57,66 @@ type State = {
 };
 
 export function useForm(formType: FormType, id?: Id): State {
-    const { compositionRoot, currentUser } = useAppContext();
+    const { compositionRoot, currentUser, configurations } = useAppContext();
     const { goTo } = useRoutes();
     const { getCurrentEventTracker } = useCurrentEventTracker();
-
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [formState, setFormState] = useState<FormLoadState>({ kind: "loading" });
     const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
-    const [currentEventTrackerState, setCurrentEventTrackerState] =
-        useState<Maybe<DiseaseOutbreakEvent>>();
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
+    const [currentEventTrackerState, setCurrentEventTrackerState] =
+        useState<Maybe<DiseaseOutbreakEvent>>();
     const currentEventTracker = getCurrentEventTracker();
+    const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
+    useCheckWritePermission(formType);
 
     useEffect(() => {
+        // NOTICE: This if is to avoid infinite loop when the form page is reloaded from browser
         if (
             currentEventTrackerState &&
             currentEventTracker &&
-            currentEventTrackerState?.id === currentEventTracker?.id
+            currentEventTrackerState.id === currentEventTracker.id
         )
             return;
 
-        compositionRoot.getWithOptions.execute(formType, currentEventTracker, id).run(
-            formData => {
-                setConfigurableForm(formData);
-                setFormLabels(formData.labels);
-                setFormState({
-                    kind: "loaded",
-                    data: mapEntityToFormState(formData, !!id),
-                });
-                setCurrentEventTrackerState(currentEventTracker);
-            },
-            error => {
-                setFormState({
-                    kind: "error",
-                    message: i18n.t(`Form cannot be loaded`),
-                });
-                setGlobalMessage({
-                    text: i18n.t(`An error occurred while loading form: ${error.message}`),
-                    type: "error",
-                });
-                setCurrentEventTrackerState(currentEventTracker);
-            }
-        );
+        compositionRoot.getConfigurableForm
+            .execute(formType, currentEventTracker, configurations, id)
+            .run(
+                formData => {
+                    setConfigurableForm(formData);
+                    setFormLabels(formData.labels);
+                    setFormState({
+                        kind: "loaded",
+                        data: mapEntityToFormState(formData, !!id, existingEventTrackerTypes),
+                    });
+                    setCurrentEventTrackerState(currentEventTracker);
+                },
+                error => {
+                    setFormState({
+                        kind: "error",
+                        message: i18n.t(`Form cannot be loaded`),
+                    });
+                    setGlobalMessage({
+                        text: i18n.t(`An error occurred while loading form: ${error.message}`),
+                        type: "error",
+                    });
+                    setCurrentEventTrackerState(currentEventTracker);
+                }
+            );
     }, [
-        compositionRoot.getWithOptions,
+        compositionRoot.getConfigurableForm,
+        configurations,
         currentEventTracker,
         currentEventTrackerState,
+        existingEventTrackerTypes,
         formType,
         id,
     ]);
 
     const handleAddNew = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm) return;
+
         switch (configurableForm.type) {
             case "risk-assessment-questionnaire": {
                 setFormState(prevState => {
@@ -149,10 +162,52 @@ export function useForm(formType: FormType, id?: Id): State {
                 });
                 break;
             }
+            case "incident-response-action":
+                setFormState(prevState => {
+                    if (prevState.kind === "loaded") {
+                        const otherSections = prevState.data.sections.filter(
+                            section => section.id !== "addNewResponseActionSection"
+                        );
+                        const addAnotherSection = getAnotherResponseActionSection();
+                        const newResponseActionSection = addNewResponseActionSection(
+                            prevState.data.sections
+                        );
+
+                        const updatedData = {
+                            ...prevState.data,
+                            sections: [
+                                ...otherSections,
+                                newResponseActionSection,
+                                addAnotherSection,
+                            ],
+                        };
+
+                        const allNewFields = newResponseActionSection.fields;
+
+                        const updatedAndValidatedData = allNewFields.reduce(
+                            (acc, updatedFields) => {
+                                return updateAndValidateFormState(
+                                    acc,
+                                    updatedFields,
+                                    configurableForm
+                                );
+                            },
+                            updatedData
+                        );
+
+                        return {
+                            kind: "loaded",
+                            data: updatedAndValidatedData,
+                        };
+                    } else {
+                        return prevState;
+                    }
+                });
+                break;
             default:
                 break;
         }
-    }, [configurableForm, formState.kind]);
+    }, [configurableForm, formState]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {
@@ -176,6 +231,7 @@ export function useForm(formType: FormType, id?: Id): State {
     );
 
     const onPrimaryButtonClick = useCallback(() => {
+        const { eventTrackerConfigurations } = configurations.selectableOptions;
         if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
 
         setIsLoading(true);
@@ -185,7 +241,8 @@ export function useForm(formType: FormType, id?: Id): State {
             currentUser.username,
             configurableForm
         );
-        compositionRoot.save.execute(formData).run(
+
+        compositionRoot.save.execute(formData, configurations).run(
             diseaseOutbreakEventId => {
                 setIsLoading(false);
 
@@ -193,7 +250,12 @@ export function useForm(formType: FormType, id?: Id): State {
                     case "disease-outbreak-event":
                         if (diseaseOutbreakEventId && formData.entity) {
                             compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
-                                .execute(diseaseOutbreakEventId, formData.entity)
+                                .execute(
+                                    diseaseOutbreakEventId,
+                                    formData.entity,
+                                    eventTrackerConfigurations.hazardTypes,
+                                    eventTrackerConfigurations.suspectedDiseases
+                                )
                                 .run(
                                     () => {},
                                     err => {
@@ -238,6 +300,22 @@ export function useForm(formType: FormType, id?: Id): State {
                             type: "success",
                         });
                         break;
+                    case "incident-action-plan":
+                        goTo(RouteName.CREATE_FORM, {
+                            formType: "incident-response-action",
+                        });
+                        setGlobalMessage({
+                            text: i18n.t(`Incident Action Plan saved successfully`),
+                            type: "success",
+                        });
+                        break;
+                    case "incident-response-action":
+                        if (currentEventTracker?.id) goTo(RouteName.INCIDENT_ACTION_PLAN);
+                        setGlobalMessage({
+                            text: i18n.t(`Incident Response Actions saved successfully`),
+                            type: "success",
+                        });
+                        break;
 
                     case "incident-management-team-member-assignment":
                         if (currentEventTracker?.id)
@@ -259,11 +337,12 @@ export function useForm(formType: FormType, id?: Id): State {
             }
         );
     }, [
+        configurations,
         formState,
         configurableForm,
         currentUser.username,
         compositionRoot,
-        currentEventTracker,
+        currentEventTracker?.id,
         goTo,
     ]);
 
@@ -275,15 +354,20 @@ export function useForm(formType: FormType, id?: Id): State {
                         id: currentEventTracker.id,
                     });
                     break;
+                case "incident-action-plan":
+                case "incident-response-action":
+                    goTo(RouteName.INCIDENT_ACTION_PLAN);
+                    break;
                 default:
                     goTo(RouteName.EVENT_TRACKER, {
                         id: currentEventTracker.id,
                     });
+                    break;
             }
         } else {
             goTo(RouteName.DASHBOARD);
         }
-    }, [currentEventTracker, goTo, formType]);
+    }, [currentEventTracker, formType, goTo]);
 
     return {
         formLabels,

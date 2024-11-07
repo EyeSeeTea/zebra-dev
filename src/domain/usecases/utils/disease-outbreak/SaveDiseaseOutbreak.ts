@@ -1,77 +1,80 @@
 import { FutureData } from "../../../../data/api-futures";
 import { INCIDENT_MANAGER_ROLE } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { Configurations } from "../../../entities/AppConfigurations";
 import { DiseaseOutbreakEventBaseAttrs } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
 import { TeamMember, TeamRole } from "../../../entities/incident-management-team/TeamMember";
 import { Id } from "../../../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
-import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
 
 export function saveDiseaseOutbreak(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
-        teamMemberRepository: TeamMemberRepository;
     },
-    diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs,
+    configurations: Configurations
 ): FutureData<Id> {
     return repositories.diseaseOutbreakEventRepository
         .save(diseaseOutbreakEvent)
         .flatMap((diseaseOutbreakId: Id) => {
             const diseaseOutbreakEventWithId = { ...diseaseOutbreakEvent, id: diseaseOutbreakId };
-            return saveIncidentManagerTeamMemberRole(repositories, diseaseOutbreakEventWithId);
+            return saveIncidentManagerTeamMemberRole(
+                repositories,
+                diseaseOutbreakEventWithId,
+                configurations
+            );
         });
 }
 
 function saveIncidentManagerTeamMemberRole(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
-        teamMemberRepository: TeamMemberRepository;
     },
-    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
+    configurations: Configurations
 ): FutureData<Id> {
-    return repositories.teamMemberRepository.getAll().flatMap(teamMembers => {
-        return repositories.diseaseOutbreakEventRepository
-            .getIncidentManagementTeam(diseaseOutbreakEventBaseAttrs.id, teamMembers)
-            .flatMap(incidentManagementTeam => {
-                const incidentManagerTeamMemberFound = incidentManagementTeam?.teamHierarchy?.find(
-                    teamMember =>
-                        teamMember.teamRoles?.some(
-                            teamRole => teamRole.roleId === INCIDENT_MANAGER_ROLE
-                        )
-                );
+    const teamMembers = configurations.teamMembers.all;
+    return repositories.diseaseOutbreakEventRepository
+        .getIncidentManagementTeam(diseaseOutbreakEventBaseAttrs.id, teamMembers)
+        .flatMap(incidentManagementTeam => {
+            const incidentManagerTeamMemberFound = incidentManagementTeam?.teamHierarchy?.find(
+                teamMember =>
+                    teamMember.teamRoles?.some(
+                        teamRole => teamRole.roleId === INCIDENT_MANAGER_ROLE
+                    )
+            );
 
-                const incidentManagerTeamRole = incidentManagerTeamMemberFound?.teamRoles?.find(
-                    teamRole => teamRole.roleId === INCIDENT_MANAGER_ROLE
-                );
+            const incidentManagerTeamRole = incidentManagerTeamMemberFound?.teamRoles?.find(
+                teamRole => teamRole.roleId === INCIDENT_MANAGER_ROLE
+            );
 
-                if (
-                    incidentManagerTeamMemberFound &&
-                    incidentManagerTeamMemberFound.username !==
-                        diseaseOutbreakEventBaseAttrs.incidentManagerName &&
-                    incidentManagerTeamRole
-                ) {
-                    return changeIncidentManager(
-                        repositories,
-                        diseaseOutbreakEventBaseAttrs,
-                        incidentManagerTeamMemberFound,
-                        incidentManagerTeamRole,
-                        teamMembers
-                    );
-                } else {
-                    return createNewIncidentManager(
-                        repositories,
-                        diseaseOutbreakEventBaseAttrs,
-                        teamMembers
-                    );
-                }
-            });
-    });
+            if (!incidentManagerTeamMemberFound) {
+                return createNewIncidentManager(
+                    repositories,
+                    diseaseOutbreakEventBaseAttrs,
+                    teamMembers
+                );
+            } else if (
+                incidentManagerTeamMemberFound.username !==
+                    diseaseOutbreakEventBaseAttrs.incidentManagerName &&
+                incidentManagerTeamRole
+            ) {
+                return changeIncidentManager(
+                    repositories,
+                    diseaseOutbreakEventBaseAttrs,
+                    incidentManagerTeamMemberFound,
+                    incidentManagerTeamRole,
+                    teamMembers
+                );
+            } else {
+                return Future.success(diseaseOutbreakEventBaseAttrs.id);
+            }
+        });
 }
 
 function changeIncidentManager(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
-        teamMemberRepository: TeamMemberRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
     oldIncidentManager: TeamMember,
@@ -100,10 +103,9 @@ function changeIncidentManager(
         };
 
         return repositories.diseaseOutbreakEventRepository
-            .deleteIncidentManagementTeamMemberRole(
-                diseaseOutbreakEventBaseAttrs.id,
-                oldIncidentManagerTeamRole.id
-            )
+            .deleteIncidentManagementTeamMemberRoles(diseaseOutbreakEventBaseAttrs.id, [
+                oldIncidentManagerTeamRole.id,
+            ])
             .flatMap(() => {
                 return repositories.diseaseOutbreakEventRepository
                     .saveIncidentManagementTeamMemberRole(
@@ -121,7 +123,6 @@ function changeIncidentManager(
 function createNewIncidentManager(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
-        teamMemberRepository: TeamMemberRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
     teamMembers: TeamMember[]

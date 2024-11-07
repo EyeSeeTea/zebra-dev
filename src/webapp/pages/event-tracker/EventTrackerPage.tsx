@@ -3,10 +3,9 @@ import styled from "styled-components";
 import { Box, Button } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
-
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
-import { FormSummary } from "../../components/form/form-summary/FormSummary";
+import { EventTrackerFormSummary } from "../../components/form/form-summary/EventTrackerFormSummary";
 import { Chart } from "../../components/chart/Chart";
 import { Section } from "../../components/section/Section";
 import { BasicTable, TableColumn } from "../../components/table/BasicTable";
@@ -43,15 +42,17 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         id: string;
     }>();
     const { goTo } = useRoutes();
-    const { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails } =
-        useDiseaseOutbreakEvent(id);
-    const { changeCurrentEventTracker: changeCurrentEventTrackerId, getCurrentEventTracker } =
-        useCurrentEventTracker();
+    const {
+        formSummary,
+        summaryError,
+        riskAssessmentRows,
+        eventTrackerDetails,
+        orderByRiskAssessmentDate,
+    } = useDiseaseOutbreakEvent(id);
+    const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
-
     const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
-
     const { dateRangeFilter } = useMapFilters();
 
     const goToRiskSummaryForm = useCallback(() => {
@@ -66,12 +67,14 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     );
 
     useEffect(() => {
-        if (eventTrackerDetails) changeCurrentEventTrackerId(eventTrackerDetails);
-    }, [changeCurrentEventTrackerId, eventTrackerDetails, id]);
+        if (eventTrackerDetails) {
+            changeCurrentEventTracker(eventTrackerDetails);
+        }
+    }, [changeCurrentEventTracker, eventTrackerDetails]);
 
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
-            <FormSummary
+            <EventTrackerFormSummary
                 id={id}
                 formType="disease-outbreak-event"
                 formSummary={formSummary}
@@ -132,7 +135,11 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 titleVariant="secondary"
             >
                 {riskAssessmentRows.length > 0 ? (
-                    <BasicTable columns={riskAssessmentColumns} rows={riskAssessmentRows} />
+                    <BasicTable
+                        columns={riskAssessmentColumns}
+                        rows={riskAssessmentRows}
+                        onOrderBy={orderByRiskAssessmentDate}
+                    />
                 ) : (
                     <NoticeBox title={i18n.t("Risk assessment incomplete")}>
                         {i18n.t("Risks associated with this event have not yet been assessed.")}

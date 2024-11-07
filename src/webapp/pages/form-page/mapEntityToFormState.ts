@@ -1,10 +1,18 @@
 import { ConfigurableForm } from "../../../domain/entities/ConfigurableForm";
+import {
+    DiseaseNames,
+    HazardNames,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../../domain/entities/Ref";
 import { FormState } from "../../components/form/FormState";
 import { User } from "../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../components/utils/option";
 import { mapDiseaseOutbreakEventToInitialFormState } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
+import {
+    mapIncidentActionPlanToInitialFormState,
+    mapIncidentResponseActionToInitialFormState,
+} from "./incident-action/mapIncidentActionToInitialFormState";
 import { mapIncidentManagementTeamMemberToInitialFormState } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import {
     mapRiskAssessmentQuestionnaireToInitialFormState,
@@ -14,17 +22,26 @@ import {
 
 export function mapEntityToFormState(
     configurableForm: ConfigurableForm,
-    editMode?: boolean
+    editMode?: boolean,
+    existingEventTrackerTypes?: (DiseaseNames | HazardNames)[]
 ): FormState {
     switch (configurableForm.type) {
         case "disease-outbreak-event":
-            return mapDiseaseOutbreakEventToInitialFormState(configurableForm, editMode ?? false);
+            return mapDiseaseOutbreakEventToInitialFormState(
+                configurableForm,
+                editMode ?? false,
+                existingEventTrackerTypes ?? []
+            );
         case "risk-assessment-grading":
             return mapRiskGradingToInitialFormState(configurableForm);
         case "risk-assessment-summary":
             return mapRiskAssessmentSummaryToInitialFormState(configurableForm);
         case "risk-assessment-questionnaire":
             return mapRiskAssessmentQuestionnaireToInitialFormState(configurableForm);
+        case "incident-action-plan":
+            return mapIncidentActionPlanToInitialFormState(configurableForm);
+        case "incident-response-action":
+            return mapIncidentResponseActionToInitialFormState(configurableForm);
         case "incident-management-team-member-assignment":
             return mapIncidentManagementTeamMemberToInitialFormState(configurableForm);
     }

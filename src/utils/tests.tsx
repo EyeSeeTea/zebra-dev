@@ -18,6 +18,55 @@ export function getTestContext() {
         api: {} as D2Api,
         orgUnits: [],
         isDev: true,
+        configurations: {
+            selectableOptions: {
+                eventTrackerConfigurations: {
+                    dataSources: [],
+                    hazardTypes: [],
+                    mainSyndromes: [],
+                    suspectedDiseases: [],
+                    notificationSources: [],
+                    incidentStatus: [],
+                    incidentManagers: [],
+                },
+                riskAssessmentGradingConfigurations: {
+                    populationAtRisk: [],
+                    geographicalSpread: [],
+                    capability: [],
+                    capacity: [],
+                    lowMediumHigh: [],
+                },
+                riskAssessmentSummaryConfigurations: {
+                    overAllConfidencGlobal: [],
+                    overAllConfidencNational: [],
+                    overAllConfidencRegional: [],
+                    overallRiskGlobal: [],
+                    overallRiskNational: [],
+                    overallRiskRegional: [],
+                    riskAssessors: [],
+                },
+                riskAssessmentQuestionnaireConfigurations: {
+                    consequences: [],
+                    likelihood: [],
+                    risk: [],
+                },
+                incidentActionPlanConfigurations: {
+                    iapType: [],
+                    phoecLevel: [],
+                },
+                incidentResponseActionConfigurations: {
+                    searchAssignRO: [],
+                    status: [],
+                    verification: [],
+                },
+            },
+            teamMembers: {
+                all: [],
+                riskAssessors: [],
+                incidentManagers: [],
+                forIncidentManagementTeam: [],
+            },
+        },
     };
 
     return context;

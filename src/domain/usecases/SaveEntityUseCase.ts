@@ -5,29 +5,34 @@ import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-even
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
+import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
-import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbreak";
+import { Configurations } from "../entities/AppConfigurations";
+import moment from "moment";
 
 export class SaveEntityUseCase {
     constructor(
         private options: {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             riskAssessmentRepository: RiskAssessmentRepository;
-            teamMemberRepository: TeamMemberRepository;
+            incidentActionRepository: IncidentActionRepository;
         }
     ) {}
 
-    public execute(formData: ConfigurableForm): FutureData<void | Id> {
+    public execute(
+        formData: ConfigurableForm,
+        configurations: Configurations
+    ): FutureData<void | Id> {
         if (!formData || !formData.entity) return Future.error(new Error("No form data found"));
         switch (formData.type) {
             case "disease-outbreak-event":
                 return saveDiseaseOutbreak(
                     {
                         diseaseOutbreakEventRepository: this.options.diseaseOutbreakEventRepository,
-                        teamMemberRepository: this.options.teamMemberRepository,
                     },
-                    formData.entity
+                    formData.entity,
+                    configurations
                 );
             case "risk-assessment-grading":
             case "risk-assessment-summary":
@@ -36,7 +41,12 @@ export class SaveEntityUseCase {
                     formData,
                     formData.eventTrackerDetails.id
                 );
-
+            case "incident-action-plan":
+            case "incident-response-action":
+                return this.options.incidentActionRepository.saveIncidentAction(
+                    formData,
+                    formData.eventTrackerDetails.id
+                );
             case "incident-management-team-member-assignment": {
                 const isIncidentManager = formData.entity.teamRoles?.find(
                     role => role.roleId === INCIDENT_MANAGER_ROLE
@@ -56,7 +66,7 @@ export class SaveEntityUseCase {
                             ) {
                                 const updatedDiseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs = {
                                     ...diseaseOutbreakEventBase,
-                                    lastUpdated: new Date(),
+                                    lastUpdated: moment.utc().toDate(),
                                     incidentManagerName: updatedIncidentManager,
                                 };
 
@@ -64,9 +74,9 @@ export class SaveEntityUseCase {
                                     {
                                         diseaseOutbreakEventRepository:
                                             this.options.diseaseOutbreakEventRepository,
-                                        teamMemberRepository: this.options.teamMemberRepository,
                                     },
-                                    updatedDiseaseOutbreakEvent
+                                    updatedDiseaseOutbreakEvent,
+                                    configurations
                                 );
                             } else {
                                 return Future.success(undefined);

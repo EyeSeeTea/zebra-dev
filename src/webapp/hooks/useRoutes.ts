@@ -19,6 +19,8 @@ const formTypes = [
     "risk-assessment-grading",
     "risk-assessment-summary",
     "risk-assessment-questionnaire",
+    "incident-action-plan",
+    "incident-response-action",
     "incident-management-team-member-assignment",
 ] as const satisfies FormType[];
 
@@ -28,7 +30,7 @@ export const routes: Record<RouteName, string> = {
     [RouteName.CREATE_FORM]: `/create/${formType}`,
     [RouteName.EDIT_FORM]: `/edit/${formType}/:id`,
     [RouteName.EVENT_TRACKER]: "/event-tracker/:id",
-    [RouteName.IM_TEAM_BUILDER]: "/incident-management-team-builder/:id",
+    [RouteName.IM_TEAM_BUILDER]: "/:id/incident-management-team-builder",
     [RouteName.INCIDENT_ACTION_PLAN]: "/incident-action-plan",
     [RouteName.RESOURCES]: "/resources",
     [RouteName.DASHBOARD]: "/",

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-10-09T10:56:24.909Z\n"
-"PO-Revision-Date: 2024-10-09T10:56:24.909Z\n"
+"POT-Creation-Date: 2024-11-07T10:23:53.316Z\n"
+"PO-Revision-Date: 2024-11-07T10:23:53.316Z\n"
 
 msgid "Low"
 msgstr ""
@@ -84,7 +84,16 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
+msgid "Edit Action Plan"
+msgstr ""
+
+msgid "Event completed"
+msgstr ""
+
 msgid "Edit Details"
+msgstr ""
+
+msgid "Complete Event"
 msgstr ""
 
 msgid "Notes"
@@ -94,6 +103,9 @@ msgid "Edit Profile"
 msgstr ""
 
 msgid "Currently assigned:"
+msgstr ""
+
+msgid "Error loading current Incident Management Team"
 msgstr ""
 
 msgid "Create Event"
@@ -186,13 +198,31 @@ msgstr ""
 msgid "Risk Assessment Questionnaire saved successfully"
 msgstr ""
 
+msgid "Incident Action Plan saved successfully"
+msgstr ""
+
+msgid "Incident Response Actions saved successfully"
+msgstr ""
+
 msgid "Incident Management Team Member saved successfully"
+msgstr ""
+
+msgid "Create an incident action plan"
+msgstr ""
+
+msgid "No plan has been created for this incident"
+msgstr ""
+
+msgid "Create IAP"
 msgstr ""
 
 msgid "Incident Action Plan"
 msgstr ""
 
-msgid "Cholera in NW Province, June 2023"
+msgid "Team"
+msgstr ""
+
+msgid "Edit Team"
 msgstr ""
 
 msgid "Incident Management Team Builder"
@@ -204,10 +234,16 @@ msgstr ""
 msgid "Assign Role"
 msgstr ""
 
+msgid "Delete Roles"
+msgstr ""
+
 msgid "Delete Role"
 msgstr ""
 
-msgid "Delete team role"
+msgid "Confirm deletion"
+msgstr ""
+
+msgid "Delete"
 msgstr ""
 
 msgid "Resources"

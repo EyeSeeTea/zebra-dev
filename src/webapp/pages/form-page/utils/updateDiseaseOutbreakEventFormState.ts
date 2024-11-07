@@ -1,14 +1,17 @@
-import { ConfigurableForm } from "../../../../../domain/entities/ConfigurableForm";
-import { DiseaseOutbreakEvent } from "../../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { ValidationError } from "../../../../../domain/entities/ValidationError";
-import { FormFieldState } from "../../../../components/form/FormFieldsState";
+import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { ConfigurableForm } from "../../../../domain/entities/ConfigurableForm";
+import { DiseaseOutbreakEvent } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { IncidentManagementTeam } from "../../../../domain/entities/incident-management-team/IncidentManagementTeam";
+import { ValidationError } from "../../../../domain/entities/ValidationError";
+import { FormFieldState } from "../../../components/form/FormFieldsState";
+import { getFieldValueByIdFromSections } from "../../../components/form/FormSectionsState";
 import {
     FormState,
     isValidForm,
     updateFormStateAndApplySideEffects,
     updateFormStateWithFieldErrors,
     validateForm,
-} from "../../../../components/form/FormState";
+} from "../../../components/form/FormState";
 import { applyRulesInFormState } from "./applyRulesInFormState";
 
 export function updateAndValidateFormState(
@@ -63,8 +66,28 @@ function validateFormState(
             break;
         case "risk-assessment-questionnaire":
             break;
-        case "incident-management-team-member-assignment":
+        case "incident-action-plan":
             break;
+        case "incident-response-action":
+            break;
+        case "incident-management-team-member-assignment": {
+            const reportsToUsername = getFieldValueByIdFromSections(
+                updatedForm.sections,
+                incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername
+            ) as string | undefined;
+            const teamMemberAssigned = getFieldValueByIdFromSections(
+                updatedForm.sections,
+                incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned
+            ) as string | undefined;
+
+            return IncidentManagementTeam.validateNotCyclicalDependency(
+                teamMemberAssigned,
+                reportsToUsername,
+                configurableForm?.currentIncidentManagementTeam?.teamHierarchy || [],
+                updatedField.id
+            );
+            break;
+        }
     }
 
     return [...formValidationErrors, ...entityValidationErrors];

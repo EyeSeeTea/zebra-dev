@@ -1,37 +1,12 @@
 import { Struct } from "../generic/Struct";
 import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
-import { Code, Id, NamedRef } from "../Ref";
+import { Id } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
-import {
-    DataSource,
-    DateWithNarrative,
-    EarlyResponseActions,
-    HazardType,
-    NationalIncidentStatus,
-} from "./DiseaseOutbreakEvent";
+import { DiseaseOutbreakEventBaseAttrs } from "./DiseaseOutbreakEvent";
 
-export type DiseaseOutbreakEventAggregateRootBaseAttrs = NamedRef & {
-    status: "ACTIVE" | "COMPLETED" | "CANCELLED";
-    created?: Date;
-    lastUpdated?: Date;
-    createdByName: Maybe<string>;
-    dataSource: DataSource;
-    hazardType: Maybe<HazardType>;
-    mainSyndromeCode: Maybe<Code>;
-    suspectedDiseaseCode: Maybe<Code>;
-    notificationSourceCode: Code;
-    areasAffectedProvinceIds: Id[];
-    areasAffectedDistrictIds: Id[];
-    incidentStatus: NationalIncidentStatus;
-    emerged: DateWithNarrative;
-    detected: DateWithNarrative;
-    notified: DateWithNarrative;
-    earlyResponseActions: EarlyResponseActions;
-    incidentManagerName: string;
-    notes: Maybe<string>;
-};
+export type DiseaseOutbreakEventAggregateRootBaseAttrs = DiseaseOutbreakEventBaseAttrs;
 
 export type IncidentManagementTeamRole = {
     id: Id;
@@ -46,6 +21,7 @@ type IncidentManagementTeamMember = {
 
 interface IncidentManagementTeamAttrsInAggregateRoot {
     teamHierarchy: IncidentManagementTeamMember[];
+    lastUpdated: Maybe<Date>;
 }
 
 export class IncidentManagementTeamInAggregateRoot extends Struct<IncidentManagementTeamAttrsInAggregateRoot>() {}

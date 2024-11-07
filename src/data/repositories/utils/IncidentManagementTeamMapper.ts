@@ -20,6 +20,7 @@ import {
     IncidentManagementTeamInAggregateRoot,
     IncidentManagementTeamRole,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
+import { getISODateAsLocaleDateString } from "./DateTimeHelper";
 
 export function mapD2EventsToIncidentManagementTeam(
     diseaseOutbreakId: Id,
@@ -55,8 +56,17 @@ export function mapD2EventsToIncidentManagementTeam(
         []
     );
 
+    const sortedByUpdatedDates = d2Events.sort(function (a, b) {
+        if (!a.updatedAt) return -1;
+        if (!b.updatedAt) return 1;
+        return a.updatedAt < b.updatedAt ? -1 : a.updatedAt > b.updatedAt ? 1 : 0;
+    });
+
     return new IncidentManagementTeam({
         teamHierarchy: teamHierarchy,
+        lastUpdated: sortedByUpdatedDates[0]?.updatedAt
+            ? getISODateAsLocaleDateString(sortedByUpdatedDates[0]?.updatedAt)
+            : undefined,
     });
 }
 
@@ -215,8 +225,17 @@ export function mapD2EventsToIncidentManagementTeamInAggregateRoot(
         }
     );
 
+    const sortedByUpdatedDates = d2Events.sort(function (a, b) {
+        if (!a.updatedAt) return -1;
+        if (!b.updatedAt) return 1;
+        return a.updatedAt < b.updatedAt ? -1 : a.updatedAt > b.updatedAt ? 1 : 0;
+    });
+
     return new IncidentManagementTeamInAggregateRoot({
         teamHierarchy: _c(incidentManagementTeamMembers).compact().toArray(),
+        lastUpdated: sortedByUpdatedDates[0]?.updatedAt
+            ? getISODateAsLocaleDateString(sortedByUpdatedDates[0]?.updatedAt)
+            : undefined,
     });
 }
 

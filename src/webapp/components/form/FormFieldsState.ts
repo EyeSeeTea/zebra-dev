@@ -24,6 +24,7 @@ type FormFieldStateBase<T> = {
     maxWidth?: string;
     value: T;
     type: FieldType;
+    updateAllStateWithValidationErrors?: boolean;
 };
 
 export type FormTextFieldState = FormFieldStateBase<string> & {
@@ -151,15 +152,20 @@ export function updateFields(
     fieldValidationErrors?: ValidationError[]
 ): FormFieldState[] {
     return formFields.map(field => {
+        const errors =
+            fieldValidationErrors?.find(error => error.property === field.id)?.errors || [];
         if (field.id === updatedField.id) {
             return {
                 ...updatedField,
-                errors:
-                    fieldValidationErrors?.find(error => error.property === updatedField.id)
-                        ?.errors || [],
+                errors: errors,
             };
         } else {
-            return field;
+            return updatedField.updateAllStateWithValidationErrors
+                ? {
+                      ...field,
+                      errors: errors,
+                  }
+                : field;
         }
     });
 }

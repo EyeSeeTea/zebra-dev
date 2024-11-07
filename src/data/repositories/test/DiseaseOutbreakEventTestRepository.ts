@@ -8,11 +8,15 @@ import { DiseaseOutbreakEventAggregateRoot } from "../../../domain/entities/dise
 import { Future } from "../../../domain/entities/generic/Future";
 import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
 import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
-import { Id, ConfigLabel } from "../../../domain/entities/Ref";
+import { Id } from "../../../domain/entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/DiseaseOutbreakEventRepository";
 import { FutureData } from "../../api-futures";
 
 export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventRepository {
+    complete(_id: Id): FutureData<void> {
+        return Future.success(undefined);
+    }
+
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs> {
         return Future.success({
             id: id,
@@ -35,17 +39,18 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             earlyResponseActions: {
                 initiateInvestigation: new Date(),
                 conductEpidemiologicalAnalysis: new Date(),
-                laboratoryConfirmation: { date: new Date(), na: false },
+                laboratoryConfirmation: new Date(),
                 appropriateCaseManagement: { date: new Date(), na: false },
                 initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                 initiateRiskCommunication: { date: new Date(), na: false },
-                establishCoordination: new Date(),
+                establishCoordination: { date: new Date(), na: false },
                 responseNarrative: "responseNarrative",
             },
             incidentManagerName: "incidentManager",
             notes: undefined,
         });
     }
+
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
         return Future.success([
             {
@@ -69,11 +74,11 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 earlyResponseActions: {
                     initiateInvestigation: new Date(),
                     conductEpidemiologicalAnalysis: new Date(),
-                    laboratoryConfirmation: { date: new Date(), na: false },
+                    laboratoryConfirmation: new Date(),
                     appropriateCaseManagement: { date: new Date(), na: false },
                     initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                     initiateRiskCommunication: { date: new Date(), na: false },
-                    establishCoordination: new Date(),
+                    establishCoordination: { date: new Date(), na: false },
                     responseNarrative: "responseNarrative",
                 },
                 incidentManagerName: "incidentManager",
@@ -100,11 +105,11 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 earlyResponseActions: {
                     initiateInvestigation: new Date(),
                     conductEpidemiologicalAnalysis: new Date(),
-                    laboratoryConfirmation: { date: new Date(), na: false },
+                    laboratoryConfirmation: new Date(),
                     appropriateCaseManagement: { date: new Date(), na: false },
                     initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                     initiateRiskCommunication: { date: new Date(), na: false },
-                    establishCoordination: new Date(),
+                    establishCoordination: { date: new Date(), na: false },
                     responseNarrative: "responseNarrative",
                 },
                 incidentManagerName: "incidentManager",
@@ -121,10 +126,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
         throw new Error("Method not implemented.");
     }
 
-    getConfigStrings(): FutureData<ConfigLabel[]> {
-        throw new Error("Method not implemented.");
-    }
-
     getIncidentManagementTeam(
         _diseaseOutbreakId: Id,
         _teamMembers: TeamMember[]
@@ -132,6 +133,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
         return Future.success(
             new IncidentManagementTeam({
                 teamHierarchy: [],
+                lastUpdated: new Date(),
             })
         );
     }
@@ -165,8 +167,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 mainSyndromeCode: undefined,
                 suspectedDiseaseCode: undefined,
                 notificationSourceCode: "1",
-                areasAffectedDistrictIds: [],
-                areasAffectedProvinceIds: [],
                 incidentStatus: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
                 emerged: { date: new Date(), narrative: "emerged" },
                 detected: { date: new Date(), narrative: "detected" },
@@ -174,11 +174,11 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 earlyResponseActions: {
                     initiateInvestigation: new Date(),
                     conductEpidemiologicalAnalysis: new Date(),
-                    laboratoryConfirmation: { date: new Date(), na: false },
+                    laboratoryConfirmation: new Date(),
                     appropriateCaseManagement: { date: new Date(), na: false },
                     initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                     initiateRiskCommunication: { date: new Date(), na: false },
-                    establishCoordination: new Date(),
+                    establishCoordination: { date: new Date(), na: false },
                     responseNarrative: "responseNarrative",
                 },
                 incidentManagerName: "incidentManager",
@@ -188,5 +188,12 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 incidentManagementTeam: undefined,
             })
         );
+    }
+
+    deleteIncidentManagementTeamMemberRoles(
+        _diseaseOutbreakId: Id,
+        _incidentManagementTeamRoleIds: Id[]
+    ): FutureData<void> {
+        return Future.success(undefined);
     }
 }
