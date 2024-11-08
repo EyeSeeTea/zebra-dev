@@ -52,7 +52,7 @@ export function mapD2EventsToIncidentManagementTeam(
     const sortedByUpdatedDates = d2Events.sort(function (a, b) {
         if (!a.updatedAt) return -1;
         if (!b.updatedAt) return 1;
-        return a.updatedAt < b.updatedAt ? -1 : a.updatedAt > b.updatedAt ? 1 : 0;
+        return a.updatedAt > b.updatedAt ? -1 : a.updatedAt < b.updatedAt ? 1 : 0;
     });
 
     return new IncidentManagementTeam({
