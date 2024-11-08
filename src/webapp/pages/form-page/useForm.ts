@@ -23,6 +23,7 @@ import {
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
 
 export type GlobalMessage = {
     text: string;
@@ -67,8 +68,17 @@ export function useForm(formType: FormType, id?: Id): State {
     const [isLoading, setIsLoading] = useState(false);
     const currentEventTracker = getCurrentEventTracker();
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
+    const { dataPerformanceOverview } = usePerformanceOverview();
     useCheckWritePermission(formType);
     const snackbar = useSnackbar();
+
+    const allDataPerformanceEvents = dataPerformanceOverview?.map(
+        event => event.hazardType || event.suspectedDisease
+    );
+    const existingEventTrackers =
+        existingEventTrackerTypes.length === 0
+            ? allDataPerformanceEvents
+            : existingEventTrackerTypes;
 
     useEffect(() => {
         compositionRoot.getConfigurableForm
@@ -79,7 +89,7 @@ export function useForm(formType: FormType, id?: Id): State {
                     setFormLabels(formData.labels);
                     setFormState({
                         kind: "loaded",
-                        data: mapEntityToFormState(formData, !!id, existingEventTrackerTypes),
+                        data: mapEntityToFormState(formData, !!id, existingEventTrackers),
                     });
                 },
                 error => {
@@ -99,7 +109,7 @@ export function useForm(formType: FormType, id?: Id): State {
         id,
         currentEventTracker,
         configurations,
-        existingEventTrackerTypes,
+        existingEventTrackers,
         snackbar,
         goTo,
     ]);
