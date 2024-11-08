@@ -77,7 +77,6 @@ export function mapDataElementsToIncidentResponseActions(
         const subPillar = getValueById(dataValues, incidentResponseActionsIds.subPillar);
         const searchAssignRO = getValueById(dataValues, incidentResponseActionsIds.searchAssignRO);
         const dueDate = getValueById(dataValues, incidentResponseActionsIds.dueDate);
-        const timeLine = getValueById(dataValues, incidentResponseActionsIds.timeLine);
         const status = getValueById(dataValues, incidentResponseActionsIds.status) as Status;
         const verification = getValueById(
             dataValues,
@@ -91,7 +90,6 @@ export function mapDataElementsToIncidentResponseActions(
             subPillar,
             searchAssignRO,
             dueDate,
-            timeLine,
             status,
             verification,
         };
@@ -173,19 +171,24 @@ export function mapIncidentResponseActionToDataElements(
         const dataElementValues: Record<ResponseActionCodes, string> =
             getValueFromIncidentResponseAction(incidentResponseAction);
 
-        const dataValues: DataValue[] = programStageDataElementsMetadata.map(programStage => {
-            if (!isStringInIncidentResponseActionCodes(programStage.dataElement.code)) {
-                throw new Error(
-                    `DataElement code ${programStage.dataElement.code} not found in Incident Action Plan Codes`
-                );
-            }
-            const typedCode: IncidentResponseActionKeyCode = programStage.dataElement.code;
+        const dataValues: DataValue[] = programStageDataElementsMetadata
+            .filter(
+                programStageDataElement =>
+                    programStageDataElement.dataElement.id !== incidentResponseActionsIds.timeLine
+            )
+            .map(programStage => {
+                if (!isStringInIncidentResponseActionCodes(programStage.dataElement.code)) {
+                    throw new Error(
+                        `DataElement code ${programStage.dataElement.code} not found in Incident Action Plan Codes`
+                    );
+                }
+                const typedCode: IncidentResponseActionKeyCode = programStage.dataElement.code;
 
-            return getPopulatedDataElement(
-                programStage.dataElement.id,
-                dataElementValues[typedCode]
-            );
-        });
+                return getPopulatedDataElement(
+                    programStage.dataElement.id,
+                    dataElementValues[typedCode]
+                );
+            });
 
         return getIncidentActionTrackerEvent(
             programStageId,
