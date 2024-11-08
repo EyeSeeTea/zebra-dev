@@ -93,8 +93,8 @@ export function useIncidentActionPlan(id: Id) {
                 if (
                     incidentActionExists &&
                     currentEventTracker &&
-                    (currentEventTracker.incidentActionPlan?.actionPlan?.lastUpdated !==
-                        incidentActionPlan.actionPlan?.lastUpdated ||
+                    (currentEventTracker.incidentActionPlan?.actionPlan?.lastUpdated?.getTime() !==
+                        incidentActionPlan.actionPlan?.lastUpdated?.getTime() ||
                         currentEventTracker.incidentActionPlan?.responseActions.length !==
                             incidentActionPlan.responseActions.length)
                 ) {
