@@ -1,7 +1,7 @@
 {
-    "name": "zebra-perf-test",
+    "name": "zebra",
     "description": "Zambia Emergency Bridge for Response Application",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "license": "GPL-3.0",
     "author": "EyeSeeTea team",
     "homepage": ".",
@@ -117,8 +117,8 @@
         "script-map-outbreak-to-alerts": "npx ts-node -r dotenv/config src/scripts/mapDiseaseOutbreakToAlerts.ts"
     },
     "manifest.webapp": {
-        "name": "ZEBRA-PERFTEST",
-        "description": "Zambia Emergency Bridge for Response Application-PERFTEST",
+        "name": "ZEBRA",
+        "description": "Zambia Emergency Bridge for Response Application",
         "icons": {
             "48": "icon.png"
         },
