@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Box, Button } from "@material-ui/core";
+import { Box, Button, useTheme } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import i18n from "../../../utils/i18n";
@@ -59,6 +59,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
     const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
     const { dateRangeFilter } = useMapFilters();
+    const theme = useTheme();
 
     const goToRiskSummaryForm = useCallback(() => {
         goTo(RouteName.CREATE_FORM, {
@@ -218,12 +219,23 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 open={openCompleteModal}
                 onClose={onCloseCompleteModal}
                 title={i18n.t("Complete event")}
-                closeLabel={i18n.t("Cancel")}
+                closeLabel={i18n.t("Not now")}
                 footerButtons={
-                    <Button onClick={() => onCompleteClick()}>{i18n.t("Confirm")}</Button>
+                    <Button
+                        variant="contained"
+                        onClick={() => onCompleteClick()}
+                        style={{
+                            backgroundColor: theme.palette.error.main,
+                            color: theme.palette.common.white,
+                        }}
+                    >
+                        {i18n.t("Complete")}
+                    </Button>
                 }
+                alignFooterButtons="end"
+                buttonDirection="row-reverse"
             >
-                {i18n.t("Are you sure you want to complete this event?")}
+                {i18n.t("Are you sure you want to complete this Event? This cannot be undone.")}
             </SimpleModal>
         </Layout>
     );
