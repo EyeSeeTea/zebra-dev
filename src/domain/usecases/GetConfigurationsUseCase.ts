@@ -12,39 +12,47 @@ export class GetConfigurationsUseCase {
     ) {}
 
     public execute(): FutureData<Configurations> {
-        return this.teamMemberRepository.getIncidentManagers().flatMap(managers => {
-            return this.teamMemberRepository.getRiskAssessors().flatMap(riskAssessors => {
-                return this.teamMemberRepository.getAll().flatMap(teamMembers => {
-                    return this.configurationsRepository
-                        .getSelectableOptions()
-                        .flatMap(selectableOptionsResponse => {
-                            const selectableOptions: SelectableOptions =
-                                this.mapOptionsAndTeamMembersToSelectableOptions(
-                                    selectableOptionsResponse,
-                                    managers,
-                                    riskAssessors,
-                                    teamMembers
-                                );
-                            const configurations: Configurations = {
-                                selectableOptions: selectableOptions,
-                                teamMembers: {
-                                    all: teamMembers,
-                                    riskAssessors: riskAssessors,
-                                    incidentManagers: managers,
-                                },
-                            };
-                            return Future.success(configurations);
-                        });
-                });
-            });
-        });
+        return Future.joinObj({
+            allTeamMembers: this.teamMemberRepository.getAll(),
+            incidentResponseOfficers: this.teamMemberRepository.getIncidentResponseOfficers(),
+            managers: this.teamMemberRepository.getIncidentManagers(),
+            riskAssessors: this.teamMemberRepository.getRiskAssessors(),
+            selectableOptionsResponse: this.configurationsRepository.getSelectableOptions(),
+        }).flatMap(
+            ({
+                allTeamMembers,
+                incidentResponseOfficers,
+                managers,
+                riskAssessors,
+                selectableOptionsResponse,
+            }) => {
+                const selectableOptions: SelectableOptions =
+                    this.mapOptionsAndTeamMembersToSelectableOptions(
+                        selectableOptionsResponse,
+                        managers,
+                        riskAssessors,
+                        incidentResponseOfficers
+                    );
+
+                const configurations: Configurations = {
+                    selectableOptions: selectableOptions,
+                    teamMembers: {
+                        all: allTeamMembers,
+                        riskAssessors: riskAssessors,
+                        incidentManagers: managers,
+                        responseOfficers: incidentResponseOfficers,
+                    },
+                };
+                return Future.success(configurations);
+            }
+        );
     }
 
     mapOptionsAndTeamMembersToSelectableOptions(
         selectableOptionsResponse: SelectableOptions,
         managers: TeamMember[],
         riskAssessors: TeamMember[],
-        teamMembers: TeamMember[]
+        incidentResponseOfficers: TeamMember[]
     ): SelectableOptions {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
@@ -66,7 +74,7 @@ export class GetConfigurationsUseCase {
             },
             incidentResponseActionConfigurations: {
                 ...selectableOptionsResponse.incidentResponseActionConfigurations,
-                searchAssignRO: teamMembers,
+                searchAssignRO: incidentResponseOfficers,
             },
         };
 
