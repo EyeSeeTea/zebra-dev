@@ -25,7 +25,6 @@ interface ResponseActionAttrs {
     subPillar: string;
     searchAssignRO: Maybe<TeamMember>;
     dueDate: Date;
-    timeLine: string;
     status: Status;
     verification: Verification;
 }

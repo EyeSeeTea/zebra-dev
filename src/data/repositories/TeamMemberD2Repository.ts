@@ -9,6 +9,7 @@ import { Future } from "../../domain/entities/generic/Future";
 const RTSL_ZEBRA_INCIDENTMANAGER = "RTSL_ZEBRA_INCIDENTMANAGER";
 const RTSL_ZEBRA_RISKASSESSOR = "RTSL_ZEBRA_RISKASSESSOR";
 const RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_MEMBERS = "RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_MEMBERS";
+const RTSL_ZEBRA_INCIDENT_RESPONSE_OFFICERS = "RTSL_ZEBRA_INCIDENT_RESPONSE_OFFICERS";
 
 export class TeamMemberD2Repository implements TeamMemberRepository {
     constructor(private api: D2Api) {}
@@ -40,6 +41,10 @@ export class TeamMemberD2Repository implements TeamMemberRepository {
 
     getForIncidentManagementTeamMembers(): FutureData<TeamMember[]> {
         return this.getTeamMembersByUserGroup(RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_MEMBERS);
+    }
+
+    getIncidentResponseOfficers(): FutureData<TeamMember[]> {
+        return this.getTeamMembersByUserGroup(RTSL_ZEBRA_INCIDENT_RESPONSE_OFFICERS);
     }
 
     private getTeamMembersByUserGroup(userGroupCode: string): FutureData<TeamMember[]> {

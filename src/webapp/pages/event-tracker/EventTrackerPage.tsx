@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Box, Button } from "@material-ui/core";
+import { Box, Button, useTheme } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import i18n from "../../../utils/i18n";
@@ -22,6 +22,7 @@ import { GridWrapper, StyledStatsCard } from "../dashboard/DashboardPage";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 import { useOverviewCards } from "./useOverviewCards";
+import { SimpleModal } from "../../components/simple-modal/SimpleModal";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -44,9 +45,13 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { goTo } = useRoutes();
     const {
         formSummary,
-        summaryError,
+        globalMessage,
         riskAssessmentRows,
         eventTrackerDetails,
+        openCompleteModal,
+        onCloseCompleteModal,
+        onCompleteClick,
+        onOpenCompleteModal,
         orderByRiskAssessmentDate,
     } = useDiseaseOutbreakEvent(id);
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
@@ -54,6 +59,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
     const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
     const { dateRangeFilter } = useMapFilters();
+    const theme = useTheme();
 
     const goToRiskSummaryForm = useCallback(() => {
         goTo(RouteName.CREATE_FORM, {
@@ -78,7 +84,8 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 id={id}
                 formType="disease-outbreak-event"
                 formSummary={formSummary}
-                summaryError={summaryError}
+                onOpenModal={onOpenCompleteModal}
+                globalMessage={globalMessage}
             />
             <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
                 <DurationFilterContainer>
@@ -207,6 +214,29 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     )}
                 </GridWrapper>
             </Section>
+
+            <SimpleModal
+                open={openCompleteModal}
+                onClose={onCloseCompleteModal}
+                title={i18n.t("Complete event")}
+                closeLabel={i18n.t("Not now")}
+                footerButtons={
+                    <Button
+                        variant="contained"
+                        onClick={() => onCompleteClick()}
+                        style={{
+                            backgroundColor: theme.palette.error.main,
+                            color: theme.palette.common.white,
+                        }}
+                    >
+                        {i18n.t("Complete")}
+                    </Button>
+                }
+                alignFooterButtons="end"
+                buttonDirection="row-reverse"
+            >
+                {i18n.t("Are you sure you want to complete this Event? This cannot be undone.")}
+            </SimpleModal>
         </Layout>
     );
 });

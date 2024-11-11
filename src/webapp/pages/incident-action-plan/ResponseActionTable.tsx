@@ -9,6 +9,7 @@ import { Maybe } from "../../../utils/ts-utils";
 
 type ResponseActionTableProps = {
     onChange: (value: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => void;
+    onOrderBy: (direction: "asc" | "desc") => void;
     responseActionColumns: TableColumn[];
     responseActionRows: {
         [key: TableColumn["value"]]: string;
@@ -16,7 +17,7 @@ type ResponseActionTableProps = {
 };
 
 export const ResponseActionTable: React.FC<ResponseActionTableProps> = React.memo(
-    ({ onChange, responseActionColumns, responseActionRows }) => {
+    ({ onChange, onOrderBy, responseActionColumns, responseActionRows }) => {
         const { goTo } = useRoutes();
 
         const { icon: responseActionIcon, label: responseActionLabel } =
@@ -48,6 +49,7 @@ export const ResponseActionTable: React.FC<ResponseActionTableProps> = React.mem
                     onChange={onChange}
                     columns={responseActionColumns}
                     rows={responseActionRows}
+                    onOrderBy={onOrderBy}
                 />
                 <Box sx={{ m: 5 }} />
             </Section>

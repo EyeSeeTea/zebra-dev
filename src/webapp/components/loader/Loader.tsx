@@ -18,5 +18,5 @@ const StyledLoaderContainer = styled.div`
 
 const StyledBackdrop = styled(Backdrop)`
     color: ${props => props.theme.palette.common.white};
-    z-index: 1;
+    z-index: 2;
 `;

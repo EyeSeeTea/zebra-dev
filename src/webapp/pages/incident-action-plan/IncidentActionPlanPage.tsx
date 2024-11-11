@@ -24,6 +24,7 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
         summaryError,
         incidentActionExists,
         responseActionColumns,
+        orderByDueDate,
         saveTableOption,
     } = useIncidentActionPlan(id);
 
@@ -68,6 +69,7 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
                         responseActionColumns={responseActionColumns}
                         responseActionRows={responseActionRows}
                         onChange={saveTableOption}
+                        onOrderBy={orderByDueDate}
                     />
 
                     <ActionPlanFormSummary

@@ -60,7 +60,6 @@ export const responseActionConstants = {
     subPillar: "RTSL_ZEB_DET_SUB_PILLAR",
     searchAssignRO: "RTSL_ZEB_DET_SEARCH_ASSIGN_RO",
     dueDate: "RTSL_ZEB_DET_DUE_DATE",
-    timeLine: "RTSL_ZEB_DET_TIMELINE",
     status: "RTSL_ZEB_DET_STATUS",
     verification: "RTSL_ZEB_DET_VERIFICATION",
 } as const;
@@ -127,7 +126,6 @@ export function getValueFromIncidentResponseAction(
         RTSL_ZEB_DET_SUB_PILLAR: incidentResponseAction.subPillar || "",
         RTSL_ZEB_DET_SEARCH_ASSIGN_RO: incidentResponseAction.searchAssignRO?.username || "",
         RTSL_ZEB_DET_DUE_DATE: incidentResponseAction.dueDate.toISOString(),
-        RTSL_ZEB_DET_TIMELINE: incidentResponseAction.timeLine || "",
         RTSL_ZEB_DET_STATUS: incidentResponseAction.status,
         RTSL_ZEB_DET_VERIFICATION: incidentResponseAction.verification,
     };

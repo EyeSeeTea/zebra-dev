@@ -65,6 +65,7 @@ export function getTestContext() {
                 all: [],
                 riskAssessors: [],
                 incidentManagers: [],
+                responseOfficers: [],
             },
         },
     };

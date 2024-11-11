@@ -67,7 +67,8 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
                         {DEFAULT_SIDEBAR_OPTIONS.map(({ text, value }) => {
                             const route =
                                 value === RouteName.EVENT_TRACKER ||
-                                value === RouteName.IM_TEAM_BUILDER
+                                value === RouteName.IM_TEAM_BUILDER ||
+                                value === RouteName.INCIDENT_ACTION_PLAN
                                     ? routes[value].replace(
                                           ":id",
                                           getCurrentEventTracker()?.id || ""
