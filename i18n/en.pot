@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-11-07T20:14:07.689Z\n"
-"PO-Revision-Date: 2024-11-07T20:14:07.689Z\n"
+"POT-Creation-Date: 2024-11-08T16:32:23.115Z\n"
+"PO-Revision-Date: 2024-11-08T16:32:23.115Z\n"
 
 msgid "Low"
 msgstr ""
@@ -174,10 +174,13 @@ msgstr ""
 msgid "Complete event"
 msgstr ""
 
-msgid "Confirm"
+msgid "Not now"
 msgstr ""
 
-msgid "Are you sure you want to complete this event?"
+msgid "Complete"
+msgstr ""
+
+msgid "Are you sure you want to complete this Event? This cannot be undone."
 msgstr ""
 
 msgid "N/A"
