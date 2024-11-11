@@ -101,6 +101,9 @@ msgstr ""
 msgid "Currently assigned:"
 msgstr ""
 
+msgid "Error loading current Incident Management Team"
+msgstr ""
+
 msgid "Create Event"
 msgstr ""
 
@@ -224,6 +227,12 @@ msgstr ""
 msgid "Incident Action Plan"
 msgstr ""
 
+msgid "Team"
+msgstr ""
+
+msgid "Edit Team"
+msgstr ""
+
 msgid "Incident Management Team Builder"
 msgstr ""
 
@@ -233,10 +242,16 @@ msgstr ""
 msgid "Assign Role"
 msgstr ""
 
+msgid "Delete Roles"
+msgstr ""
+
 msgid "Delete Role"
 msgstr ""
 
-msgid "Delete team role"
+msgid "Confirm deletion"
+msgstr ""
+
+msgid "Delete"
 msgstr ""
 
 msgid "Resources"
