@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
-import { getDateAsLocaleDateTimeString } from "../../../data/repositories/utils/DateTimeHelper";
 import { User } from "../../components/user-selector/UserSelector";
 import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
 import { IMTeamHierarchyOption } from "../../components/im-team-hierarchy/IMTeamHierarchyView";
@@ -216,7 +215,7 @@ export function useIMTeamBuilder(id: Id): State {
         [incidentManagementTeam?.teamHierarchy, incidentManagementTeamHierarchyItems]
     );
 
-    const lastUpdated = getDateAsLocaleDateTimeString(new Date()); //TO DO : Fetch sync time from datastore once implemented
+    const lastUpdated = incidentManagementTeam?.lastUpdated?.toString() ?? "";
 
     return {
         globalMessage,

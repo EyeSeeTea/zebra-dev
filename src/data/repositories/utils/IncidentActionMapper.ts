@@ -32,7 +32,8 @@ import {
 
 export function mapDataElementsToIncidentActionPlan(
     id: Id,
-    dataValues: DataValue[]
+    dataValues: DataValue[],
+    updatedAt: Maybe<string>
 ): IncidentActionPlanDataValues {
     const iapType = getValueById(dataValues, incidentActionPlanIds.iapType);
     const phoecLevel = getValueById(dataValues, incidentActionPlanIds.phoecLevel);
@@ -59,6 +60,7 @@ export function mapDataElementsToIncidentActionPlan(
         responseStrategies: responseStrategies,
         expectedResults: expectedResults,
         responseActivitiesNarrative: responseActivitiesNarrative,
+        lastUpdated: updatedAt ? new Date(updatedAt) : undefined,
     };
 
     return incidentActionPlan;

@@ -9,6 +9,7 @@ type SectionProps = {
     lastUpdated?: string;
     children: React.ReactNode;
     headerButton?: React.ReactNode;
+    secondaryHeaderButton?: React.ReactNode;
     hasSeparator?: boolean;
     titleVariant?: "primary" | "secondary";
 };
@@ -18,6 +19,7 @@ export const Section: React.FC<SectionProps> = React.memo(
         title = "",
         lastUpdated = "",
         headerButton,
+        secondaryHeaderButton,
         hasSeparator = false,
         children,
         titleVariant = "primary",
@@ -40,7 +42,10 @@ export const Section: React.FC<SectionProps> = React.memo(
                         ) : null}
                     </TitleContainer>
 
-                    {headerButton ? <div>{headerButton}</div> : null}
+                    <ButtonContainer>
+                        {headerButton ? <div>{headerButton}</div> : null}
+                        {secondaryHeaderButton ? <div>{secondaryHeaderButton}</div> : null}
+                    </ButtonContainer>
                 </Header>
 
                 <Content>{children}</Content>
@@ -48,7 +53,10 @@ export const Section: React.FC<SectionProps> = React.memo(
         );
     }
 );
-
+const ButtonContainer = styled.div`
+    display: flex;
+    gap: 5px;
+`;
 const SectionContainer = styled.section<{ $hasSeparator?: boolean }>`
     width: 100%;
     margin-block-end: ${props => (props.$hasSeparator ? "0" : "24px")};

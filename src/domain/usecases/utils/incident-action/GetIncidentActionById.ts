@@ -23,6 +23,7 @@ export function getIncidentAction(
         .getIncidentActionPlan(diseaseOutbreakId)
         .flatMap(incidentActionPlan => {
             const actionPlan = new ActionPlan({
+                lastUpdated: incidentActionPlan?.lastUpdated,
                 id: incidentActionPlan?.id ?? "",
                 iapType: incidentActionPlan?.iapType ?? "",
                 phoecLevel: incidentActionPlan?.phoecLevel ?? "",
@@ -72,7 +73,7 @@ export function getIncidentAction(
 
                     const incidentAction = new IncidentActionPlan({
                         id: diseaseOutbreakId,
-                        lastUpdated: new Date(),
+
                         actionPlan: actionPlan,
                         responseActions: responseActions,
                         incidentActionOptions: {

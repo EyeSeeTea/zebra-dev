@@ -37,6 +37,7 @@ export const incidentActionPlanIds = {
 } as const;
 
 export type IncidentActionPlanDataValues = {
+    lastUpdated: Maybe<Date>;
     id: string;
     iapType: Maybe<string>;
     phoecLevel: Maybe<string>;
@@ -76,6 +77,7 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
 
     private fields = {
         event: true,
+        updatedAt: true,
         dataValues: {
             dataElement: { id: true, code: true },
             value: true,
@@ -97,7 +99,8 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
 
             const plan: IncidentActionPlanDataValues = mapDataElementsToIncidentActionPlan(
                 events.instances[0].event,
-                events.instances[0].dataValues
+                events.instances[0].dataValues,
+                events.instances[0].updatedAt
             );
 
             return plan;

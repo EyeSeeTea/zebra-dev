@@ -10,8 +10,6 @@ import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { RiskAssessmentRepository } from "../repositories/RiskAssessmentRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
-import { getIncidentAction } from "./utils/incident-action/GetIncidentActionById";
-import { getIncidentManagementTeamById } from "./utils/incident-management-team/GetIncidentManagementTeamById";
 import { getAll } from "./utils/risk-assessment/GetRiskAssessmentById";
 
 export class GetDiseaseOutbreakByIdUseCase {
@@ -62,18 +60,8 @@ export class GetDiseaseOutbreakByIdUseCase {
                         this.options.riskAssessmentRepository,
                         configurations
                     ),
-                    incidentAction: getIncidentAction(
-                        id,
-                        this.options.incidentActionRepository,
-                        configurations
-                    ),
-                    incidentManagementTeam: getIncidentManagementTeamById(
-                        id,
-                        this.options,
-                        configurations
-                    ),
                     roles: this.options.roleRepository.getAll(),
-                }).flatMap(({ riskAssessment, incidentAction, incidentManagementTeam, roles }) => {
+                }).flatMap(({ riskAssessment, roles }) => {
                     return this.options.incidentManagementTeamRepository
                         .getIncidentManagementTeamMember(incidentManagerName, id, roles)
                         .flatMap(incidentManager => {
@@ -86,8 +74,8 @@ export class GetDiseaseOutbreakByIdUseCase {
                                     notificationSource: notificationSource,
                                     incidentManager: incidentManager,
                                     riskAssessment: riskAssessment,
-                                    incidentActionPlan: incidentAction,
-                                    incidentManagementTeam: incidentManagementTeam,
+                                    incidentActionPlan: undefined, //IAP is fetched on menu click. It is not needed here.
+                                    incidentManagementTeam: undefined, //IMT is fetched on menu click. It is not needed here.
                                 });
                             return Future.success(diseaseOutbreakEvent);
                         });

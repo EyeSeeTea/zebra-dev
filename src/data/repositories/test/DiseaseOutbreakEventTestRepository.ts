@@ -10,6 +10,9 @@ import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/Dis
 import { FutureData } from "../../api-futures";
 
 export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventRepository {
+    complete(_id: Id): FutureData<void> {
+        return Future.success(undefined);
+    }
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs> {
         return Future.success({
             id: id,
