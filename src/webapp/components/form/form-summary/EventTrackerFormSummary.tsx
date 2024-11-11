@@ -34,7 +34,8 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
         if (!globalMessage) return;
 
         snackbar[globalMessage.type](globalMessage.text);
-    }, [globalMessage, snackbar]);
+        goTo(RouteName.DASHBOARD);
+    }, [globalMessage, goTo, snackbar]);
 
     const onEditClick = useCallback(() => {
         goTo(RouteName.EDIT_FORM, { formType: formType, id: id });
