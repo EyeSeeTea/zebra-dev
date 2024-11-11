@@ -72,8 +72,8 @@ export function isValidForm(formSections: FormSectionState[]): boolean {
 
     return allFields.every(field => {
         const validationErrors = validateField(field, allFields);
-
-        return !validationErrors || validationErrors.errors.length === 0;
+        const hasErrorsInFields = allFields.some(f => f.errors.length > 0);
+        return !hasErrorsInFields && (!validationErrors || validationErrors.errors.length === 0);
     });
 }
 

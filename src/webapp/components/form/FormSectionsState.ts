@@ -30,6 +30,16 @@ function hasSectionAFieldWithNotApplicable(sectionsState: FormSectionState) {
     return sectionsState.fields.some(field => field.hasNotApplicable);
 }
 
+export function getFieldValueByIdFromSections(
+    sectionsState: FormSectionState[],
+    fieldId: string
+): FormFieldState["value"] | undefined {
+    const section = sectionsState.find(section =>
+        section.fields.some(field => field.id === fieldId)
+    );
+    return section?.fields.find(field => field.id === fieldId)?.value;
+}
+
 // UPDATES:
 
 export function applyEffectNotApplicableFieldUpdatedInSections(
@@ -84,8 +94,11 @@ export function updateSections(
     fieldValidationErrors?: ValidationError[]
 ): FormSectionState[] {
     return formSectionsState.map(section => {
+        const hasToUpdateSection =
+            isFieldInSection(section, updatedField) ||
+            updatedField.updateAllStateWithValidationErrors;
         if (section.subsections?.length) {
-            const maybeUpdatedSection = isFieldInSection(section, updatedField)
+            const maybeUpdatedSection = hasToUpdateSection
                 ? updateSectionState(section, updatedField, fieldValidationErrors)
                 : section;
             return {
@@ -97,7 +110,7 @@ export function updateSections(
                 ),
             };
         } else {
-            return isFieldInSection(section, updatedField)
+            return hasToUpdateSection
                 ? updateSectionState(section, updatedField, fieldValidationErrors)
                 : section;
         }
@@ -109,7 +122,10 @@ function updateSectionState(
     updatedField: FormFieldState,
     fieldValidationErrors?: ValidationError[]
 ): FormSectionState {
-    if (isFieldInSection(formSectionState, updatedField)) {
+    if (
+        isFieldInSection(formSectionState, updatedField) ||
+        updatedField.updateAllStateWithValidationErrors
+    ) {
         return {
             ...formSectionState,
             fields: updateFields(formSectionState.fields, updatedField, fieldValidationErrors),

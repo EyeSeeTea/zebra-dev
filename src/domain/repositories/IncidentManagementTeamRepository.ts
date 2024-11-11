@@ -17,15 +17,8 @@ export interface IncidentManagementTeamRepository {
         diseaseOutbreakId: Id,
         roles: Role[]
     ): FutureData<void>;
-    deleteIncidentManagementTeamMemberRole(
-        teamMemberRole: TeamRole,
-        incidentManagementTeamMember: TeamMember,
+    deleteIncidentManagementTeamMemberRoles(
         diseaseOutbreakId: Id,
-        roles: Role[]
+        incidentManagementTeamRoleIds: Id[]
     ): FutureData<void>;
-    getIncidentManagementTeamMember(
-        username: Id,
-        diseaseOutbreakId: Id,
-        roles: Role[]
-    ): FutureData<TeamMember>;
 }

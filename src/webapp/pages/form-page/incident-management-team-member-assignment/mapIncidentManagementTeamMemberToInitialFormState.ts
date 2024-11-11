@@ -88,12 +88,19 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                         multiple: false,
                         options:
                             teamRoleToAssing?.roleId === INCIDENT_MANAGER_ROLE
-                                ? incidentManagerOptions
-                                : teamMemberOptions,
+                                ? incidentManagerOptions.map(user => ({
+                                      ...user,
+                                      disabled: user.value === teamRoleToAssing?.reportsToUsername,
+                                  }))
+                                : teamMemberOptions.map(user => ({
+                                      ...user,
+                                      disabled: user.value === teamRoleToAssing?.reportsToUsername,
+                                  })),
                         value: incidentManagementTeamMember?.username || "",
                         required: true,
                         showIsRequired: true,
                         disabled: false,
+                        updateAllStateWithValidationErrors: true,
                     },
                 ],
             },
@@ -101,7 +108,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                 title: "Reports to...",
                 id: SECTION_IDS.reportsTo,
                 isVisible: true,
-                required: false,
+                required: teamRoleToAssing?.roleId !== INCIDENT_MANAGER_ROLE,
                 fields: [
                     {
                         id: incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername,
@@ -115,9 +122,10 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
                             disabled: user.value === incidentManagementTeamMember?.username,
                         })),
                         value: teamRoleToAssing?.reportsToUsername || "",
-                        required: false,
-                        showIsRequired: false,
-                        disabled: false,
+                        required: teamRoleToAssing?.roleId !== INCIDENT_MANAGER_ROLE,
+                        showIsRequired: teamRoleToAssing?.roleId !== INCIDENT_MANAGER_ROLE,
+                        disabled: teamRoleToAssing?.roleId === INCIDENT_MANAGER_ROLE,
+                        updateAllStateWithValidationErrors: true,
                     },
                 ],
             },

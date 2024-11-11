@@ -1,11 +1,11 @@
-import { Rule } from "../../../../../domain/entities/Rule";
-import { FormFieldState } from "../../../../components/form/FormFieldsState";
+import { Rule } from "../../../../domain/entities/Rule";
+import { FormFieldState } from "../../../components/form/FormFieldsState";
 import {
     disableFieldOptionWithSameFieldValueInSection,
     disableFieldsByFieldValueInSection,
     toggleSectionVisibilityByFieldValue,
-} from "../../../../components/form/FormSectionsState";
-import { FormState } from "../../../../components/form/FormState";
+} from "../../../components/form/FormSectionsState";
+import { FormState } from "../../../components/form/FormState";
 
 export function applyRulesInFormState(
     currentFormState: FormState,
