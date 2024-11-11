@@ -8,6 +8,7 @@ import { TeamMember } from "../../../domain/entities/incident-management-team/Te
 import { IMTeamHierarchyItem } from "./IMTeamHierarchyItem";
 import { Id } from "../../../domain/entities/Ref";
 import { SearchInput } from "../search-input/SearchInput";
+import i18n from "../../../utils/i18n";
 
 export type IMTeamHierarchyOption = {
     id: Id;
@@ -20,31 +21,48 @@ export type IMTeamHierarchyOption = {
 
 type IMTeamHierarchyViewProps = {
     items: IMTeamHierarchyOption[];
-    selectedItemId: Id;
-    onSelectedItemChange: (nodeId: Id, selected: boolean) => void;
+    selectedItemIds?: Id[];
+    onSelectedItemChange?: (nodeId: Id, selected: boolean) => void;
     diseaseOutbreakEventName: string;
     onSearchChange: (term: string) => void;
     searchTerm: string;
+    defaultTeamRolesExpanded: Id[];
+    isSelectable?: boolean;
 };
 
 export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.memo(props => {
     const {
         onSelectedItemChange,
         items,
-        selectedItemId,
+        selectedItemIds,
         diseaseOutbreakEventName,
         searchTerm,
         onSearchChange,
+        defaultTeamRolesExpanded,
+        isSelectable = false,
     } = props;
 
     return (
         <IMTeamHierarchyViewContainer>
             <ContentWrapper>
-                <SearchInput value={searchTerm} onChange={onSearchChange} />
+                <SearchInputContainer>
+                    <SearchInput value={searchTerm} onChange={onSearchChange} />
+                </SearchInputContainer>
+                {isSelectable && searchTerm && selectedItemIds && selectedItemIds?.length > 0 ? (
+                    <CountSelectionText>
+                        {i18n.t(
+                            `{{count}} selected ${selectedItemIds.length > 1 ? "items" : "item"}`,
+                            {
+                                count: selectedItemIds.length,
+                            }
+                        )}
+                    </CountSelectionText>
+                ) : null}
                 <StyledIMTeamHierarchyView
                     disableSelection
                     defaultCollapseIcon={<ArrowDropDown />}
                     defaultExpandIcon={<ArrowRight />}
+                    defaultExpanded={defaultTeamRolesExpanded}
                 >
                     {items.map(item => (
                         <IMTeamHierarchyItem
@@ -52,10 +70,11 @@ export const IMTeamHierarchyView: React.FC<IMTeamHierarchyViewProps> = React.mem
                             nodeId={item.id}
                             teamRole={item.teamRole}
                             member={item.member}
-                            selectedItemId={selectedItemId}
+                            selectedItemIds={selectedItemIds}
                             onSelectedChange={onSelectedItemChange}
                             diseaseOutbreakEventName={diseaseOutbreakEventName}
                             subChildren={item.children}
+                            isSelectable={isSelectable}
                         />
                     ))}
                 </StyledIMTeamHierarchyView>
@@ -86,5 +105,14 @@ const StyledIMTeamHierarchyView = styled(TreeViewMUI)`
 const ContentWrapper = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 8px;
+`;
+
+const CountSelectionText = styled.span`
+    font-weight: 400;
+    font-size: 0.875rem;
+    color: ${props => props.theme.palette.common.grey900};
+`;
+
+const SearchInputContainer = styled.div`
+    margin-block-end: 10px;
 `;

@@ -115,6 +115,7 @@ const StyledTable = styled(Table)`
     }
     & .MuiTableBody-root {
         color: ${props => props.theme.palette.common.grey};
+        background-color: ${props => props.theme.palette.common.white};
     }
     & .MuiTableCell-root {
         font-size: 0.75rem;

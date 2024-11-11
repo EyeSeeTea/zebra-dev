@@ -10,6 +10,7 @@ export const CurrentEventTrackerContextProvider: React.FC<PropsWithChildren> = (
         setCurrentEventTracker(EventTrackerDetails);
         localStorage.setItem("currentEventTracker", JSON.stringify(EventTrackerDetails));
     }, []);
+
     const resetCurrentEventTracker = useCallback(() => {
         setCurrentEventTracker(undefined);
         localStorage.removeItem("currentEventTracker");
@@ -19,8 +20,10 @@ export const CurrentEventTrackerContextProvider: React.FC<PropsWithChildren> = (
         if (currentEventTracker) {
             return currentEventTracker;
         }
+
         const localCurrentEventTracker = localStorage.getItem("currentEventTracker");
         if (localCurrentEventTracker) {
+            setCurrentEventTracker(JSON.parse(localCurrentEventTracker) as DiseaseOutbreakEvent);
             return JSON.parse(localCurrentEventTracker);
         }
         return undefined;

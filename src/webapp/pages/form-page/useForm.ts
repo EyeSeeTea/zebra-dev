@@ -6,7 +6,7 @@ import { Id } from "../../../domain/entities/Ref";
 import { FormState } from "../../components/form/FormState";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
-import { updateAndValidateFormState } from "./disease-outbreak-event/utils/updateDiseaseOutbreakEventFormState";
+import { updateAndValidateFormState } from "./utils/updateDiseaseOutbreakEventFormState";
 import { FormFieldState } from "../../components/form/FormFieldsState";
 import { FormType } from "./FormPage";
 import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";

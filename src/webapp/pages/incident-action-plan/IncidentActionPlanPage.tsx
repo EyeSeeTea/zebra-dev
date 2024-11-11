@@ -10,6 +10,7 @@ import { ActionPlanFormSummary } from "../../components/form/form-summary/Action
 import { IncidentActionNotice } from "./IncidentActionNotice";
 import { Loader } from "../../components/loader/Loader";
 import { ResponseActionTable } from "./ResponseActionTable";
+import { TeamSection } from "./TeamSection";
 
 export const IncidentActionPlanPage: React.FC = React.memo(() => {
     const { getCurrentEventTracker } = useCurrentEventTracker();
@@ -43,7 +44,9 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
             title={i18n.t("Incident Action Plan")}
             subtitle={i18n.t(currentEventTracker?.name || "")}
         >
-            {!actionPlanSummary && responseActionRows.length === 0 && !summaryError && <Loader />}
+            {(!actionPlanSummary && responseActionRows.length === 0 && !summaryError) || !id ? (
+                <Loader />
+            ) : null}
             {!incidentActionExists ? (
                 <IncidentActionNotice />
             ) : (
@@ -77,6 +80,7 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
                     />
                 </>
             )}
+            {id && <TeamSection diseaseOutbreakEventId={id} />}
         </Layout>
     );
 });

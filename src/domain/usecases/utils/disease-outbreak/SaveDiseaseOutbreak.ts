@@ -58,8 +58,14 @@ function saveIncidentManagerTeamMemberRole(
                     teamRole => teamRole.roleId === INCIDENT_MANAGER_ROLE
                 );
 
-                if (
-                    incidentManagerTeamMemberFound &&
+                if (!incidentManagerTeamMemberFound) {
+                    return createNewIncidentManager(
+                        repositories,
+                        diseaseOutbreakEventBaseAttrs,
+                        teamMembers,
+                        roles
+                    );
+                } else if (
                     incidentManagerTeamMemberFound.username !==
                         diseaseOutbreakEventBaseAttrs.incidentManagerName &&
                     incidentManagerTeamRole
@@ -73,12 +79,7 @@ function saveIncidentManagerTeamMemberRole(
                         roles
                     );
                 } else {
-                    return createNewIncidentManager(
-                        repositories,
-                        diseaseOutbreakEventBaseAttrs,
-                        teamMembers,
-                        roles
-                    );
+                    return Future.success(diseaseOutbreakEventBaseAttrs.id);
                 }
             });
     });
@@ -116,12 +117,9 @@ function changeIncidentManager(
         };
 
         return repositories.incidentManagementTeamRepository
-            .deleteIncidentManagementTeamMemberRole(
-                oldIncidentManagerTeamRole,
-                oldIncidentManager,
-                diseaseOutbreakEventBaseAttrs.id,
-                roles
-            )
+            .deleteIncidentManagementTeamMemberRoles(diseaseOutbreakEventBaseAttrs.id, [
+                oldIncidentManagerTeamRole.id,
+            ])
             .flatMap(() => {
                 return repositories.incidentManagementTeamRepository
                     .saveIncidentManagementTeamMemberRole(
