@@ -22,7 +22,6 @@ import {
 } from "./incident-action/mapIncidentActionToInitialFormState";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
-import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
     text: string;
@@ -65,21 +64,11 @@ export function useForm(formType: FormType, id?: Id): State {
     const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
-    const [currentEventTrackerState, setCurrentEventTrackerState] =
-        useState<Maybe<DiseaseOutbreakEvent>>();
     const currentEventTracker = getCurrentEventTracker();
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
     useCheckWritePermission(formType);
 
     useEffect(() => {
-        // NOTICE: This if is to avoid infinite loop when the form page is reloaded from browser
-        if (
-            currentEventTrackerState &&
-            currentEventTracker &&
-            currentEventTrackerState.id === currentEventTracker.id
-        )
-            return;
-
         compositionRoot.getConfigurableForm
             .execute(formType, currentEventTracker, configurations, id)
             .run(
@@ -90,7 +79,6 @@ export function useForm(formType: FormType, id?: Id): State {
                         kind: "loaded",
                         data: mapEntityToFormState(formData, !!id, existingEventTrackerTypes),
                     });
-                    setCurrentEventTrackerState(currentEventTracker);
                 },
                 error => {
                     setFormState({
@@ -101,14 +89,12 @@ export function useForm(formType: FormType, id?: Id): State {
                         text: i18n.t(`An error occurred while loading form: ${error.message}`),
                         type: "error",
                     });
-                    setCurrentEventTrackerState(currentEventTracker);
                 }
             );
     }, [
         compositionRoot.getConfigurableForm,
         configurations,
         currentEventTracker,
-        currentEventTrackerState,
         existingEventTrackerTypes,
         formType,
         id,

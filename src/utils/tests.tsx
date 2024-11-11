@@ -1,6 +1,7 @@
 import { render, RenderResult } from "@testing-library/react";
 import { SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import { ReactNode } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { AppContext, AppContextState } from "../webapp/contexts/app-context";
 import { getTestCompositionRoot } from "../CompositionRoot";
 import { createAdminUser } from "../domain/entities/__tests__/userFixtures";
@@ -84,9 +85,11 @@ export function getReactComponent(children: ReactNode): RenderResult {
         <MuiThemeProvider theme={muiTheme}>
             <ThemeProvider theme={muiTheme}>
                 <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
-                    <AppContext.Provider value={context}>
-                        <SnackbarProvider>{children}</SnackbarProvider>
-                    </AppContext.Provider>
+                    <MemoryRouter>
+                        <AppContext.Provider value={context}>
+                            <SnackbarProvider>{children}</SnackbarProvider>
+                        </AppContext.Provider>
+                    </MemoryRouter>
                 </OldMuiThemeProvider>
             </ThemeProvider>
         </MuiThemeProvider>

@@ -1,7 +1,7 @@
 import { List, ListItem, ListItemText } from "@material-ui/core";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { AddCircleOutline } from "@material-ui/icons";
 import i18n from "../../../../utils/i18n";
 import { Button } from "../../button/Button";
@@ -46,6 +46,7 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
     ({ children, hideOptions = false, showCreateEvent = false }) => {
         const { goTo } = useRoutes();
         const { getCurrentEventTracker } = useCurrentEventTracker();
+        const location = useLocation();
 
         const goToCreateEvent = useCallback(() => {
             goTo(RouteName.CREATE_FORM, { formType: "disease-outbreak-event" });
@@ -63,24 +64,25 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
                     </CreateEventContainer>
                 ) : (
                     <StyledList>
-                        {DEFAULT_SIDEBAR_OPTIONS.map(({ text, value }) => (
-                            <ListItem
-                                button
-                                key={text}
-                                component={NavLink}
-                                to={
-                                    value === RouteName.EVENT_TRACKER ||
-                                    value === RouteName.IM_TEAM_BUILDER
-                                        ? routes[value].replace(
-                                              ":id",
-                                              getCurrentEventTracker()?.id || ""
-                                          )
-                                        : routes[value]
-                                }
-                            >
-                                <StyledText primary={i18n.t(text)} selected={false} />
-                            </ListItem>
-                        ))}
+                        {DEFAULT_SIDEBAR_OPTIONS.map(({ text, value }) => {
+                            const route =
+                                value === RouteName.EVENT_TRACKER ||
+                                value === RouteName.IM_TEAM_BUILDER
+                                    ? routes[value].replace(
+                                          ":id",
+                                          getCurrentEventTracker()?.id || ""
+                                      )
+                                    : routes[value];
+
+                            return (
+                                <ListItem button key={text} component={NavLink} to={route}>
+                                    <StyledText
+                                        primary={i18n.t(text)}
+                                        selected={location?.pathname === route}
+                                    />
+                                </ListItem>
+                            );
+                        })}
                     </StyledList>
                 )}
             </SideBarContainer>
