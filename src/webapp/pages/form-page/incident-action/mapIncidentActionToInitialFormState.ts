@@ -8,6 +8,7 @@ import {
 } from "../../../../domain/entities/ConfigurableForm";
 import { ResponseAction } from "../../../../domain/entities/incident-action-plan/ResponseAction";
 import { Maybe } from "../../../../utils/ts-utils";
+import { FormFieldState } from "../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";
 import { Option as UIOption } from "../../../components/utils/option";
@@ -386,18 +387,27 @@ export function addNewResponseActionSection(sections: FormSectionState[]): FormS
         section => !section.id.startsWith("addNewResponseActionSection")
     );
 
+    const searchAssignROField = getSectionsField(sections, responseActionConstants.searchAssignRO);
+    const statusField = getSectionsField(sections, responseActionConstants.status);
+    const verificationField = getSectionsField(sections, responseActionConstants.verification);
+
     const newResponseActionSection = getResponseActionSection({
         incidentResponseAction: undefined,
         options: {
             searchAssignROOptions:
-                sections[0]?.fields[3]?.type === "select" ? sections[0].fields[3].options : [],
-            statusOptions:
-                sections[0]?.fields[6]?.type === "select" ? sections[0].fields[6].options : [],
+                searchAssignROField?.type === "select" ? searchAssignROField.options : [],
+            statusOptions: statusField?.type === "select" ? statusField.options : [],
             verificationOptions:
-                sections[0]?.fields[7]?.type === "select" ? sections[0].fields[7].options : [],
+                verificationField?.type === "select" ? verificationField.options : [],
         },
         index: responseActionSections.length,
     });
 
     return newResponseActionSection;
 }
+
+const getSectionsField = (sections: FormSectionState[], fieldId: string): Maybe<FormFieldState> => {
+    const sectionFields = sections[0]?.fields ?? [];
+
+    return sectionFields.find(field => field.id.includes(fieldId));
+};
