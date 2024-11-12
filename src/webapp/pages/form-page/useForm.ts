@@ -24,6 +24,7 @@ import { useExistingEventTrackerTypes } from "../../contexts/existing-event-trac
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
+import { useIncidentActionPlan } from "../incident-action-plan/useIncidentActionPlan";
 
 export type GlobalMessage = {
     text: string;
@@ -69,6 +70,7 @@ export function useForm(formType: FormType, id?: Id): State {
     const currentEventTracker = getCurrentEventTracker();
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
     const { dataPerformanceOverview } = usePerformanceOverview();
+    const { isIncidentManager } = useIncidentActionPlan(currentEventTracker?.id ?? "");
     useCheckWritePermission(formType);
     const snackbar = useSnackbar();
 
@@ -89,7 +91,12 @@ export function useForm(formType: FormType, id?: Id): State {
                     setFormLabels(formData.labels);
                     setFormState({
                         kind: "loaded",
-                        data: mapEntityToFormState(formData, !!id, existingEventTrackers),
+                        data: mapEntityToFormState({
+                            configurableForm: formData,
+                            editMode: !!id,
+                            existingEventTrackerTypes: existingEventTrackerTypes,
+                            isIncidentManager: isIncidentManager,
+                        }),
                     });
                 },
                 error => {
@@ -112,6 +119,8 @@ export function useForm(formType: FormType, id?: Id): State {
         existingEventTrackers,
         snackbar,
         goTo,
+        isIncidentManager,
+        existingEventTrackerTypes,
     ]);
 
     const handleAddNew = useCallback(() => {
@@ -170,7 +179,8 @@ export function useForm(formType: FormType, id?: Id): State {
                         );
                         const addAnotherSection = getAnotherResponseActionSection();
                         const newResponseActionSection = addNewResponseActionSection(
-                            prevState.data.sections
+                            prevState.data.sections,
+                            isIncidentManager
                         );
 
                         const updatedData = {
@@ -207,7 +217,7 @@ export function useForm(formType: FormType, id?: Id): State {
             default:
                 break;
         }
-    }, [configurableForm, formState]);
+    }, [configurableForm, formState.kind, isIncidentManager]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {

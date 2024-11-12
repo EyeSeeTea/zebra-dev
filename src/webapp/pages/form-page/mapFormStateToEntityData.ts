@@ -40,7 +40,9 @@ import {
 import { ActionPlanAttrs } from "../../../domain/entities/incident-action-plan/ActionPlan";
 import {
     actionPlanConstants as actionPlanConstants,
+    getVerificationTypeByCode,
     responseActionConstants,
+    verificationCodeMap,
 } from "../../../data/repositories/consts/IncidentActionConstants";
 import {
     ResponseAction,
@@ -579,7 +581,10 @@ function mapFormStateToIncidentResponseAction(
             )?.value as string;
             const verification = formData.options.verification.find(
                 option => option.id === verificationValue
-            );
+            ) ?? {
+                id: verificationCodeMap.Unverified,
+                name: getVerificationTypeByCode(verificationCodeMap.Unverified) ?? "",
+            };
             if (!verification) throw new Error("Verification not found");
 
             const responseAction = new ResponseAction({

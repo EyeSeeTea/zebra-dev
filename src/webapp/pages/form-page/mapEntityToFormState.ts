@@ -20,11 +20,14 @@ import {
     mapRiskGradingToInitialFormState,
 } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
 
-export function mapEntityToFormState(
-    configurableForm: ConfigurableForm,
-    editMode?: boolean,
-    existingEventTrackerTypes?: (DiseaseNames | HazardNames)[]
-): FormState {
+export function mapEntityToFormState(options: {
+    configurableForm: ConfigurableForm;
+    editMode?: boolean;
+    existingEventTrackerTypes?: (DiseaseNames | HazardNames)[];
+    isIncidentManager?: boolean;
+}): FormState {
+    const { configurableForm, editMode, existingEventTrackerTypes, isIncidentManager } = options;
+
     switch (configurableForm.type) {
         case "disease-outbreak-event":
             return mapDiseaseOutbreakEventToInitialFormState(
@@ -41,7 +44,10 @@ export function mapEntityToFormState(
         case "incident-action-plan":
             return mapIncidentActionPlanToInitialFormState(configurableForm);
         case "incident-response-action":
-            return mapIncidentResponseActionToInitialFormState(configurableForm);
+            return mapIncidentResponseActionToInitialFormState(
+                configurableForm,
+                isIncidentManager ?? false
+            );
         case "incident-management-team-member-assignment":
             return mapIncidentManagementTeamMemberToInitialFormState(configurableForm);
     }

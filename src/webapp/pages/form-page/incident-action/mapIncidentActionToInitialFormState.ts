@@ -220,7 +220,8 @@ export function mapIncidentActionPlanToInitialFormState(
 }
 
 export function mapIncidentResponseActionToInitialFormState(
-    incidentResponseActionFormData: ResponseActionFormData
+    incidentResponseActionFormData: ResponseActionFormData,
+    isIncidentManager: boolean
 ): FormState {
     const {
         entity: incidentResponseActions,
@@ -240,6 +241,7 @@ export function mapIncidentResponseActionToInitialFormState(
             statusOptions: statusOptions,
             verificationOptions: verificationOptions,
         },
+        isIncidentManager: isIncidentManager,
         index: 0,
     });
 
@@ -253,6 +255,7 @@ export function mapIncidentResponseActionToInitialFormState(
                           statusOptions: statusOptions,
                           verificationOptions: verificationOptions,
                       },
+                      isIncidentManager: isIncidentManager,
                       index: index,
                   });
               })
@@ -279,9 +282,10 @@ function getResponseActionSection(options: {
         statusOptions: UIOption[];
         verificationOptions: UIOption[];
     };
+    isIncidentManager: boolean;
     index: number;
 }) {
-    const { incidentResponseAction, options: formOptions, index } = options;
+    const { incidentResponseAction, options: formOptions, index, isIncidentManager } = options;
     const { searchAssignROOptions, statusOptions, verificationOptions } = formOptions;
 
     const responseActionSection: FormSectionState = {
@@ -366,7 +370,7 @@ function getResponseActionSection(options: {
             {
                 id: `${responseActionConstants.verification}_${index}`,
                 label: "Verification",
-                isVisible: true,
+                isVisible: isIncidentManager ? true : false,
                 errors: [],
                 value: incidentResponseAction?.verification || "",
                 type: "select",
@@ -382,7 +386,10 @@ function getResponseActionSection(options: {
     return responseActionSection;
 }
 
-export function addNewResponseActionSection(sections: FormSectionState[]): FormSectionState {
+export function addNewResponseActionSection(
+    sections: FormSectionState[],
+    isIncidentManager: boolean
+): FormSectionState {
     const responseActionSections = sections.filter(
         section => !section.id.startsWith("addNewResponseActionSection")
     );
@@ -400,6 +407,7 @@ export function addNewResponseActionSection(sections: FormSectionState[]): FormS
             verificationOptions:
                 verificationField?.type === "select" ? verificationField.options : [],
         },
+        isIncidentManager: isIncidentManager,
         index: responseActionSections.length,
     });
 

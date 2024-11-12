@@ -68,6 +68,10 @@ import { ConfigurationsRepository } from "./domain/repositories/ConfigurationsRe
 import { ConfigurationsD2Repository } from "./data/repositories/ConfigurationsD2Repository";
 import { ConfigurationsTestRepository } from "./data/repositories/test/ConfigurationsTestRepository";
 import { CompleteEventTrackerUseCase } from "./domain/usecases/CompleteEventTrackerUseCase";
+import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
+import { UserGroupRepository } from "./domain/repositories/UserGroupRepository";
+import { UserGroupTestRepository } from "./data/repositories/test/UserGroupTestRepository";
+import { GetUserGroupByCodeUseCase } from "./domain/usecases/GetUserGroupByCodeUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -87,6 +91,7 @@ type Repositories = {
     chartConfigRepository: ChartConfigRepository;
     systemRepository: SystemRepository;
     configurationsRepository: ConfigurationsRepository;
+    userGroupRepository: UserGroupRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -139,6 +144,9 @@ function getCompositionRoot(repositories: Repositories) {
         charts: {
             getCases: new GetChartConfigByTypeUseCase(repositories.chartConfigRepository),
         },
+        userGroup: {
+            getByCode: new GetUserGroupByCodeUseCase(repositories.userGroupRepository),
+        },
     };
 }
 
@@ -160,6 +168,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         chartConfigRepository: new ChartConfigD2Repository(dataStoreClient),
         systemRepository: new SystemD2Repository(api),
         configurationsRepository: new ConfigurationsD2Repository(api),
+        userGroupRepository: new UserGroupD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -182,6 +191,7 @@ export function getTestCompositionRoot() {
         chartConfigRepository: new ChartConfigTestRepository(),
         systemRepository: new SystemTestRepository(),
         configurationsRepository: new ConfigurationsTestRepository(),
+        userGroupRepository: new UserGroupTestRepository(),
     };
 
     return getCompositionRoot(repositories);

@@ -21,6 +21,7 @@ import { Option } from "../../components/utils/option";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import _c from "../../../domain/entities/generic/Collection";
+import { RTSL_ZEBRA_INCIDENTMANAGER } from "../../../data/repositories/TeamMemberD2Repository";
 
 export type IncidentActionFormSummaryData = {
     subTitle: string;
@@ -33,7 +34,7 @@ export type UIIncidentActionOptions = {
 };
 
 export function useIncidentActionPlan(id: Id) {
-    const { compositionRoot, configurations: appConfiguration } = useAppContext();
+    const { compositionRoot, configurations: appConfiguration, currentUser } = useAppContext();
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
 
@@ -44,6 +45,7 @@ export function useIncidentActionPlan(id: Id) {
     const [incidentActionPlan, setIncidentActionPlan] = useState<IncidentActionPlan>();
     const [incidentActionExists, setIncidentActionExists] = useState<boolean>(false);
     const [incidentActionOptions, setIncidentActionOptions] = useState<UIIncidentActionOptions>();
+    const [isIncidentManager, setIsIncidentManager] = useState<boolean>(false);
 
     const saveTableOption = useCallback(
         (value: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => {
@@ -82,14 +84,14 @@ export function useIncidentActionPlan(id: Id) {
             {
                 value: "verification",
                 label: "Verification",
-                type: "selector",
+                type: isIncidentManager ? "selector" : "text",
                 options: incidentActionOptions?.verification ?? [],
                 onChange: saveTableOption,
             },
             { value: "timeLine", label: "Timeline", type: "text" },
             { value: "dueDate", label: "Due date", type: "text" },
         ];
-    }, [incidentActionOptions, saveTableOption]);
+    }, [incidentActionOptions, saveTableOption, isIncidentManager]);
 
     useEffect(() => {
         compositionRoot.incidentActionPlan.get.execute(id, appConfiguration).run(
@@ -129,6 +131,19 @@ export function useIncidentActionPlan(id: Id) {
         }
     }, [changeCurrentEventTracker, currentEventTracker, incidentActionExists, incidentActionPlan]);
 
+    useEffect(() => {
+        compositionRoot.userGroup.getByCode.execute(RTSL_ZEBRA_INCIDENTMANAGER).run(
+            userGroup => {
+                const isIncidentManager = currentUser.belongToUserGroup(userGroup.id);
+                setIsIncidentManager(isIncidentManager);
+            },
+            err => {
+                console.error(err);
+                setIsIncidentManager(false);
+            }
+        );
+    }, [compositionRoot.userGroup.getByCode, currentUser]);
+
     const orderByDueDate = useCallback(
         (direction: "asc" | "desc") => {
             setResponseActionRows(prevRows => {
@@ -164,6 +179,7 @@ export function useIncidentActionPlan(id: Id) {
 
     return {
         incidentActionExists: incidentActionExists,
+        isIncidentManager: isIncidentManager,
         saveTableOption: saveTableOption,
         responseActionColumns: responseActionColumns,
         actionPlanSummary: actionPlanSummary,
