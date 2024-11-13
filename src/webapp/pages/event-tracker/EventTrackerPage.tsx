@@ -67,12 +67,6 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
-    const goToRiskGradingForm = useCallback(() => {
-        goTo(RouteName.CREATE_FORM, {
-            formType: "risk-assessment-grading",
-        });
-    }, [goTo]);
-
     const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance(
         "event_tracker",
         id
@@ -133,28 +127,16 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             {i18n.t("Create Risk Assessment")}
                         </Button>
                     ) : (
-                        <ButtonContainer>
-                            <Button
-                                variant="outlined"
-                                color="secondary"
-                                startIcon={<AddCircleOutline />}
-                                onClick={() => {
-                                    goToRiskSummaryForm();
-                                }}
-                            >
-                                {i18n.t("Add new Assessment")}
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="secondary"
-                                startIcon={<AddCircleOutline />}
-                                onClick={() => {
-                                    goToRiskGradingForm();
-                                }}
-                            >
-                                {i18n.t("Add new Grade")}
-                            </Button>
-                        </ButtonContainer>
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            startIcon={<AddCircleOutline />}
+                            onClick={() => {
+                                goToRiskSummaryForm();
+                            }}
+                        >
+                            {i18n.t("Add new Assessment")}
+                        </Button>
                     )
                 }
                 titleVariant="secondary"
@@ -261,9 +243,4 @@ export const EventTrackerPage: React.FC = React.memo(() => {
 
 const DurationFilterContainer = styled.div`
     max-width: 250px;
-`;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    gap: 8px;
 `;
