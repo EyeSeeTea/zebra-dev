@@ -110,7 +110,8 @@ function getCompositionRoot(repositories: Repositories) {
             ),
             getConfigurations: new GetConfigurationsUseCase(
                 repositories.configurationsRepository,
-                repositories.teamMemberRepository
+                repositories.teamMemberRepository,
+                repositories.userGroupRepository
             ),
             complete: new CompleteEventTrackerUseCase(repositories),
         },

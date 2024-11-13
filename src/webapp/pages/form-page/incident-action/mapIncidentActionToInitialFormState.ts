@@ -377,7 +377,7 @@ function getResponseActionSection(options: {
                 type: "select",
                 multiple: false,
                 options: verificationOptions,
-                required: true,
+                required: isIncidentManager ? true : false,
                 showIsRequired: true,
                 disabled: false,
             },

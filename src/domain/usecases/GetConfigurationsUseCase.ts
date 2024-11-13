@@ -2,22 +2,32 @@ import { FutureData } from "../../data/api-futures";
 import { Configurations, SelectableOptions } from "../entities/AppConfigurations";
 import { Future } from "../entities/generic/Future";
 import { TeamMember } from "../entities/incident-management-team/TeamMember";
+import { Code } from "../entities/Ref";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { UserGroupRepository } from "../repositories/UserGroupRepository";
 
 export class GetConfigurationsUseCase {
     constructor(
         private configurationsRepository: ConfigurationsRepository,
-        private teamMemberRepository: TeamMemberRepository
+        private teamMemberRepository: TeamMemberRepository,
+        private userGroupRepository: UserGroupRepository
     ) {}
 
-    public execute(): FutureData<Configurations> {
+    public execute({
+        incidentManagerUserGroupCode,
+    }: {
+        incidentManagerUserGroupCode: Code;
+    }): FutureData<Configurations> {
         return Future.joinObj({
             allTeamMembers: this.teamMemberRepository.getAll(),
             incidentResponseOfficers: this.teamMemberRepository.getIncidentResponseOfficers(),
             managers: this.teamMemberRepository.getIncidentManagers(),
             riskAssessors: this.teamMemberRepository.getRiskAssessors(),
             selectableOptionsResponse: this.configurationsRepository.getSelectableOptions(),
+            incidentManagerUserGroup: this.userGroupRepository.getUserGroupByCode(
+                incidentManagerUserGroupCode
+            ),
         }).flatMap(
             ({
                 allTeamMembers,
@@ -25,6 +35,7 @@ export class GetConfigurationsUseCase {
                 managers,
                 riskAssessors,
                 selectableOptionsResponse,
+                incidentManagerUserGroup,
             }) => {
                 const selectableOptions: SelectableOptions =
                     this.mapOptionsAndTeamMembersToSelectableOptions(
@@ -36,6 +47,7 @@ export class GetConfigurationsUseCase {
 
                 const configurations: Configurations = {
                     selectableOptions: selectableOptions,
+                    incidentManagerUserGroup: incidentManagerUserGroup,
                     teamMembers: {
                         all: allTeamMembers,
                         riskAssessors: riskAssessors,
