@@ -2,13 +2,14 @@ import {
     actionPlanConstants,
     responseActionConstants,
 } from "../../../../data/repositories/consts/IncidentActionConstants";
+import { Configurations } from "../../../../domain/entities/AppConfigurations";
 import {
     ActionPlanFormData,
     ResponseActionFormData,
 } from "../../../../domain/entities/ConfigurableForm";
 import { ResponseAction } from "../../../../domain/entities/incident-action-plan/ResponseAction";
+import { Option } from "../../../../domain/entities/Ref";
 import { Maybe } from "../../../../utils/ts-utils";
-import { FormFieldState } from "../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";
 import { Option as UIOption } from "../../../components/utils/option";
@@ -388,24 +389,22 @@ function getResponseActionSection(options: {
 
 export function addNewResponseActionSection(
     sections: FormSectionState[],
+    configurations: Configurations,
     isIncidentManager: boolean
 ): FormSectionState {
     const responseActionSections = sections.filter(
         section => !section.id.startsWith("addNewResponseActionSection")
     );
 
-    const searchAssignROField = getSectionsField(sections, responseActionConstants.searchAssignRO);
-    const statusField = getSectionsField(sections, responseActionConstants.status);
-    const verificationField = getSectionsField(sections, responseActionConstants.verification);
+    const { searchAssignRO, status, verification } =
+        configurations.selectableOptions.incidentResponseActionConfigurations;
 
     const newResponseActionSection = getResponseActionSection({
         incidentResponseAction: undefined,
         options: {
-            searchAssignROOptions:
-                searchAssignROField?.type === "select" ? searchAssignROField.options : [],
-            statusOptions: statusField?.type === "select" ? statusField.options : [],
-            verificationOptions:
-                verificationField?.type === "select" ? verificationField.options : [],
+            searchAssignROOptions: getValueLabelOptions(searchAssignRO),
+            statusOptions: getValueLabelOptions(status),
+            verificationOptions: getValueLabelOptions(verification),
         },
         isIncidentManager: isIncidentManager,
         index: responseActionSections.length,
@@ -414,8 +413,9 @@ export function addNewResponseActionSection(
     return newResponseActionSection;
 }
 
-const getSectionsField = (sections: FormSectionState[], fieldId: string): Maybe<FormFieldState> => {
-    const sectionFields = sections[0]?.fields ?? [];
-
-    return sectionFields.find(field => field.id.includes(fieldId));
-};
+function getValueLabelOptions(options: Option[]): UIOption[] {
+    return options.map(option => ({
+        value: option.id,
+        label: option.name,
+    }));
+}

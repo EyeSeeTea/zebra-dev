@@ -180,6 +180,7 @@ export function useForm(formType: FormType, id?: Id): State {
                         const addAnotherSection = getAnotherResponseActionSection();
                         const newResponseActionSection = addNewResponseActionSection(
                             prevState.data.sections,
+                            configurations,
                             isIncidentManager
                         );
 
@@ -217,7 +218,7 @@ export function useForm(formType: FormType, id?: Id): State {
             default:
                 break;
         }
-    }, [configurableForm, formState.kind, isIncidentManager]);
+    }, [configurableForm, configurations, formState.kind, isIncidentManager]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {
