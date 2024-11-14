@@ -3,11 +3,12 @@ import { UserGroupRepository } from "../../domain/repositories/UserGroupReposito
 import { apiToFuture, FutureData } from "../api-futures";
 import { assertOrError } from "./utils/AssertOrError";
 import { UserGroup } from "../../domain/entities/UserGroup";
+import { RTSL_ZEBRA_INCIDENTMANAGER } from "./TeamMemberD2Repository";
 
 export class UserGroupD2Repository implements UserGroupRepository {
     constructor(private api: D2Api) {}
 
-    getUserGroupByCode(code: string): FutureData<UserGroup> {
+    getIncidentManagerUserGroupByCode(): FutureData<UserGroup> {
         return apiToFuture(
             this.api.metadata.get({
                 userGroups: {
@@ -15,12 +16,14 @@ export class UserGroupD2Repository implements UserGroupRepository {
                         id: true,
                     },
                     filter: {
-                        code: { eq: code },
+                        code: { eq: RTSL_ZEBRA_INCIDENTMANAGER },
                     },
                 },
             })
         )
-            .flatMap(response => assertOrError(response.userGroups[0], `User group ${code}`))
+            .flatMap(response =>
+                assertOrError(response.userGroups[0], `User group ${RTSL_ZEBRA_INCIDENTMANAGER}`)
+            )
             .map(userGroup => userGroup);
     }
 }

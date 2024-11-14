@@ -18,7 +18,6 @@ import { D2Api } from "../../../types/d2-api";
 import "./App.css";
 import { CurrentEventTrackerContextProvider } from "../../contexts/CurrentEventTrackerProvider";
 import { ExistingEventTrackerTypesProvider } from "../../contexts/ExistingEventTrackerTypes";
-import { RTSL_ZEBRA_INCIDENTMANAGER } from "../../../data/repositories/TeamMemberD2Repository";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
@@ -39,7 +38,7 @@ function App(props: AppProps) {
             const orgUnits = await compositionRoot.orgUnits.getAll.execute().toPromise();
 
             const configurations = await compositionRoot.diseaseOutbreakEvent.getConfigurations
-                .execute({ incidentManagerUserGroupCode: RTSL_ZEBRA_INCIDENTMANAGER })
+                .execute()
                 .toPromise();
 
             const isDev = process.env.NODE_ENV === "development";

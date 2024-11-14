@@ -71,7 +71,6 @@ import { CompleteEventTrackerUseCase } from "./domain/usecases/CompleteEventTrac
 import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
 import { UserGroupRepository } from "./domain/repositories/UserGroupRepository";
 import { UserGroupTestRepository } from "./data/repositories/test/UserGroupTestRepository";
-import { GetUserGroupByCodeUseCase } from "./domain/usecases/GetUserGroupByCodeUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -144,9 +143,6 @@ function getCompositionRoot(repositories: Repositories) {
         },
         charts: {
             getCases: new GetChartConfigByTypeUseCase(repositories.chartConfigRepository),
-        },
-        userGroup: {
-            getByCode: new GetUserGroupByCodeUseCase(repositories.userGroupRepository),
         },
     };
 }

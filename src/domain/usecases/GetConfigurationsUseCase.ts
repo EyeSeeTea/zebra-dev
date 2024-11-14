@@ -2,7 +2,6 @@ import { FutureData } from "../../data/api-futures";
 import { Configurations, SelectableOptions } from "../entities/AppConfigurations";
 import { Future } from "../entities/generic/Future";
 import { TeamMember } from "../entities/incident-management-team/TeamMember";
-import { Code } from "../entities/Ref";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { UserGroupRepository } from "../repositories/UserGroupRepository";
@@ -14,20 +13,14 @@ export class GetConfigurationsUseCase {
         private userGroupRepository: UserGroupRepository
     ) {}
 
-    public execute({
-        incidentManagerUserGroupCode,
-    }: {
-        incidentManagerUserGroupCode: Code;
-    }): FutureData<Configurations> {
+    public execute(): FutureData<Configurations> {
         return Future.joinObj({
             allTeamMembers: this.teamMemberRepository.getAll(),
             incidentResponseOfficers: this.teamMemberRepository.getIncidentResponseOfficers(),
             managers: this.teamMemberRepository.getIncidentManagers(),
             riskAssessors: this.teamMemberRepository.getRiskAssessors(),
             selectableOptionsResponse: this.configurationsRepository.getSelectableOptions(),
-            incidentManagerUserGroup: this.userGroupRepository.getUserGroupByCode(
-                incidentManagerUserGroupCode
-            ),
+            incidentManagerUserGroup: this.userGroupRepository.getIncidentManagerUserGroupByCode(),
         }).flatMap(
             ({
                 allTeamMembers,
