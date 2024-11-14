@@ -70,6 +70,8 @@ export function getTestContext() {
                 all: [],
                 riskAssessors: [],
                 incidentManagers: [],
+                responseOfficers: [],
+                forIncidentManagementTeam: [],
             },
             roles: [],
         },

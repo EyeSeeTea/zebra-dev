@@ -370,5 +370,10 @@ export const muiTheme = createTheme({
                 backgroundColor: colors.grey200,
             },
         },
+        MuiBackdrop: {
+            root: {
+                backgroundColor: colors.grey,
+            },
+        },
     },
 });

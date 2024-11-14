@@ -8,4 +8,5 @@ export interface TeamMemberRepository {
     getIncidentManagers(): FutureData<TeamMember[]>;
     getRiskAssessors(): FutureData<TeamMember[]>;
     getForIncidentManagementTeam(): FutureData<TeamMember[]>;
+    getIncidentResponseOfficers(): FutureData<TeamMember[]>;
 }

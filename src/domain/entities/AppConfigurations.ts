@@ -51,6 +51,8 @@ export type Configurations = {
         all: TeamMember[];
         riskAssessors: TeamMember[];
         incidentManagers: TeamMember[];
+        responseOfficers: TeamMember[];
+        forIncidentManagementTeam: TeamMember[];
     };
     roles: Role[];
 };

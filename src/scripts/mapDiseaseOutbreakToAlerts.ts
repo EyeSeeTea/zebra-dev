@@ -2,6 +2,7 @@ import { command, run } from "cmd-ts";
 import path from "path";
 import { getD2ApiFromArgs } from "./common";
 import {
+    hazardTypeCodeMap,
     RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
     RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
@@ -22,7 +23,10 @@ import {
 import { AlertSyncDataStoreRepository } from "../data/repositories/AlertSyncDataStoreRepository";
 import { getNotificationOptionsFromTrackedEntity } from "../data/repositories/utils/NotificationMapper";
 import { AlertData } from "../domain/entities/alert/AlertData";
-import { DataSource } from "../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DataSource,
+    HazardType,
+} from "../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { FutureData } from "../data/api-futures";
 import { Alert } from "../domain/entities/alert/Alert";
@@ -75,6 +79,15 @@ function main() {
             }).run(
                 ({ alertTrackedEntities, appConfig }) => {
                     const { hazardTypes, suspectedDiseases } = appConfig.eventTrackerConfigurations;
+                    const hazardTypeCodes = hazardTypes.map(hazardType => {
+                        const hazardTypeId = hazardType.id as HazardType;
+
+                        return {
+                            id: hazardTypeCodeMap[hazardTypeId],
+                            name: hazardType.name,
+                        };
+                    });
+
                     const alertsWithNoEventId =
                         getAlertsWithNoNationalEventId(alertTrackedEntities);
 
@@ -98,7 +111,7 @@ function main() {
                                             const outbreakKey = getOutbreakKey({
                                                 dataSource: filter.dataSource,
                                                 outbreakValue: filter.filterValue,
-                                                hazardTypes: hazardTypes,
+                                                hazardTypes: hazardTypeCodes,
                                                 suspectedDiseases: suspectedDiseases,
                                             });
 
@@ -127,7 +140,7 @@ function main() {
                                                 const outbreakName = getOutbreakKey({
                                                     dataSource: dataSource,
                                                     outbreakValue: outbreakData.value,
-                                                    hazardTypes: hazardTypes,
+                                                    hazardTypes: hazardTypeCodes,
                                                     suspectedDiseases: suspectedDiseases,
                                                 });
 
@@ -177,7 +190,7 @@ function main() {
                                                             saveAlertSyncData({
                                                                 alertOptions: alertOptions,
                                                                 alert: alert,
-                                                                hazardTypes: hazardTypes,
+                                                                hazardTypes: hazardTypeCodes,
                                                                 suspectedDiseases:
                                                                     suspectedDiseases,
                                                             }).run(

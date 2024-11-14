@@ -67,7 +67,6 @@ export type IncidentResponseActionDataValues = {
     subPillar: Maybe<string>;
     searchAssignRO: Maybe<string>;
     dueDate: Maybe<string>;
-    timeLine: Maybe<string>;
     status: Maybe<Status>;
     verification: Maybe<Verification>;
 };

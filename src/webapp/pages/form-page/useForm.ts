@@ -22,6 +22,7 @@ import {
 } from "./incident-action/mapIncidentActionToInitialFormState";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
+import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
 
 export type GlobalMessage = {
     text: string;
@@ -66,7 +67,16 @@ export function useForm(formType: FormType, id?: Id): State {
     const [isLoading, setIsLoading] = useState(false);
     const currentEventTracker = getCurrentEventTracker();
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
+    const { dataPerformanceOverview } = usePerformanceOverview();
     useCheckWritePermission(formType);
+
+    const allDataPerformanceEvents = dataPerformanceOverview?.map(
+        event => event.hazardType || event.suspectedDisease
+    );
+    const existingEventTrackers =
+        existingEventTrackerTypes.length === 0
+            ? allDataPerformanceEvents
+            : existingEventTrackerTypes;
 
     useEffect(() => {
         compositionRoot.getConfigurableForm
@@ -77,7 +87,7 @@ export function useForm(formType: FormType, id?: Id): State {
                     setFormLabels(formData.labels);
                     setFormState({
                         kind: "loaded",
-                        data: mapEntityToFormState(formData, !!id, existingEventTrackerTypes),
+                        data: mapEntityToFormState(formData, !!id, existingEventTrackers),
                     });
                 },
                 error => {
@@ -95,7 +105,7 @@ export function useForm(formType: FormType, id?: Id): State {
         compositionRoot.getConfigurableForm,
         configurations,
         currentEventTracker,
-        existingEventTrackerTypes,
+        existingEventTrackers,
         formType,
         id,
     ]);
@@ -296,7 +306,10 @@ export function useForm(formType: FormType, id?: Id): State {
                         });
                         break;
                     case "incident-response-action":
-                        if (currentEventTracker?.id) goTo(RouteName.INCIDENT_ACTION_PLAN);
+                        if (currentEventTracker?.id)
+                            goTo(RouteName.INCIDENT_ACTION_PLAN, {
+                                id: currentEventTracker?.id,
+                            });
                         setGlobalMessage({
                             text: i18n.t(`Incident Response Actions saved successfully`),
                             type: "success",
