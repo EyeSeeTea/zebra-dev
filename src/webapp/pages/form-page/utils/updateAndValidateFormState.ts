@@ -12,6 +12,7 @@ import {
     updateFormStateWithFieldErrors,
     validateForm,
 } from "../../../components/form/FormState";
+import { validateCaseSheetData } from "../disease-outbreak-event/CaseDataFileFieldHelper";
 import { applyRulesInFormState } from "./applyRulesInFormState";
 
 export function updateAndValidateFormState(
@@ -53,11 +54,16 @@ function validateFormState(
 ): ValidationError[] {
     const formValidationErrors = validateForm(updatedForm, updatedField);
     let entityValidationErrors: ValidationError[] = [];
+    let sheetDataValidationErrors: ValidationError[] = [];
 
     switch (configurableForm.type) {
         case "disease-outbreak-event": {
             if (configurableForm.entity)
                 entityValidationErrors = DiseaseOutbreakEvent.validate(configurableForm.entity);
+            sheetDataValidationErrors =
+                updatedField.type === "file"
+                    ? [validateCaseSheetData(updatedField, configurableForm.orgUnits)]
+                    : [];
             break;
         }
         case "risk-assessment-grading":
@@ -90,5 +96,5 @@ function validateFormState(
         }
     }
 
-    return [...formValidationErrors, ...entityValidationErrors];
+    return [...formValidationErrors, ...entityValidationErrors, ...sheetDataValidationErrors];
 }

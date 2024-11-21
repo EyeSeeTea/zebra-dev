@@ -6,7 +6,7 @@ import { Id } from "../../../domain/entities/Ref";
 import { FormState } from "../../components/form/FormState";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
-import { updateAndValidateFormState } from "./utils/updateDiseaseOutbreakEventFormState";
+import { updateAndValidateFormState } from "./utils/updateAndValidateFormState";
 import { FormFieldState } from "../../components/form/FormFieldsState";
 import { FormType } from "./FormPage";
 import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
@@ -242,7 +242,7 @@ export function useForm(formType: FormType, id?: Id): State {
             configurableForm
         );
 
-        compositionRoot.save.execute(formData, configurations).run(
+        compositionRoot.save.execute(formData, configurations, !!id).run(
             diseaseOutbreakEventId => {
                 setIsLoading(false);
 
@@ -345,6 +345,7 @@ export function useForm(formType: FormType, id?: Id): State {
         configurableForm,
         currentUser.username,
         compositionRoot,
+        id,
         currentEventTracker?.id,
         goTo,
     ]);

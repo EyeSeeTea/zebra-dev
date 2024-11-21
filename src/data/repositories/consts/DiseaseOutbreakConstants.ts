@@ -1,4 +1,5 @@
 import {
+    CasesDataSource,
     DataSource,
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
@@ -48,6 +49,11 @@ export const dataSourceMap: Record<string, DataSource> = {
     RTSL_ZEB_OS_DATA_SOURCE_EBS: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
 };
 
+export const casesDataSourceMap: Record<string, CasesDataSource> = {
+    RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+    RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF,
+};
+
 export const diseaseOutbreakCodes = {
     name: "RTSL_ZEB_TEA_EVENT_NAME",
     dataSource: "RTSL_ZEB_TEA_DATA_SOURCE",
@@ -79,7 +85,7 @@ export const diseaseOutbreakCodes = {
     responseNarrative: "RTSL_ZEB_TEA_RESPONSE_NARRATIVE",
     incidentManager: "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER",
     notes: "RTSL_ZEB_TEA_NOTES",
-    caseDataSource: "RTSL_ZEB_TEA_CASE_DATA_SOURCE",
+    casesDataSource: "RTSL_ZEB_TEA_CASE_DATA_SOURCE",
 } as const;
 
 export type DiseaseOutbreakCode = GetValue<typeof diseaseOutbreakCodes>;
@@ -165,7 +171,7 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_RESPONSE_NARRATIVE: diseaseOutbreak.earlyResponseActions.responseNarrative,
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
-        RTSL_ZEB_TEA_CASE_DATA_SOURCE: "",
+        RTSL_ZEB_TEA_CASE_DATA_SOURCE: diseaseOutbreak.casesDataSource,
     };
 }
 

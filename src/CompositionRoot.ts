@@ -34,7 +34,6 @@ import { MapConfigD2Repository } from "./data/repositories/MapConfigD2Repository
 import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestRepository";
 import { GetMapConfigUseCase } from "./domain/usecases/GetMapConfigUseCase";
 import { GetProvincesOrgUnits } from "./domain/usecases/GetProvincesOrgUnits";
-import { GetAllOrgUnitsUseCase } from "./domain/usecases/GetAllOrgUnitsUseCase";
 import { PerformanceOverviewRepository } from "./domain/repositories/PerformanceOverviewRepository";
 import { GetAllPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllPerformanceOverviewMetricsUseCase";
 import { PerformanceOverviewD2Repository } from "./data/repositories/PerformanceOverviewD2Repository";
@@ -68,6 +67,9 @@ import { ConfigurationsRepository } from "./domain/repositories/ConfigurationsRe
 import { ConfigurationsD2Repository } from "./data/repositories/ConfigurationsD2Repository";
 import { ConfigurationsTestRepository } from "./data/repositories/test/ConfigurationsTestRepository";
 import { CompleteEventTrackerUseCase } from "./domain/usecases/CompleteEventTrackerUseCase";
+import { CasesFileD2Repository } from "./data/repositories/CasesFileD2Repository";
+import { CasesFileRepository } from "./domain/repositories/CasesFileRepository";
+import { CasesFileTestRepository } from "./data/repositories/test/CasesFileTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -87,6 +89,7 @@ type Repositories = {
     chartConfigRepository: ChartConfigRepository;
     systemRepository: SystemRepository;
     configurationsRepository: ConfigurationsRepository;
+    casesFileRepository: CasesFileRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -105,7 +108,8 @@ function getCompositionRoot(repositories: Repositories) {
             ),
             getConfigurations: new GetConfigurationsUseCase(
                 repositories.configurationsRepository,
-                repositories.teamMemberRepository
+                repositories.teamMemberRepository,
+                repositories.orgUnitRepository
             ),
             complete: new CompleteEventTrackerUseCase(repositories),
         },
@@ -133,7 +137,6 @@ function getCompositionRoot(repositories: Repositories) {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),
         },
         orgUnits: {
-            getAll: new GetAllOrgUnitsUseCase(repositories.orgUnitRepository),
             getProvinces: new GetProvincesOrgUnits(repositories.orgUnitRepository),
         },
         charts: {
@@ -160,6 +163,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         chartConfigRepository: new ChartConfigD2Repository(dataStoreClient),
         systemRepository: new SystemD2Repository(api),
         configurationsRepository: new ConfigurationsD2Repository(api),
+        casesFileRepository: new CasesFileD2Repository(api, dataStoreClient),
     };
 
     return getCompositionRoot(repositories);
@@ -182,6 +186,7 @@ export function getTestCompositionRoot() {
         chartConfigRepository: new ChartConfigTestRepository(),
         systemRepository: new SystemTestRepository(),
         configurationsRepository: new ConfigurationsTestRepository(),
+        casesFileRepository: new CasesFileTestRepository(),
     };
 
     return getCompositionRoot(repositories);

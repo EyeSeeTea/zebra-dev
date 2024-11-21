@@ -1,15 +1,22 @@
 import { FutureData } from "../../../../data/api-futures";
 import { INCIDENT_MANAGER_ROLE } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { getOutbreakKey } from "../../../entities/AlertsAndCaseForCasesData";
 import { Configurations } from "../../../entities/AppConfigurations";
-import { DiseaseOutbreakEventBaseAttrs } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    CasesDataSource,
+    DiseaseOutbreakEvent,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
 import { Role } from "../../../entities/incident-management-team/Role";
 import { TeamMember, TeamRole } from "../../../entities/incident-management-team/TeamMember";
 import { Id } from "../../../entities/Ref";
+import { CasesFileRepository } from "../../../repositories/CasesFileRepository";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
 import { IncidentManagementTeamRepository } from "../../../repositories/IncidentManagementTeamRepository";
 import { RoleRepository } from "../../../repositories/RoleRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
+import { Maybe } from "../../../../utils/ts-utils";
 
 export function saveDiseaseOutbreak(
     repositories: {
@@ -17,19 +24,75 @@ export function saveDiseaseOutbreak(
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
         teamMemberRepository: TeamMemberRepository;
         roleRepository: RoleRepository;
+        casesFileRepository: CasesFileRepository;
     },
-    diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs,
-    configurations: Configurations
+    diseaseOutbreakEvent: DiseaseOutbreakEvent,
+    configurations: Configurations,
+    editMode: boolean,
+    casesDataOptions?: {
+        uploadedCasesDataFile: Maybe<File>;
+        uploadedCasesDataFileId: Maybe<Id>;
+        hasInitiallyCasesDataFile: boolean;
+    }
 ): FutureData<Id> {
+    const { uploadedCasesDataFile, uploadedCasesDataFileId, hasInitiallyCasesDataFile } =
+        casesDataOptions || {};
+
+    const hasNewCasesData =
+        (!editMode || !hasInitiallyCasesDataFile) &&
+        !!uploadedCasesDataFile &&
+        diseaseOutbreakEvent.casesDataSource ===
+            CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+    const haveChangedCasesData =
+        editMode &&
+        hasInitiallyCasesDataFile &&
+        !uploadedCasesDataFileId &&
+        !!uploadedCasesDataFile &&
+        diseaseOutbreakEvent.casesDataSource ===
+            CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+
     return repositories.diseaseOutbreakEventRepository
-        .save(diseaseOutbreakEvent)
+        .save(diseaseOutbreakEvent, haveChangedCasesData)
         .flatMap((diseaseOutbreakId: Id) => {
             const diseaseOutbreakEventWithId = { ...diseaseOutbreakEvent, id: diseaseOutbreakId };
             return saveIncidentManagerTeamMemberRole(
                 repositories,
                 diseaseOutbreakEventWithId,
                 configurations
-            );
+            ).flatMap(() => {
+                if (hasNewCasesData || haveChangedCasesData) {
+                    const outbreakKey = getOutbreakKey({
+                        dataSource: diseaseOutbreakEventWithId.dataSource,
+                        outbreakValue:
+                            diseaseOutbreakEventWithId.suspectedDiseaseCode ||
+                            diseaseOutbreakEventWithId.hazardType,
+                        hazardTypes:
+                            configurations.selectableOptions.eventTrackerConfigurations.hazardTypes,
+                        suspectedDiseases:
+                            configurations.selectableOptions.eventTrackerConfigurations
+                                .suspectedDiseases,
+                    });
+
+                    if (haveChangedCasesData) {
+                        // NOTICE: If the cases data file has changed, we need to replace the old one with the new one
+                        return repositories.casesFileRepository.delete(outbreakKey).flatMap(() => {
+                            return repositories.casesFileRepository
+                                .save(diseaseOutbreakEvent.id, outbreakKey, {
+                                    file: uploadedCasesDataFile,
+                                })
+                                .flatMap(() => Future.success(diseaseOutbreakId));
+                        });
+                    } else {
+                        return repositories.casesFileRepository
+                            .save(diseaseOutbreakEvent.id, outbreakKey, {
+                                file: uploadedCasesDataFile,
+                            })
+                            .flatMap(() => Future.success(diseaseOutbreakId));
+                    }
+                } else {
+                    return Future.success(diseaseOutbreakId);
+                }
+            });
         });
 }
 

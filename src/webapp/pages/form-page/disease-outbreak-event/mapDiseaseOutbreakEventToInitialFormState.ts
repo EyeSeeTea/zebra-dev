@@ -1,6 +1,9 @@
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
-import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    CasesDataSource,
+    DataSource,
+} from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { TeamMember } from "../../../../domain/entities/incident-management-team/TeamMember";
 import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
@@ -15,6 +18,8 @@ import {
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
+    casesDataSource: "casesDataSource",
+    casesDataFile: "casesDataFile",
     dataSource: "dataSource",
     hazardType: "hazardType",
     mainSyndromeCode: "mainSyndromeCode",
@@ -61,6 +66,8 @@ export function mapTeamMemberToUser(teamMember: TeamMember): User {
 }
 type MainSectionKeys =
     | "name"
+    | "casesDataSource"
+    | "casesDataFile"
     | "dataSource"
     | "hazardType"
     | "mainSyndrome"
@@ -90,7 +97,13 @@ export function mapDiseaseOutbreakEventToInitialFormState(
     editMode: boolean,
     existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
 ): FormState {
-    const { entity: diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
+    const {
+        entity: diseaseOutbreakEvent,
+        options,
+        caseDataFileTemplete,
+        uploadedCasesDataFile,
+        uploadedCasesDataFileId,
+    } = diseaseOutbreakEventWithOptions;
     const {
         dataSources,
         incidentManagers,
@@ -99,6 +112,7 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         suspectedDiseases,
         notificationSources,
         incidentStatus,
+        casesDataSource,
     } = options;
 
     //If An Event Tracker has already been created for a given suspected disease or harzd type,
@@ -112,6 +126,7 @@ export function mapDiseaseOutbreakEventToInitialFormState(
 
     const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
     const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
+    const casesDataSourceOptions: PresentationOption[] = mapToPresentationOptions(casesDataSource);
     const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(filteredHazardTypes);
     const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
     const suspectedDiseasesOptions: PresentationOption[] =
@@ -124,6 +139,9 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         diseaseOutbreakEvent?.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
     const isIBSDataSource =
         diseaseOutbreakEvent?.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS;
+    const isCasesDataUserDefined =
+        diseaseOutbreakEvent?.casesDataSource ===
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
 
     const fromIdsDictionary = (key: keyof typeof diseaseOutbreakEventFieldIds) =>
         getFieldIdFromIdsDictionary(key, diseaseOutbreakEventFieldIds);
@@ -370,6 +388,54 @@ export function mapDiseaseOutbreakEventToInitialFormState(
                     multiline: false,
                     required: true,
                     showIsRequired: false,
+                },
+            ],
+        },
+        casesDataSource: {
+            title: "Cases Data Source",
+            id: "casesDataSource_section",
+            isVisible: true,
+            required: true,
+            fields: [
+                {
+                    id: fromIdsDictionary("casesDataSource"),
+                    placeholder: "Select the cases data source",
+                    isVisible: true,
+                    errors: [],
+                    type: "select",
+                    multiple: false,
+                    options: casesDataSourceOptions,
+                    value: diseaseOutbreakEvent?.casesDataSource || "",
+                    width: "300px",
+                    required: true,
+                    showIsRequired: false,
+                    disabled: editMode && isCasesDataUserDefined,
+                },
+            ],
+        },
+        casesDataFile: {
+            title: "Cases Data File",
+            id: "casesDataFile_section",
+            isVisible: isCasesDataUserDefined,
+            required: true,
+            fields: [
+                {
+                    id: fromIdsDictionary("casesDataFile"),
+                    isVisible: isCasesDataUserDefined,
+                    errors: [],
+                    type: "file",
+                    value: isCasesDataUserDefined ? uploadedCasesDataFile : undefined,
+                    required: true,
+                    showIsRequired: false,
+                    data: undefined,
+                    fileId: isCasesDataUserDefined ? uploadedCasesDataFileId : undefined,
+                    fileTemplate: caseDataFileTemplete,
+                    helperText:
+                        editMode && isCasesDataUserDefined
+                            ? i18n.t(
+                                  "In order to add or replace cases, you need to download the current file and add the new ones."
+                              )
+                            : i18n.t("Please, download the template and add the required data."),
                 },
             ],
         },
@@ -650,6 +716,8 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         isValid: false,
         sections: [
             mainSections.name,
+            mainSections.casesDataSource,
+            mainSections.casesDataFile,
             mainSections.dataSource,
             mainSections.hazardType,
             mainSections.mainSyndrome,

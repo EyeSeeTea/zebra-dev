@@ -5,8 +5,17 @@ import { Option } from "../utils/option";
 import { ValidationError, ValidationErrorKey } from "../../../domain/entities/ValidationError";
 import { FormSectionState } from "./FormSectionsState";
 import { Rule } from "../../../domain/entities/Rule";
+import { Id } from "../../../domain/entities/Ref";
 
-export type FieldType = "text" | "boolean" | "select" | "radio" | "date" | "user" | "addNew";
+export type FieldType =
+    | "text"
+    | "boolean"
+    | "select"
+    | "radio"
+    | "date"
+    | "user"
+    | "addNew"
+    | "file";
 
 type FormFieldStateBase<T> = {
     id: string;
@@ -57,6 +66,18 @@ export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
     options: User[];
 };
 
+export type Row = Record<string, string>;
+export type SheetData = {
+    headers: string[];
+    rows: Row[];
+};
+export type FormFileFieldState = FormFieldStateBase<Maybe<File>> & {
+    type: "file";
+    data: Maybe<SheetData>;
+    fileId: Maybe<Id>;
+    fileTemplate: Maybe<File>;
+};
+
 export type AddNewFieldState = FormFieldStateBase<null> & {
     type: "addNew";
 };
@@ -67,7 +88,8 @@ export type FormFieldState =
     | FormMultipleOptionsFieldState
     | FormBooleanFieldState
     | FormDateFieldState
-    | FormAvatarFieldState;
+    | FormAvatarFieldState
+    | FormFileFieldState;
 
 // HELPERS:
 
@@ -105,6 +127,20 @@ export function getMultipleOptionsFieldValue(id: string, allFields: FormFieldSta
     return getFieldValueById<FormMultipleOptionsFieldState>(id, allFields) || [];
 }
 
+export function getFileFieldValue(id: string, allFields: FormFieldState[]): Maybe<File> {
+    return getFieldValueById<FormFileFieldState>(id, allFields);
+}
+
+export function getFieldFileDataById(id: string, allFields: FormFieldState[]): Maybe<SheetData> {
+    const field = allFields.find(field => field.id === id && field.type === "file");
+    return field?.type === "file" ? field.data : undefined;
+}
+
+export function getFieldFileIdById(id: string, allFields: FormFieldState[]): Maybe<Id> {
+    const field = allFields.find(field => field.id === id && field.type === "file");
+    return field?.type === "file" ? field.fileId : undefined;
+}
+
 export function getFieldValueById<F extends FormFieldState>(
     id: string,
     fields: FormFieldState[]
@@ -137,6 +173,8 @@ export function getFieldWithEmptyValue(field: FormFieldState): FormFieldState {
             return { ...field, value: null };
         case "user":
             return { ...field, value: undefined };
+        case "file":
+            return { ...field, value: undefined, data: undefined, fileId: undefined };
     }
 }
 
@@ -152,18 +190,21 @@ export function updateFields(
     fieldValidationErrors?: ValidationError[]
 ): FormFieldState[] {
     return formFields.map(field => {
-        const errors =
-            fieldValidationErrors?.find(error => error.property === field.id)?.errors || [];
+        const validationError = fieldValidationErrors?.find(error => error.property === field.id);
+        const errors = validationError?.errors || [];
+        const errorsInFile = validationError?.errorsInFile
+            ? Object.values(validationError.errorsInFile).filter(error => error !== undefined)
+            : [];
         if (field.id === updatedField.id) {
             return {
                 ...updatedField,
-                errors: errors,
+                errors: [...errors, ...errorsInFile],
             };
         } else {
             return updatedField.updateAllStateWithValidationErrors
                 ? {
                       ...field,
-                      errors: errors,
+                      errors: [...errors, ...errorsInFile],
                   }
                 : field;
         }
@@ -172,9 +213,19 @@ export function updateFields(
 
 export function updateFieldState<F extends FormFieldState>(
     fieldToUpdate: F,
-    newValue: F["value"]
+    newValue: F["value"],
+    sheetData?: SheetData
 ): F {
-    return { ...fieldToUpdate, value: newValue };
+    if (fieldToUpdate.type === "file") {
+        return {
+            ...fieldToUpdate,
+            value: newValue,
+            data: sheetData,
+            fileId: undefined, // If a new file is uploaded, the fileId should be undefined
+        };
+    } else {
+        return { ...fieldToUpdate, value: newValue };
+    }
 }
 
 // VALIDATIONS:
@@ -210,7 +261,11 @@ export function validateField(
 // RULES:
 
 export function hideFieldsAndSetToEmpty(fields: FormFieldState[]): FormFieldState[] {
-    return fields.map(field => ({ ...getFieldWithEmptyValue(field), isVisible: false }));
+    return fields.map(field => ({
+        ...getFieldWithEmptyValue(field),
+        isVisible: false,
+        errors: [],
+    }));
 }
 
 export function applyRulesInUpdatedField(

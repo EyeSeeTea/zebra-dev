@@ -3,12 +3,14 @@ import { Configurations, SelectableOptions } from "../entities/AppConfigurations
 import { Future } from "../entities/generic/Future";
 import { TeamMember } from "../entities/incident-management-team/TeamMember";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
+import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 
 export class GetConfigurationsUseCase {
     constructor(
         private configurationsRepository: ConfigurationsRepository,
-        private teamMemberRepository: TeamMemberRepository
+        private teamMemberRepository: TeamMemberRepository,
+        private orgUnitRepository: OrgUnitRepository
     ) {}
 
     public execute(): FutureData<Configurations> {
@@ -18,6 +20,7 @@ export class GetConfigurationsUseCase {
             managers: this.teamMemberRepository.getIncidentManagers(),
             riskAssessors: this.teamMemberRepository.getRiskAssessors(),
             selectableOptionsResponse: this.configurationsRepository.getSelectableOptions(),
+            orgUnits: this.orgUnitRepository.getAll(),
         }).flatMap(
             ({
                 allTeamMembers,
@@ -25,6 +28,7 @@ export class GetConfigurationsUseCase {
                 managers,
                 riskAssessors,
                 selectableOptionsResponse,
+                orgUnits,
             }) => {
                 const selectableOptions: SelectableOptions =
                     this.mapOptionsAndTeamMembersToSelectableOptions(
@@ -42,6 +46,7 @@ export class GetConfigurationsUseCase {
                         incidentManagers: managers,
                         responseOfficers: incidentResponseOfficers,
                     },
+                    orgUnits,
                 };
                 return Future.success(configurations);
             }
