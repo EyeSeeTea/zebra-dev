@@ -27,12 +27,15 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         eventDiseaseCode,
         eventHazardCode,
     } = props;
-    const { orgUnits } = useAppContext();
+    const { configurations } = useAppContext();
     const snackbar = useSnackbar();
 
     const allProvincesIds = useMemo(
-        () => orgUnits.filter(orgUnit => orgUnit.level === "Province").map(orgUnit => orgUnit.id),
-        [orgUnits]
+        () =>
+            configurations.orgUnits
+                .filter(orgUnit => orgUnit.level === "Province")
+                .map(orgUnit => orgUnit.id),
+        [configurations.orgUnits]
     );
 
     const { mapConfigState } = useMap({

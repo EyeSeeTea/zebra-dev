@@ -2,10 +2,7 @@ import { Maybe } from "../../utils/ts-utils";
 import { TeamMember } from "./incident-management-team/TeamMember";
 import { Id, Option } from "./Ref";
 import { Rule } from "./Rule";
-import {
-    DiseaseOutbreakEvent,
-    DiseaseOutbreakEventBaseAttrs,
-} from "./disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEvent } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
 import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
@@ -14,6 +11,7 @@ import { ActionPlanAttrs } from "./incident-action-plan/ActionPlan";
 import { ResponseAction } from "./incident-action-plan/ResponseAction";
 import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
 import { Role } from "./incident-management-team/Role";
+import { OrgUnit } from "./OrgUnit";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -23,6 +21,7 @@ export type DiseaseOutbreakEventOptions = {
     notificationSources: Option[];
     incidentStatus: Option[];
     incidentManagers: TeamMember[];
+    casesDataSource: Option[];
 };
 
 export type RiskAssessmentGradingOptions = {
@@ -74,8 +73,13 @@ type BaseFormData = {
 };
 export type DiseaseOutbreakEventFormData = BaseFormData & {
     type: "disease-outbreak-event";
-    entity: Maybe<DiseaseOutbreakEventBaseAttrs>;
+    entity: Maybe<DiseaseOutbreakEvent>;
     options: DiseaseOutbreakEventOptions;
+    orgUnits: OrgUnit[];
+    caseDataFileTemplete: File;
+    uploadedCasesDataFile: Maybe<File>;
+    uploadedCasesDataFileId: Maybe<Id>;
+    hasInitiallyCasesDataFile: boolean;
 };
 
 export type RiskAssessmentGradingFormData = BaseFormData & {

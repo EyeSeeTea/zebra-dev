@@ -1,5 +1,7 @@
 import {
+    CasesDataSource,
     DataSource,
+    DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
     HazardType,
     NationalIncidentStatus,
@@ -11,6 +13,9 @@ import {
     getAllFieldsFromSections,
     getBooleanFieldValue,
     getDateFieldValue,
+    getFieldFileDataById,
+    getFieldFileIdById,
+    getFileFieldValue,
     getMultipleOptionsFieldValue,
     getStringFieldValue,
 } from "../../components/form/FormFieldsState";
@@ -50,6 +55,7 @@ import {
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { getCaseDataFromField } from "./disease-outbreak-event/CaseDataFileFieldHelper";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -63,9 +69,22 @@ export function mapFormStateToEntityData(
                 currentUserName,
                 formData.entity
             );
+
+            const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+            const uploadedCasesDataFileValue = getFileFieldValue(
+                diseaseOutbreakEventFieldIds.casesDataFile,
+                allFields
+            );
+            const uploadedCasesDataFileId = getFieldFileIdById(
+                diseaseOutbreakEventFieldIds.casesDataFile,
+                allFields
+            );
+
             const diseaseForm: DiseaseOutbreakEventFormData = {
                 ...formData,
                 entity: dieaseEntity,
+                uploadedCasesDataFile: uploadedCasesDataFileValue,
+                uploadedCasesDataFileId: uploadedCasesDataFileId,
             };
             return diseaseForm;
         }
@@ -134,8 +153,8 @@ export function mapFormStateToEntityData(
 function mapFormStateToDiseaseOutbreakEvent(
     formState: FormState,
     currentUserName: string,
-    diseaseOutbreakEvent: Maybe<DiseaseOutbreakEventBaseAttrs>
-): DiseaseOutbreakEventBaseAttrs {
+    diseaseOutbreakEvent: Maybe<DiseaseOutbreakEvent>
+): DiseaseOutbreakEvent {
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
     const diseaseOutbreakEventEditableData = {
@@ -256,7 +275,25 @@ function mapFormStateToDiseaseOutbreakEvent(
             allFields
         ),
         notes: getStringFieldValue(diseaseOutbreakEventFieldIds.notes, allFields),
+        casesDataSource: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.casesDataSource,
+            allFields
+        ) as CasesDataSource,
     };
+
+    const isCasesDataUserDefined =
+        diseaseOutbreakEventEditableData.casesDataSource ===
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+
+    const uploadedCasesSheetData = isCasesDataUserDefined
+        ? getFieldFileDataById(diseaseOutbreakEventFieldIds.casesDataFile, allFields)
+        : undefined;
+
+    const hasCasesDataChange = isCasesDataUserDefined && uploadedCasesSheetData;
+
+    const casesData = hasCasesDataChange
+        ? getCaseDataFromField(uploadedCasesSheetData, currentUserName)
+        : diseaseOutbreakEvent?.uploadedCasesData;
 
     const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
         id: diseaseOutbreakEvent?.id || "",
@@ -266,8 +303,24 @@ function mapFormStateToDiseaseOutbreakEvent(
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
         ...diseaseOutbreakEventEditableData,
     };
+    const newDiseaseOutbreakEvent = new DiseaseOutbreakEvent({
+        ...diseaseOutbreakEventBase,
+        uploadedCasesData: undefined,
 
-    return diseaseOutbreakEventBase;
+        // NOTICE: Not needed but required
+        createdBy: undefined,
+        mainSyndrome: undefined,
+        suspectedDisease: undefined,
+        notificationSource: undefined,
+        incidentManager: undefined,
+        riskAssessment: undefined,
+        incidentActionPlan: undefined,
+        incidentManagementTeam: undefined,
+    });
+
+    return casesData
+        ? newDiseaseOutbreakEvent.addUploadedCasesData(casesData)
+        : newDiseaseOutbreakEvent;
 }
 
 function mapFormStateToRiskAssessmentGrading(formState: FormState): RiskAssessmentGrading {

@@ -17,7 +17,6 @@ export function getTestContext() {
         currentUser: createAdminUser(),
         compositionRoot: getTestCompositionRoot(),
         api: {} as D2Api,
-        orgUnits: [],
         isDev: true,
         configurations: {
             selectableOptions: {
@@ -29,6 +28,7 @@ export function getTestContext() {
                     notificationSources: [],
                     incidentStatus: [],
                     incidentManagers: [],
+                    casesDataSource: [],
                 },
                 riskAssessmentGradingConfigurations: {
                     populationAtRisk: [],
@@ -67,6 +67,7 @@ export function getTestContext() {
                 incidentManagers: [],
                 responseOfficers: [],
             },
+            orgUnits: [],
         },
     };
 

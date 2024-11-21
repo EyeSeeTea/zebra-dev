@@ -35,7 +35,6 @@ function App(props: AppProps) {
             const isShareButtonVisible = appConfig.appearance.showShareButton;
             const currentUser = await compositionRoot.users.getCurrent.execute().toPromise();
             if (!currentUser) throw new Error("User not logged in");
-            const orgUnits = await compositionRoot.orgUnits.getAll.execute().toPromise();
 
             const configurations = await compositionRoot.diseaseOutbreakEvent.getConfigurations
                 .execute()
@@ -47,7 +46,6 @@ function App(props: AppProps) {
                 compositionRoot,
                 isDev,
                 api,
-                orgUnits,
                 configurations,
             });
             setShowShareButton(isShareButtonVisible);

@@ -1,4 +1,5 @@
 import {
+    CasesDataSource,
     DataSource,
     DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
@@ -44,6 +45,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             },
             incidentManagerName: "incidentManager",
             notes: undefined,
+            casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
         });
     }
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
@@ -78,6 +80,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
+                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
             },
             {
                 id: "2",
@@ -109,6 +112,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
+                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
             },
         ]);
     }

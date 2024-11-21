@@ -6,6 +6,7 @@ import { ConfigurableForm } from "../entities/ConfigurableForm";
 import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
+import { CasesFileRepository } from "../repositories/CasesFileRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
@@ -27,6 +28,7 @@ export class GetConfigurableFormUseCase {
             teamMemberRepository: TeamMemberRepository;
             incidentActionRepository: IncidentActionRepository;
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
+            casesFileRepository: CasesFileRepository;
         }
     ) {}
 
