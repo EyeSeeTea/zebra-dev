@@ -130,13 +130,9 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
                     >
                         {openDeleteModalData && (
                             <Text>
-                                {i18n.t(
-                                    `Are you sure you want to delete ${
-                                        openDeleteModalData.length > 1
-                                            ? "these team roles"
-                                            : "this team role"
-                                    }?`
-                                )}
+                                {openDeleteModalData.length > 1
+                                    ? i18n.t(`Are you sure you want to delete these team roles?`)
+                                    : i18n.t(`Are you sure you want to delete this team role?`)}
                             </Text>
                         )}
                     </SimpleModal>

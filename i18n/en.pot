@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-11-08T16:32:23.115Z\n"
-"PO-Revision-Date: 2024-11-08T16:32:23.115Z\n"
+"POT-Creation-Date: 2024-11-21T08:13:13.190Z\n"
+"PO-Revision-Date: 2024-11-21T08:13:13.190Z\n"
 
 msgid "Low"
 msgstr ""
@@ -75,9 +75,6 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-msgid "There is an error in this field"
-msgstr ""
-
 msgid "Indicates required"
 msgstr ""
 
@@ -102,6 +99,30 @@ msgstr ""
 msgid "Currently assigned:"
 msgstr ""
 
+msgid "Multiple uploads not allowed, please select one file"
+msgstr ""
+
+msgid "Error uploading file."
+msgstr ""
+
+msgid "Select a file"
+msgstr ""
+
+msgid "Errors in cases data file"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Confirm remove the file"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Are you sure you want to remove the file?"
+msgstr ""
+
 msgid "Error loading current Incident Management Team"
 msgstr ""
 
@@ -112,9 +133,6 @@ msgid "The map with these filters could not be found."
 msgstr ""
 
 msgid "Map not found."
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "Search"
@@ -189,6 +207,14 @@ msgstr ""
 msgid "N/A"
 msgstr ""
 
+msgid ""
+"In order to add or replace cases, you need to download the current file and "
+"add the new ones."
+msgstr ""
+
+msgid "Please, download the template and add the required data."
+msgstr ""
+
 msgid "Add another"
 msgstr ""
 
@@ -252,7 +278,10 @@ msgstr ""
 msgid "Confirm deletion"
 msgstr ""
 
-msgid "Delete"
+msgid "Are you sure you want to delete these team roles?"
+msgstr ""
+
+msgid "Are you sure you want to delete this team role?"
 msgstr ""
 
 msgid "Resources"
