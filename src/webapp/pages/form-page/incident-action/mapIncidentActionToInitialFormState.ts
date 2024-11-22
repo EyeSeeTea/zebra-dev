@@ -6,6 +6,7 @@ import { Configurations } from "../../../../domain/entities/AppConfigurations";
 import {
     ActionPlanFormData,
     ResponseActionFormData,
+    SingleResponseActionFormData,
 } from "../../../../domain/entities/ConfigurableForm";
 import { ResponseAction } from "../../../../domain/entities/incident-action-plan/ResponseAction";
 import { Option } from "../../../../domain/entities/Ref";
@@ -220,7 +221,7 @@ export function mapIncidentActionPlanToInitialFormState(
     };
 }
 
-export function mapIncidentResponseActionToInitialFormState(
+export function mapIncidentResponseActionsToInitialFormState(
     incidentResponseActionFormData: ResponseActionFormData,
     isIncidentManager: boolean
 ): FormState {
@@ -273,6 +274,44 @@ export function mapIncidentResponseActionToInitialFormState(
         saveButtonLabel: "Save plan",
         isValid: incidentResponseActions.length !== 0 ? true : false,
         sections: [...responseActionSections, addNewResponseActionSection],
+    };
+}
+
+export function mapSingleIncidentResponseActionToInitialFormState(
+    incidentResponseActionFormData: SingleResponseActionFormData,
+    isIncidentManager: boolean
+): FormState {
+    const {
+        entity: incidentResponseAction,
+        eventTrackerDetails,
+        options,
+    } = incidentResponseActionFormData;
+
+    const { searchAssignRO, status, verification } = options;
+    const searchAssignROOptions: UIOption[] = mapToPresentationOptions(searchAssignRO);
+    const statusOptions: UIOption[] = mapToPresentationOptions(status);
+    const verificationOptions: UIOption[] = mapToPresentationOptions(verification);
+
+    const responseActionSection = getResponseActionSection({
+        incidentResponseAction: incidentResponseAction,
+        options: {
+            searchAssignROOptions: searchAssignROOptions,
+            statusOptions: statusOptions,
+            verificationOptions: verificationOptions,
+        },
+        isIncidentManager: isIncidentManager,
+        index: 0,
+    });
+
+    return {
+        id: eventTrackerDetails.id ?? "",
+        title: "Incident Action Plan",
+        subtitle: eventTrackerDetails.name,
+        titleDescripton: "Step 2:",
+        subtitleDescripton: "Edit response action",
+        saveButtonLabel: "Save plan",
+        isValid: incidentResponseAction ? true : false,
+        sections: [responseActionSection],
     };
 }
 

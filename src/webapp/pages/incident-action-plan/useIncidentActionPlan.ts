@@ -44,6 +44,7 @@ export function useIncidentActionPlan(id: Id) {
     const [incidentActionPlan, setIncidentActionPlan] = useState<IncidentActionPlan>();
     const [incidentActionExists, setIncidentActionExists] = useState<boolean>(false);
     const [incidentActionOptions, setIncidentActionOptions] = useState<UIIncidentActionOptions>();
+    const [responseActionRowId, setResponseActionRowId] = useState<string>();
 
     const isIncidentManager = useMemo(
         () => currentUser.belongToUserGroup(appConfiguration.incidentManagerUserGroup.id),
@@ -66,6 +67,10 @@ export function useIncidentActionPlan(id: Id) {
         },
         [compositionRoot, id, responseActionRows]
     );
+
+    const onClickResponseActionRow = useCallback((rowId: string) => {
+        setResponseActionRowId(rowId);
+    }, []);
 
     const responseActionColumns: TableColumn[] = useMemo(() => {
         return [
@@ -177,6 +182,8 @@ export function useIncidentActionPlan(id: Id) {
         responseActionRows: responseActionRows,
         summaryError: globalMessage,
         orderByDueDate: orderByDueDate,
+        responseActionRowId: responseActionRowId,
+        onClickResponseActionRow: onClickResponseActionRow,
     };
 }
 

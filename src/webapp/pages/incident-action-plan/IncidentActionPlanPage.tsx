@@ -26,6 +26,7 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
         responseActionColumns,
         orderByDueDate,
         saveTableOption,
+        onClickResponseActionRow,
     } = useIncidentActionPlan(id);
 
     const getSummaryColumn = useCallback((index: number, label: string, value: string) => {
@@ -70,6 +71,7 @@ export const IncidentActionPlanPage: React.FC = React.memo(() => {
                         responseActionRows={responseActionRows}
                         onChange={saveTableOption}
                         onOrderBy={orderByDueDate}
+                        onClickResponseActionRow={onClickResponseActionRow}
                     />
 
                     <ActionPlanFormSummary

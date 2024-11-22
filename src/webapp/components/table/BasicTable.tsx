@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import {
+    Button,
     Table,
     TableBody,
     TableCell,
@@ -13,6 +14,9 @@ import i18n from "../../../utils/i18n";
 import { Option } from "../utils/option";
 import { Cell } from "./Cell";
 import _c from "../../../domain/entities/generic/Collection";
+import { EditOutlined } from "@material-ui/icons";
+import { RouteName, useRoutes } from "../../hooks/useRoutes";
+import { FormType } from "../../pages/form-page/FormPage";
 
 const noop = () => {};
 
@@ -43,19 +47,33 @@ interface BasicTableProps {
     onChange?: (cell: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => void;
     showRowIndex?: boolean;
     onOrderBy?: (direction: "asc" | "desc") => void;
+    formType?: FormType;
+    onClickRow?: (rowId: string) => void;
 }
 
 const sortableColumnLabels = ["Assessment Date", "Due date"];
 
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
-    ({ columns, rows, onChange = noop, showRowIndex = false, onOrderBy }) => {
+    ({ columns, rows, onChange = noop, showRowIndex = false, onOrderBy, formType, onClickRow }) => {
         const [order, setOrder] = useState<"asc" | "desc">();
+        const { goTo } = useRoutes();
 
         const orderBy = useCallback(() => {
             const updatedOrder = order === "asc" ? "desc" : "asc";
             setOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
             onOrderBy && onOrderBy(updatedOrder);
         }, [onOrderBy, order]);
+
+        const goToEdit = useCallback(
+            (id: string) => {
+                if (formType)
+                    goTo(RouteName.EDIT_FORM, {
+                        formType: formType,
+                        id,
+                    });
+            },
+            [formType, goTo]
+        );
 
         return (
             <StyledTable stickyHeader>
@@ -79,6 +97,7 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                                 </TableCell>
                             )
                         )}
+                        {onClickRow && <TableCell />}
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -94,6 +113,20 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                                     onChange={onChange}
                                 />
                             ))}
+                            {onClickRow && (
+                                <TableCell>
+                                    <Button
+                                        onClick={() => {
+                                            if (row.id) {
+                                                onClickRow(row.id);
+                                                goToEdit(row.id);
+                                            }
+                                        }}
+                                    >
+                                        <EditOutlined />
+                                    </Button>
+                                </TableCell>
+                            )}
                         </TableRow>
                     ))}
                 </TableBody>

@@ -14,10 +14,17 @@ type ResponseActionTableProps = {
     responseActionRows: {
         [key: TableColumn["value"]]: string;
     }[];
+    onClickResponseActionRow: (rowId: string) => void;
 };
 
 export const ResponseActionTable: React.FC<ResponseActionTableProps> = React.memo(
-    ({ onChange, onOrderBy, responseActionColumns, responseActionRows }) => {
+    ({
+        onChange,
+        onClickResponseActionRow,
+        onOrderBy,
+        responseActionColumns,
+        responseActionRows,
+    }) => {
         const { goTo } = useRoutes();
 
         const { icon: responseActionIcon, label: responseActionLabel } =
@@ -25,7 +32,7 @@ export const ResponseActionTable: React.FC<ResponseActionTableProps> = React.mem
 
         const goToCreateResponseAction = useCallback(() => {
             goTo(RouteName.CREATE_FORM, {
-                formType: "incident-response-action",
+                formType: "incident-response-actions",
             });
         }, [goTo]);
 
@@ -50,6 +57,8 @@ export const ResponseActionTable: React.FC<ResponseActionTableProps> = React.mem
                     columns={responseActionColumns}
                     rows={responseActionRows}
                     onOrderBy={onOrderBy}
+                    formType="incident-response-action"
+                    onClickRow={onClickResponseActionRow}
                 />
                 <Box sx={{ m: 5 }} />
             </Section>

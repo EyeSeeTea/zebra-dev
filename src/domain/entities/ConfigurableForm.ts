@@ -107,9 +107,16 @@ export type ActionPlanFormData = BaseFormData & {
 };
 
 export type ResponseActionFormData = BaseFormData & {
-    type: "incident-response-action";
+    type: "incident-response-actions";
     eventTrackerDetails: DiseaseOutbreakEvent;
     entity: ResponseAction[];
+    options: IncidentResponseActionOptions;
+};
+
+export type SingleResponseActionFormData = BaseFormData & {
+    type: "incident-response-action";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: ResponseAction;
     options: IncidentResponseActionOptions;
 };
 
@@ -135,4 +142,5 @@ export type ConfigurableForm =
     | RiskAssessmentQuestionnaireFormData
     | ActionPlanFormData
     | ResponseActionFormData
+    | SingleResponseActionFormData
     | IncidentManagementTeamMemberFormData;
