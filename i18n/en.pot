@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-11-12T13:57:18.029Z\n"
-"PO-Revision-Date: 2024-11-12T13:57:18.029Z\n"
+"POT-Creation-Date: 2024-11-22T15:21:43.931Z\n"
+"PO-Revision-Date: 2024-11-22T15:21:43.931Z\n"
 
 msgid "Low"
 msgstr ""
@@ -162,7 +162,10 @@ msgstr ""
 msgid "Create Risk Assessment"
 msgstr ""
 
-msgid "Add new Assessment"
+msgid "Edit Risk Assessment"
+msgstr ""
+
+msgid "Add new Grade"
 msgstr ""
 
 msgid "Risk assessment incomplete"
