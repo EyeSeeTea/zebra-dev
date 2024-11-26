@@ -10,7 +10,6 @@ import { TeamRole, TeamMember } from "../../../entities/TeamMember";
 import { Id } from "../../../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
 import { RoleRepository } from "../../../repositories/RoleRepository";
-import { getIncidentManagementTeamById } from "./GetIncidentManagementTeamById";
 
 export function getIncidentManagementConfigurableForm(
     incidentManagementTeamRoleId: Maybe<Id>,
@@ -21,14 +20,19 @@ export function getIncidentManagementConfigurableForm(
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
     }
 ): FutureData<IncidentManagementTeamMemberFormData> {
-    return getIncidentManagementTeamById(eventTrackerDetails.id, repositories).flatMap(
-        incidentManagementTeam => {
+    return repositories.diseaseOutbreakEventRepository
+        .getAggregateRoot(eventTrackerDetails.id)
+        .flatMap(diseaseOutbreakEventAggregateRoot => {
             const { teamMembers, roles } = configurations;
             const { incidentManagementTeamRoleConfigurations } = configurations.selectableOptions;
 
-            const teamMemberSelected = incidentManagementTeam?.teamHierarchy.find(teamMember =>
-                teamMember.teamRoles?.some(teamRole => teamRole.id === incidentManagementTeamRoleId)
-            );
+            const teamMemberSelected =
+                diseaseOutbreakEventAggregateRoot.incidentManagementTeam?.teamHierarchy.find(
+                    teamMember =>
+                        teamMember.teamRoles?.some(
+                            teamRole => teamRole.id === incidentManagementTeamRoleId
+                        )
+                );
 
             const teamRoles: TeamRole[] | undefined = teamMemberSelected?.teamRoles
                 ? teamMemberSelected.teamRoles.map((teamRole): TeamRole => {
@@ -59,7 +63,7 @@ export function getIncidentManagementConfigurableForm(
                 eventTrackerDetails: eventTrackerDetails,
                 entity: teamMember,
                 incidentManagementTeamRoleId: incidentManagementTeamRoleId,
-                currentIncidentManagementTeam: incidentManagementTeam,
+                currentDiseaseOutbreakEventAggregateRoot: diseaseOutbreakEventAggregateRoot,
                 options: {
                     roles: incidentManagementTeamRoleConfigurations.roles,
                     teamMembers: incidentManagementTeamRoleConfigurations.teamMembers.filter(
@@ -97,6 +101,5 @@ export function getIncidentManagementConfigurableForm(
                 ],
             };
             return Future.success(incidentManagementTeamMemberFormData);
-        }
-    );
+        });
 }

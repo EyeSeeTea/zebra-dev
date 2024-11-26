@@ -3,9 +3,9 @@ import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
 import { Id } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
-import { ValidationError } from "../ValidationError";
+import { ValidationErrorKey } from "../ValidationError";
 import { DiseaseOutbreakEventBaseAttrs } from "./DiseaseOutbreakEvent";
-import { TEAM_ROLE_FIELD_ID } from "../../../webapp/pages/form-page/incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
+import { Either } from "../generic/Either";
 
 export type DiseaseOutbreakEventAggregateRootBaseAttrs = DiseaseOutbreakEventBaseAttrs;
 
@@ -35,34 +35,104 @@ export type DiseaseOutbreakEventAggregateRootAttrs = DiseaseOutbreakEventAggrega
 
 export class DiseaseOutbreakEventAggregateRoot extends Struct<DiseaseOutbreakEventAggregateRootAttrs>() {
     //TODO: Add required validations if exists:
-    static validate(_data: DiseaseOutbreakEventAggregateRootAttrs): ValidationError[] {
+    public static validate(_data: DiseaseOutbreakEventAggregateRootAttrs): ValidationErrorKey[] {
         return [];
     }
 
-    static validateNotCyclicalDependencyInIncidentManagementTeam(
-        teamMember: string | undefined,
+    public addTeamMemberToIncidentManagementTeamHierarchy(
+        teamMemberUsername: string,
+        roleIdAssigned: Id,
+        reportsToUsername: string | undefined
+    ): Either<ValidationErrorKey[], DiseaseOutbreakEventAggregateRoot> {
+        const currentIncidentManagementTeamHierarchy =
+            this._getAttributes().incidentManagementTeam?.teamHierarchy ?? [];
+
+        const validationErrorKeyCyclicalDependency =
+            this.validateNotCyclicalDependencyInIncidentManagementTeamHierarchy(
+                teamMemberUsername,
+                reportsToUsername,
+                currentIncidentManagementTeamHierarchy
+            );
+
+        if (validationErrorKeyCyclicalDependency.length === 0) {
+            const isTeamMemberAlreadyInHierarchy = currentIncidentManagementTeamHierarchy.some(
+                member => member.username === teamMemberUsername
+            );
+
+            if (isTeamMemberAlreadyInHierarchy) {
+                const updatedTeamHierarchy: IncidentManagementTeamMember[] =
+                    currentIncidentManagementTeamHierarchy.map(member => {
+                        return member.username === teamMemberUsername
+                            ? {
+                                  ...member,
+                                  teamRoles: [
+                                      ...(member.teamRoles ?? []),
+                                      {
+                                          id: "",
+                                          roleId: roleIdAssigned,
+                                          reportsToUsername: reportsToUsername,
+                                      },
+                                  ],
+                              }
+                            : member;
+                    });
+
+                return Either.success(
+                    this._update({
+                        incidentManagementTeam: new IncidentManagementTeamInAggregateRoot({
+                            teamHierarchy: updatedTeamHierarchy,
+                            lastUpdated: new Date(),
+                        }),
+                    })
+                );
+            } else {
+                const newTeamMember: IncidentManagementTeamMember = {
+                    username: teamMemberUsername,
+                    teamRoles: [
+                        {
+                            id: "",
+                            roleId: roleIdAssigned,
+                            reportsToUsername: reportsToUsername,
+                        },
+                    ],
+                };
+
+                const updatedTeamHierarchy: IncidentManagementTeamMember[] = [
+                    ...currentIncidentManagementTeamHierarchy,
+                    newTeamMember,
+                ];
+
+                return Either.success(
+                    this._update({
+                        incidentManagementTeam: new IncidentManagementTeamInAggregateRoot({
+                            teamHierarchy: updatedTeamHierarchy,
+                            lastUpdated: new Date(),
+                        }),
+                    })
+                );
+            }
+        } else {
+            return Either.error(validationErrorKeyCyclicalDependency);
+        }
+    }
+
+    private validateNotCyclicalDependencyInIncidentManagementTeamHierarchy(
+        teamMemberUsername: string,
         reportsToUsername: string | undefined,
-        currentIncidentManagementTeamHierarchy: IncidentManagementTeamMember[],
-        property: string
-    ): ValidationError[] {
+        currentIncidentManagementTeamHierarchy: IncidentManagementTeamMember[]
+    ): ValidationErrorKey[] {
+        if (!reportsToUsername) return [];
+
         const descendantsUsernamesByParentUsername = getAllDescendantsUsernamesByParentUsername(
             currentIncidentManagementTeamHierarchy
         );
 
         const descendantsFromTeamMember =
-            descendantsUsernamesByParentUsername.get(teamMember ?? "") ?? [];
+            descendantsUsernamesByParentUsername.get(teamMemberUsername) ?? [];
 
         const isCyclicalDependency = descendantsFromTeamMember.includes(reportsToUsername ?? "");
 
-        return property === TEAM_ROLE_FIELD_ID || !isCyclicalDependency
-            ? []
-            : [
-                  {
-                      property: property,
-                      value: "",
-                      errors: ["cannot_create_cyclycal_dependency"],
-                  },
-              ];
+        return isCyclicalDependency ? ["cannot_create_cyclycal_dependency"] : [];
     }
 }
 

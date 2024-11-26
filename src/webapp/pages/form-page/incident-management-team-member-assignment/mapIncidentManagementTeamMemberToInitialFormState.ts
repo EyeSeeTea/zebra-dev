@@ -24,7 +24,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
         eventTrackerDetails,
         options,
         incidentManagementTeamRoleId,
-        currentIncidentManagementTeam,
+        currentDiseaseOutbreakEventAggregateRoot,
     } = formData;
 
     const { roles, teamMembers, incidentManagers } = options;
@@ -37,7 +37,7 @@ export function mapIncidentManagementTeamMemberToInitialFormState(
     const incidentManagerOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
 
     const currentIncidentManagementTeamOptions: User[] = (
-        currentIncidentManagementTeam?.teamHierarchy || []
+        currentDiseaseOutbreakEventAggregateRoot.incidentManagementTeam?.teamHierarchy || []
     )
         .map(tm => {
             const teamRoles: TeamRole[] | undefined = tm?.teamRoles

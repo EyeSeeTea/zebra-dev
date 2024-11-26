@@ -13,7 +13,7 @@ import { RiskAssessmentQuestionnaire } from "./risk-assessment/RiskAssessmentQue
 import { ActionPlanAttrs } from "./incident-action-plan/ActionPlan";
 import { ResponseAction } from "./incident-action-plan/ResponseAction";
 import { Role } from "./Role";
-import { IncidentManagementTeamInAggregateRoot } from "./disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
+import { DiseaseOutbreakEventAggregateRoot } from "./disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -124,7 +124,7 @@ export type IncidentManagementTeamMemberFormData = BaseFormData & {
     eventTrackerDetails: DiseaseOutbreakEvent;
     entity: Maybe<TeamMember>;
     incidentManagementTeamRoleId: Maybe<Id>;
-    currentIncidentManagementTeam: Maybe<IncidentManagementTeamInAggregateRoot>;
+    currentDiseaseOutbreakEventAggregateRoot: DiseaseOutbreakEventAggregateRoot;
     options: IncidentManagementTeamRoleOptions;
 };
 

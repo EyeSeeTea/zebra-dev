@@ -1,7 +1,7 @@
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { ConfigurableForm } from "../../../../domain/entities/ConfigurableForm";
 import { DiseaseOutbreakEvent } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { DiseaseOutbreakEventAggregateRoot } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
+import { Id } from "../../../../domain/entities/Ref";
 import { ValidationError } from "../../../../domain/entities/ValidationError";
 import { FormFieldState } from "../../../components/form/FormFieldsState";
 import { getFieldValueByIdFromSections } from "../../../components/form/FormSectionsState";
@@ -12,6 +12,7 @@ import {
     updateFormStateWithFieldErrors,
     validateForm,
 } from "../../../components/form/FormState";
+import { TEAM_ROLE_FIELD_ID } from "../incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { applyRulesInFormState } from "./applyRulesInFormState";
 
 export function updateAndValidateFormState(
@@ -71,6 +72,10 @@ function validateFormState(
         case "incident-response-action":
             break;
         case "incident-management-team-member-assignment": {
+            const roleIdAssigned = getFieldValueByIdFromSections(
+                updatedForm.sections,
+                TEAM_ROLE_FIELD_ID
+            ) as Id | undefined;
             const reportsToUsername = getFieldValueByIdFromSections(
                 updatedForm.sections,
                 incidentManagementTeamBuilderCodesWithoutRoles.reportsToUsername
@@ -80,12 +85,34 @@ function validateFormState(
                 incidentManagementTeamBuilderCodesWithoutRoles.teamMemberAssigned
             ) as string | undefined;
 
-            return DiseaseOutbreakEventAggregateRoot.validateNotCyclicalDependencyInIncidentManagementTeam(
-                teamMemberAssigned,
-                reportsToUsername,
-                configurableForm?.currentIncidentManagementTeam?.teamHierarchy || [],
-                updatedField.id
-            );
+            if (!teamMemberAssigned || !roleIdAssigned) {
+                return [];
+            }
+
+            const validationErrorKeysOrDiseaseOutbreakEvent =
+                configurableForm.currentDiseaseOutbreakEventAggregateRoot.addTeamMemberToIncidentManagementTeamHierarchy(
+                    teamMemberAssigned,
+                    roleIdAssigned,
+                    reportsToUsername
+                );
+
+            const validationErrorKeys = validationErrorKeysOrDiseaseOutbreakEvent.match({
+                error: errors => errors,
+                success: () => [],
+            });
+
+            const validationError: ValidationError[] =
+                validationErrorKeys.length === 0 || updatedField.id === TEAM_ROLE_FIELD_ID
+                    ? []
+                    : [
+                          {
+                              property: updatedField.id,
+                              value: updatedField.value,
+                              errors: validationErrorKeys,
+                          },
+                      ];
+
+            return validationError;
             break;
         }
     }
