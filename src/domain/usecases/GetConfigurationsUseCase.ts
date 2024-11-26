@@ -1,23 +1,32 @@
 import { FutureData } from "../../data/api-futures";
 import { Configurations, SelectableOptions } from "../entities/AppConfigurations";
 import { Future } from "../entities/generic/Future";
-import { TeamMember } from "../entities/incident-management-team/TeamMember";
+import { Role } from "../entities/Role";
+import { TeamMember } from "../entities/TeamMember";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { RoleRepository } from "../repositories/RoleRepository";
 
 export class GetConfigurationsUseCase {
     constructor(
-        private configurationsRepository: ConfigurationsRepository,
-        private teamMemberRepository: TeamMemberRepository
+        private options: {
+            teamMemberRepository: TeamMemberRepository;
+            roleRepository: RoleRepository;
+            configurationsRepository: ConfigurationsRepository;
+        }
     ) {}
 
     public execute(): FutureData<Configurations> {
         return Future.joinObj({
-            allTeamMembers: this.teamMemberRepository.getAll(),
-            incidentResponseOfficers: this.teamMemberRepository.getIncidentResponseOfficers(),
-            managers: this.teamMemberRepository.getIncidentManagers(),
-            riskAssessors: this.teamMemberRepository.getRiskAssessors(),
-            selectableOptionsResponse: this.configurationsRepository.getSelectableOptions(),
+            allTeamMembers: this.options.teamMemberRepository.getAll(),
+            incidentResponseOfficers:
+                this.options.teamMemberRepository.getIncidentResponseOfficers(),
+            managers: this.options.teamMemberRepository.getIncidentManagers(),
+            riskAssessors: this.options.teamMemberRepository.getRiskAssessors(),
+            selectableOptionsResponse: this.options.configurationsRepository.getSelectableOptions(),
+            teamMembersForIncidentManagementTeam:
+                this.options.teamMemberRepository.getForIncidentManagementTeam(),
+            roles: this.options.roleRepository.getAll(),
         }).flatMap(
             ({
                 allTeamMembers,
@@ -25,13 +34,17 @@ export class GetConfigurationsUseCase {
                 managers,
                 riskAssessors,
                 selectableOptionsResponse,
+                teamMembersForIncidentManagementTeam,
+                roles,
             }) => {
                 const selectableOptions: SelectableOptions =
                     this.mapOptionsAndTeamMembersToSelectableOptions(
                         selectableOptionsResponse,
                         managers,
                         riskAssessors,
-                        incidentResponseOfficers
+                        incidentResponseOfficers,
+                        teamMembersForIncidentManagementTeam,
+                        roles
                     );
 
                 const configurations: Configurations = {
@@ -41,7 +54,9 @@ export class GetConfigurationsUseCase {
                         riskAssessors: riskAssessors,
                         incidentManagers: managers,
                         responseOfficers: incidentResponseOfficers,
+                        forIncidentManagementTeam: teamMembersForIncidentManagementTeam,
                     },
+                    roles: roles,
                 };
                 return Future.success(configurations);
             }
@@ -52,7 +67,9 @@ export class GetConfigurationsUseCase {
         selectableOptionsResponse: SelectableOptions,
         managers: TeamMember[],
         riskAssessors: TeamMember[],
-        incidentResponseOfficers: TeamMember[]
+        incidentResponseOfficers: TeamMember[],
+        teamMembersForIncidentManagementTeam: TeamMember[],
+        roles: Role[]
     ): SelectableOptions {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
@@ -75,6 +92,12 @@ export class GetConfigurationsUseCase {
             incidentResponseActionConfigurations: {
                 ...selectableOptionsResponse.incidentResponseActionConfigurations,
                 searchAssignRO: incidentResponseOfficers,
+            },
+            incidentManagementTeamRoleConfigurations: {
+                ...selectableOptionsResponse.incidentManagementTeamRoleConfigurations,
+                roles: roles,
+                teamMembers: teamMembersForIncidentManagementTeam,
+                incidentManagers: managers,
             },
         };
 

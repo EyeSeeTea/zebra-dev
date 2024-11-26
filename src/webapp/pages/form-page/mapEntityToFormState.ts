@@ -3,7 +3,7 @@ import {
     DiseaseNames,
     HazardNames,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
-import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/TeamMember";
 import { Option } from "../../../domain/entities/Ref";
 import { FormState } from "../../components/form/FormState";
 import { User } from "../../components/user-selector/UserSelector";

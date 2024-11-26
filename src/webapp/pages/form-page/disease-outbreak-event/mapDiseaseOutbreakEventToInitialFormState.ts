@@ -1,7 +1,7 @@
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
 import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { TeamMember } from "../../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../../domain/entities/TeamMember";
 import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";

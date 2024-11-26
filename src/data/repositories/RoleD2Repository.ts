@@ -2,7 +2,7 @@ import { D2Api, MetadataPick } from "../../types/d2-api";
 import { apiToFuture, FutureData } from "../api-futures";
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
-import { Role } from "../../domain/entities/incident-management-team/Role";
+import { Role } from "../../domain/entities/Role";
 import { RoleRepository } from "../../domain/repositories/RoleRepository";
 import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID } from "./consts/DiseaseOutbreakConstants";
 import { RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_IDS_WITHOUT_ROLES } from "./consts/IncidentManagementTeamBuilderConstants";

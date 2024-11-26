@@ -1,11 +1,11 @@
 import { Struct } from "../generic/Struct";
 import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
-import { IncidentManagementTeam } from "../incident-management-team/IncidentManagementTeam";
-import { TeamMember } from "../incident-management-team/TeamMember";
+import { TeamMember } from "../TeamMember";
 import { Code, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
+import { IncidentManagementTeamInAggregateRoot } from "./DiseaseOutbreakEventAggregateRoot";
 
 export const hazardTypes = [
     "Biological:Human",
@@ -31,7 +31,7 @@ export enum DataSource {
     RTSL_ZEB_OS_DATA_SOURCE_EBS = "RTSL_ZEB_OS_DATA_SOURCE_EBS",
 }
 
-type DateWithNarrative = {
+export type DateWithNarrative = {
     date: Date;
     narrative: string;
 };
@@ -41,7 +41,7 @@ type DateWithNA = {
     na: Maybe<boolean>;
 };
 
-type EarlyResponseActions = {
+export type EarlyResponseActions = {
     initiateInvestigation: Date;
     conductEpidemiologicalAnalysis: Date;
     laboratoryConfirmation: Date;
@@ -79,7 +79,7 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     incidentManager: Maybe<TeamMember>; //TO DO : make mandatory once form rules applied.
     riskAssessment: Maybe<RiskAssessment>;
     incidentActionPlan: Maybe<IncidentActionPlan>;
-    incidentManagementTeam: Maybe<IncidentManagementTeam>;
+    incidentManagementTeam: Maybe<IncidentManagementTeamInAggregateRoot>;
 };
 
 /**
@@ -87,6 +87,9 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
  * Not using event as it is a keyword and can also be confused with dhis event
  **/
 
+/**
+ * @deprecated In the future, refactor to use `DiseaseOutbreakEventAggregateRoot` entity instead
+ */
 export class DiseaseOutbreakEvent extends Struct<DiseaseOutbreakEventAttrs>() {
     //TODO: Add required validations if exists:
     static validate(_data: DiseaseOutbreakEventBaseAttrs): ValidationError[] {

@@ -8,9 +8,11 @@ import { Maybe } from "../../../utils/ts-utils";
 import { Id } from "../../../domain/entities/Ref";
 import { useAppContext } from "../../contexts/app-context";
 import { IMTeamHierarchyOption } from "../im-team-hierarchy/IMTeamHierarchyView";
-import { IncidentManagementTeam } from "../../../domain/entities/incident-management-team/IncidentManagementTeam";
-import { TeamMember, TeamRole } from "../../../domain/entities/incident-management-team/TeamMember";
+import { IncidentManagementTeam } from "./IncidentManagementTeam";
+import { TeamMember, TeamRole } from "../../../domain/entities/TeamMember";
 import { TableColumn, TableRowType } from "../table/BasicTable";
+import { IncidentManagementTeamInAggregateRoot } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEventAggregateRoot";
+import { Role } from "../../../domain/entities/Role";
 
 type State = {
     incidentManagementTeamHierarchyItems: Maybe<IMTeamHierarchyOption[]>;
@@ -42,25 +44,39 @@ export function useIncidentManagementTeamView(id: Id): State {
     const [constactTableRows, setConstactTableRows] = useState<TableRowType[]>([]);
 
     const getIncidentManagementTeam = useCallback(() => {
-        compositionRoot.incidentManagementTeam.get.execute(id, configurations).run(
-            incidentManagementTeam => {
-                setIncidentManagementTeam(incidentManagementTeam);
-                setDefaultTeamRolesExpanded(getDefaultTeamRolesExpanded(incidentManagementTeam));
-                setIncidentManagementTeamHierarchyItems(
-                    mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
-                        incidentManagementTeam?.teamHierarchy
-                    )
-                );
-                setConstactTableRows(
-                    mapIncidentManagementTeamToTableRows(incidentManagementTeam?.teamHierarchy)
-                );
+        compositionRoot.diseaseOutbreakEvent.getAggregateRoot.execute(id).run(
+            diseaseOutbreakEventAggregateRoot => {
+                const { teamMembers, roles } = configurations;
+
+                if (diseaseOutbreakEventAggregateRoot.incidentManagementTeam) {
+                    const incidentManagementTeam = buildIncidentManagementTeam(
+                        id,
+                        diseaseOutbreakEventAggregateRoot.incidentManagementTeam,
+                        teamMembers.all,
+                        roles
+                    );
+                    setIncidentManagementTeam(incidentManagementTeam);
+                    setDefaultTeamRolesExpanded(
+                        getDefaultTeamRolesExpanded(incidentManagementTeam)
+                    );
+                    setIncidentManagementTeamHierarchyItems(
+                        mapIncidentManagementTeamToIncidentManagementTeamHierarchyItems(
+                            incidentManagementTeam?.teamHierarchy
+                        )
+                    );
+                    setConstactTableRows(
+                        mapIncidentManagementTeamToTableRows(incidentManagementTeam?.teamHierarchy)
+                    );
+                } else {
+                    snackbar.error(i18n.t(`Incident Management Team not found`));
+                }
             },
             err => {
                 console.debug(err);
                 snackbar.error(i18n.t(`Error loading current Incident Management Team`));
             }
         );
-    }, [compositionRoot.incidentManagementTeam.get, configurations, id, snackbar]);
+    }, [compositionRoot.diseaseOutbreakEvent.getAggregateRoot, configurations, id, snackbar]);
 
     useEffect(() => {
         getIncidentManagementTeam();
@@ -235,4 +251,55 @@ function mapIncidentManagementTeamToTableRows(
     } else {
         return [];
     }
+}
+
+function buildIncidentManagementTeam(
+    diseaseOutbreakId: Id,
+    diseaseOutbreakEventIncidentManagementTeam: IncidentManagementTeamInAggregateRoot,
+    teamMembers: TeamMember[],
+    roles: Role[]
+): IncidentManagementTeam {
+    const imTeamMembers: TeamMember[] = _c(
+        diseaseOutbreakEventIncidentManagementTeam.teamHierarchy.map(imTeamMember => {
+            const teamMember = teamMembers.find(tm => tm.username === imTeamMember.username);
+            if (teamMember) {
+                const teamRoles: TeamRole[] = _c(
+                    imTeamMember.teamRoles.map(teamRole => {
+                        const role = roles.find(r => r.id === teamRole.roleId);
+                        if (role) {
+                            return {
+                                id: teamRole.id,
+                                name: role.name,
+                                diseaseOutbreakId: diseaseOutbreakId,
+                                roleId: teamRole.roleId,
+                                reportsToUsername: teamRole.reportsToUsername,
+                            };
+                        }
+                    })
+                )
+                    .compact()
+                    .toArray();
+
+                return new TeamMember({
+                    id: teamMember.id,
+                    name: teamMember.name,
+                    username: teamMember.username,
+                    phone: teamMember.phone,
+                    email: teamMember.email,
+                    status: teamMember.status,
+                    photo: teamMember.photo,
+                    teamRoles: teamRoles,
+                    workPosition: teamMember.workPosition,
+                });
+            }
+        })
+    )
+        .compact()
+        .toArray();
+
+    const incidentManagementTeam: IncidentManagementTeam = {
+        teamHierarchy: imTeamMembers,
+        lastUpdated: diseaseOutbreakEventIncidentManagementTeam.lastUpdated,
+    };
+    return incidentManagementTeam;
 }

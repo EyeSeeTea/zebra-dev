@@ -5,7 +5,7 @@ import { IconUser24 } from "@dhis2/ui";
 
 import { Maybe } from "../../../utils/ts-utils";
 import { Checkbox } from "../checkbox/Checkbox";
-import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/TeamMember";
 import { TeamMemberProfile } from "./TeamMemberProfile";
 import { IMTeamHierarchyOption } from "./IMTeamHierarchyView";
 import { Id } from "../../../domain/entities/Ref";

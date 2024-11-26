@@ -6,7 +6,7 @@ import { User } from "../../components/user-selector/UserSelector";
 import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
 import { IMTeamHierarchyOption } from "../../components/im-team-hierarchy/IMTeamHierarchyView";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
-import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/TeamMember";
 import { INCIDENT_MANAGER_ROLE } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import _c from "../../../domain/entities/generic/Collection";
 import { useIncidentManagementTeamView } from "../../components/incident-management-team/useIncidentManagementTeamView";
@@ -128,7 +128,7 @@ export function useIMTeamBuilder(diseaseOutbreakEventId: Id): State {
     const onDeleteIncidentManagementTeamMember = useCallback(() => {
         if (disableDeletion || !selectedHierarchyItemIds.length) return;
 
-        compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRoles
+        compositionRoot.diseaseOutbreakEvent.deleteIncidentManagementTeamMemberRoles
             .execute(diseaseOutbreakEventId, selectedHierarchyItemIds)
             .run(
                 () => {
@@ -155,7 +155,7 @@ export function useIMTeamBuilder(diseaseOutbreakEventId: Id): State {
                 }
             );
     }, [
-        compositionRoot.incidentManagementTeam.deleteIncidentManagementTeamMemberRoles,
+        compositionRoot.diseaseOutbreakEvent.deleteIncidentManagementTeamMemberRoles,
         disableDeletion,
         diseaseOutbreakEventId,
         getIncidentManagementTeam,

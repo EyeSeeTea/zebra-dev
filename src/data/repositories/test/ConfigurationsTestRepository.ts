@@ -46,6 +46,11 @@ export class ConfigurationsTestRepository implements ConfigurationsRepository {
                 status: [],
                 verification: [],
             },
+            incidentManagementTeamRoleConfigurations: {
+                roles: [],
+                teamMembers: [],
+                incidentManagers: [],
+            },
         });
     }
 }

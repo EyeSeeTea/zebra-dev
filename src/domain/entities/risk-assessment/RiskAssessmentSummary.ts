@@ -1,6 +1,6 @@
 import { Id, NamedRef } from "../Ref";
 import { Struct } from "../generic/Struct";
-import { TeamMember } from "../incident-management-team/TeamMember";
+import { TeamMember } from "../TeamMember";
 
 export interface RiskAssessmentSummaryAttrs {
     id: Id;

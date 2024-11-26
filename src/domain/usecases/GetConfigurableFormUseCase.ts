@@ -8,13 +8,11 @@ import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
-import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
-import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getDiseaseOutbreakConfigurableForm } from "./utils/disease-outbreak/GetDiseaseOutbreakConfigurableForm";
 import { getActionPlanConfigurableForm } from "./utils/incident-action/GetActionPlanConfigurableForm";
 import { getResponseActionConfigurableForm } from "./utils/incident-action/GetResponseActionConfigurableForm";
-import { getIncidentManagementTeamWithOptions } from "./utils/incident-management-team/GetIncidentManagementTeamWithOptions";
+import { getIncidentManagementConfigurableForm } from "./utils/incident-management-team/GetIncidentManagementTeamConfigurableForm";
 import { getRiskAssessmentGradingConfigurableForm } from "./utils/risk-assessment/GetGradingConfigurableForm";
 import { getRiskAssessmentQuestionnaireConfigurableForm } from "./utils/risk-assessment/GetQuestionnaireConfigurableForm";
 import { getRiskAssessmentSummaryConfigurableForm } from "./utils/risk-assessment/GetSummaryConfigurableForm";
@@ -24,9 +22,7 @@ export class GetConfigurableFormUseCase {
         private options: {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             roleRepository: RoleRepository;
-            teamMemberRepository: TeamMemberRepository;
             incidentActionRepository: IncidentActionRepository;
-            incidentManagementTeamRepository: IncidentManagementTeamRepository;
         }
     ) {}
 
@@ -90,16 +86,14 @@ export class GetConfigurableFormUseCase {
                         )
                     );
 
-                return getIncidentManagementTeamWithOptions(
+                return getIncidentManagementConfigurableForm(
                     id,
                     eventTrackerDetails,
+                    configurations,
                     {
                         roleRepository: this.options.roleRepository,
-                        teamMemberRepository: this.options.teamMemberRepository,
-                        incidentManagementTeamRepository:
-                            this.options.incidentManagementTeamRepository,
-                    },
-                    configurations
+                        diseaseOutbreakEventRepository: this.options.diseaseOutbreakEventRepository,
+                    }
                 );
             default:
                 return Future.error(new Error("Form type not supported"));

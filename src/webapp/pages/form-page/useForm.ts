@@ -22,7 +22,6 @@ import {
 } from "./incident-action/mapIncidentActionToInitialFormState";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
-import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
 
 export type GlobalMessage = {
@@ -70,7 +69,6 @@ export function useForm(formType: FormType, id?: Id): State {
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
     const { dataPerformanceOverview } = usePerformanceOverview();
     useCheckWritePermission(formType);
-    const snackbar = useSnackbar();
 
     const allDataPerformanceEvents = dataPerformanceOverview?.map(
         event => event.hazardType || event.suspectedDisease
@@ -105,13 +103,11 @@ export function useForm(formType: FormType, id?: Id): State {
             );
     }, [
         compositionRoot.getConfigurableForm,
+        configurations,
+        currentEventTracker,
+        existingEventTrackers,
         formType,
         id,
-        currentEventTracker,
-        configurations,
-        existingEventTrackers,
-        snackbar,
-        goTo,
     ]);
 
     const handleAddNew = useCallback(() => {

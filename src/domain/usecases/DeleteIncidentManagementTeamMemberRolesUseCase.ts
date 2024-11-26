@@ -1,16 +1,16 @@
 import { FutureData } from "../../data/api-futures";
 import { Id } from "../entities/Ref";
-import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
+import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 
 export class DeleteIncidentManagementTeamMemberRolesUseCase {
     constructor(
         private options: {
-            incidentManagementTeamRepository: IncidentManagementTeamRepository;
+            diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         }
     ) {}
 
     public execute(diseaseOutbreakId: Id, incidentManagementTeamRoleIds: Id[]): FutureData<void> {
-        return this.options.incidentManagementTeamRepository.deleteIncidentManagementTeamMemberRoles(
+        return this.options.diseaseOutbreakEventRepository.deleteIncidentManagementTeamMemberRoles(
             diseaseOutbreakId,
             incidentManagementTeamRoleIds
         );

@@ -1,5 +1,5 @@
 import { Future } from "../../../domain/entities/generic/Future";
-import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/TeamMember";
 import { Id } from "../../../domain/entities/Ref";
 import { TeamMemberRepository } from "../../../domain/repositories/TeamMemberRepository";
 import { FutureData } from "../../api-futures";
@@ -36,7 +36,7 @@ export class TeamMemberTestRepository implements TeamMemberRepository {
         return Future.success([teamMember]);
     }
 
-    getForIncidentManagementTeamMembers(): FutureData<TeamMember[]> {
+    getForIncidentManagementTeam(): FutureData<TeamMember[]> {
         const teamMember: TeamMember = new TeamMember({
             id: "incidentManagementTeamMember",
             username: "incidentManagementTeamMember",

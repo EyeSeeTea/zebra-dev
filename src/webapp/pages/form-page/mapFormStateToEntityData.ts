@@ -47,7 +47,7 @@ import {
     Status,
     Verification,
 } from "../../../domain/entities/incident-action-plan/ResponseAction";
-import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { TeamMember } from "../../../domain/entities/TeamMember";
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 
@@ -629,7 +629,8 @@ function mapFormStateToIncidentManagementTeamMember(
     formState: FormState,
     formData: IncidentManagementTeamMemberFormData
 ): TeamMember {
-    const { options, incidentManagementTeamRoleId } = formData;
+    const { options, incidentManagementTeamRoleId, currentDiseaseOutbreakEventAggregateRoot } =
+        formData;
     const { roles, teamMembers } = options;
 
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
@@ -659,6 +660,7 @@ function mapFormStateToIncidentManagementTeamMember(
         ...(filteredTeamMemberAssignedRoles || []),
         {
             id: incidentManagementTeamRoleId || "",
+            diseaseOutbreakId: currentDiseaseOutbreakEventAggregateRoot.id,
             roleId: teamRoleSelected?.id || "",
             name: teamRoleSelected?.name || "",
             reportsToUsername: reportsToUserNameSelected,

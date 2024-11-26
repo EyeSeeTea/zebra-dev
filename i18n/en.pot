@@ -102,6 +102,9 @@ msgstr ""
 msgid "Currently assigned:"
 msgstr ""
 
+msgid "Incident Management Team not found"
+msgstr ""
+
 msgid "Error loading current Incident Management Team"
 msgstr ""
 

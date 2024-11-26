@@ -60,13 +60,20 @@ export function getTestContext() {
                     status: [],
                     verification: [],
                 },
+                incidentManagementTeamRoleConfigurations: {
+                    roles: [],
+                    teamMembers: [],
+                    incidentManagers: [],
+                },
             },
             teamMembers: {
                 all: [],
                 riskAssessors: [],
                 incidentManagers: [],
                 responseOfficers: [],
+                forIncidentManagementTeam: [],
             },
+            roles: [],
         },
     };
 
