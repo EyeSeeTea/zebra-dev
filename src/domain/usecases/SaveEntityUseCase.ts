@@ -50,7 +50,8 @@ export class SaveEntityUseCase {
             case "risk-assessment-questionnaire":
                 return this.options.riskAssessmentRepository.saveRiskAssessment(
                     formData,
-                    formData.eventTrackerDetails.id
+                    formData.eventTrackerDetails.id,
+                    formOptionsToDelete
                 );
             case "incident-action-plan":
             case "incident-response-actions":

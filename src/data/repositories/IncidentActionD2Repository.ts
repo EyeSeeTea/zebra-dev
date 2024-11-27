@@ -190,7 +190,7 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
         });
     }
 
-    deleteIncidentResponseAction(events: Id[]): FutureData<void> {
+    private deleteIncidentResponseAction(events: Id[]): FutureData<void> {
         return apiToFuture(
             this.api.tracker.post(
                 { importStrategy: "DELETE" },

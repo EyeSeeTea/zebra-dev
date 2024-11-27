@@ -238,12 +238,12 @@ export function useForm(formType: FormType, id?: Id): State {
         (id: string) => {
             if (formState.kind !== "loaded" || !entityData) return;
 
-            const sectionIndexToDelete = formState.data.sections.findIndex(
-                section => section.id === id
-            );
-
             switch (entityData.type) {
                 case "risk-assessment-questionnaire": {
+                    const sectionIndexToDelete = formState.data.sections
+                        .filter(section => section.title?.includes("Custom Question"))
+                        .findIndex(section => section.id === id);
+
                     const entityId = entityData.entity?.additionalQuestions?.find(
                         (_, index) => index === sectionIndexToDelete
                     )?.id;
@@ -260,11 +260,16 @@ export function useForm(formType: FormType, id?: Id): State {
                                 ),
                             } as RiskAssessmentQuestionnaire,
                         };
+
                         setEntityData(updatedEntityData);
                     }
                     break;
                 }
                 case "incident-response-actions": {
+                    const sectionIndexToDelete = formState.data.sections.findIndex(
+                        section => section.id === id
+                    );
+
                     const entityId = entityData.entity?.find(
                         (_, index) => index === sectionIndexToDelete
                     )?.id;
