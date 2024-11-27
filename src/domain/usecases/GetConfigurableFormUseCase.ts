@@ -13,7 +13,10 @@ import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getDiseaseOutbreakConfigurableForm } from "./utils/disease-outbreak/GetDiseaseOutbreakConfigurableForm";
 import { getActionPlanConfigurableForm } from "./utils/incident-action/GetActionPlanConfigurableForm";
-import { getResponseActionConfigurableForm } from "./utils/incident-action/GetResponseActionConfigurableForm";
+import {
+    getResponseActionConfigurableForm,
+    getSingleResponseActionConfigurableForm,
+} from "./utils/incident-action/GetResponseActionConfigurableForm";
 import { getIncidentManagementTeamWithOptions } from "./utils/incident-management-team/GetIncidentManagementTeamWithOptions";
 import { getRiskAssessmentGradingConfigurableForm } from "./utils/risk-assessment/GetGradingConfigurableForm";
 import { getRiskAssessmentQuestionnaireConfigurableForm } from "./utils/risk-assessment/GetQuestionnaireConfigurableForm";
@@ -30,12 +33,15 @@ export class GetConfigurableFormUseCase {
         }
     ) {}
 
-    public execute(
-        formType: FormType,
-        eventTrackerDetails: Maybe<DiseaseOutbreakEvent>,
-        configurations: Configurations,
-        id?: Id
-    ): FutureData<ConfigurableForm> {
+    public execute(options: {
+        formType: FormType;
+        eventTrackerDetails: Maybe<DiseaseOutbreakEvent>;
+        configurations: Configurations;
+        id?: Id;
+        responseActionId?: Id;
+    }): FutureData<ConfigurableForm> {
+        const { formType, eventTrackerDetails, configurations, id, responseActionId } = options;
+
         switch (formType) {
             case "disease-outbreak-event": {
                 return getDiseaseOutbreakConfigurableForm(this.options, configurations, id);
@@ -74,14 +80,31 @@ export class GetConfigurableFormUseCase {
                     );
 
                 return getActionPlanConfigurableForm(eventTrackerDetails, configurations);
-            case "incident-response-action":
+            case "incident-response-actions":
                 if (!eventTrackerDetails)
                     return Future.error(
                         new Error("Disease outbreak id is required for incident action plan")
                     );
 
                 return getResponseActionConfigurableForm(eventTrackerDetails, configurations);
+            case "incident-response-action":
+                if (!eventTrackerDetails)
+                    return Future.error(
+                        new Error("Disease outbreak id is required for incident action plan")
+                    );
 
+                if (!responseActionId)
+                    return Future.error(
+                        new Error(
+                            "Response action id is required for single incident response action"
+                        )
+                    );
+
+                return getSingleResponseActionConfigurableForm({
+                    eventTrackerDetails: eventTrackerDetails,
+                    responseActionId: responseActionId,
+                    configurations: configurations,
+                });
             case "incident-management-team-member-assignment":
                 if (!eventTrackerDetails)
                     return Future.error(

@@ -13,6 +13,7 @@ export type FormType =
     | "risk-assessment-questionnaire"
     | "risk-assessment-summary"
     | "incident-action-plan"
+    | "incident-response-actions"
     | "incident-response-action"
     | "incident-management-team-member-assignment";
 

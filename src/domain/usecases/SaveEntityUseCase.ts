@@ -52,6 +52,7 @@ export class SaveEntityUseCase {
                     formData.eventTrackerDetails.id
                 );
             case "incident-action-plan":
+            case "incident-response-actions":
             case "incident-response-action":
                 return this.options.incidentActionRepository.saveIncidentAction(
                     formData,

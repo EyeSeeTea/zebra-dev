@@ -85,6 +85,11 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
             >
                 <SummaryContainer>
                     <SummaryColumn>
+                        {formSummary.incidentManager && (
+                            <UserCard selectedUser={formSummary.incidentManager} />
+                        )}
+                    </SummaryColumn>
+                    <SummaryColumn>
                         {formSummary.summary.map((labelWithValue, index) =>
                             index < ROW_COUNT
                                 ? getSummaryColumn(
@@ -104,11 +109,6 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
                                       labelWithValue.label,
                                       labelWithValue.value
                                   )
-                        )}
-                    </SummaryColumn>
-                    <SummaryColumn>
-                        {formSummary.incidentManager && (
-                            <UserCard selectedUser={formSummary.incidentManager} />
                         )}
                     </SummaryColumn>
                 </SummaryContainer>

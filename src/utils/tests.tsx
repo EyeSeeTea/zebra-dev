@@ -20,6 +20,7 @@ export function getTestContext() {
         orgUnits: [],
         isDev: true,
         configurations: {
+            incidentManagerUserGroup: { id: "incidentManagerUserGroup" },
             selectableOptions: {
                 eventTrackerConfigurations: {
                     dataSources: [],

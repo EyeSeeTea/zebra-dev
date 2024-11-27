@@ -24,6 +24,7 @@ import { useExistingEventTrackerTypes } from "../../contexts/existing-event-trac
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
+import { useIncidentActionPlan } from "../incident-action-plan/useIncidentActionPlan";
 
 export type GlobalMessage = {
     text: string;
@@ -69,6 +70,7 @@ export function useForm(formType: FormType, id?: Id): State {
     const currentEventTracker = getCurrentEventTracker();
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
     const { dataPerformanceOverview } = usePerformanceOverview();
+    const { isIncidentManager } = useIncidentActionPlan(currentEventTracker?.id ?? "");
     useCheckWritePermission(formType);
     const snackbar = useSnackbar();
 
@@ -82,14 +84,25 @@ export function useForm(formType: FormType, id?: Id): State {
 
     useEffect(() => {
         compositionRoot.getConfigurableForm
-            .execute(formType, currentEventTracker, configurations, id)
+            .execute({
+                formType: formType,
+                eventTrackerDetails: currentEventTracker,
+                configurations: configurations,
+                id: id,
+                responseActionId: id,
+            })
             .run(
                 formData => {
                     setConfigurableForm(formData);
                     setFormLabels(formData.labels);
                     setFormState({
                         kind: "loaded",
-                        data: mapEntityToFormState(formData, !!id, existingEventTrackers),
+                        data: mapEntityToFormState({
+                            configurableForm: formData,
+                            editMode: !!id,
+                            existingEventTrackerTypes: existingEventTrackerTypes,
+                            isIncidentManager: isIncidentManager,
+                        }),
                     });
                 },
                 error => {
@@ -112,6 +125,8 @@ export function useForm(formType: FormType, id?: Id): State {
         existingEventTrackers,
         snackbar,
         goTo,
+        isIncidentManager,
+        existingEventTrackerTypes,
     ]);
 
     const handleAddNew = useCallback(() => {
@@ -162,7 +177,7 @@ export function useForm(formType: FormType, id?: Id): State {
                 });
                 break;
             }
-            case "incident-response-action":
+            case "incident-response-actions":
                 setFormState(prevState => {
                     if (prevState.kind === "loaded") {
                         const otherSections = prevState.data.sections.filter(
@@ -170,7 +185,9 @@ export function useForm(formType: FormType, id?: Id): State {
                         );
                         const addAnotherSection = getAnotherResponseActionSection();
                         const newResponseActionSection = addNewResponseActionSection(
-                            prevState.data.sections
+                            prevState.data.sections,
+                            configurations,
+                            isIncidentManager
                         );
 
                         const updatedData = {
@@ -207,7 +224,7 @@ export function useForm(formType: FormType, id?: Id): State {
             default:
                 break;
         }
-    }, [configurableForm, formState]);
+    }, [configurableForm, configurations, formState.kind, isIncidentManager]);
 
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {
@@ -302,10 +319,20 @@ export function useForm(formType: FormType, id?: Id): State {
                         break;
                     case "incident-action-plan":
                         goTo(RouteName.CREATE_FORM, {
-                            formType: "incident-response-action",
+                            formType: "incident-response-actions",
                         });
                         setGlobalMessage({
                             text: i18n.t(`Incident Action Plan saved successfully`),
+                            type: "success",
+                        });
+                        break;
+                    case "incident-response-actions":
+                        if (currentEventTracker?.id)
+                            goTo(RouteName.INCIDENT_ACTION_PLAN, {
+                                id: currentEventTracker?.id,
+                            });
+                        setGlobalMessage({
+                            text: i18n.t(`Incident Response Actions saved successfully`),
                             type: "success",
                         });
                         break;
@@ -319,7 +346,6 @@ export function useForm(formType: FormType, id?: Id): State {
                             type: "success",
                         });
                         break;
-
                     case "incident-management-team-member-assignment":
                         if (currentEventTracker?.id)
                             goTo(RouteName.IM_TEAM_BUILDER, {
@@ -358,8 +384,11 @@ export function useForm(formType: FormType, id?: Id): State {
                     });
                     break;
                 case "incident-action-plan":
+                case "incident-response-actions":
                 case "incident-response-action":
-                    goTo(RouteName.INCIDENT_ACTION_PLAN);
+                    goTo(RouteName.INCIDENT_ACTION_PLAN, {
+                        id: currentEventTracker.id,
+                    });
                     break;
                 default:
                     goTo(RouteName.EVENT_TRACKER, {

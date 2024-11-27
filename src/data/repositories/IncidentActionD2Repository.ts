@@ -17,13 +17,18 @@ import {
     mapDataElementsToIncidentResponseActions,
     mapIncidentActionToDataElements,
 } from "./utils/IncidentActionMapper";
-import { ActionPlanFormData, ResponseActionFormData } from "../../domain/entities/ConfigurableForm";
+import {
+    ActionPlanFormData,
+    ResponseActionFormData,
+    SingleResponseActionFormData,
+} from "../../domain/entities/ConfigurableForm";
 import { getProgramStage } from "./utils/MetadataHelper";
 import { Future } from "../../domain/entities/generic/Future";
 import { Status, Verification } from "../../domain/entities/incident-action-plan/ResponseAction";
 import { assertOrError } from "./utils/AssertOrError";
 import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import { statusCodeMap, verificationCodeMap } from "./consts/IncidentActionConstants";
+import { FormType } from "../../webapp/pages/form-page/FormPage";
 
 export const incidentActionPlanIds = {
     iapType: "wr1I51WTHhl",
@@ -128,7 +133,7 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
     }
 
     saveIncidentAction(
-        formData: ActionPlanFormData | ResponseActionFormData,
+        formData: ActionPlanFormData | ResponseActionFormData | SingleResponseActionFormData,
         diseaseOutbreakId: Id
     ): FutureData<void> {
         const programStageId = this.getProgramStageByFormType(formData.type);
@@ -242,10 +247,11 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
             });
     }
 
-    private getProgramStageByFormType(formType: string) {
+    private getProgramStageByFormType(formType: FormType): Id {
         switch (formType) {
             case "incident-action-plan":
                 return RTSL_ZEBRA_INCIDENT_ACTION_PLAN_PROGRAM_STAGE_ID;
+            case "incident-response-actions":
             case "incident-response-action":
                 return RTSL_ZEBRA_INCIDENT_RESPONSE_ACTION_PROGRAM_STAGE_ID;
             default:

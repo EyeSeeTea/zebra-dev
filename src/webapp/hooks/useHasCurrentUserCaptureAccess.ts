@@ -25,6 +25,7 @@ export function useCheckWritePermission(formType: FormType) {
                         "You do not have permission to create/edit incident action plans"
                     );
                     break;
+                case "incident-response-actions":
                 case "incident-response-action":
                     snackbar.error(
                         "You do not have permission to create/edit incident response actions"
