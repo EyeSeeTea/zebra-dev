@@ -25,7 +25,7 @@ import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAcc
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
 import { useIncidentActionPlan } from "../incident-action-plan/useIncidentActionPlan";
-import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 
 export type GlobalMessage = {
     text: string;
@@ -63,22 +63,27 @@ type State = {
 export function useForm(formType: FormType, id?: Id): State {
     const { compositionRoot, currentUser, configurations } = useAppContext();
     const { goTo } = useRoutes();
-    const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
+
+    const { getCurrentEventTracker } = useCurrentEventTracker();
+    const currentEventTracker = getCurrentEventTracker();
+    const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
+    const { dataPerformanceOverview } = usePerformanceOverview();
+    const { isIncidentManager } = useIncidentActionPlan(currentEventTracker?.id ?? "");
+    const snackbar = useSnackbar();
+    useCheckWritePermission(formType);
+
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [formState, setFormState] = useState<FormLoadState>({ kind: "loading" });
     const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
     const [formLabels, setFormLabels] = useState<FormLables>();
     const [isLoading, setIsLoading] = useState(false);
-    const currentEventTracker = getCurrentEventTracker();
-    const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
-    const { dataPerformanceOverview } = usePerformanceOverview();
-    const { isIncidentManager } = useIncidentActionPlan(currentEventTracker?.id ?? "");
-    useCheckWritePermission(formType);
-    const snackbar = useSnackbar();
+    const [formSectionsToDelete, setFormSectionsToDelete] = useState<string[]>([]);
+    const [entityData, setEntityData] = useState<ConfigurableForm>();
 
     const allDataPerformanceEvents = dataPerformanceOverview?.map(
         event => event.hazardType || event.suspectedDisease
     );
+
     const existingEventTrackers =
         existingEventTrackerTypes.length === 0
             ? allDataPerformanceEvents
@@ -95,11 +100,6 @@ export function useForm(formType: FormType, id?: Id): State {
             })
             .run(
                 formData => {
-                    console.log({
-                        responseActions: formData.entity,
-                        currentEventTrackerResponseActions:
-                            currentEventTracker?.incidentActionPlan?.responseActions,
-                    });
                     setConfigurableForm(formData);
                     setFormLabels(formData.labels);
                     setFormState({
@@ -111,6 +111,7 @@ export function useForm(formType: FormType, id?: Id): State {
                             isIncidentManager: isIncidentManager,
                         }),
                     });
+                    setEntityData(formData);
                 },
                 error => {
                     setFormState({
@@ -235,117 +236,75 @@ export function useForm(formType: FormType, id?: Id): State {
 
     const handleRemove = useCallback(
         (id: string) => {
-            if (formState.kind !== "loaded" || !configurableForm || !currentEventTracker) return;
+            if (formState.kind !== "loaded" || !entityData) return;
 
-            const formData = mapFormStateToEntityData(
-                formState.data,
-                currentUser.username,
-                configurableForm
+            const sectionIndexToDelete = formState.data.sections.findIndex(
+                section => section.id === id
             );
 
-            switch (formData.type) {
+            switch (entityData.type) {
                 case "risk-assessment-questionnaire": {
-                    setFormState(prevState => {
-                        if (prevState.kind === "loaded") {
-                            const formSections = prevState.data.sections.filter(
-                                section => section.id !== id
-                            );
+                    const entityId = entityData.entity?.additionalQuestions?.find(
+                        (_, index) => index === sectionIndexToDelete
+                    )?.id;
 
-                            return {
-                                kind: "loaded",
-                                data: {
-                                    ...prevState.data,
-                                    sections: formSections,
-                                },
-                            };
-                        } else {
-                            return prevState;
-                        }
-                    });
+                    if (entityId) {
+                        setFormSectionsToDelete(prevState => [...prevState, entityId]);
+
+                        const updatedEntityData: ConfigurableForm = {
+                            ...entityData,
+                            entity: {
+                                ...entityData.entity,
+                                additionalQuestions: entityData.entity?.additionalQuestions?.filter(
+                                    (_, index) => index !== sectionIndexToDelete
+                                ),
+                            } as RiskAssessmentQuestionnaire,
+                        };
+                        setEntityData(updatedEntityData);
+                    }
                     break;
                 }
                 case "incident-response-actions": {
-                    const sectionIndex = formState.data.sections.findIndex(
-                        section => section.id === id
-                    );
-                    const responseActionToDeleteId = formData.entity[sectionIndex]?.id;
-                    const updatedFormData: ConfigurableForm = {
-                        ...formData,
-                        entity: formData.entity.filter(
-                            responseAction => responseAction.id !== responseActionToDeleteId
-                        ),
-                    };
+                    const entityId = entityData.entity?.find(
+                        (_, index) => index === sectionIndexToDelete
+                    )?.id;
 
-                    console.log({
-                        updatedFormData,
-                        responseActionToDeleteId,
-                        id,
-                        formStateData: formState.data.sections,
-                        formData,
-                    });
+                    if (entityId) {
+                        setFormSectionsToDelete(prevState => [...prevState, entityId]);
 
-                    if (!responseActionToDeleteId) return;
-
-                    compositionRoot.incidentActionPlan.deleteResponseAction
-                        .execute(responseActionToDeleteId)
-                        .run(
-                            () => {
-                                const updatedEventTracker = new DiseaseOutbreakEvent({
-                                    ...currentEventTracker,
-                                    // @ts-ignore
-                                    incidentActionPlan: {
-                                        ...currentEventTracker.incidentActionPlan,
-                                        responseActions: updatedFormData.entity,
-                                    },
-                                });
-
-                                changeCurrentEventTracker(updatedEventTracker);
-
-                                setFormState(prevState => {
-                                    if (prevState.kind === "loaded") {
-                                        const formSections = prevState.data.sections.filter(
-                                            section => section.id !== id
-                                        );
-
-                                        return {
-                                            kind: "loaded",
-                                            data: {
-                                                ...prevState.data,
-                                                sections: formSections,
-                                            },
-                                        };
-                                    } else {
-                                        return prevState;
-                                    }
-                                });
-
-                                setGlobalMessage({
-                                    text: i18n.t(`Response Action deleted successfully`),
-                                    type: "success",
-                                });
-                            },
-                            err => {
-                                setGlobalMessage({
-                                    text: i18n.t(`Error deleting response action: ${err.message}`),
-                                    type: "error",
-                                });
-                            }
-                        );
-
+                        const updatedEntityData: ConfigurableForm = {
+                            ...entityData,
+                            entity: entityData.entity.filter(
+                                (_, index) => index !== sectionIndexToDelete
+                            ),
+                        };
+                        setEntityData(updatedEntityData);
+                    }
                     break;
                 }
                 default:
                     break;
             }
+
+            setFormState(prevState => {
+                if (prevState.kind === "loaded") {
+                    const formSections = prevState.data.sections.filter(
+                        section => section.id !== id
+                    );
+
+                    return {
+                        kind: "loaded",
+                        data: {
+                            ...prevState.data,
+                            sections: formSections,
+                        },
+                    };
+                } else {
+                    return prevState;
+                }
+            });
         },
-        [
-            changeCurrentEventTracker,
-            compositionRoot.incidentActionPlan.deleteResponseAction,
-            configurableForm,
-            currentEventTracker,
-            currentUser.username,
-            formState,
-        ]
+        [entityData, formState]
     );
 
     const handleFormChange = useCallback(
@@ -381,7 +340,7 @@ export function useForm(formType: FormType, id?: Id): State {
             configurableForm
         );
 
-        compositionRoot.save.execute(formData, configurations).run(
+        compositionRoot.save.execute(formData, configurations, formSectionsToDelete).run(
             diseaseOutbreakEventId => {
                 setIsLoading(false);
 
@@ -492,7 +451,9 @@ export function useForm(formType: FormType, id?: Id): State {
         formState,
         configurableForm,
         currentUser.username,
-        compositionRoot,
+        formSectionsToDelete,
+        compositionRoot.save,
+        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
         currentEventTracker?.id,
         goTo,
     ]);

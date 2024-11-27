@@ -134,7 +134,8 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
 
     saveIncidentAction(
         formData: ActionPlanFormData | ResponseActionFormData | SingleResponseActionFormData,
-        diseaseOutbreakId: Id
+        diseaseOutbreakId: Id,
+        formOptionsToDelete?: Id[]
     ): FutureData<void> {
         const programStageId = this.getProgramStageByFormType(formData.type);
 
@@ -178,6 +179,10 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
                     if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
                         return Future.error(new Error(`Error saving Incident Action`));
                     } else {
+                        if (formOptionsToDelete && formOptionsToDelete.length > 0) {
+                            return this.deleteIncidentResponseAction(formOptionsToDelete);
+                        }
+
                         return Future.success(undefined);
                     }
                 });
@@ -185,10 +190,14 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
         });
     }
 
-    deleteIncidentResponseAction(eventId: Id): FutureData<void> {
+    deleteIncidentResponseAction(events: Id[]): FutureData<void> {
         return apiToFuture(
-            // @ts-ignore
-            this.api.tracker.post({ importStrategy: "DELETE" }, { events: [{ event: eventId }] })
+            this.api.tracker.post(
+                { importStrategy: "DELETE" },
+                // an array of event ids is sufficient for TrackerPostRequest with DELETE importStrategy payload
+                // @ts-ignore
+                { events: events.map(event => ({ event: event })) }
+            )
         ).flatMap(response => {
             if (response.status === "ERROR") {
                 return Future.error(new Error(`Error deleting Response Action`));

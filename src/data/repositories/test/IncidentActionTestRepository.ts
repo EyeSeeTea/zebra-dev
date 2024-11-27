@@ -21,11 +21,11 @@ export class IncidentActionTestRepository implements IncidentActionRepository {
         throw new Error("Method not implemented.");
     }
 
-    saveIncidentAction(_formData: any, _diseaseOutbreakId: Id): FutureData<void> {
-        throw new Error("Method not implemented.");
-    }
-
-    deleteIncidentResponseAction(_eventId: Id): FutureData<void> {
+    saveIncidentAction(
+        _formData: any,
+        _diseaseOutbreakId: Id,
+        _formOptionsToDelete?: Id[]
+    ): FutureData<void> {
         throw new Error("Method not implemented.");
     }
 
