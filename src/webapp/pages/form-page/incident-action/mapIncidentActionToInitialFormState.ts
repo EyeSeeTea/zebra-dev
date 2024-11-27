@@ -307,9 +307,8 @@ export function mapSingleIncidentResponseActionToInitialFormState(
         id: eventTrackerDetails.id ?? "",
         title: "Incident Action Plan",
         subtitle: eventTrackerDetails.name,
-        titleDescripton: "Step 2:",
-        subtitleDescripton: "Edit response action",
-        saveButtonLabel: "Save plan",
+        titleDescripton: "Edit response action",
+        saveButtonLabel: "Save response action",
         isValid: incidentResponseAction ? true : false,
         sections: [responseActionSection],
     };

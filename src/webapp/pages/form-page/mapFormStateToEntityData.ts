@@ -577,6 +577,7 @@ function mapFormStateToIncidentResponseActions(
             const searchAssignRO = formData.options.searchAssignRO.find(
                 option => option.id === searchAssignROValue
             );
+            console.log({ allFields, formState, searchAssignRO, searchAssignROValue, formData });
             if (!searchAssignRO) throw new Error("Responsible officer not found");
 
             const statusValue = allFields.find(field =>

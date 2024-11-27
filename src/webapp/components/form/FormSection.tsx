@@ -8,6 +8,7 @@ import { FieldWidget } from "./FieldWidget";
 import { AddNewFieldState, FormFieldState } from "./FormFieldsState";
 import { FormSectionState } from "./FormSectionsState";
 import { AddNewOption } from "../add-new-option/AddNewOption";
+import { Button } from "../button/Button";
 
 type FormSectionProps = {
     id: string;
@@ -22,6 +23,7 @@ type FormSectionProps = {
     errorLabels?: Record<string, string>;
     handleAddNew?: () => void;
     addNewField?: AddNewFieldState;
+    handleRemove?: (id: string) => void;
 };
 
 export const FormSection: React.FC<FormSectionProps> = React.memo(
@@ -38,6 +40,7 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
         errorLabels,
         handleAddNew,
         addNewField,
+        handleRemove,
     }) => {
         return (
             <FormSectionContainer>
@@ -87,6 +90,12 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
                                     </FieldContainer>
                                 );
                             })}
+
+                            {handleRemove && (
+                                <ButtonContainer>
+                                    <Button onClick={() => handleRemove(id)}>Remove</Button>
+                                </ButtonContainer>
+                            )}
                         </FormContainer>
                     ) : null}
 
@@ -225,4 +234,10 @@ const FieldContainer = styled.div<{ width?: string; maxWidth?: string }>`
         justify-content: flex-start;
         width: 100%;
     }
+`;
+
+const ButtonContainer = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: end;
 `;

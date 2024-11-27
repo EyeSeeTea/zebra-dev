@@ -25,6 +25,7 @@ import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAcc
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
 import { useIncidentActionPlan } from "../incident-action-plan/useIncidentActionPlan";
+import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
     text: string;
@@ -56,12 +57,13 @@ type State = {
     onPrimaryButtonClick: () => void;
     onCancelForm: () => void;
     handleAddNew: () => void;
+    handleRemove: (id: string) => void;
 };
 
 export function useForm(formType: FormType, id?: Id): State {
     const { compositionRoot, currentUser, configurations } = useAppContext();
     const { goTo } = useRoutes();
-    const { getCurrentEventTracker } = useCurrentEventTracker();
+    const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [formState, setFormState] = useState<FormLoadState>({ kind: "loading" });
     const [configurableForm, setConfigurableForm] = useState<ConfigurableForm>();
@@ -93,6 +95,11 @@ export function useForm(formType: FormType, id?: Id): State {
             })
             .run(
                 formData => {
+                    console.log({
+                        responseActions: formData.entity,
+                        currentEventTrackerResponseActions:
+                            currentEventTracker?.incidentActionPlan?.responseActions,
+                    });
                     setConfigurableForm(formData);
                     setFormLabels(formData.labels);
                     setFormState({
@@ -226,6 +233,121 @@ export function useForm(formType: FormType, id?: Id): State {
         }
     }, [configurableForm, configurations, formState.kind, isIncidentManager]);
 
+    const handleRemove = useCallback(
+        (id: string) => {
+            if (formState.kind !== "loaded" || !configurableForm || !currentEventTracker) return;
+
+            const formData = mapFormStateToEntityData(
+                formState.data,
+                currentUser.username,
+                configurableForm
+            );
+
+            switch (formData.type) {
+                case "risk-assessment-questionnaire": {
+                    setFormState(prevState => {
+                        if (prevState.kind === "loaded") {
+                            const formSections = prevState.data.sections.filter(
+                                section => section.id !== id
+                            );
+
+                            return {
+                                kind: "loaded",
+                                data: {
+                                    ...prevState.data,
+                                    sections: formSections,
+                                },
+                            };
+                        } else {
+                            return prevState;
+                        }
+                    });
+                    break;
+                }
+                case "incident-response-actions": {
+                    const sectionIndex = formState.data.sections.findIndex(
+                        section => section.id === id
+                    );
+                    const responseActionToDeleteId = formData.entity[sectionIndex]?.id;
+                    const updatedFormData: ConfigurableForm = {
+                        ...formData,
+                        entity: formData.entity.filter(
+                            responseAction => responseAction.id !== responseActionToDeleteId
+                        ),
+                    };
+
+                    console.log({
+                        updatedFormData,
+                        responseActionToDeleteId,
+                        id,
+                        formStateData: formState.data.sections,
+                        formData,
+                    });
+
+                    if (!responseActionToDeleteId) return;
+
+                    compositionRoot.incidentActionPlan.deleteResponseAction
+                        .execute(responseActionToDeleteId)
+                        .run(
+                            () => {
+                                const updatedEventTracker = new DiseaseOutbreakEvent({
+                                    ...currentEventTracker,
+                                    // @ts-ignore
+                                    incidentActionPlan: {
+                                        ...currentEventTracker.incidentActionPlan,
+                                        responseActions: updatedFormData.entity,
+                                    },
+                                });
+
+                                changeCurrentEventTracker(updatedEventTracker);
+
+                                setFormState(prevState => {
+                                    if (prevState.kind === "loaded") {
+                                        const formSections = prevState.data.sections.filter(
+                                            section => section.id !== id
+                                        );
+
+                                        return {
+                                            kind: "loaded",
+                                            data: {
+                                                ...prevState.data,
+                                                sections: formSections,
+                                            },
+                                        };
+                                    } else {
+                                        return prevState;
+                                    }
+                                });
+
+                                setGlobalMessage({
+                                    text: i18n.t(`Response Action deleted successfully`),
+                                    type: "success",
+                                });
+                            },
+                            err => {
+                                setGlobalMessage({
+                                    text: i18n.t(`Error deleting response action: ${err.message}`),
+                                    type: "error",
+                                });
+                            }
+                        );
+
+                    break;
+                }
+                default:
+                    break;
+            }
+        },
+        [
+            changeCurrentEventTracker,
+            compositionRoot.incidentActionPlan.deleteResponseAction,
+            configurableForm,
+            currentEventTracker,
+            currentUser.username,
+            formState,
+        ]
+    );
+
     const handleFormChange = useCallback(
         (updatedField: FormFieldState) => {
             setFormState(prevState => {
@@ -236,7 +358,7 @@ export function useForm(formType: FormType, id?: Id): State {
                         configurableForm
                     );
                     return {
-                        kind: "loaded",
+                        kind: "loaded" as const,
                         data: updatedData,
                     };
                 } else {
@@ -410,5 +532,6 @@ export function useForm(formType: FormType, id?: Id): State {
         onPrimaryButtonClick,
         onCancelForm,
         handleAddNew,
+        handleRemove,
     };
 }

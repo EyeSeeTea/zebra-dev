@@ -71,6 +71,7 @@ import { CompleteEventTrackerUseCase } from "./domain/usecases/CompleteEventTrac
 import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
 import { UserGroupRepository } from "./domain/repositories/UserGroupRepository";
 import { UserGroupTestRepository } from "./data/repositories/test/UserGroupTestRepository";
+import { DeleteIncidentResponseActionUseCase } from "./domain/usecases/DeleteIncidentResponseActionUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -117,6 +118,7 @@ function getCompositionRoot(repositories: Repositories) {
         incidentActionPlan: {
             get: new GetIncidentActionByIdUseCase(repositories),
             updateResponseAction: new UpdateIncidentResponseActionUseCase(repositories),
+            deleteResponseAction: new DeleteIncidentResponseActionUseCase(repositories),
         },
         incidentManagementTeam: {
             get: new GetIncidentManagementTeamByIdUseCase(repositories),

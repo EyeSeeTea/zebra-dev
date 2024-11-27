@@ -185,6 +185,19 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
         });
     }
 
+    deleteIncidentResponseAction(eventId: Id): FutureData<void> {
+        return apiToFuture(
+            // @ts-ignore
+            this.api.tracker.post({ importStrategy: "DELETE" }, { events: [{ event: eventId }] })
+        ).flatMap(response => {
+            if (response.status === "ERROR") {
+                return Future.error(new Error(`Error deleting Response Action`));
+            } else {
+                return Future.success(undefined);
+            }
+        });
+    }
+
     updateIncidentResponseAction(options: UpdateIncidentResponseActionOptions): FutureData<void> {
         const { diseaseOutbreakId, eventId, responseAction } = options;
 

@@ -33,6 +33,7 @@ export const FormPage: React.FC = React.memo(() => {
         onPrimaryButtonClick,
         onCancelForm,
         handleAddNew,
+        handleRemove,
     } = useForm(formType, id);
 
     useEffect(() => {
@@ -53,6 +54,7 @@ export const FormPage: React.FC = React.memo(() => {
             onCancel={onCancelForm}
             errorLabels={formLabels?.errors}
             handleAddNew={handleAddNew}
+            handleRemove={handleRemove}
         />
     ) : (
         formState.message && <ErrorMessageContainer>{formState.message}</ErrorMessageContainer>

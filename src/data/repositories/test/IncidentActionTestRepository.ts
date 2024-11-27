@@ -25,6 +25,10 @@ export class IncidentActionTestRepository implements IncidentActionRepository {
         throw new Error("Method not implemented.");
     }
 
+    deleteIncidentResponseAction(_eventId: Id): FutureData<void> {
+        throw new Error("Method not implemented.");
+    }
+
     updateIncidentResponseAction(_options: UpdateIncidentResponseActionOptions): FutureData<void> {
         throw new Error("Method not implemented.");
     }

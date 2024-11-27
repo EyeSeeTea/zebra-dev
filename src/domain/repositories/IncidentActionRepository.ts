@@ -20,6 +20,7 @@ export interface IncidentActionRepository {
         formData: ActionPlanFormData | ResponseActionFormData | SingleResponseActionFormData,
         diseaseOutbreakId: Id
     ): FutureData<void>;
+    deleteIncidentResponseAction(eventId: Id): FutureData<void>;
     updateIncidentResponseAction(options: UpdateIncidentResponseActionOptions): FutureData<void>;
 }
 
