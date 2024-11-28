@@ -3,7 +3,7 @@ import { Maybe } from "../../../utils/ts-utils";
 import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
 import { Id } from "../../../domain/entities/Ref";
-import { FormState } from "../../components/form/FormState";
+import { FormState, isValidForm } from "../../components/form/FormState";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
 import { updateAndValidateFormState } from "./utils/updateDiseaseOutbreakEventFormState";
@@ -302,6 +302,7 @@ export function useForm(formType: FormType, id?: Id): State {
                         data: {
                             ...prevState.data,
                             sections: formSections,
+                            isValid: isValidForm(formSections),
                         },
                     };
                 } else {
