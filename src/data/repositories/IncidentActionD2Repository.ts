@@ -194,7 +194,7 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
         return apiToFuture(
             this.api.tracker.post(
                 { importStrategy: "DELETE" },
-                // an array of event ids is sufficient for TrackerPostRequest with DELETE importStrategy payload
+                // an array of event ids is sufficient for TrackerPostRequest with DELETE importStrategy
                 // @ts-ignore
                 { events: events.map(event => ({ event: event })) }
             )
