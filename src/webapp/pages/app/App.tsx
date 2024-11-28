@@ -1,25 +1,31 @@
-import { HeaderBar } from "@dhis2/ui";
+import React, { useEffect, useState } from "react";
 import { SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import { Feedback } from "@eyeseetea/feedback-component";
 import { MuiThemeProvider } from "@material-ui/core/styles";
+import { ThemeProvider } from "styled-components";
 //@ts-ignore
 import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
-import React, { useEffect, useState } from "react";
+
 import { appConfig } from "../../../app-config";
 import { CompositionRoot } from "../../../CompositionRoot";
-import Share from "../../components/share/Share";
 import { AppContext, AppContextState } from "../../contexts/app-context";
-import { Router } from "../Router";
-import "./App.css";
 import muiThemeLegacy from "./themes/dhis2-legacy.theme";
 import { muiTheme } from "./themes/dhis2.theme";
+import { Router } from "../Router";
+import Share from "../../components/share/Share";
+import { HeaderBar } from "../../components/layout/header-bar/HeaderBar";
+import { D2Api } from "../../../types/d2-api";
+import "./App.css";
+import { CurrentEventTrackerContextProvider } from "../../contexts/CurrentEventTrackerProvider";
+import { ExistingEventTrackerTypesProvider } from "../../contexts/ExistingEventTrackerTypes";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
+    api: D2Api;
 }
 
 function App(props: AppProps) {
-    const { compositionRoot } = props;
+    const { compositionRoot, api } = props;
     const [showShareButton, setShowShareButton] = useState(false);
     const [loading, setLoading] = useState(true);
     const [appContext, setAppContext] = useState<AppContextState | null>(null);
@@ -29,38 +35,56 @@ function App(props: AppProps) {
             const isShareButtonVisible = appConfig.appearance.showShareButton;
             const currentUser = await compositionRoot.users.getCurrent.execute().toPromise();
             if (!currentUser) throw new Error("User not logged in");
+            const orgUnits = await compositionRoot.orgUnits.getAll.execute().toPromise();
 
-            setAppContext({ currentUser, compositionRoot });
+            const configurations = await compositionRoot.diseaseOutbreakEvent.getConfigurations
+                .execute()
+                .toPromise();
+
+            const isDev = process.env.NODE_ENV === "development";
+            setAppContext({
+                currentUser,
+                compositionRoot,
+                isDev,
+                api,
+                orgUnits,
+                configurations,
+            });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
         }
         setup();
-    }, [compositionRoot]);
+    }, [api, compositionRoot]);
 
     if (loading) return null;
 
     return (
         <MuiThemeProvider theme={muiTheme}>
-            <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
-                <SnackbarProvider>
-                    <HeaderBar appName="Skeleton App" />
+            <ThemeProvider theme={muiTheme}>
+                <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
+                    <SnackbarProvider>
+                        <HeaderBar name="ZEBRA" />
+                        {appConfig.feedback && appContext && (
+                            <Feedback
+                                options={appConfig.feedback}
+                                username={appContext.currentUser.username}
+                            />
+                        )}
 
-                    {appConfig.feedback && appContext && (
-                        <Feedback
-                            options={appConfig.feedback}
-                            username={appContext.currentUser.username}
-                        />
-                    )}
+                        <div id="app" className="content">
+                            <AppContext.Provider value={appContext}>
+                                <CurrentEventTrackerContextProvider>
+                                    <ExistingEventTrackerTypesProvider>
+                                        <Router />
+                                    </ExistingEventTrackerTypesProvider>
+                                </CurrentEventTrackerContextProvider>
+                            </AppContext.Provider>
+                        </div>
 
-                    <div id="app" className="content">
-                        <AppContext.Provider value={appContext}>
-                            <Router />
-                        </AppContext.Provider>
-                    </div>
-
-                    <Share visible={showShareButton} />
-                </SnackbarProvider>
-            </OldMuiThemeProvider>
+                        <Share visible={showShareButton} />
+                    </SnackbarProvider>
+                </OldMuiThemeProvider>
+            </ThemeProvider>
         </MuiThemeProvider>
     );
 }

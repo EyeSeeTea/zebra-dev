@@ -1,0 +1,189 @@
+import {
+    dataSourceMap,
+    getHazardTypeFromString,
+    incidentStatusMap,
+} from "../../../../data/repositories/consts/DiseaseOutbreakConstants";
+import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
+import { DiseaseOutbreakEventBaseAttrs } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    FormFieldState,
+    getAllFieldsFromSections,
+    getBooleanFieldValue,
+    getDateFieldValue,
+    getMultipleOptionsFieldValue,
+    getStringFieldValue,
+} from "../../../components/form/FormFieldsState";
+import { FormState } from "../../../components/form/FormState";
+import { diseaseOutbreakEventFieldIds } from "./mapDiseaseOutbreakEventToInitialFormState";
+
+type DateFieldIdsToValidate =
+    | "emergedDate"
+    | "detectedDate"
+    | "notifiedDate"
+    | "initiateInvestigation"
+    | "conductEpidemiologicalAnalysis"
+    | "laboratoryConfirmation";
+
+export function mapFormStateToDiseaseOutbreakEventData(
+    formState: FormState,
+    currentUserName: string,
+    configurableDiseaseOutbreakEventForm: DiseaseOutbreakEventFormData
+): DiseaseOutbreakEventBaseAttrs {
+    const diseaseOutbreakEvent = configurableDiseaseOutbreakEventForm.entity;
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const dataSource =
+        dataSourceMap[getStringFieldValue(diseaseOutbreakEventFieldIds.dataSource, allFields)];
+
+    const incidentStatus =
+        incidentStatusMap[
+            getStringFieldValue(diseaseOutbreakEventFieldIds.incidentStatus, allFields)
+        ];
+
+    if (!dataSource || !incidentStatus)
+        throw new Error(`Data source or incident status not valid.`);
+
+    const dateValuesByFieldId = getValidDateValuesByFieldIdFromFields(allFields);
+
+    const diseaseOutbreakEventEditableData = {
+        name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
+        dataSource: dataSource,
+        hazardType: getHazardTypeFromString(
+            getStringFieldValue(diseaseOutbreakEventFieldIds.hazardType, allFields)
+        ),
+        mainSyndromeCode: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.mainSyndromeCode,
+            allFields
+        ),
+        suspectedDiseaseCode: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.suspectedDiseaseCode,
+            allFields
+        ),
+        notificationSourceCode: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.notificationSourceCode,
+            allFields
+        ),
+        areasAffectedProvinceIds: getMultipleOptionsFieldValue(
+            diseaseOutbreakEventFieldIds.areasAffectedProvinceIds,
+            allFields
+        ),
+        areasAffectedDistrictIds: getMultipleOptionsFieldValue(
+            diseaseOutbreakEventFieldIds.areasAffectedDistrictIds,
+            allFields
+        ),
+        incidentStatus: incidentStatus,
+        emerged: {
+            date: dateValuesByFieldId.emergedDate,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.emergedNarrative,
+                allFields
+            ),
+        },
+        detected: {
+            date: dateValuesByFieldId.detectedDate,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.detectedNarrative,
+                allFields
+            ),
+        },
+        notified: {
+            date: dateValuesByFieldId.notifiedDate,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.notifiedNarrative,
+                allFields
+            ),
+        },
+        earlyResponseActions: {
+            initiateInvestigation: dateValuesByFieldId.initiateInvestigation,
+            conductEpidemiologicalAnalysis: dateValuesByFieldId.conductEpidemiologicalAnalysis,
+            laboratoryConfirmation: dateValuesByFieldId.laboratoryConfirmation,
+            appropriateCaseManagement: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.appropriateCaseManagementNA,
+                    allFields
+                ),
+            },
+            initiatePublicHealthCounterMeasures: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresNA,
+                    allFields
+                ),
+            },
+            initiateRiskCommunication: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationNA,
+                    allFields
+                ),
+            },
+            establishCoordination: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationNa,
+                    allFields
+                ),
+            },
+            responseNarrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.responseNarrative,
+                allFields
+            ),
+        },
+        incidentManagerName: getStringFieldValue(
+            diseaseOutbreakEventFieldIds.incidentManagerName,
+            allFields
+        ),
+        notes: getStringFieldValue(diseaseOutbreakEventFieldIds.notes, allFields),
+    };
+
+    const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
+        id: diseaseOutbreakEvent?.id || "",
+        status: diseaseOutbreakEvent?.status || "ACTIVE",
+        created: diseaseOutbreakEvent?.created,
+        lastUpdated: diseaseOutbreakEvent?.lastUpdated,
+        createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
+        ...diseaseOutbreakEventEditableData,
+    };
+
+    return diseaseOutbreakEventBase;
+}
+
+function getValidDateValuesByFieldIdFromFields(
+    allFields: FormFieldState[]
+): Record<DateFieldIdsToValidate, Date> {
+    const getFromAllFields = (fieldId: keyof typeof diseaseOutbreakEventFieldIds): Date => {
+        const maybeDate = getDateFieldValue(fieldId, allFields);
+
+        if (maybeDate === null) {
+            throw new Error(`Invalid date value.`);
+        } else {
+            return maybeDate;
+        }
+    };
+
+    return {
+        emergedDate: getFromAllFields(diseaseOutbreakEventFieldIds.emergedDate),
+        detectedDate: getFromAllFields(diseaseOutbreakEventFieldIds.detectedDate),
+        notifiedDate: getFromAllFields(diseaseOutbreakEventFieldIds.notifiedDate),
+        initiateInvestigation: getFromAllFields(diseaseOutbreakEventFieldIds.initiateInvestigation),
+        conductEpidemiologicalAnalysis: getFromAllFields(
+            diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis
+        ),
+        laboratoryConfirmation: getFromAllFields(
+            diseaseOutbreakEventFieldIds.laboratoryConfirmation
+        ),
+    };
+}

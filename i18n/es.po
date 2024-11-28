@@ -1,27 +1,273 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2023-09-18T10:19:02.458Z\n"
+"POT-Creation-Date: 2024-11-22T15:21:43.931Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
-msgid "Add"
-msgstr "Añadir"
-
-msgid "List"
-msgstr "Listar"
-
-msgid "Back"
-msgstr "Volver"
-
-msgid "Help"
-msgstr "Ayuda"
-
-msgid "Hello {{name}}"
-msgstr "Hola {{name}}"
-
-msgid "Detail page"
+msgid "Low"
 msgstr ""
+
+msgid "Medium"
+msgstr ""
+
+msgid "High"
+msgstr ""
+
+msgid "Less than 0.1%"
+msgstr ""
+
+msgid "Between 0.1% to 0.25%"
+msgstr ""
+
+msgid "Above 0.25%"
+msgstr ""
+
+msgid "Within a district"
+msgstr ""
+
+msgid "Within a province with more than one district affected"
+msgstr ""
+
+msgid ""
+"More than one province affected with high threat of spread locally and "
+"internationally"
+msgstr ""
+
+msgid ""
+"Available within the district with support from provincial and national level"
+msgstr ""
+
+msgid "Available within the province with minimal support from national level"
+msgstr ""
+
+msgid "Available at national with support required from international"
+msgstr ""
+
+msgid "Capability 1"
+msgstr ""
+
+msgid "Capability 2"
+msgstr ""
+
+msgid "Grade 1"
+msgstr ""
+
+msgid "Grade 2"
+msgstr ""
+
+msgid "Grade 3"
+msgstr ""
+
+msgid "Invalid grade"
+msgstr ""
+
+msgid "Add new option"
+msgstr ""
+
+msgid "Reset"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "There is an error in this field"
+msgstr ""
+
+msgid "Indicates required"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Edit Action Plan"
+msgstr ""
+
+msgid "Edit Details"
+msgstr ""
+
+msgid "Complete Event"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Edit Profile"
+msgstr ""
+
+msgid "Currently assigned:"
+msgstr ""
+
+msgid "Error loading current Incident Management Team"
+msgstr ""
+
+msgid "Create Event"
+msgstr ""
+
+msgid "The map with these filters could not be found."
+msgstr ""
+
+msgid "Map not found."
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Last updated: "
+msgstr ""
+
+msgid "Median"
+msgstr ""
+
+msgid "% Target Met"
+msgstr ""
+
+msgid "Status: "
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Select duration"
+msgstr ""
+
+msgid "Duration"
+msgstr ""
+
+msgid "All public health events"
+msgstr ""
+
+msgid "7-1-7 performance"
+msgstr ""
+
+msgid "events"
+msgstr ""
+
+msgid "Performance overview"
+msgstr ""
+
+msgid "Event Tracker"
+msgstr ""
+
+msgid "Districts Affected"
+msgstr ""
+
+msgid "Create Risk Assessment"
+msgstr ""
+
+msgid "Edit Risk Assessment"
+msgstr ""
+
+msgid "Add new Grade"
+msgstr ""
+
+msgid "Risk assessment incomplete"
+msgstr ""
+
+msgid "Risks associated with this event have not yet been assessed."
+msgstr ""
+
+msgid "Complete event"
+msgstr ""
+
+msgid "Not now"
+msgstr ""
+
+msgid "Complete"
+msgstr ""
+
+msgid "Are you sure you want to complete this Event? This cannot be undone."
+msgstr ""
+
+msgid "N/A"
+msgstr ""
+
+msgid "Add another"
+msgstr ""
+
+msgid "Form cannot be loaded"
+msgstr ""
+
+msgid "Disease Outbreak saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Grading saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Summary saved successfully"
+msgstr ""
+
+msgid "Risk Assessment Questionnaire saved successfully"
+msgstr ""
+
+msgid "Incident Action Plan saved successfully"
+msgstr ""
+
+msgid "Incident Response Actions saved successfully"
+msgstr ""
+
+msgid "Incident Management Team Member saved successfully"
+msgstr ""
+
+msgid "Create an incident action plan"
+msgstr ""
+
+msgid "No plan has been created for this incident"
+msgstr ""
+
+msgid "Create IAP"
+msgstr ""
+
+msgid "Incident Action Plan"
+msgstr ""
+
+msgid "Team"
+msgstr ""
+
+msgid "Edit Team"
+msgstr ""
+
+msgid "Incident Management Team Builder"
+msgstr ""
+
+msgid "Edit Role"
+msgstr ""
+
+msgid "Assign Role"
+msgstr ""
+
+msgid "Delete Roles"
+msgstr ""
+
+msgid "Delete Role"
+msgstr ""
+
+msgid "Confirm deletion"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Resources"
+msgstr ""
+
+#~ msgid "Add"
+#~ msgstr "Añadir"
+
+#~ msgid "List"
+#~ msgstr "Listar"
+
+#~ msgid "Back"
+#~ msgstr "Volver"
+
+#~ msgid "Help"
+#~ msgstr "Ayuda"
+
+#~ msgid "Hello {{name}}"
+#~ msgstr "Hola {{name}}"
