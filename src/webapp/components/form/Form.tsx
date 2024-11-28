@@ -52,6 +52,7 @@ export const Form: React.FC<FormProps> = React.memo(props => {
                             handleAddNew={handleAddNew}
                             addNewField={section.addNewField}
                             handleRemove={handleRemove}
+                            removeOption={section.removeOption}
                         />
                     );
                 })}

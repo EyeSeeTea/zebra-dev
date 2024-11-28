@@ -24,6 +24,7 @@ type FormSectionProps = {
     handleAddNew?: () => void;
     addNewField?: AddNewFieldState;
     handleRemove?: (id: string) => void;
+    removeOption?: boolean;
 };
 
 export const FormSection: React.FC<FormSectionProps> = React.memo(
@@ -41,6 +42,7 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
         handleAddNew,
         addNewField,
         handleRemove,
+        removeOption = false,
     }) => {
         return (
             <FormSectionContainer>
@@ -91,7 +93,7 @@ export const FormSection: React.FC<FormSectionProps> = React.memo(
                                 );
                             })}
 
-                            {handleRemove && (
+                            {removeOption && handleRemove && (
                                 <ButtonContainer>
                                     <Button onClick={() => handleRemove(id)}>Remove</Button>
                                 </ButtonContainer>

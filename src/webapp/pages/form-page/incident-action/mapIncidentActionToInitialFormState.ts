@@ -300,6 +300,7 @@ export function mapSingleIncidentResponseActionToInitialFormState(
             verificationOptions: verificationOptions,
         },
         isIncidentManager: isIncidentManager,
+        isSingleIncidentResponseAction: true,
         index: 0,
     });
 
@@ -323,8 +324,15 @@ function getResponseActionSection(options: {
     };
     isIncidentManager: boolean;
     index: number;
+    isSingleIncidentResponseAction?: boolean;
 }) {
-    const { incidentResponseAction, options: formOptions, index, isIncidentManager } = options;
+    const {
+        incidentResponseAction,
+        options: formOptions,
+        index,
+        isIncidentManager,
+        isSingleIncidentResponseAction,
+    } = options;
     const { searchAssignROOptions, statusOptions, verificationOptions } = formOptions;
 
     const responseActionSection: FormSectionState = {
@@ -420,6 +428,7 @@ function getResponseActionSection(options: {
                 disabled: false,
             },
         ],
+        removeOption: isSingleIncidentResponseAction ? false : true,
     };
 
     return responseActionSection;
