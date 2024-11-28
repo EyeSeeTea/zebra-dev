@@ -382,13 +382,17 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
     }
 
     private deleteCustomQuestion(events: Id[]): FutureData<void> {
+        const d2Events: D2TrackerEvent[] = events.map(event => ({
+            event: event,
+            status: "COMPLETED",
+            program: RTSL_ZEBRA_PROGRAM_ID,
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            occurredAt: "",
+            dataValues: [],
+        }));
+
         return apiToFuture(
-            this.api.tracker.post(
-                { importStrategy: "DELETE" },
-                // an array of event ids is sufficient for TrackerPostRequest with DELETE importStrategy
-                // @ts-ignore
-                { events: events.map(event => ({ event: event })) }
-            )
+            this.api.tracker.post({ importStrategy: "DELETE" }, { events: d2Events })
         ).flatMap(response => {
             if (response.status === "ERROR") {
                 return Future.error(new Error(`Error deleting Custom Question`));
