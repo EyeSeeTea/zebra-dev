@@ -86,7 +86,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     earlyResponseActions: EarlyResponseActions;
     incidentManagerName: string;
     notes: Maybe<string>;
-    casesDataSource: Code;
+    casesDataSource: CasesDataSource;
 };
 
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {

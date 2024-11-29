@@ -43,7 +43,9 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 
     const dataSource = dataSourceMap[fromMap("dataSource")];
     const incidentStatus = incidentStatusMap[fromMap("incidentStatus")];
-    const casesDataSource = casesDataSourceMap[fromMap("casesDataSource")];
+    const casesDataSource =
+        casesDataSourceMap[fromMap("casesDataSource")] ??
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR;
 
     if (!dataSource || !incidentStatus) throw new Error("Data source or incident status not valid");
 
@@ -100,7 +102,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
             responseNarrative: fromMap("responseNarrative"),
         },
         notes: fromMap("notes"),
-        casesDataSource: casesDataSource ?? CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR, // To-do: check if this is correct
+        casesDataSource: casesDataSource,
     };
 
     return diseaseOutbreak;

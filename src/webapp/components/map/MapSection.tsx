@@ -7,6 +7,7 @@ import { useMap } from "./useMap";
 import { MapKey } from "../../../domain/entities/MapConfig";
 import LoaderContainer from "../loader/LoaderContainer";
 import { useAppContext } from "../../contexts/app-context";
+import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type MapSectionProps = {
     mapKey: MapKey;
@@ -15,6 +16,7 @@ type MapSectionProps = {
     dateRangeFilter?: string[];
     eventDiseaseCode?: string;
     eventHazardCode?: string;
+    casesDataSource?: CasesDataSource;
 };
 
 export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
@@ -26,6 +28,7 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         dateRangeFilter,
         eventDiseaseCode,
         eventHazardCode,
+        casesDataSource,
     } = props;
     const { configurations } = useAppContext();
     const snackbar = useSnackbar();
@@ -46,6 +49,7 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         dateRangeFilter: dateRangeFilter,
         eventDiseaseCode: eventDiseaseCode,
         eventHazardCode: eventHazardCode,
+        casesDataSource: casesDataSource,
     });
 
     const baseUrl = `${api.baseUrl}/api/apps/zebra-custom-maps-app/index.html`;
