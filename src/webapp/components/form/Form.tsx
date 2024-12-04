@@ -14,10 +14,12 @@ export type FormProps = {
     onSave: () => void;
     onCancel?: () => void;
     handleAddNew?: () => void;
+    handleRemove?: (id: string) => void;
 };
 
 export const Form: React.FC<FormProps> = React.memo(props => {
-    const { formState, onFormChange, onSave, onCancel, errorLabels, handleAddNew } = props;
+    const { formState, onFormChange, onSave, onCancel, errorLabels, handleAddNew, handleRemove } =
+        props;
     const { formLocalState, handleUpdateFormField } = useLocalForm(formState, onFormChange);
 
     return (
@@ -49,6 +51,8 @@ export const Form: React.FC<FormProps> = React.memo(props => {
                             errorLabels={errorLabels}
                             handleAddNew={handleAddNew}
                             addNewField={section.addNewField}
+                            handleRemove={handleRemove}
+                            removeOption={section.removeOption}
                         />
                     );
                 })}

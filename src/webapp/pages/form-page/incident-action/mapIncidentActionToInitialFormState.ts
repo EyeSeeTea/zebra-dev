@@ -300,6 +300,7 @@ export function mapSingleIncidentResponseActionToInitialFormState(
             verificationOptions: verificationOptions,
         },
         isIncidentManager: isIncidentManager,
+        isSingleIncidentResponseAction: true,
         index: 0,
     });
 
@@ -307,9 +308,8 @@ export function mapSingleIncidentResponseActionToInitialFormState(
         id: eventTrackerDetails.id ?? "",
         title: "Incident Action Plan",
         subtitle: eventTrackerDetails.name,
-        titleDescripton: "Step 2:",
-        subtitleDescripton: "Edit response action",
-        saveButtonLabel: "Save plan",
+        titleDescripton: "Edit response action",
+        saveButtonLabel: "Save response action",
         isValid: incidentResponseAction ? true : false,
         sections: [responseActionSection],
     };
@@ -324,8 +324,15 @@ function getResponseActionSection(options: {
     };
     isIncidentManager: boolean;
     index: number;
+    isSingleIncidentResponseAction?: boolean;
 }) {
-    const { incidentResponseAction, options: formOptions, index, isIncidentManager } = options;
+    const {
+        incidentResponseAction,
+        options: formOptions,
+        index,
+        isIncidentManager,
+        isSingleIncidentResponseAction,
+    } = options;
     const { searchAssignROOptions, statusOptions, verificationOptions } = formOptions;
 
     const responseActionSection: FormSectionState = {
@@ -421,6 +428,7 @@ function getResponseActionSection(options: {
                 disabled: false,
             },
         ],
+        removeOption: isSingleIncidentResponseAction ? false : true,
     };
 
     return responseActionSection;

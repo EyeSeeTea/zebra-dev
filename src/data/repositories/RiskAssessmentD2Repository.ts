@@ -261,7 +261,8 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
             | RiskAssessmentGradingFormData
             | RiskAssessmentSummaryFormData
             | RiskAssessmentQuestionnaireFormData,
-        diseaseOutbreakId: Id
+        diseaseOutbreakId: Id,
+        formOptionsToDelete?: Id[]
     ): FutureData<void> {
         if (formData.type === "risk-assessment-questionnaire") {
             const { stdQuestionnaireStageId, customQuestionnaireStageId } =
@@ -295,7 +296,8 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
                                     customQuestionnaireDataElements,
                                     formData,
                                     diseaseOutbreakId,
-                                    customQuestionnaireStageId
+                                    customQuestionnaireStageId,
+                                    formOptionsToDelete
                                 );
                             }
                         );
@@ -336,7 +338,8 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
             | RiskAssessmentSummaryFormData
             | RiskAssessmentQuestionnaireFormData,
         diseaseOutbreakId: Id,
-        programStageId: Id
+        programStageId: Id,
+        formOptionsToDelete?: Id[]
     ): FutureData<void> {
         //Get the enrollment Id for the disease outbreak
         return apiToFuture(
@@ -368,11 +371,37 @@ export class RiskAssessmentD2Repository implements RiskAssessmentRepository {
                 if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
                     return Future.error(new Error(`Error Risk Assessment Grading`));
                 } else {
+                    if (formOptionsToDelete && formOptionsToDelete.length > 0) {
+                        return this.deleteCustomQuestion(formOptionsToDelete);
+                    }
+
                     return Future.success(undefined);
                 }
             });
         });
     }
+
+    private deleteCustomQuestion(events: Id[]): FutureData<void> {
+        const d2Events: D2TrackerEvent[] = events.map(event => ({
+            event: event,
+            status: "COMPLETED",
+            program: RTSL_ZEBRA_PROGRAM_ID,
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            occurredAt: "",
+            dataValues: [],
+        }));
+
+        return apiToFuture(
+            this.api.tracker.post({ importStrategy: "DELETE" }, { events: d2Events })
+        ).flatMap(response => {
+            if (response.status === "ERROR") {
+                return Future.error(new Error(`Error deleting Custom Question`));
+            } else {
+                return Future.success(undefined);
+            }
+        });
+    }
+
     private getProgramStageByFormType(formType: string) {
         switch (formType) {
             case "risk-assessment-grading":

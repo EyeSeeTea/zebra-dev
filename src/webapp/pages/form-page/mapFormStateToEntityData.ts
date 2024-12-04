@@ -557,22 +557,24 @@ function mapFormStateToIncidentResponseActions(
 
     const incidentResponseActions: ResponseAction[] = formState.sections
         .filter(section => !section.id.includes("addNewResponseActionSection"))
-        .map((_, index): ResponseAction => {
+        .map((section): ResponseAction => {
+            const sectionIndex = extractIndex(section.id);
+
             const mainTask = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.mainTask}_${index}`)
+                field.id.includes(`${responseActionConstants.mainTask}_${sectionIndex}`)
             )?.value as string;
             const subActivities = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.subActivities}_${index}`)
+                field.id.includes(`${responseActionConstants.subActivities}_${sectionIndex}`)
             )?.value as string;
             const subPillar = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.subPillar}_${index}`)
+                field.id.includes(`${responseActionConstants.subPillar}_${sectionIndex}`)
             )?.value as string;
             const dueDate = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.dueDate}_${index}`)
+                field.id.includes(`${responseActionConstants.dueDate}_${sectionIndex}`)
             )?.value as Date;
 
             const searchAssignROValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.searchAssignRO}_${index}`)
+                field.id.includes(`${responseActionConstants.searchAssignRO}_${sectionIndex}`)
             )?.value as string;
             const searchAssignRO = formData.options.searchAssignRO.find(
                 option => option.id === searchAssignROValue
@@ -580,13 +582,13 @@ function mapFormStateToIncidentResponseActions(
             if (!searchAssignRO) throw new Error("Responsible officer not found");
 
             const statusValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.status}_${index}`)
+                field.id.includes(`${responseActionConstants.status}_${sectionIndex}`)
             )?.value as string;
             const status = formData.options.status.find(option => option.id === statusValue);
             if (!status) throw new Error("Status not found");
 
             const verificationValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.verification}_${index}`)
+                field.id.includes(`${responseActionConstants.verification}_${sectionIndex}`)
             )?.value as string;
             const verification = formData.options.verification.find(
                 option => option.id === verificationValue
@@ -596,8 +598,13 @@ function mapFormStateToIncidentResponseActions(
             };
             if (!verification) throw new Error("Verification not found");
 
+            const selectedEntityData =
+                sectionIndex !== undefined ? formData.entity[sectionIndex] : undefined;
+            const isResponseActionValid = selectedEntityData !== undefined;
+            const responseActionId = isResponseActionValid ? selectedEntityData.id : "";
+
             const responseAction = new ResponseAction({
-                id: formData.entity?.[index]?.id ?? "",
+                id: responseActionId,
                 mainTask: mainTask,
                 subActivities: subActivities,
                 subPillar: subPillar,
@@ -747,4 +754,12 @@ function mapFormStateToIncidentManagementTeamMember(
         workPosition: teamMemberAssigned?.workPosition,
         status: teamMemberAssigned?.status,
     });
+}
+
+function extractIndex(input: string): number | undefined {
+    const parts = input.split("_");
+    const lastPart = parts[parts.length - 1];
+    const index = Number(lastPart);
+
+    return isNaN(index) ? undefined : index;
 }

@@ -196,19 +196,19 @@ function getRiskSummarySelections(
         configurations.selectableOptions;
 
     const riskAssessor1 = riskSummaryConfig.riskAssessors.find(
-        assessor => assessor.id === summaryDataValues?.riskAssessor1
+        assessor => assessor.username === summaryDataValues?.riskAssessor1
     );
     const riskAssessor2 = riskSummaryConfig.riskAssessors.find(
-        assessor => assessor.id === summaryDataValues?.riskAssessor2
+        assessor => assessor.username === summaryDataValues?.riskAssessor2
     );
     const riskAssessor3 = riskSummaryConfig.riskAssessors.find(
-        assessor => assessor.id === summaryDataValues?.riskAssessor3
+        assessor => assessor.username === summaryDataValues?.riskAssessor3
     );
     const riskAssessor4 = riskSummaryConfig.riskAssessors.find(
-        assessor => assessor.id === summaryDataValues?.riskAssessor4
+        assessor => assessor.username === summaryDataValues?.riskAssessor4
     );
     const riskAssessor5 = riskSummaryConfig.riskAssessors.find(
-        assessor => assessor.id === summaryDataValues?.riskAssessor5
+        assessor => assessor.username === summaryDataValues?.riskAssessor5
     );
     const overallRiskGlobal = riskSummaryConfig.overallRiskGlobal.find(
         risk => risk.id === summaryDataValues?.overallRiskGlobal

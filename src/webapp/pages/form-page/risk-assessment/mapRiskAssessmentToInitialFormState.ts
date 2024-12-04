@@ -834,7 +834,7 @@ function getRiskAssessmentCustomQuestionSection(
                 width: "100%",
             },
         ],
-
+        removeOption: true,
         direction: "row",
         subsections: [],
     };
