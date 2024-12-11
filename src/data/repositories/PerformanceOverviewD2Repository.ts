@@ -109,7 +109,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         existingEntry.total += totalCardCount.total;
                         acc[totalCardCount.name] = existingEntry;
                     } else {
-                        acc[totalCardCount.name] = totalCardCount;
+                        acc[totalCardCount.name] = { ...totalCardCount };
                     }
                     return acc;
                 }, {} as Record<string, TotalCardCounts>);
@@ -190,7 +190,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             if (filters && Object.entries(filters).length) {
                 return Object.entries(filters).every(([key, value]) => {
                     if (!value) {
-                        return true;
+                        return item.incidentStatus === "ALL";
                     }
                     if (key === "incidentStatus") {
                         return value === item.incidentStatus;
