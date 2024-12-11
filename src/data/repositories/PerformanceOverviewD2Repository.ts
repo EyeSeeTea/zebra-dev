@@ -188,16 +188,13 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
         const filteredCounts: TotalCardCounts[] = counts.filter(item => {
             if (filters && Object.entries(filters).length) {
-                return Object.entries(filters).every(([key, value]) => {
-                    if (!value) {
-                        return item.incidentStatus === "ALL";
-                    }
-                    if (key === "incidentStatus") {
-                        return value === item.incidentStatus;
-                    } else if (key === "disease" || key === "hazard") {
-                        return value === item.name;
-                    }
-                });
+                const matchesDisease = !filters.disease || item.name === filters.disease;
+                const matchesHazard = !filters.hazard || item.type === "hazard";
+                const matchesIncidentStatus = !filters.incidentStatus
+                    ? item.incidentStatus === "ALL"
+                    : item.incidentStatus === filters.incidentStatus;
+
+                return matchesDisease && matchesHazard && matchesIncidentStatus;
             }
             return true;
         });
