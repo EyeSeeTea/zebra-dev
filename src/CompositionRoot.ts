@@ -70,6 +70,9 @@ import { CompleteEventTrackerUseCase } from "./domain/usecases/CompleteEventTrac
 import { CasesFileD2Repository } from "./data/repositories/CasesFileD2Repository";
 import { CasesFileRepository } from "./domain/repositories/CasesFileRepository";
 import { CasesFileTestRepository } from "./data/repositories/test/CasesFileTestRepository";
+import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
+import { UserGroupRepository } from "./domain/repositories/UserGroupRepository";
+import { UserGroupTestRepository } from "./data/repositories/test/UserGroupTestRepository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -90,6 +93,7 @@ type Repositories = {
     systemRepository: SystemRepository;
     configurationsRepository: ConfigurationsRepository;
     casesFileRepository: CasesFileRepository;
+    userGroupRepository: UserGroupRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -109,7 +113,8 @@ function getCompositionRoot(repositories: Repositories) {
             getConfigurations: new GetConfigurationsUseCase(
                 repositories.configurationsRepository,
                 repositories.teamMemberRepository,
-                repositories.orgUnitRepository
+                repositories.orgUnitRepository,
+                repositories.userGroupRepository
             ),
             complete: new CompleteEventTrackerUseCase(repositories),
         },
@@ -164,6 +169,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         systemRepository: new SystemD2Repository(api),
         configurationsRepository: new ConfigurationsD2Repository(api),
         casesFileRepository: new CasesFileD2Repository(api, dataStoreClient),
+        userGroupRepository: new UserGroupD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -187,6 +193,7 @@ export function getTestCompositionRoot() {
         systemRepository: new SystemTestRepository(),
         configurationsRepository: new ConfigurationsTestRepository(),
         casesFileRepository: new CasesFileTestRepository(),
+        userGroupRepository: new UserGroupTestRepository(),
     };
 
     return getCompositionRoot(repositories);

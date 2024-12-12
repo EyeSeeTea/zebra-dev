@@ -4,7 +4,11 @@ import {
     IncidentResponseActionDataValues,
 } from "../../data/repositories/IncidentActionD2Repository";
 import { Maybe } from "../../utils/ts-utils";
-import { ActionPlanFormData, ResponseActionFormData } from "../entities/ConfigurableForm";
+import {
+    ActionPlanFormData,
+    ResponseActionFormData,
+    SingleResponseActionFormData,
+} from "../entities/ConfigurableForm";
 import { Id } from "../entities/Ref";
 
 export interface IncidentActionRepository {
@@ -13,8 +17,9 @@ export interface IncidentActionRepository {
         diseaseOutbreakId: Id
     ): FutureData<Maybe<IncidentResponseActionDataValues[]>>;
     saveIncidentAction(
-        formData: ActionPlanFormData | ResponseActionFormData,
-        diseaseOutbreakId: Id
+        formData: ActionPlanFormData | ResponseActionFormData | SingleResponseActionFormData,
+        diseaseOutbreakId: Id,
+        formOptionsToDelete?: Id[]
     ): FutureData<void>;
     updateIncidentResponseAction(options: UpdateIncidentResponseActionOptions): FutureData<void>;
 }

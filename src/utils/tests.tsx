@@ -19,6 +19,7 @@ export function getTestContext() {
         api: {} as D2Api,
         isDev: true,
         configurations: {
+            incidentManagerUserGroup: { id: "incidentManagerUserGroup" },
             selectableOptions: {
                 eventTrackerConfigurations: {
                     dataSources: [],

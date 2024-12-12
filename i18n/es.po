@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-11-21T08:13:13.190Z\n"
+"POT-Creation-Date: 2024-11-27T21:40:09.970Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -152,9 +152,6 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
-msgid "Respond, alert, watch"
-msgstr ""
-
 msgid "Select duration"
 msgstr ""
 
@@ -182,7 +179,10 @@ msgstr ""
 msgid "Create Risk Assessment"
 msgstr ""
 
-msgid "Add new Assessment"
+msgid "Edit Risk Assessment"
+msgstr ""
+
+msgid "Add new Grade"
 msgstr ""
 
 msgid "Risk assessment incomplete"

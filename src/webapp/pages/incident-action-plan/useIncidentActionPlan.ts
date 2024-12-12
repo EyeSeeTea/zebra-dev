@@ -33,7 +33,7 @@ export type UIIncidentActionOptions = {
 };
 
 export function useIncidentActionPlan(id: Id) {
-    const { compositionRoot, configurations: appConfiguration } = useAppContext();
+    const { compositionRoot, configurations: appConfiguration, currentUser } = useAppContext();
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
 
@@ -44,6 +44,12 @@ export function useIncidentActionPlan(id: Id) {
     const [incidentActionPlan, setIncidentActionPlan] = useState<IncidentActionPlan>();
     const [incidentActionExists, setIncidentActionExists] = useState<boolean>(false);
     const [incidentActionOptions, setIncidentActionOptions] = useState<UIIncidentActionOptions>();
+    const [responseActionRowId, setResponseActionRowId] = useState<string>();
+
+    const isIncidentManager = useMemo(
+        () => currentUser.belongToUserGroup(appConfiguration.incidentManagerUserGroup.id),
+        [currentUser, appConfiguration]
+    );
 
     const saveTableOption = useCallback(
         (value: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => {
@@ -61,6 +67,10 @@ export function useIncidentActionPlan(id: Id) {
         },
         [compositionRoot, id, responseActionRows]
     );
+
+    const onClickResponseActionRow = useCallback((rowId: string) => {
+        setResponseActionRowId(rowId);
+    }, []);
 
     const responseActionColumns: TableColumn[] = useMemo(() => {
         return [
@@ -82,14 +92,14 @@ export function useIncidentActionPlan(id: Id) {
             {
                 value: "verification",
                 label: "Verification",
-                type: "selector",
+                type: isIncidentManager ? "selector" : "text",
                 options: incidentActionOptions?.verification ?? [],
                 onChange: saveTableOption,
             },
             { value: "timeLine", label: "Timeline", type: "text" },
             { value: "dueDate", label: "Due date", type: "text" },
         ];
-    }, [incidentActionOptions, saveTableOption]);
+    }, [incidentActionOptions, saveTableOption, isIncidentManager]);
 
     useEffect(() => {
         compositionRoot.incidentActionPlan.get.execute(id, appConfiguration).run(
@@ -164,6 +174,7 @@ export function useIncidentActionPlan(id: Id) {
 
     return {
         incidentActionExists: incidentActionExists,
+        isIncidentManager: isIncidentManager,
         saveTableOption: saveTableOption,
         responseActionColumns: responseActionColumns,
         actionPlanSummary: actionPlanSummary,
@@ -171,6 +182,8 @@ export function useIncidentActionPlan(id: Id) {
         responseActionRows: responseActionRows,
         summaryError: globalMessage,
         orderByDueDate: orderByDueDate,
+        responseActionRowId: responseActionRowId,
+        onClickResponseActionRow: onClickResponseActionRow,
     };
 }
 

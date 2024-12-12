@@ -82,9 +82,9 @@ export const statusCodeMap: Record<ResponseActionStatusType, string> = {
     Complete: "RTSL_ZEB_OS_STATUS_COMPLETE",
 } as const;
 
-export function getStatusTypeByCode(iapTypeCode: string): Maybe<ResponseActionStatusType> {
+export function getStatusTypeByCode(statusCode: string): Maybe<ResponseActionStatusType> {
     return (Object.keys(statusCodeMap) as ResponseActionStatusType[]).find(
-        key => statusCodeMap[key] === iapTypeCode
+        key => statusCodeMap[key] === statusCode
     );
 }
 
@@ -94,10 +94,10 @@ export const verificationCodeMap: Record<ResponseActionVerificationType, string>
 };
 
 export function getVerificationTypeByCode(
-    iapTypeCode: string
+    verificationCode: string
 ): Maybe<ResponseActionVerificationType> {
     return (Object.keys(verificationCodeMap) as ResponseActionVerificationType[]).find(
-        key => verificationCodeMap[key] === iapTypeCode
+        key => verificationCodeMap[key] === verificationCode
     );
 }
 

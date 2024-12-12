@@ -24,6 +24,7 @@ import {
     Capability1,
     Capability2,
 } from "./risk-assessment/RiskAssessmentGrading";
+import { UserGroup } from "./UserGroup";
 
 export type SelectableOptions = {
     eventTrackerConfigurations: DiseaseOutbreakEventOptions;
@@ -44,6 +45,7 @@ export type SelectableOptions = {
     incidentResponseActionConfigurations: IncidentResponseActionOptions;
 };
 export type Configurations = {
+    incidentManagerUserGroup: UserGroup;
     selectableOptions: SelectableOptions;
     teamMembers: {
         all: TeamMember[];

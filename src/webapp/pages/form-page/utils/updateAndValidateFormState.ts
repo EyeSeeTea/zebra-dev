@@ -74,7 +74,7 @@ function validateFormState(
             break;
         case "incident-action-plan":
             break;
-        case "incident-response-action":
+        case "incident-response-actions":
             break;
         case "incident-management-team-member-assignment": {
             const reportsToUsername = getFieldValueByIdFromSections(

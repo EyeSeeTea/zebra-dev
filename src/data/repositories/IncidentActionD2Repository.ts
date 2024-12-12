@@ -17,13 +17,18 @@ import {
     mapDataElementsToIncidentResponseActions,
     mapIncidentActionToDataElements,
 } from "./utils/IncidentActionMapper";
-import { ActionPlanFormData, ResponseActionFormData } from "../../domain/entities/ConfigurableForm";
+import {
+    ActionPlanFormData,
+    ResponseActionFormData,
+    SingleResponseActionFormData,
+} from "../../domain/entities/ConfigurableForm";
 import { getProgramStage } from "./utils/MetadataHelper";
 import { Future } from "../../domain/entities/generic/Future";
 import { Status, Verification } from "../../domain/entities/incident-action-plan/ResponseAction";
 import { assertOrError } from "./utils/AssertOrError";
 import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import { statusCodeMap, verificationCodeMap } from "./consts/IncidentActionConstants";
+import { FormType } from "../../webapp/pages/form-page/FormPage";
 
 export const incidentActionPlanIds = {
     iapType: "wr1I51WTHhl",
@@ -128,8 +133,9 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
     }
 
     saveIncidentAction(
-        formData: ActionPlanFormData | ResponseActionFormData,
-        diseaseOutbreakId: Id
+        formData: ActionPlanFormData | ResponseActionFormData | SingleResponseActionFormData,
+        diseaseOutbreakId: Id,
+        formOptionsToDelete?: Id[]
     ): FutureData<void> {
         const programStageId = this.getProgramStageByFormType(formData.type);
 
@@ -173,10 +179,35 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
                     if (saveResponse.status === "ERROR" || !diseaseOutbreakId) {
                         return Future.error(new Error(`Error saving Incident Action`));
                     } else {
+                        if (formOptionsToDelete && formOptionsToDelete.length > 0) {
+                            return this.deleteIncidentResponseAction(formOptionsToDelete);
+                        }
+
                         return Future.success(undefined);
                     }
                 });
             });
+        });
+    }
+
+    private deleteIncidentResponseAction(events: Id[]): FutureData<void> {
+        const d2Events: D2TrackerEvent[] = events.map(event => ({
+            event: event,
+            status: "COMPLETED",
+            program: RTSL_ZEBRA_PROGRAM_ID,
+            orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            occurredAt: "",
+            dataValues: [],
+        }));
+
+        return apiToFuture(
+            this.api.tracker.post({ importStrategy: "DELETE" }, { events: d2Events })
+        ).flatMap(response => {
+            if (response.status === "ERROR") {
+                return Future.error(new Error(`Error deleting Response Action`));
+            } else {
+                return Future.success(undefined);
+            }
         });
     }
 
@@ -242,10 +273,11 @@ export class IncidentActionD2Repository implements IncidentActionRepository {
             });
     }
 
-    private getProgramStageByFormType(formType: string) {
+    private getProgramStageByFormType(formType: FormType): Id {
         switch (formType) {
             case "incident-action-plan":
                 return RTSL_ZEBRA_INCIDENT_ACTION_PLAN_PROGRAM_STAGE_ID;
+            case "incident-response-actions":
             case "incident-response-action":
                 return RTSL_ZEBRA_INCIDENT_RESPONSE_ACTION_PROGRAM_STAGE_ID;
             default:

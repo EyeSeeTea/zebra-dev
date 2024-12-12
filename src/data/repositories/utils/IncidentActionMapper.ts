@@ -10,6 +10,7 @@ import { Maybe } from "../../../utils/ts-utils";
 import {
     ActionPlanFormData,
     ResponseActionFormData,
+    SingleResponseActionFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { D2ProgramStageDataElementsMetadata } from "./RiskAssessmentMapper";
 import { ActionPlanAttrs } from "../../../domain/entities/incident-action-plan/ActionPlan";
@@ -29,6 +30,7 @@ import {
     Status,
     Verification,
 } from "../../../domain/entities/incident-action-plan/ResponseAction";
+import _c from "../../../domain/entities/generic/Collection";
 
 export function mapDataElementsToIncidentActionPlan(
     id: Id,
@@ -101,7 +103,7 @@ export function mapDataElementsToIncidentResponseActions(
 }
 
 export function mapIncidentActionToDataElements(
-    formData: ActionPlanFormData | ResponseActionFormData,
+    formData: ActionPlanFormData | ResponseActionFormData | SingleResponseActionFormData,
     programStageId: Id,
     teiId: Id,
     enrollmentId: Id,
@@ -118,6 +120,7 @@ export function mapIncidentActionToDataElements(
                 formData.entity,
                 programStageDataElementsMetadata
             );
+        case "incident-response-actions":
         case "incident-response-action":
             return mapIncidentResponseActionToDataElements(
                 programStageId,
@@ -164,40 +167,66 @@ export function mapIncidentResponseActionToDataElements(
     programStageId: Id,
     teiId: Id,
     enrollmentId: Id,
-    incidentResponseActions: ResponseAction[],
+    incidentResponseActions: ResponseAction | ResponseAction[],
     programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
 ): D2TrackerEvent[] {
-    return incidentResponseActions.map(incidentResponseAction => {
-        const dataElementValues: Record<ResponseActionCodes, string> =
-            getValueFromIncidentResponseAction(incidentResponseAction);
+    return Array.isArray(incidentResponseActions)
+        ? incidentResponseActions.map(incidentResponseAction => {
+              return buildDataValuesFromResponseAction(
+                  programStageId,
+                  teiId,
+                  enrollmentId,
+                  incidentResponseAction,
+                  programStageDataElementsMetadata
+              );
+          })
+        : [
+              buildDataValuesFromResponseAction(
+                  programStageId,
+                  teiId,
+                  enrollmentId,
+                  incidentResponseActions,
+                  programStageDataElementsMetadata
+              ),
+          ];
+}
 
-        const dataValues: DataValue[] = programStageDataElementsMetadata
-            .filter(
-                programStageDataElement =>
-                    programStageDataElement.dataElement.id !== incidentResponseActionsIds.timeLine
-            )
-            .map(programStage => {
-                if (!isStringInIncidentResponseActionCodes(programStage.dataElement.code)) {
-                    throw new Error(
-                        `DataElement code ${programStage.dataElement.code} not found in Incident Action Plan Codes`
-                    );
-                }
-                const typedCode: IncidentResponseActionKeyCode = programStage.dataElement.code;
+function buildDataValuesFromResponseAction(
+    programStageId: Id,
+    teiId: Id,
+    enrollmentId: Id,
+    responseAction: ResponseAction,
+    programStageDataElementsMetadata: D2ProgramStageDataElementsMetadata[]
+): D2TrackerEvent {
+    const dataElementValues: Record<ResponseActionCodes, string> =
+        getValueFromIncidentResponseAction(responseAction);
 
-                return getPopulatedDataElement(
-                    programStage.dataElement.id,
-                    dataElementValues[typedCode]
+    const dataValues: DataValue[] = programStageDataElementsMetadata
+        .filter(
+            programStageDataElement =>
+                programStageDataElement.dataElement.id !== incidentResponseActionsIds.timeLine
+        )
+        .map(programStage => {
+            if (!isStringInIncidentResponseActionCodes(programStage.dataElement.code)) {
+                throw new Error(
+                    `DataElement code ${programStage.dataElement.code} not found in Incident Action Plan Codes`
                 );
-            });
+            }
+            const typedCode: IncidentResponseActionKeyCode = programStage.dataElement.code;
 
-        return getIncidentActionTrackerEvent(
-            programStageId,
-            incidentResponseAction.id,
-            enrollmentId,
-            dataValues,
-            teiId
-        );
-    });
+            return getPopulatedDataElement(
+                programStage.dataElement.id,
+                dataElementValues[typedCode]
+            );
+        });
+
+    return getIncidentActionTrackerEvent(
+        programStageId,
+        responseAction.id,
+        enrollmentId,
+        dataValues,
+        teiId
+    );
 }
 
 function getPopulatedDataElement(dataElement: Id, value: Maybe<string>): DataValue {

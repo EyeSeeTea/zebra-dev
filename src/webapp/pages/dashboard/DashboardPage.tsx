@@ -63,7 +63,7 @@ export const DashboardPage: React.FC = React.memo(() => {
             showCreateEvent
             lastAnalyticsRuntime={lastAnalyticsRuntime}
         >
-            <Section title={i18n.t("Respond, alert, watch")}>
+            <Section>
                 <FiltersContainer>
                     {selectorFiltersConfig.map(({ id, label, placeholder, options, type }) => {
                         return (

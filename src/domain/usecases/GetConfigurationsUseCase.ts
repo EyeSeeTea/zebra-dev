@@ -5,12 +5,14 @@ import { TeamMember } from "../entities/incident-management-team/TeamMember";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 import { OrgUnitRepository } from "../repositories/OrgUnitRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
+import { UserGroupRepository } from "../repositories/UserGroupRepository";
 
 export class GetConfigurationsUseCase {
     constructor(
         private configurationsRepository: ConfigurationsRepository,
         private teamMemberRepository: TeamMemberRepository,
-        private orgUnitRepository: OrgUnitRepository
+        private orgUnitRepository: OrgUnitRepository,
+        private userGroupRepository: UserGroupRepository
     ) {}
 
     public execute(): FutureData<Configurations> {
@@ -21,6 +23,7 @@ export class GetConfigurationsUseCase {
             riskAssessors: this.teamMemberRepository.getRiskAssessors(),
             selectableOptionsResponse: this.configurationsRepository.getSelectableOptions(),
             orgUnits: this.orgUnitRepository.getAll(),
+            incidentManagerUserGroup: this.userGroupRepository.getIncidentManagerUserGroupByCode(),
         }).flatMap(
             ({
                 allTeamMembers,
@@ -29,6 +32,7 @@ export class GetConfigurationsUseCase {
                 riskAssessors,
                 selectableOptionsResponse,
                 orgUnits,
+                incidentManagerUserGroup,
             }) => {
                 const selectableOptions: SelectableOptions =
                     this.mapOptionsAndTeamMembersToSelectableOptions(
@@ -40,6 +44,7 @@ export class GetConfigurationsUseCase {
 
                 const configurations: Configurations = {
                     selectableOptions: selectableOptions,
+                    incidentManagerUserGroup: incidentManagerUserGroup,
                     teamMembers: {
                         all: allTeamMembers,
                         riskAssessors: riskAssessors,

@@ -34,7 +34,8 @@ export class SaveEntityUseCase {
     public execute(
         formData: ConfigurableForm,
         configurations: Configurations,
-        editMode: boolean
+        editMode: boolean,
+        formOptionsToDelete?: Id[]
     ): FutureData<void | Id> {
         if (!formData || !formData.entity) return Future.error(new Error("No form data found"));
         switch (formData.type) {
@@ -70,13 +71,16 @@ export class SaveEntityUseCase {
             case "risk-assessment-questionnaire":
                 return this.options.riskAssessmentRepository.saveRiskAssessment(
                     formData,
-                    formData.eventTrackerDetails.id
+                    formData.eventTrackerDetails.id,
+                    formOptionsToDelete
                 );
             case "incident-action-plan":
+            case "incident-response-actions":
             case "incident-response-action":
                 return this.options.incidentActionRepository.saveIncidentAction(
                     formData,
-                    formData.eventTrackerDetails.id
+                    formData.eventTrackerDetails.id,
+                    formOptionsToDelete
                 );
             case "incident-management-team-member-assignment": {
                 const isIncidentManager = formData.entity.teamRoles?.find(

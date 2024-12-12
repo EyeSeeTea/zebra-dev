@@ -2,11 +2,14 @@ import {
     actionPlanConstants,
     responseActionConstants,
 } from "../../../../data/repositories/consts/IncidentActionConstants";
+import { Configurations } from "../../../../domain/entities/AppConfigurations";
 import {
     ActionPlanFormData,
     ResponseActionFormData,
+    SingleResponseActionFormData,
 } from "../../../../domain/entities/ConfigurableForm";
 import { ResponseAction } from "../../../../domain/entities/incident-action-plan/ResponseAction";
+import { Option } from "../../../../domain/entities/Ref";
 import { Maybe } from "../../../../utils/ts-utils";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";
@@ -218,8 +221,9 @@ export function mapIncidentActionPlanToInitialFormState(
     };
 }
 
-export function mapIncidentResponseActionToInitialFormState(
-    incidentResponseActionFormData: ResponseActionFormData
+export function mapIncidentResponseActionsToInitialFormState(
+    incidentResponseActionFormData: ResponseActionFormData,
+    isIncidentManager: boolean
 ): FormState {
     const {
         entity: incidentResponseActions,
@@ -239,6 +243,7 @@ export function mapIncidentResponseActionToInitialFormState(
             statusOptions: statusOptions,
             verificationOptions: verificationOptions,
         },
+        isIncidentManager: isIncidentManager,
         index: 0,
     });
 
@@ -252,6 +257,7 @@ export function mapIncidentResponseActionToInitialFormState(
                           statusOptions: statusOptions,
                           verificationOptions: verificationOptions,
                       },
+                      isIncidentManager: isIncidentManager,
                       index: index,
                   });
               })
@@ -271,6 +277,44 @@ export function mapIncidentResponseActionToInitialFormState(
     };
 }
 
+export function mapSingleIncidentResponseActionToInitialFormState(
+    incidentResponseActionFormData: SingleResponseActionFormData,
+    isIncidentManager: boolean
+): FormState {
+    const {
+        entity: incidentResponseAction,
+        eventTrackerDetails,
+        options,
+    } = incidentResponseActionFormData;
+
+    const { searchAssignRO, status, verification } = options;
+    const searchAssignROOptions: UIOption[] = mapToPresentationOptions(searchAssignRO);
+    const statusOptions: UIOption[] = mapToPresentationOptions(status);
+    const verificationOptions: UIOption[] = mapToPresentationOptions(verification);
+
+    const responseActionSection = getResponseActionSection({
+        incidentResponseAction: incidentResponseAction,
+        options: {
+            searchAssignROOptions: searchAssignROOptions,
+            statusOptions: statusOptions,
+            verificationOptions: verificationOptions,
+        },
+        isIncidentManager: isIncidentManager,
+        isSingleIncidentResponseAction: true,
+        index: 0,
+    });
+
+    return {
+        id: eventTrackerDetails.id ?? "",
+        title: "Incident Action Plan",
+        subtitle: eventTrackerDetails.name,
+        titleDescripton: "Edit response action",
+        saveButtonLabel: "Save response action",
+        isValid: incidentResponseAction ? true : false,
+        sections: [responseActionSection],
+    };
+}
+
 function getResponseActionSection(options: {
     incidentResponseAction: Maybe<ResponseAction>;
     options: {
@@ -278,9 +322,17 @@ function getResponseActionSection(options: {
         statusOptions: UIOption[];
         verificationOptions: UIOption[];
     };
+    isIncidentManager: boolean;
     index: number;
+    isSingleIncidentResponseAction?: boolean;
 }) {
-    const { incidentResponseAction, options: formOptions, index } = options;
+    const {
+        incidentResponseAction,
+        options: formOptions,
+        index,
+        isIncidentManager,
+        isSingleIncidentResponseAction,
+    } = options;
     const { searchAssignROOptions, statusOptions, verificationOptions } = formOptions;
 
     const responseActionSection: FormSectionState = {
@@ -365,39 +417,52 @@ function getResponseActionSection(options: {
             {
                 id: `${responseActionConstants.verification}_${index}`,
                 label: "Verification",
-                isVisible: true,
+                isVisible: isIncidentManager ? true : false,
                 errors: [],
                 value: incidentResponseAction?.verification || "",
                 type: "select",
                 multiple: false,
                 options: verificationOptions,
-                required: true,
+                required: isIncidentManager ? true : false,
                 showIsRequired: true,
                 disabled: false,
             },
         ],
+        removeOption: isSingleIncidentResponseAction ? false : true,
     };
 
     return responseActionSection;
 }
 
-export function addNewResponseActionSection(sections: FormSectionState[]): FormSectionState {
+export function addNewResponseActionSection(
+    sections: FormSectionState[],
+    configurations: Configurations,
+    isIncidentManager: boolean
+): FormSectionState {
     const responseActionSections = sections.filter(
         section => !section.id.startsWith("addNewResponseActionSection")
     );
 
+    const { searchAssignRO, status, verification } =
+        configurations.selectableOptions.incidentResponseActionConfigurations;
+
     const newResponseActionSection = getResponseActionSection({
         incidentResponseAction: undefined,
         options: {
-            searchAssignROOptions:
-                sections[0]?.fields[3]?.type === "select" ? sections[0].fields[3].options : [],
-            statusOptions:
-                sections[0]?.fields[6]?.type === "select" ? sections[0].fields[6].options : [],
-            verificationOptions:
-                sections[0]?.fields[7]?.type === "select" ? sections[0].fields[7].options : [],
+            searchAssignROOptions: getValueLabelOptions(searchAssignRO),
+            statusOptions: getValueLabelOptions(status),
+            verificationOptions: getValueLabelOptions(verification),
         },
+        isIncidentManager: isIncidentManager,
         index: responseActionSections.length,
     });
 
     return newResponseActionSection;
+}
+
+function getValueLabelOptions(options: Option[]): UIOption[] {
+    return options.map(option => ({
+        value: option.id,
+        label: option.name,
+    }));
 }

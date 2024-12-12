@@ -29,6 +29,7 @@ import {
     RiskAssessmentQuestionnaireOptions,
     RiskAssessmentSummaryFormData,
     ResponseActionFormData,
+    SingleResponseActionFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
@@ -45,7 +46,9 @@ import {
 import { ActionPlanAttrs } from "../../../domain/entities/incident-action-plan/ActionPlan";
 import {
     actionPlanConstants as actionPlanConstants,
+    getVerificationTypeByCode,
     responseActionConstants,
+    verificationCodeMap,
 } from "../../../data/repositories/consts/IncidentActionConstants";
 import {
     ResponseAction,
@@ -125,8 +128,8 @@ export function mapFormStateToEntityData(
 
             return actionPlanForm;
         }
-        case "incident-response-action": {
-            const responseActions = mapFormStateToIncidentResponseAction(formState, formData);
+        case "incident-response-actions": {
+            const responseActions = mapFormStateToIncidentResponseActions(formState, formData);
             const responseActionForm: ResponseActionFormData = {
                 ...formData,
                 entity: responseActions,
@@ -134,7 +137,15 @@ export function mapFormStateToEntityData(
 
             return responseActionForm;
         }
+        case "incident-response-action": {
+            const responseAction = mapFormStateToIncidentResponseAction(formState, formData);
+            const responseActionForm: SingleResponseActionFormData = {
+                ...formData,
+                entity: responseAction,
+            };
 
+            return responseActionForm;
+        }
         case "incident-management-team-member-assignment": {
             const incidentManagementTeamMember: TeamMember =
                 mapFormStateToIncidentManagementTeamMember(formState, formData);
@@ -591,7 +602,7 @@ function mapFormStateToIncidentActionPlan(
     return incidentActionPlan;
 }
 
-function mapFormStateToIncidentResponseAction(
+function mapFormStateToIncidentResponseActions(
     formState: FormState,
     formData: ResponseActionFormData
 ): ResponseAction[] {
@@ -599,22 +610,24 @@ function mapFormStateToIncidentResponseAction(
 
     const incidentResponseActions: ResponseAction[] = formState.sections
         .filter(section => !section.id.includes("addNewResponseActionSection"))
-        .map((_, index): ResponseAction => {
+        .map((section): ResponseAction => {
+            const sectionIndex = extractIndex(section.id);
+
             const mainTask = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.mainTask}_${index}`)
+                field.id.includes(`${responseActionConstants.mainTask}_${sectionIndex}`)
             )?.value as string;
             const subActivities = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.subActivities}_${index}`)
+                field.id.includes(`${responseActionConstants.subActivities}_${sectionIndex}`)
             )?.value as string;
             const subPillar = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.subPillar}_${index}`)
+                field.id.includes(`${responseActionConstants.subPillar}_${sectionIndex}`)
             )?.value as string;
             const dueDate = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.dueDate}_${index}`)
+                field.id.includes(`${responseActionConstants.dueDate}_${sectionIndex}`)
             )?.value as Date;
 
             const searchAssignROValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.searchAssignRO}_${index}`)
+                field.id.includes(`${responseActionConstants.searchAssignRO}_${sectionIndex}`)
             )?.value as string;
             const searchAssignRO = formData.options.searchAssignRO.find(
                 option => option.id === searchAssignROValue
@@ -622,21 +635,29 @@ function mapFormStateToIncidentResponseAction(
             if (!searchAssignRO) throw new Error("Responsible officer not found");
 
             const statusValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.status}_${index}`)
+                field.id.includes(`${responseActionConstants.status}_${sectionIndex}`)
             )?.value as string;
             const status = formData.options.status.find(option => option.id === statusValue);
             if (!status) throw new Error("Status not found");
 
             const verificationValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.verification}_${index}`)
+                field.id.includes(`${responseActionConstants.verification}_${sectionIndex}`)
             )?.value as string;
             const verification = formData.options.verification.find(
                 option => option.id === verificationValue
-            );
+            ) ?? {
+                id: verificationCodeMap.Unverified,
+                name: getVerificationTypeByCode(verificationCodeMap.Unverified) ?? "",
+            };
             if (!verification) throw new Error("Verification not found");
 
+            const selectedEntityData =
+                sectionIndex !== undefined ? formData.entity[sectionIndex] : undefined;
+            const isResponseActionValid = selectedEntityData !== undefined;
+            const responseActionId = isResponseActionValid ? selectedEntityData.id : "";
+
             const responseAction = new ResponseAction({
-                id: formData.entity?.[index]?.id ?? "",
+                id: responseActionId,
                 mainTask: mainTask,
                 subActivities: subActivities,
                 subPillar: subPillar,
@@ -650,6 +671,63 @@ function mapFormStateToIncidentResponseAction(
         });
 
     return incidentResponseActions;
+}
+
+function mapFormStateToIncidentResponseAction(
+    formState: FormState,
+    formData: SingleResponseActionFormData
+): ResponseAction {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const mainTask = allFields.find(field => field.id.includes(responseActionConstants.mainTask))
+        ?.value as string;
+
+    const subActivities = allFields.find(field =>
+        field.id.includes(responseActionConstants.subActivities)
+    )?.value as string;
+
+    const subPillar = allFields.find(field => field.id.includes(responseActionConstants.subPillar))
+        ?.value as string;
+
+    const dueDate = allFields.find(field => field.id.includes(responseActionConstants.dueDate))
+        ?.value as Date;
+
+    const searchAssignROValue = allFields.find(field =>
+        field.id.includes(responseActionConstants.searchAssignRO)
+    )?.value as string;
+    const searchAssignRO = formData.options.searchAssignRO.find(
+        option => option.id === searchAssignROValue
+    );
+    if (!searchAssignRO) throw new Error("Responsible officer not found");
+
+    const statusValue = allFields.find(field => field.id.includes(responseActionConstants.status))
+        ?.value as string;
+    const status = formData.options.status.find(option => option.id === statusValue);
+    if (!status) throw new Error("Status not found");
+
+    const verificationValue = allFields.find(field =>
+        field.id.includes(responseActionConstants.verification)
+    )?.value as string;
+    const verification = formData.options.verification.find(
+        option => option.id === verificationValue
+    ) ?? {
+        id: verificationCodeMap.Unverified,
+        name: getVerificationTypeByCode(verificationCodeMap.Unverified) ?? "",
+    };
+    if (!verification) throw new Error("Verification not found");
+
+    const responseAction = new ResponseAction({
+        id: formData.entity?.id ?? "",
+        mainTask: mainTask,
+        subActivities: subActivities,
+        subPillar: subPillar,
+        dueDate: dueDate,
+        searchAssignRO: searchAssignRO,
+        status: status.id as Status,
+        verification: verification.id as Verification,
+    });
+
+    return responseAction;
 }
 
 function getRiskAssessmentQuestionsWithOption(
@@ -729,4 +807,12 @@ function mapFormStateToIncidentManagementTeamMember(
         workPosition: teamMemberAssigned?.workPosition,
         status: teamMemberAssigned?.status,
     });
+}
+
+function extractIndex(input: string): number | undefined {
+    const parts = input.split("_");
+    const lastPart = parts[parts.length - 1];
+    const index = Number(lastPart);
+
+    return isNaN(index) ? undefined : index;
 }
