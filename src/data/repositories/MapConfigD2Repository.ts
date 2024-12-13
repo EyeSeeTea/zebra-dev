@@ -46,7 +46,10 @@ export class MapConfigD2Repository implements MapConfigRepository {
                 const mapConfigDataStore =
                     mapKey === "dashboard"
                         ? mapsConfigDatastore?.dashboard
-                        : mapsConfigDatastore?.event_tracker;
+                        : casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
+                        ? mapsConfigDatastore?.event_tracker_cases
+                        : mapsConfigDatastore?.event_tracker_alerts;
+
                 return getProgramIndicatorsFromDatastore(
                     this.dataStoreClient,
                     programIndicatorsDatastoreKey
@@ -86,7 +89,8 @@ export class MapConfigD2Repository implements MapConfigRepository {
 
 type MapsConfigDatastore = {
     dashboard: MapConfigDatastore;
-    event_tracker: MapConfigDatastore;
+    event_tracker_alerts: MapConfigDatastore;
+    event_tracker_cases: MapConfigDatastore;
 };
 
 type MapConfigDatastore = {
