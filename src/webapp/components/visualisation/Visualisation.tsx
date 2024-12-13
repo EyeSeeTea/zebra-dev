@@ -140,4 +140,11 @@ async function setChartStyling(iframe: HTMLIFrameElement) {
 
     iframeDocument.querySelectorAll(".main-center-titlebar").forEach(el => el.remove());
     iFrameRoot?.querySelectorAll(".main-center-titlebar").forEach(el => el.remove());
+
+    iframeDocument
+        .querySelectorAll('div[data-test="dhis2-analytics-toolbar"]')
+        .forEach(el => el.remove());
+    iFrameRoot
+        ?.querySelectorAll('div[data-test="dhis2-analytics-toolbar"]')
+        .forEach(el => el.remove());
 }
