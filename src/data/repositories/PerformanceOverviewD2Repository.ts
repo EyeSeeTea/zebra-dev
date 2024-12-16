@@ -109,7 +109,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         existingEntry.total += totalCardCount.total;
                         acc[totalCardCount.name] = existingEntry;
                     } else {
-                        acc[totalCardCount.name] = totalCardCount;
+                        acc[totalCardCount.name] = { ...totalCardCount };
                     }
                     return acc;
                 }, {} as Record<string, TotalCardCounts>);
@@ -188,16 +188,15 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
         const filteredCounts: TotalCardCounts[] = counts.filter(item => {
             if (filters && Object.entries(filters).length) {
-                return Object.entries(filters).every(([key, value]) => {
-                    if (!value) {
-                        return true;
-                    }
-                    if (key === "incidentStatus") {
-                        return value === item.incidentStatus;
-                    } else if (key === "disease" || key === "hazard") {
-                        return value === item.name;
-                    }
-                });
+                const matchesDisease =
+                    !filters.disease || (item.type === "disease" && item.name === filters.disease);
+                const matchesHazard =
+                    !filters.hazard || (item.type === "hazard" && item.name === filters.hazard);
+                const matchesIncidentStatus = !filters.incidentStatus
+                    ? item.incidentStatus === "ALL"
+                    : item.incidentStatus === filters.incidentStatus;
+
+                return matchesDisease && matchesHazard && matchesIncidentStatus;
             }
             return true;
         });
