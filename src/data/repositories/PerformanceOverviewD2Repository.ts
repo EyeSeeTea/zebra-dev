@@ -511,7 +511,10 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 );
                                             const currentEventTrackerOverview =
                                                 eventTrackerOverviewsForKeys.find(
-                                                    overview => overview.key === key
+                                                    overview =>
+                                                        overview.key === key &&
+                                                        overview.casesDataSource ===
+                                                            event.casesDataSource
                                                 );
 
                                             const currentCases = allCases.find(
