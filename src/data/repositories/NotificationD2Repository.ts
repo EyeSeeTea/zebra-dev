@@ -6,13 +6,20 @@ import {
 import { apiToFuture, FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
 import { UserGroup } from "../../domain/entities/UserGroup";
-import { OutbreakAlert } from "../../domain/entities/alert/OutbreakAlert";
+import { NotifiedAlert, OutbreakAlert } from "../../domain/entities/alert/OutbreakAlert";
 import i18n from "../../utils/i18n";
 import { verificationStatusCodeMap } from "./consts/AlertConstants";
 import { assertOrError } from "./utils/AssertOrError";
+import { DataStoreClient } from "../DataStoreClient";
+
+const notifiedAlertsDatastoreKey = "notified-alerts";
 
 export class NotificationD2Repository implements NotificationRepository {
-    constructor(private api: D2Api) {}
+    private dataStoreClient: DataStoreClient;
+
+    constructor(private api: D2Api) {
+        this.dataStoreClient = new DataStoreClient(api);
+    }
 
     notifyNationalWatchStaff(
         alertData: OutbreakAlert,
@@ -21,14 +28,37 @@ export class NotificationD2Repository implements NotificationRepository {
     ): FutureData<void> {
         const { alert, notificationOptions } = alertData;
 
-        return this.getDistrictName(alert.district).flatMap(districtName => {
-            return apiToFuture(
-                this.api.messageConversations.post({
-                    subject: `New Outbreak Alert: ${outbreakName} in ${districtName}`,
-                    text: buildNotificationText(outbreakName, districtName, notificationOptions),
-                    userGroups: userGroups,
-                })
-            ).flatMap(() => Future.success(undefined));
+        return this.getNotifiedAlertsFromDataStore().flatMap(notifiedAlerts => {
+            const notifiedAlertExists = notifiedAlerts.some(
+                notifiedAlert =>
+                    notifiedAlert.outbreak === outbreakName &&
+                    notifiedAlert.district === alert.district
+            );
+            if (notifiedAlertExists) {
+                return Future.success(undefined);
+            }
+
+            const updatedNotifiedAlerts = [
+                ...notifiedAlerts,
+                { district: alert.district, outbreak: outbreakName },
+            ];
+
+            return Future.joinObj({
+                districtName: this.getDistrictName(alert.district),
+                saveNotification: this.saveNotifiedAlertsToDataStore(updatedNotifiedAlerts),
+            }).flatMap(({ districtName }) => {
+                return apiToFuture(
+                    this.api.messageConversations.post({
+                        subject: `New Outbreak Alert: ${outbreakName} in ${districtName}`,
+                        text: buildNotificationText(
+                            outbreakName,
+                            districtName,
+                            notificationOptions
+                        ),
+                        userGroups: userGroups,
+                    })
+                ).flatMap(() => Future.success(undefined));
+            });
         });
     }
 
@@ -49,6 +79,19 @@ export class NotificationD2Repository implements NotificationRepository {
         )
             .flatMap(response => assertOrError(response.organisationUnits[0], "Organisation Unit"))
             .map(district => district.name);
+    }
+
+    private getNotifiedAlertsFromDataStore(): FutureData<NotifiedAlert[]> {
+        return this.dataStoreClient
+            .getObject<NotifiedAlert[]>(notifiedAlertsDatastoreKey)
+            .map(notifiedAlerts => notifiedAlerts ?? []);
+    }
+
+    private saveNotifiedAlertsToDataStore(notifiedAlerts: NotifiedAlert[]): FutureData<void> {
+        return this.dataStoreClient.saveObject<NotifiedAlert[]>(
+            notifiedAlertsDatastoreKey,
+            notifiedAlerts
+        );
     }
 }
 
