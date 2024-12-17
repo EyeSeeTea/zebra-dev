@@ -22,6 +22,8 @@ export function mapTrackedEntityAttributesToNotificationOptions(
     const emergenceDate = getValueFromMap("emergedDate", trackedEntity);
     const detectionDate = getValueFromMap("detectedDate", trackedEntity);
     const notificationDate = getValueFromMap("notifiedDate", trackedEntity);
+    const emsId = getAlertValueFromMap("emsId", trackedEntity);
+    const outbreakId = getAlertValueFromMap("outbreakId", trackedEntity);
 
     return {
         detectionDate: detectionDate,
@@ -29,6 +31,8 @@ export function mapTrackedEntityAttributesToNotificationOptions(
         incidentManager: incidentManager,
         notificationDate: notificationDate,
         verificationStatus: verificationStatus,
+        emsId: emsId,
+        outbreakId: outbreakId,
     };
 }
 

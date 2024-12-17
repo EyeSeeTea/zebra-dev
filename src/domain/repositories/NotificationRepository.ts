@@ -14,7 +14,9 @@ export interface NotificationRepository {
 export type NotificationOptions = {
     detectionDate: string;
     emergenceDate: string;
+    emsId: string;
     incidentManager: string;
     notificationDate: string;
+    outbreakId: string;
     verificationStatus: AlertVerificationStatus;
 };
