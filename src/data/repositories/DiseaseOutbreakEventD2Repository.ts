@@ -159,12 +159,44 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                     return Future.error(
                         new Error(`Error completing disease outbreak event : ${response.message}`)
                     );
+                } else {
+                    return this.markCasesDataAsCompleted(id).flatMap(() =>
+                        Future.success(undefined)
+                    );
+                }
+            });
+        });
+    }
+
+    private markCasesDataAsCompleted(diseaseOutbreakId: Id): FutureData<void> {
+        return this.getd2EventCasesDataByDiseaseOutbreakId(diseaseOutbreakId).flatMap(d2Events => {
+            if (!d2Events.length) {
+                return Future.success(undefined);
+            }
+
+            const d2CompletedEvents = d2Events.map(
+                (d2Event: D2TrackerEvent): D2TrackerEvent => ({
+                    ...d2Event,
+                    status: "COMPLETED",
+                })
+            );
+            return apiToFuture(
+                this.api.tracker.post({ importStrategy: "UPDATE" }, { events: d2CompletedEvents })
+            ).flatMap(response => {
+                if (response.status !== "OK") {
+                    return Future.error(
+                        new Error(
+                            `Error while marking the cases data as completed: ${response.message}`
+                        )
+                    );
                 } else return Future.success(undefined);
             });
         });
     }
 
-    private getCasesDataByDiseaseOutbreakId(diseaseOutbreakId: Id): FutureData<D2TrackerEvent[]> {
+    private getd2EventCasesDataByDiseaseOutbreakId(
+        diseaseOutbreakId: Id
+    ): FutureData<D2TrackerEvent[]> {
         return apiToFuture(
             this.api.tracker.events.get({
                 program: RTSL_ZEBRA_CASE_PROGRAM_ID,
@@ -231,7 +263,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     }
 
     private deleteCasesData(diseaseOutbreak: DiseaseOutbreakEvent): FutureData<void> {
-        return this.getCasesDataByDiseaseOutbreakId(diseaseOutbreak.id).flatMap(d2Events => {
+        return this.getd2EventCasesDataByDiseaseOutbreakId(diseaseOutbreak.id).flatMap(d2Events => {
             return apiToFuture(
                 this.api.tracker.post({ importStrategy: "DELETE" }, { events: d2Events })
             ).flatMap(response => {

@@ -63,6 +63,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
                         ? synchronizationData
                         : {
                               ...outbreakData,
+                              lastSyncTime: new Date().toISOString(),
                               lastUpdated: new Date().toISOString(),
                               alerts: [
                                   ...(outbreakData.alerts || []),
@@ -133,6 +134,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
             ) ?? [];
 
         return {
+            lastSyncTime: new Date().toISOString(),
             lastUpdated: new Date().toISOString(),
             nationalDiseaseOutbreakEventId: nationalDiseaseOutbreakEventId,
             [outbreakType]: outbreakKey,

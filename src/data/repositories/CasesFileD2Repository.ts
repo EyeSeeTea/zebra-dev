@@ -12,7 +12,7 @@ import { AppDatastoreConfig } from "../../domain/entities/AppDatastoreConfig";
 export class CasesFileD2Repository implements CasesFileRepository {
     constructor(private api: D2Api, private dataStoreClient: DataStoreClient) {}
 
-    get(outbreakKey: Id): FutureData<CaseFile> {
+    get(outbreakKey: string): FutureData<CaseFile> {
         return this.getAlertsAndCaseForCasesDataObject(outbreakKey).flatMap(
             alertsAndCaseForCasesData => {
                 if (
@@ -57,6 +57,7 @@ export class CasesFileD2Repository implements CasesFileRepository {
         }).flatMap(({ fileId, alertsAndCaseForCasesData }) => {
             const newAlertsAndCaseForCasesData: AlertsAndCaseForCasesData = {
                 ...(alertsAndCaseForCasesData || {}),
+                lastSyncTime: alertsAndCaseForCasesData?.lastSyncTime || "",
                 lastUpdated: new Date().toISOString(),
                 nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
                 case: {
@@ -72,7 +73,7 @@ export class CasesFileD2Repository implements CasesFileRepository {
         });
     }
 
-    delete(outbreakKey: Id): FutureData<void> {
+    delete(outbreakKey: string): FutureData<void> {
         return this.getAlertsAndCaseForCasesDataObject(outbreakKey).flatMap(
             alertsAndCaseForCasesData => {
                 if (!alertsAndCaseForCasesData?.case?.fileId)

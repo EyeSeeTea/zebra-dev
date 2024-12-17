@@ -3,6 +3,7 @@ import { DataSource } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id, Option } from "./Ref";
 
 export type AlertsAndCaseForCasesData = {
+    lastSyncTime: string;
     lastUpdated: string;
     nationalDiseaseOutbreakEventId: Id;
     alerts?: {
