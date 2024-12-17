@@ -1,4 +1,5 @@
 import { FutureData } from "../../data/api-futures";
+import { AlertVerificationStatus } from "../entities/alert/Alert";
 import { OutbreakAlert } from "../entities/alert/OutbreakAlert";
 import { UserGroup } from "../entities/UserGroup";
 
@@ -15,5 +16,5 @@ export type NotificationOptions = {
     emergenceDate: string;
     incidentManager: string;
     notificationDate: string;
-    verificationStatus: string;
+    verificationStatus: AlertVerificationStatus;
 };

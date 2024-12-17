@@ -8,6 +8,7 @@ import { Future } from "../../domain/entities/generic/Future";
 import { UserGroup } from "../../domain/entities/UserGroup";
 import { OutbreakAlert } from "../../domain/entities/alert/OutbreakAlert";
 import i18n from "../../utils/i18n";
+import { verificationStatusCodeMap } from "./consts/AlertConstants";
 
 export class NotificationD2Repository implements NotificationRepository {
     constructor(private api: D2Api) {}
@@ -30,8 +31,14 @@ export class NotificationD2Repository implements NotificationRepository {
 }
 
 function buildNotificationText(outbreakKey: string, notificationData: NotificationOptions): string {
-    const { detectionDate, emergenceDate, incidentManager, notificationDate, verificationStatus } =
-        notificationData;
+    const {
+        detectionDate,
+        emergenceDate,
+        incidentManager,
+        notificationDate,
+        verificationStatus: verificationStatusCode,
+    } = notificationData;
+    const verificationStatus = verificationStatusCodeMap[verificationStatusCode] ?? "";
 
     return i18n.t(`There has been a new Outbreak detected for ${outbreakKey} in zm Zambia Ministry of Health.
 

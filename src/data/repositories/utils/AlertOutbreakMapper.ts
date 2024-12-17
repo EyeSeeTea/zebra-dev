@@ -9,11 +9,15 @@ import {
     RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
 } from "../consts/DiseaseOutbreakConstants";
 import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertVerificationStatus } from "../../../domain/entities/alert/Alert";
 
 export function mapTrackedEntityAttributesToNotificationOptions(
     trackedEntity: D2TrackerTrackedEntity
 ): NotificationOptions {
-    const verificationStatus = getAlertValueFromMap("verificationStatus", trackedEntity);
+    const verificationStatus = getAlertValueFromMap(
+        "verificationStatus",
+        trackedEntity
+    ) as AlertVerificationStatus;
     const incidentManager = getAlertValueFromMap("incidentManager", trackedEntity);
     const emergenceDate = getValueFromMap("emergedDate", trackedEntity);
     const detectionDate = getValueFromMap("detectedDate", trackedEntity);
