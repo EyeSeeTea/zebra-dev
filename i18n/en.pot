@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-11-27T21:40:09.970Z\n"
-"PO-Revision-Date: 2024-11-27T21:40:09.970Z\n"
+"POT-Creation-Date: 2024-12-18T17:43:51.092Z\n"
+"PO-Revision-Date: 2024-12-18T17:43:51.092Z\n"
 
 msgid "Low"
 msgstr ""
@@ -112,6 +112,12 @@ msgid "Errors in cases data file"
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Download empty template"
+msgstr ""
+
+msgid "Download historical data"
 msgstr ""
 
 msgid "Confirm remove the file"
