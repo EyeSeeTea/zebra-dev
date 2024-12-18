@@ -4,7 +4,8 @@ import { DataStoreClient } from "../../DataStoreClient";
 
 export enum ProgramIndicatorsDatastoreKey {
     ActiveVerifiedAlerts = "active-verified-alerts-program-indicators",
-    CasesAlerts = "cases-alerts-program-indicators",
+    SuspectedCasesAlertsProgram = "suspected-cases-alerts-program-indicators",
+    SuspectedCasesCasesProgram = "suspected-cases-cases-program-indicators",
 }
 
 export type ProgramIndicatorsDatastore = {
@@ -20,11 +21,9 @@ export function getProgramIndicatorsFromDatastore(
     programIndicatorsDatastoreKey: ProgramIndicatorsDatastoreKey
 ): FutureData<Maybe<ProgramIndicatorsDatastore[]>> {
     switch (programIndicatorsDatastoreKey) {
+        case ProgramIndicatorsDatastoreKey.SuspectedCasesAlertsProgram:
         case ProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts:
-            return dataStoreClient.getObject<ProgramIndicatorsDatastore[]>(
-                programIndicatorsDatastoreKey
-            );
-        case ProgramIndicatorsDatastoreKey.CasesAlerts:
+        case ProgramIndicatorsDatastoreKey.SuspectedCasesCasesProgram:
             return dataStoreClient.getObject<ProgramIndicatorsDatastore[]>(
                 programIndicatorsDatastoreKey
             );

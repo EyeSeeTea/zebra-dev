@@ -6,13 +6,12 @@ import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
-    PERFORMANCE_METRICS_717_IDS,
-    IndicatorsId,
-    EVENT_TRACKER_717_IDS,
     EventTrackerCountIndicator,
+    PerformanceOverviewDimensions,
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
 import {
+    CasesDataSource,
     DiseaseOutbreakEventBaseAttrs,
     NationalIncidentStatus,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -25,7 +24,6 @@ import {
     PerformanceMetrics717,
     IncidentStatus,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
-import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
 import { assertOrError } from "./utils/AssertOrError";
@@ -44,14 +42,24 @@ const formatDate = (date: Date): string => {
 
 const DEFAULT_END_DATE: string = formatDate(new Date());
 const DEFAULT_START_DATE = "2000-01-01";
-const EVENT_TRACKER_OVERVIEW_DATASTORE_KEY = "event-tracker-overview-ids";
 
-type EventTrackerOverview = {
+const ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
+    "alerts-program-event-tracker-overview-ids";
+const CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
+    "cases-program-event-tracker-overview-ids";
+const PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY = "717-performance-program-indicators";
+const PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY = "performance-overview-dimensions";
+
+type EventTrackerOverviewInDataStore = {
     key: string;
     suspectedCasesId: Id;
     confirmedCasesId: Id;
     deathsId: Id;
     probableCasesId: Id;
+};
+
+type EventTrackerOverview = EventTrackerOverviewInDataStore & {
+    casesDataSource: CasesDataSource;
 };
 
 type IdValue = {
@@ -214,266 +222,347 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private getEventTrackerOverviewIdsFromDatastore(
-        type: string
+        type: string,
+        casesDataSource: CasesDataSource
     ): FutureData<EventTrackerOverview> {
-        return this.datastore
-            .getObject<EventTrackerOverview[]>(EVENT_TRACKER_OVERVIEW_DATASTORE_KEY)
-            .flatMap(nullableEventTrackerOverviewIds => {
-                return assertOrError(
-                    nullableEventTrackerOverviewIds,
-                    EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                ).flatMap(eventTrackerOverviewIds => {
-                    const currentEventTrackerOverviewId = eventTrackerOverviewIds?.find(
-                        indicator => indicator.key === type
-                    );
+        const datastoreKey =
+            casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
+                ? CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+                : ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY;
 
-                    if (!currentEventTrackerOverviewId)
-                        return Future.error(
-                            new Error(
-                                `Event Tracker Overview Ids for type ${type} not found in datastore`
-                            )
+        return this.datastore
+            .getObject<EventTrackerOverviewInDataStore[]>(datastoreKey)
+            .flatMap(nullableEventTrackerOverviewIds => {
+                return assertOrError(nullableEventTrackerOverviewIds, datastoreKey).flatMap(
+                    eventTrackerOverviewIds => {
+                        const currentEventTrackerOverviewId = eventTrackerOverviewIds?.find(
+                            indicator => indicator.key === type
                         );
-                    return Future.success(currentEventTrackerOverviewId);
-                });
-            });
-    }
 
-    private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<EventTrackerOverview[]> {
-        return this.datastore
-            .getObject<EventTrackerOverview[]>(EVENT_TRACKER_OVERVIEW_DATASTORE_KEY)
-            .flatMap(nullableEventTrackerOverviewIds => {
-                return assertOrError(
-                    nullableEventTrackerOverviewIds,
-                    EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+                        if (!currentEventTrackerOverviewId)
+                            return Future.error(
+                                new Error(
+                                    `Event Tracker Overview Ids for type ${type} not found in datastore`
+                                )
+                            );
+                        return Future.success({
+                            ...currentEventTrackerOverviewId,
+                            casesDataSource: casesDataSource,
+                        });
+                    }
                 );
             });
     }
 
-    getEventTrackerOverviewMetrics(type: string): FutureData<OverviewCard[]> {
-        return this.getEventTrackerOverviewIdsFromDatastore(type).flatMap(eventTrackerOverview => {
-            const { suspectedCasesId, probableCasesId, confirmedCasesId, deathsId } =
-                eventTrackerOverview;
+    private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<EventTrackerOverview[]> {
+        return Future.joinObj({
+            alertsEventTrackerOverviewIdsResponse: this.datastore.getObject<
+                EventTrackerOverviewInDataStore[]
+            >(ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY),
+            casesEventTrackerOverviewIdsResponse: this.datastore.getObject<
+                EventTrackerOverviewInDataStore[]
+            >(CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY),
+        }).flatMap(
+            ({ alertsEventTrackerOverviewIdsResponse, casesEventTrackerOverviewIdsResponse }) => {
+                return assertOrError(
+                    alertsEventTrackerOverviewIdsResponse,
+                    ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+                ).flatMap(alertsEventTrackerOverviewIds => {
+                    return assertOrError(
+                        casesEventTrackerOverviewIdsResponse,
+                        CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+                    ).flatMap(casesEventTrackerOverviewIds => {
+                        return Future.success([
+                            ...alertsEventTrackerOverviewIds.map(
+                                ({
+                                    key,
+                                    suspectedCasesId,
+                                    confirmedCasesId,
+                                    deathsId,
+                                    probableCasesId,
+                                }) => ({
+                                    key,
+                                    suspectedCasesId,
+                                    confirmedCasesId,
+                                    deathsId,
+                                    probableCasesId,
+                                    casesDataSource:
+                                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                                })
+                            ),
+                            ...casesEventTrackerOverviewIds.map(
+                                ({
+                                    key,
+                                    suspectedCasesId,
+                                    confirmedCasesId,
+                                    deathsId,
+                                    probableCasesId,
+                                }) => ({
+                                    key,
+                                    suspectedCasesId,
+                                    confirmedCasesId,
+                                    deathsId,
+                                    probableCasesId,
+                                    casesDataSource:
+                                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF,
+                                })
+                            ),
+                        ]);
+                    });
+                });
+            }
+        );
+    }
 
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(new Date().getDate() - 7);
+    getEventTrackerOverviewMetrics(
+        type: string,
+        casesDataSource: CasesDataSource
+    ): FutureData<OverviewCard[]> {
+        return this.getEventTrackerOverviewIdsFromDatastore(type, casesDataSource).flatMap(
+            eventTrackerOverview => {
+                const { suspectedCasesId, probableCasesId, confirmedCasesId, deathsId } =
+                    eventTrackerOverview;
 
-            return Future.joinObj(
-                {
-                    cumulativeSuspectedCases: this.getAnalyticsApi(
-                        suspectedCasesId,
-                        DEFAULT_START_DATE
-                    ),
-                    newSuspectedCases: this.getAnalyticsApi(
-                        suspectedCasesId,
-                        formatDate(sevenDaysAgo)
-                    ),
-                    cumulativeProbableCases: this.getAnalyticsApi(
-                        probableCasesId,
-                        DEFAULT_START_DATE
-                    ),
-                    newProbableCases: this.getAnalyticsApi(
-                        probableCasesId,
-                        formatDate(sevenDaysAgo)
-                    ),
-                    cumulativeConfirmedCases: this.getAnalyticsApi(
-                        confirmedCasesId,
-                        DEFAULT_START_DATE
-                    ),
-                    newConfirmedCases: this.getAnalyticsApi(
-                        confirmedCasesId,
-                        formatDate(sevenDaysAgo)
-                    ),
-                    cumulativeDeaths: this.getAnalyticsApi(deathsId, DEFAULT_START_DATE),
-                    newDeaths: this.getAnalyticsApi(deathsId, formatDate(sevenDaysAgo)),
-                },
-                { concurrency: 5 }
-            ).flatMap(
-                ({
-                    cumulativeSuspectedCases,
-                    newSuspectedCases,
-                    cumulativeProbableCases,
-                    newProbableCases,
-                    cumulativeConfirmedCases,
-                    newConfirmedCases,
-                    cumulativeDeaths,
-                    newDeaths,
-                }) => {
-                    return Future.success([
-                        {
-                            name: "New Suspected Cases",
-                            value: newSuspectedCases?.rows[0]?.[1]
-                                ? parseInt(newSuspectedCases?.rows[0]?.[1])
-                                : 0,
-                        },
-                        {
-                            name: "New Probable Cases",
-                            value: newProbableCases?.rows[0]?.[1]
-                                ? parseInt(newProbableCases?.rows[0]?.[1])
-                                : 0,
-                        },
-                        {
-                            name: "New Confirmed Cases",
-                            value: newConfirmedCases?.rows[0]?.[1]
-                                ? parseInt(newConfirmedCases?.rows[0]?.[1])
-                                : 0,
-                        },
-                        {
-                            name: "New Deaths",
-                            value: newDeaths?.rows[0]?.[1] ? parseInt(newDeaths?.rows[0]?.[1]) : 0,
-                        },
-                        {
-                            name: "Cumulative Suspected Cases",
-                            value: cumulativeSuspectedCases?.rows[0]?.[1]
-                                ? parseInt(cumulativeSuspectedCases?.rows[0]?.[1])
-                                : 0,
-                        },
-                        {
-                            name: "Cumulative Probable Cases",
-                            value: cumulativeProbableCases?.rows[0]?.[1]
-                                ? parseInt(cumulativeProbableCases?.rows[0]?.[1])
-                                : 0,
-                        },
-                        {
-                            name: "Cumulative Confirmed Cases",
-                            value: cumulativeConfirmedCases?.rows[0]?.[1]
-                                ? parseInt(cumulativeConfirmedCases?.rows[0]?.[1])
-                                : 0,
-                        },
-                        {
-                            name: "Cumulative Deaths",
-                            value: cumulativeDeaths?.rows[0]?.[1]
-                                ? parseInt(cumulativeDeaths?.rows[0]?.[1])
-                                : 0,
-                        },
-                    ]);
-                }
-            );
-        });
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(new Date().getDate() - 7);
+
+                return Future.joinObj(
+                    {
+                        cumulativeSuspectedCases: this.getAnalyticsApi(
+                            suspectedCasesId,
+                            DEFAULT_START_DATE
+                        ),
+                        newSuspectedCases: this.getAnalyticsApi(
+                            suspectedCasesId,
+                            formatDate(sevenDaysAgo)
+                        ),
+                        cumulativeProbableCases: this.getAnalyticsApi(
+                            probableCasesId,
+                            DEFAULT_START_DATE
+                        ),
+                        newProbableCases: this.getAnalyticsApi(
+                            probableCasesId,
+                            formatDate(sevenDaysAgo)
+                        ),
+                        cumulativeConfirmedCases: this.getAnalyticsApi(
+                            confirmedCasesId,
+                            DEFAULT_START_DATE
+                        ),
+                        newConfirmedCases: this.getAnalyticsApi(
+                            confirmedCasesId,
+                            formatDate(sevenDaysAgo)
+                        ),
+                        cumulativeDeaths: this.getAnalyticsApi(deathsId, DEFAULT_START_DATE),
+                        newDeaths: this.getAnalyticsApi(deathsId, formatDate(sevenDaysAgo)),
+                    },
+                    { concurrency: 5 }
+                ).flatMap(
+                    ({
+                        cumulativeSuspectedCases,
+                        newSuspectedCases,
+                        cumulativeProbableCases,
+                        newProbableCases,
+                        cumulativeConfirmedCases,
+                        newConfirmedCases,
+                        cumulativeDeaths,
+                        newDeaths,
+                    }) => {
+                        return Future.success([
+                            {
+                                name: "New Suspected Cases",
+                                value: newSuspectedCases?.rows[0]?.[1]
+                                    ? parseInt(newSuspectedCases?.rows[0]?.[1])
+                                    : 0,
+                            },
+                            {
+                                name: "New Probable Cases",
+                                value: newProbableCases?.rows[0]?.[1]
+                                    ? parseInt(newProbableCases?.rows[0]?.[1])
+                                    : 0,
+                            },
+                            {
+                                name: "New Confirmed Cases",
+                                value: newConfirmedCases?.rows[0]?.[1]
+                                    ? parseInt(newConfirmedCases?.rows[0]?.[1])
+                                    : 0,
+                            },
+                            {
+                                name: "New Deaths",
+                                value: newDeaths?.rows[0]?.[1]
+                                    ? parseInt(newDeaths?.rows[0]?.[1])
+                                    : 0,
+                            },
+                            {
+                                name: "Cumulative Suspected Cases",
+                                value: cumulativeSuspectedCases?.rows[0]?.[1]
+                                    ? parseInt(cumulativeSuspectedCases?.rows[0]?.[1])
+                                    : 0,
+                            },
+                            {
+                                name: "Cumulative Probable Cases",
+                                value: cumulativeProbableCases?.rows[0]?.[1]
+                                    ? parseInt(cumulativeProbableCases?.rows[0]?.[1])
+                                    : 0,
+                            },
+                            {
+                                name: "Cumulative Confirmed Cases",
+                                value: cumulativeConfirmedCases?.rows[0]?.[1]
+                                    ? parseInt(cumulativeConfirmedCases?.rows[0]?.[1])
+                                    : 0,
+                            },
+                            {
+                                name: "Cumulative Deaths",
+                                value: cumulativeDeaths?.rows[0]?.[1]
+                                    ? parseInt(cumulativeDeaths?.rows[0]?.[1])
+                                    : 0,
+                            },
+                        ]);
+                    }
+                );
+            }
+        );
     }
 
     getPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]> {
-        return apiToFuture(
-            this.api.analytics.getEnrollmentsQuery({
-                programId: RTSL_ZEBRA_PROGRAM_ID,
-                dimension: [
-                    IndicatorsId.suspectedDisease,
-                    IndicatorsId.hazardType,
-                    IndicatorsId.event,
-                    IndicatorsId.era1,
-                    IndicatorsId.era2,
-                    IndicatorsId.era3,
-                    IndicatorsId.era4,
-                    IndicatorsId.era5,
-                    IndicatorsId.era6,
-                    IndicatorsId.era7,
-                    IndicatorsId.detect7d,
-                    IndicatorsId.notify1d,
-                    IndicatorsId.respond7d,
-                ],
-                startDate: DEFAULT_START_DATE,
-                endDate: DEFAULT_END_DATE,
-            })
-        ).flatMap(indicatorsProgramFuture => {
-            return this.getAllEventTrackerOverviewIdsFromDatastore().flatMap(
-                eventTrackerOverviews => {
-                    const mappedIndicators =
-                        indicatorsProgramFuture?.rows.map((row: string[]) =>
-                            this.mapRowToBaseIndicator(
-                                row,
-                                indicatorsProgramFuture.headers,
-                                indicatorsProgramFuture.metaData
-                            )
-                        ) || [];
-
-                    const keys = _(
-                        diseaseOutbreakEvents.map(
-                            diseaseOutbreak =>
-                                diseaseOutbreak.suspectedDiseaseCode || diseaseOutbreak.hazardType
-                        )
-                    )
-                        .compact()
-                        .uniq()
-                        .value();
-
-                    const eventTrackerOverviewsForKeys = eventTrackerOverviews.filter(overview =>
-                        keys.includes(overview.key)
-                    );
-
-                    const casesIndicatorIds = eventTrackerOverviewsForKeys.map(
-                        overview => overview.suspectedCasesId
-                    );
-
-                    const deathsIndicatorIds = eventTrackerOverviewsForKeys.map(
-                        overview => overview.deathsId
-                    );
-
-                    return Future.joinObj({
-                        allCases: this.getAnalyticsByIndicators(casesIndicatorIds),
-                        allDeaths: this.getAnalyticsByIndicators(deathsIndicatorIds),
-                    }).flatMap(({ allCases, allDeaths }) => {
-                        const performanceOverviewMetrics: FutureData<PerformanceOverviewMetrics>[] =
-                            diseaseOutbreakEvents.map(event => {
-                                const baseIndicator = mappedIndicators.find(
-                                    indicator => indicator.id === event.id
-                                );
-
-                                const key = event.hazardType || event.suspectedDiseaseCode;
-                                if (!key)
-                                    return Future.error(
-                                        new Error(
-                                            `No hazard type or suspected disease found for event : ${event.id}`
+        return this.datastore
+            .getObject<PerformanceOverviewDimensions>(PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY)
+            .flatMap(nullablePerformanceOverviewDimensions => {
+                return assertOrError(
+                    nullablePerformanceOverviewDimensions,
+                    PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
+                ).flatMap(performanceOverviewDimensions => {
+                    return apiToFuture(
+                        this.api.analytics.getEnrollmentsQuery({
+                            programId: RTSL_ZEBRA_PROGRAM_ID,
+                            dimension: [
+                                performanceOverviewDimensions.suspectedDisease,
+                                performanceOverviewDimensions.hazardType,
+                                performanceOverviewDimensions.event,
+                                performanceOverviewDimensions.era1ProgramIndicator,
+                                performanceOverviewDimensions.era2ProgramIndicator,
+                                performanceOverviewDimensions.era3ProgramIndicator,
+                                performanceOverviewDimensions.era4ProgramIndicator,
+                                performanceOverviewDimensions.era5ProgramIndicator,
+                                performanceOverviewDimensions.era6ProgramIndicator,
+                                performanceOverviewDimensions.era7ProgramIndicator,
+                                performanceOverviewDimensions.detect7dProgramIndicator,
+                                performanceOverviewDimensions.notify1dProgramIndicator,
+                                performanceOverviewDimensions.respond7dProgramIndicator,
+                            ],
+                            startDate: DEFAULT_START_DATE,
+                            endDate: DEFAULT_END_DATE,
+                        })
+                    ).flatMap(indicatorsProgramFuture => {
+                        return this.getAllEventTrackerOverviewIdsFromDatastore().flatMap(
+                            eventTrackerOverviews => {
+                                const mappedIndicators =
+                                    indicatorsProgramFuture?.rows.map((row: string[]) =>
+                                        this.mapRowToBaseIndicator(
+                                            row,
+                                            indicatorsProgramFuture.headers,
+                                            indicatorsProgramFuture.metaData,
+                                            performanceOverviewDimensions
                                         )
-                                    );
-                                const currentEventTrackerOverview =
-                                    eventTrackerOverviewsForKeys.find(
-                                        overview => overview.key === key
-                                    );
+                                    ) || [];
 
-                                const currentCases = allCases.find(
-                                    caseIdValue =>
-                                        caseIdValue.id ===
-                                        currentEventTrackerOverview?.suspectedCasesId
+                                const keys = _(
+                                    diseaseOutbreakEvents.map(
+                                        diseaseOutbreak =>
+                                            diseaseOutbreak.suspectedDiseaseCode ||
+                                            diseaseOutbreak.hazardType
+                                    )
+                                )
+                                    .compact()
+                                    .uniq()
+                                    .value();
+
+                                const eventTrackerOverviewsForKeys = eventTrackerOverviews.filter(
+                                    overview => keys.includes(overview.key)
                                 );
 
-                                const currentDeaths = allDeaths.find(
-                                    death => death.id === currentEventTrackerOverview?.deathsId
+                                const casesIndicatorIds = eventTrackerOverviewsForKeys.map(
+                                    overview => overview.suspectedCasesId
                                 );
 
-                                const duration = `${moment()
-                                    .diff(moment(event.emerged.date), "days")
-                                    .toString()}d`;
+                                const deathsIndicatorIds = eventTrackerOverviewsForKeys.map(
+                                    overview => overview.deathsId
+                                );
 
-                                if (!baseIndicator) {
-                                    const metrics = {
-                                        id: event.id,
-                                        event: event.name,
-                                        manager: event.incidentManagerName,
-                                        duration: duration,
-                                        nationalIncidentStatus: event.incidentStatus,
-                                        cases: currentCases?.value || "",
-                                        deaths: currentDeaths?.value || "",
-                                    } as PerformanceOverviewMetrics;
-                                    return Future.success(metrics);
-                                } else {
-                                    const metrics = {
-                                        ...baseIndicator,
-                                        nationalIncidentStatus: event.incidentStatus,
-                                        manager: event.incidentManagerName,
-                                        duration: duration,
-                                        cases: currentCases?.value || "",
-                                        deaths: currentDeaths?.value || "",
-                                    } as PerformanceOverviewMetrics;
-                                    return Future.success(metrics);
-                                }
-                            });
+                                return Future.joinObj({
+                                    allCases: this.getAnalyticsByIndicators(casesIndicatorIds),
+                                    allDeaths: this.getAnalyticsByIndicators(deathsIndicatorIds),
+                                }).flatMap(({ allCases, allDeaths }) => {
+                                    const performanceOverviewMetrics: FutureData<PerformanceOverviewMetrics>[] =
+                                        diseaseOutbreakEvents.map(event => {
+                                            const baseIndicator = mappedIndicators.find(
+                                                indicator => indicator.id === event.id
+                                            );
 
-                        return Future.sequential(performanceOverviewMetrics);
+                                            const key =
+                                                event.hazardType || event.suspectedDiseaseCode;
+                                            if (!key)
+                                                return Future.error(
+                                                    new Error(
+                                                        `No hazard type or suspected disease found for event : ${event.id}`
+                                                    )
+                                                );
+                                            const currentEventTrackerOverview =
+                                                eventTrackerOverviewsForKeys.find(
+                                                    overview =>
+                                                        overview.key === key &&
+                                                        overview.casesDataSource ===
+                                                            event.casesDataSource
+                                                );
+
+                                            const currentCases = allCases.find(
+                                                caseIdValue =>
+                                                    caseIdValue.id ===
+                                                    currentEventTrackerOverview?.suspectedCasesId
+                                            );
+
+                                            const currentDeaths = allDeaths.find(
+                                                death =>
+                                                    death.id ===
+                                                    currentEventTrackerOverview?.deathsId
+                                            );
+
+                                            const duration = `${moment()
+                                                .diff(moment(event.emerged.date), "days")
+                                                .toString()}d`;
+
+                                            if (!baseIndicator) {
+                                                const metrics = {
+                                                    id: event.id,
+                                                    event: event.name,
+                                                    manager: event.incidentManagerName,
+                                                    duration: duration,
+                                                    nationalIncidentStatus: event.incidentStatus,
+                                                    cases: currentCases?.value || "",
+                                                    deaths: currentDeaths?.value || "",
+                                                } as PerformanceOverviewMetrics;
+                                                return Future.success(metrics);
+                                            } else {
+                                                const metrics = {
+                                                    ...baseIndicator,
+                                                    nationalIncidentStatus: event.incidentStatus,
+                                                    manager: event.incidentManagerName,
+                                                    duration: duration,
+                                                    cases: currentCases?.value || "",
+                                                    deaths: currentDeaths?.value || "",
+                                                } as PerformanceOverviewMetrics;
+                                                return Future.success(metrics);
+                                            }
+                                        });
+
+                                    return Future.sequential(performanceOverviewMetrics);
+                                });
+                            }
+                        );
                     });
-                }
-            );
-        });
+                });
+            });
     }
 
     private getAnalyticsByIndicators(ids: Id[]): FutureData<IdValue[]> {
@@ -518,82 +607,174 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     getDashboard717Performance(): FutureData<PerformanceMetrics717[]> {
-        return apiToFuture(
-            this.api.analytics.get({
-                dimension: [`dx:${PERFORMANCE_METRICS_717_IDS.map(({ id }) => id).join(";")}`],
-                startDate: DEFAULT_START_DATE,
-                endDate: DEFAULT_END_DATE,
-                includeMetadataDetails: true,
-            })
-        ).map(res => {
-            return this.mapIndicatorsTo717PerformanceMetrics(res.rows, PERFORMANCE_METRICS_717_IDS);
-        });
+        return this.datastore
+            .getObject<PerformanceMetrics717[]>(PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY)
+            .flatMap(nullable717PerformanceProgramIndicators => {
+                return assertOrError(
+                    nullable717PerformanceProgramIndicators,
+                    PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+                ).flatMap(performance717ProgramIndicators => {
+                    const dashboard717PerformanceIndicator = performance717ProgramIndicators.filter(
+                        indicator => indicator.key === "dashboard"
+                    );
+                    return apiToFuture(
+                        this.api.analytics.get({
+                            dimension: [
+                                `dx:${dashboard717PerformanceIndicator
+                                    .map(({ id }) => id)
+                                    .join(";")}`,
+                            ],
+                            startDate: DEFAULT_START_DATE,
+                            endDate: DEFAULT_END_DATE,
+                            includeMetadataDetails: true,
+                        })
+                    ).map(res => {
+                        return this.mapIndicatorsTo717PerformanceMetrics(
+                            res.rows,
+                            dashboard717PerformanceIndicator
+                        );
+                    });
+                });
+            });
     }
 
     getEventTracker717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
-        return apiToFuture(
-            this.api.analytics.getEnrollmentsQuery({
-                programId: RTSL_ZEBRA_PROGRAM_ID,
-                dimension: [...EVENT_TRACKER_717_IDS.map(({ id }) => id)],
-                startDate: DEFAULT_START_DATE,
-                endDate: DEFAULT_END_DATE,
-            })
-        ).flatMap(response => {
-            const filteredRow = filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
-                diseaseOutbreakEventId,
-                response.rows,
-                response.headers
-            );
+        return this.datastore
+            .getObject<PerformanceMetrics717[]>(PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY)
+            .flatMap(nullable717PerformanceProgramIndicators => {
+                return assertOrError(
+                    nullable717PerformanceProgramIndicators,
+                    PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+                ).flatMap(performance717ProgramIndicators => {
+                    const eventTracker717PerformanceIndicator =
+                        performance717ProgramIndicators.filter(
+                            indicator => indicator.key === "event_tracker"
+                        );
+                    return apiToFuture(
+                        this.api.analytics.getEnrollmentsQuery({
+                            programId: RTSL_ZEBRA_PROGRAM_ID,
+                            dimension: [...eventTracker717PerformanceIndicator.map(({ id }) => id)],
+                            startDate: DEFAULT_START_DATE,
+                            endDate: DEFAULT_END_DATE,
+                        })
+                    ).flatMap(response => {
+                        const filteredRow = filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
+                            diseaseOutbreakEventId,
+                            response.rows,
+                            response.headers
+                        );
 
-            if (!filteredRow)
-                return Future.error(new Error("No data found for event tracker 7-1-7 performance"));
+                        if (!filteredRow)
+                            return Future.error(
+                                new Error("No data found for event tracker 7-1-7 performance")
+                            );
 
-            const mappedIndicatorsToRows: string[][] = EVENT_TRACKER_717_IDS.map(({ id }) => {
-                return [
-                    id,
-                    filteredRow[response.headers.findIndex(header => header.name === id)] || "",
-                ];
+                        const mappedIndicatorsToRows: string[][] =
+                            eventTracker717PerformanceIndicator.map(({ id }) => {
+                                return [
+                                    id,
+                                    filteredRow[
+                                        response.headers.findIndex(header => header.name === id)
+                                    ] || "",
+                                ];
+                            });
+
+                        return Future.success(
+                            this.mapIndicatorsTo717PerformanceMetrics(
+                                mappedIndicatorsToRows,
+                                eventTracker717PerformanceIndicator
+                            )
+                        );
+                    });
+                });
             });
-
-            return Future.success(
-                this.mapIndicatorsTo717PerformanceMetrics(
-                    mappedIndicatorsToRows,
-                    EVENT_TRACKER_717_IDS
-                )
-            );
-        });
     }
 
     private mapRowToBaseIndicator(
         row: string[],
         headers: { name: string; column: string }[],
-        metaData: AnalyticsResponse["metaData"]
+        metaData: AnalyticsResponse["metaData"],
+        performanceOverviewDimensions: PerformanceOverviewDimensions
     ): Partial<PerformanceOverviewMetrics> {
         return headers.reduce((acc, header, index) => {
-            const key = Object.keys(IndicatorsId).find(
-                key => IndicatorsId[key as keyof typeof IndicatorsId] === header.name
-            ) as Maybe<keyof PerformanceOverviewMetrics>;
+            const key = Object.keys(performanceOverviewDimensions).find(
+                key =>
+                    performanceOverviewDimensions[key as keyof PerformanceOverviewDimensions] ===
+                    header.name
+            ) as Maybe<keyof PerformanceOverviewDimensions>;
 
             if (!key) return acc;
 
-            if (key === "suspectedDisease") {
-                acc[key] =
-                    ((
-                        Object.values(metaData.items).find(
-                            item => (item as any).code === row[index]
-                        ) as any
-                    )?.name as DiseaseNames) || "";
-            } else if (key === "hazardType") {
-                acc[key] =
-                    ((
-                        Object.values(metaData.items).find(
-                            item => (item as any).code === row[index]
-                        ) as any
-                    )?.name as HazardNames) || "";
-            } else if (key === "nationalIncidentStatus") {
-                acc[key] = row[index] as NationalIncidentStatus;
-            } else {
-                acc[key] = row[index] as (HazardNames & OrgUnit[]) | undefined;
+            switch (key) {
+                case "suspectedDisease":
+                    acc.suspectedDisease =
+                        ((
+                            Object.values(metaData.items).find(
+                                item => (item as any).code === row[index]
+                            ) as any
+                        )?.name as DiseaseNames) || "";
+                    break;
+
+                case "hazardType":
+                    acc.hazardType =
+                        ((
+                            Object.values(metaData.items).find(
+                                item => (item as any).code === row[index]
+                            ) as any
+                        )?.name as HazardNames) || "";
+                    break;
+
+                case "nationalIncidentStatus":
+                    acc.nationalIncidentStatus = row[index] as NationalIncidentStatus;
+                    break;
+
+                case "teiId":
+                    acc.id = row[index];
+                    break;
+
+                case "era1ProgramIndicator":
+                    acc.era1 = row[index];
+                    break;
+
+                case "era2ProgramIndicator":
+                    acc.era2 = row[index];
+                    break;
+
+                case "era3ProgramIndicator":
+                    acc.era3 = row[index];
+                    break;
+
+                case "era4ProgramIndicator":
+                    acc.era4 = row[index];
+                    break;
+
+                case "era5ProgramIndicator":
+                    acc.era5 = row[index];
+                    break;
+
+                case "era6ProgramIndicator":
+                    acc.era6 = row[index];
+                    break;
+
+                case "era7ProgramIndicator":
+                    acc.era7 = row[index];
+                    break;
+
+                case "detect7dProgramIndicator":
+                    acc.detect7d = row[index];
+                    break;
+
+                case "notify1dProgramIndicator":
+                    acc.notify1d = row[index];
+                    break;
+
+                case "respond7dProgramIndicator":
+                    acc.respond7d = row[index];
+                    break;
+
+                default:
+                    acc[key] = row[index];
+                    break;
             }
 
             return acc;

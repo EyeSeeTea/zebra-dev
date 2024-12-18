@@ -6,7 +6,7 @@ import { Id } from "../../../domain/entities/Ref";
 import { FormState, isValidForm } from "../../components/form/FormState";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { mapFormStateToEntityData } from "./mapFormStateToEntityData";
-import { updateAndValidateFormState } from "./utils/updateDiseaseOutbreakEventFormState";
+import { updateAndValidateFormState } from "./utils/updateAndValidateFormState";
 import { FormFieldState } from "../../components/form/FormFieldsState";
 import { FormType } from "./FormPage";
 import { ConfigurableForm, FormLables } from "../../../domain/entities/ConfigurableForm";
@@ -346,7 +346,7 @@ export function useForm(formType: FormType, id?: Id): State {
             configurableForm
         );
 
-        compositionRoot.save.execute(formData, configurations, formSectionsToDelete).run(
+        compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
             diseaseOutbreakEventId => {
                 setIsLoading(false);
 
@@ -457,9 +457,9 @@ export function useForm(formType: FormType, id?: Id): State {
         formState,
         configurableForm,
         currentUser.username,
+        compositionRoot,
+        id,
         formSectionsToDelete,
-        compositionRoot.save,
-        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
         currentEventTracker?.id,
         goTo,
     ]);

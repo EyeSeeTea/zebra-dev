@@ -1,5 +1,6 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { NamedRef } from "../Ref";
+import { Username } from "../User";
 import { Struct } from "../generic/Struct";
 
 type PhoneNumber = string;
@@ -12,7 +13,7 @@ export type TeamRole = NamedRef & {
 };
 
 interface TeamMemberAttrs extends NamedRef {
-    username: string;
+    username: Username;
     phone: Maybe<PhoneNumber>;
     email: Maybe<Email>;
     status: Maybe<IncidentManagerStatus>;
