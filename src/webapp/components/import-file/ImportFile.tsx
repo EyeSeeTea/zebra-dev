@@ -14,12 +14,14 @@ import { IconButton } from "../icon-button/IconButton";
 import { SimpleModal } from "../simple-modal/SimpleModal";
 import { readFile } from "../../pages/form-page/utils/FileHelper";
 import { SheetData } from "../form/FormFieldsState";
+import { Id } from "../../../domain/entities/Ref";
 
 type ImportFileProps = {
     id: string;
     fileTemplate: Maybe<File>;
     file: Maybe<File>;
-    onChange: (file: File | undefined, sheetData: SheetData | undefined) => void;
+    fileId: Maybe<Id>;
+    onChange: (file: File | undefined, sheetsData: SheetData[] | undefined) => void;
     label?: string;
     placeholder?: string;
     disabled?: boolean;
@@ -30,8 +32,19 @@ type ImportFileProps = {
 };
 
 export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
-    const { file, onChange, label, id, helperText, errorText, error, required, fileTemplate } =
-        props;
+    const {
+        file,
+        onChange,
+        label,
+        id,
+        helperText,
+        errorText,
+        error,
+        required,
+        fileTemplate,
+        fileId,
+    } = props;
+
     const snackbar = useSnackbar();
     const dropzoneRef = useRef<CustomDropzoneRef>(null);
     const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -49,13 +62,7 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
                     snackbar.error(i18n.t("Multiple uploads not allowed, please select one file"));
                 } else {
                     const spreadsheets = await readFile(uploadedFile);
-                    const spreadsheet = spreadsheets[0]; // only one sheet
-                    const headerRow = spreadsheet?.headers;
-                    const rows = spreadsheet?.rows;
-                    onChange(uploadedFile, {
-                        headers: headerRow || [],
-                        rows: rows || [],
-                    });
+                    onChange(uploadedFile, spreadsheets);
                 }
             };
 
@@ -125,7 +132,7 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
                         download={fileTemplate.name}
                         underline="hover"
                     >
-                        {fileTemplate.name}
+                        {i18n.t("Download empty template")}
                     </Link>
                 )}
             </FlexContainer>
@@ -137,8 +144,12 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
                         ariaLabel="Delete current uploaded file"
                         onClick={onOpenConfirmationModalRemoveFile}
                     />
-                    <Link href={URL.createObjectURL(file)} download={file.name} underline="hover">
-                        {file.name}
+                    <Link
+                        href={URL.createObjectURL(file)}
+                        download={fileId ? "HISTORICAL_CASE_DATA" : file.name}
+                        underline="hover"
+                    >
+                        {fileId ? i18n.t("Download historical data") : file.name}
                     </Link>
                     <SimpleModal
                         open={openDeleteModal}

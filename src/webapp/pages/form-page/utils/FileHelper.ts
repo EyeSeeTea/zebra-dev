@@ -5,7 +5,7 @@ import { Row, SheetData } from "../../../components/form/FormFieldsState";
 export async function readFile(file: File): Promise<SheetData[]> {
     const workbook = XLSX.read(await file.arrayBuffer(), { cellDates: true });
 
-    return Object.values(workbook.Sheets).map((worksheet): SheetData => {
+    return Object.entries(workbook.Sheets).map(([sheetName, worksheet]): SheetData => {
         const headers =
             XLSX.utils.sheet_to_json<string[]>(worksheet, {
                 header: 1,
@@ -17,8 +17,9 @@ export async function readFile(file: File): Promise<SheetData[]> {
         });
 
         return {
-            headers,
-            rows,
+            name: sheetName,
+            headers: headers,
+            rows: rows,
         };
     });
 }

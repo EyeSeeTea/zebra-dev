@@ -68,12 +68,13 @@ export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
 
 export type Row = Record<string, string>;
 export type SheetData = {
+    name: string;
     headers: string[];
     rows: Row[];
 };
 export type FormFileFieldState = FormFieldStateBase<Maybe<File>> & {
     type: "file";
-    data: Maybe<SheetData>;
+    data: Maybe<SheetData[]>;
     fileId: Maybe<Id>;
     fileTemplate: Maybe<File>;
 };
@@ -131,7 +132,7 @@ export function getFileFieldValue(id: string, allFields: FormFieldState[]): Mayb
     return getFieldValueById<FormFileFieldState>(id, allFields);
 }
 
-export function getFieldFileDataById(id: string, allFields: FormFieldState[]): Maybe<SheetData> {
+export function getFieldFileDataById(id: string, allFields: FormFieldState[]): Maybe<SheetData[]> {
     const field = allFields.find(field => field.id === id && field.type === "file");
     return field?.type === "file" ? field.data : undefined;
 }
@@ -214,13 +215,13 @@ export function updateFields(
 export function updateFieldState<F extends FormFieldState>(
     fieldToUpdate: F,
     newValue: F["value"],
-    sheetData?: SheetData
+    sheetsData?: SheetData[]
 ): F {
     if (fieldToUpdate.type === "file") {
         return {
             ...fieldToUpdate,
             value: newValue,
-            data: sheetData,
+            data: sheetsData,
             fileId: undefined, // If a new file is uploaded, the fileId should be undefined
         };
     } else {

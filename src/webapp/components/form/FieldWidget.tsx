@@ -22,8 +22,8 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
     const { field, onChange, disabled = false, errorLabels } = props;
 
     const notifyChange = useCallback(
-        (newValue: FormFieldState["value"], sheetData?: SheetData) => {
-            onChange(updateFieldState(field, newValue, sheetData));
+        (newValue: FormFieldState["value"], sheetsData?: SheetData[]) => {
+            onChange(updateFieldState(field, newValue, sheetsData));
         },
         [field, onChange]
     );
@@ -104,6 +104,7 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
                     file={field.value}
                     onChange={notifyChange}
                     fileTemplate={field.fileTemplate}
+                    fileId={field.fileId}
                 />
             );
         }
