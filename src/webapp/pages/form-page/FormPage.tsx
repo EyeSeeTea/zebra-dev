@@ -29,6 +29,9 @@ export const FormPage: React.FC = React.memo(() => {
         globalMessage,
         formState,
         isLoading,
+        openModal,
+        modalData,
+        setOpenModal,
         handleFormChange,
         onPrimaryButtonClick,
         onCancelForm,
@@ -55,6 +58,9 @@ export const FormPage: React.FC = React.memo(() => {
             errorLabels={formLabels?.errors}
             handleAddNew={handleAddNew}
             handleRemove={handleRemove}
+            openModal={openModal}
+            modalData={modalData}
+            setOpenModal={setOpenModal}
         />
     ) : (
         formState.message && <ErrorMessageContainer>{formState.message}</ErrorMessageContainer>

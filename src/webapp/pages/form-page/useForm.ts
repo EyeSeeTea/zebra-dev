@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
+
 import { Maybe } from "../../../utils/ts-utils";
 import i18n from "../../../utils/i18n";
 import { useAppContext } from "../../contexts/app-context";
@@ -22,10 +24,11 @@ import {
 } from "./incident-action/mapIncidentActionToInitialFormState";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
-import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
 import { useIncidentActionPlan } from "../incident-action-plan/useIncidentActionPlan";
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
+import { ModalData } from "../../components/form/Form";
+import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type GlobalMessage = {
     text: string;
@@ -53,6 +56,9 @@ type State = {
     globalMessage: Maybe<GlobalMessage>;
     formState: FormLoadState;
     isLoading: boolean;
+    openModal: boolean;
+    modalData?: ModalData;
+    setOpenModal: (open: boolean) => void;
     handleFormChange: (updatedField: FormFieldState) => void;
     onPrimaryButtonClick: () => void;
     onCancelForm: () => void;
@@ -79,6 +85,8 @@ export function useForm(formType: FormType, id?: Id): State {
     const [isLoading, setIsLoading] = useState(false);
     const [formSectionsToDelete, setFormSectionsToDelete] = useState<string[]>([]);
     const [entityData, setEntityData] = useState<ConfigurableForm>();
+    const [openModal, setOpenModal] = useState(false);
+    const [modalData, setModalData] = useState<ModalData>();
 
     const allDataPerformanceEvents = dataPerformanceOverview?.map(
         event => event.hazardType || event.suspectedDisease
@@ -334,11 +342,10 @@ export function useForm(formType: FormType, id?: Id): State {
         [configurableForm]
     );
 
-    const onPrimaryButtonClick = useCallback(() => {
+    const onSaveDiseaseOutbreakEvent = useCallback(() => {
         const { eventTrackerConfigurations } = configurations.selectableOptions;
-        if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
 
-        setIsLoading(true);
+        if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
 
         const formData = mapFormStateToEntityData(
             formState.data,
@@ -346,119 +353,201 @@ export function useForm(formType: FormType, id?: Id): State {
             configurableForm
         );
 
-        compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
-            diseaseOutbreakEventId => {
-                setIsLoading(false);
+        if (formData.type === "disease-outbreak-event") {
+            setIsLoading(true);
+            compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
+                diseaseOutbreakEventId => {
+                    setIsLoading(false);
 
-                switch (formData.type) {
-                    case "disease-outbreak-event":
-                        if (diseaseOutbreakEventId && formData.entity) {
-                            compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
-                                .execute(
-                                    diseaseOutbreakEventId,
-                                    formData.entity,
-                                    eventTrackerConfigurations.hazardTypes,
-                                    eventTrackerConfigurations.suspectedDiseases
-                                )
-                                .run(
-                                    () => {},
-                                    err => {
-                                        console.error({ err });
-                                    }
-                                );
-                            goTo(RouteName.EVENT_TRACKER, {
-                                id: diseaseOutbreakEventId,
-                            });
+                    if (diseaseOutbreakEventId && formData.entity) {
+                        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
+                            .execute(
+                                diseaseOutbreakEventId,
+                                formData.entity,
+                                eventTrackerConfigurations.hazardTypes,
+                                eventTrackerConfigurations.suspectedDiseases
+                            )
+                            .run(
+                                () => {},
+                                err => {
+                                    console.error({ err });
+                                }
+                            );
+                        goTo(RouteName.EVENT_TRACKER, {
+                            id: diseaseOutbreakEventId,
+                        });
+                        setGlobalMessage({
+                            text: i18n.t(`Disease Outbreak saved successfully`),
+                            type: "success",
+                        });
+                    }
+                },
+                err => {
+                    setGlobalMessage({
+                        text: i18n.t(`Error saving disease outbreak: ${err.message}`),
+                        type: "error",
+                    });
+                }
+            );
+        }
+    }, [
+        compositionRoot,
+        configurableForm,
+        configurations,
+        currentUser.username,
+        formSectionsToDelete,
+        formState,
+        goTo,
+        id,
+    ]);
+
+    const onPrimaryButtonClick = useCallback(() => {
+        const { eventTrackerConfigurations } = configurations.selectableOptions;
+        if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
+
+        const formData = mapFormStateToEntityData(
+            formState.data,
+            currentUser.username,
+            configurableForm
+        );
+
+        const haveChangedCasesDataInDiseaseOutbreak =
+            !!id &&
+            formData.type === "disease-outbreak-event" &&
+            !formData.uploadedCasesDataFileId &&
+            !!formData.uploadedCasesDataFile &&
+            formData.entity?.casesDataSource ===
+                CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+
+        if (haveChangedCasesDataInDiseaseOutbreak) {
+            setOpenModal(true);
+            setModalData({
+                title: i18n.t("Warning"),
+                content: i18n.t(
+                    "You have uploaded a new data cases file. This action will replace the current data of this disease outbreak event with the data of the file. Are you sure you want to continue?"
+                ),
+                cancelLabel: i18n.t("Cancel"),
+                confirmLabel: i18n.t("Save"),
+                onConfirm: onSaveDiseaseOutbreakEvent,
+            });
+        } else {
+            setIsLoading(true);
+            compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
+                diseaseOutbreakEventId => {
+                    setIsLoading(false);
+
+                    switch (formData.type) {
+                        case "disease-outbreak-event":
+                            if (diseaseOutbreakEventId && formData.entity) {
+                                compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
+                                    .execute(
+                                        diseaseOutbreakEventId,
+                                        formData.entity,
+                                        eventTrackerConfigurations.hazardTypes,
+                                        eventTrackerConfigurations.suspectedDiseases
+                                    )
+                                    .run(
+                                        () => {},
+                                        err => {
+                                            console.error({ err });
+                                        }
+                                    );
+                                goTo(RouteName.EVENT_TRACKER, {
+                                    id: diseaseOutbreakEventId,
+                                });
+                                setGlobalMessage({
+                                    text: i18n.t(`Disease Outbreak saved successfully`),
+                                    type: "success",
+                                });
+                            }
+                            break;
+
+                        case "risk-assessment-grading":
+                            if (currentEventTracker?.id)
+                                goTo(RouteName.EVENT_TRACKER, {
+                                    id: currentEventTracker?.id,
+                                });
                             setGlobalMessage({
-                                text: i18n.t(`Disease Outbreak saved successfully`),
+                                text: i18n.t(`Risk Assessment Grading saved successfully`),
                                 type: "success",
                             });
-                        }
-                        break;
-
-                    case "risk-assessment-grading":
-                        if (currentEventTracker?.id)
-                            goTo(RouteName.EVENT_TRACKER, {
-                                id: currentEventTracker?.id,
+                            break;
+                        case "risk-assessment-summary":
+                            goTo(RouteName.CREATE_FORM, {
+                                formType: "risk-assessment-questionnaire",
                             });
-                        setGlobalMessage({
-                            text: i18n.t(`Risk Assessment Grading saved successfully`),
-                            type: "success",
-                        });
-                        break;
-                    case "risk-assessment-summary":
-                        goTo(RouteName.CREATE_FORM, {
-                            formType: "risk-assessment-questionnaire",
-                        });
-                        setGlobalMessage({
-                            text: i18n.t(`Risk Assessment Summary saved successfully`),
-                            type: "success",
-                        });
-                        break;
-                    case "risk-assessment-questionnaire":
-                        goTo(RouteName.CREATE_FORM, {
-                            formType: "risk-assessment-grading",
-                        });
-                        setGlobalMessage({
-                            text: i18n.t(`Risk Assessment Questionnaire saved successfully`),
-                            type: "success",
-                        });
-                        break;
-                    case "incident-action-plan":
-                        goTo(RouteName.CREATE_FORM, {
-                            formType: "incident-response-actions",
-                        });
-                        setGlobalMessage({
-                            text: i18n.t(`Incident Action Plan saved successfully`),
-                            type: "success",
-                        });
-                        break;
-                    case "incident-response-actions":
-                        if (currentEventTracker?.id)
-                            goTo(RouteName.INCIDENT_ACTION_PLAN, {
-                                id: currentEventTracker?.id,
+                            setGlobalMessage({
+                                text: i18n.t(`Risk Assessment Summary saved successfully`),
+                                type: "success",
                             });
-                        setGlobalMessage({
-                            text: i18n.t(`Incident Response Actions saved successfully`),
-                            type: "success",
-                        });
-                        break;
-                    case "incident-response-action":
-                        if (currentEventTracker?.id)
-                            goTo(RouteName.INCIDENT_ACTION_PLAN, {
-                                id: currentEventTracker?.id,
+                            break;
+                        case "risk-assessment-questionnaire":
+                            goTo(RouteName.CREATE_FORM, {
+                                formType: "risk-assessment-grading",
                             });
-                        setGlobalMessage({
-                            text: i18n.t(`Incident Response Actions saved successfully`),
-                            type: "success",
-                        });
-                        break;
-                    case "incident-management-team-member-assignment":
-                        if (currentEventTracker?.id)
-                            goTo(RouteName.IM_TEAM_BUILDER, {
-                                id: currentEventTracker?.id,
+                            setGlobalMessage({
+                                text: i18n.t(`Risk Assessment Questionnaire saved successfully`),
+                                type: "success",
                             });
-                        setGlobalMessage({
-                            text: i18n.t(`Incident Management Team Member saved successfully`),
-                            type: "success",
-                        });
-                        break;
+                            break;
+                        case "incident-action-plan":
+                            goTo(RouteName.CREATE_FORM, {
+                                formType: "incident-response-actions",
+                            });
+                            setGlobalMessage({
+                                text: i18n.t(`Incident Action Plan saved successfully`),
+                                type: "success",
+                            });
+                            break;
+                        case "incident-response-actions":
+                            if (currentEventTracker?.id)
+                                goTo(RouteName.INCIDENT_ACTION_PLAN, {
+                                    id: currentEventTracker?.id,
+                                });
+                            setGlobalMessage({
+                                text: i18n.t(`Incident Response Actions saved successfully`),
+                                type: "success",
+                            });
+                            break;
+                        case "incident-response-action":
+                            if (currentEventTracker?.id)
+                                goTo(RouteName.INCIDENT_ACTION_PLAN, {
+                                    id: currentEventTracker?.id,
+                                });
+                            setGlobalMessage({
+                                text: i18n.t(`Incident Response Actions saved successfully`),
+                                type: "success",
+                            });
+                            break;
+                        case "incident-management-team-member-assignment":
+                            if (currentEventTracker?.id)
+                                goTo(RouteName.IM_TEAM_BUILDER, {
+                                    id: currentEventTracker?.id,
+                                });
+                            setGlobalMessage({
+                                text: i18n.t(`Incident Management Team Member saved successfully`),
+                                type: "success",
+                            });
+                            break;
+                    }
+                },
+                err => {
+                    setGlobalMessage({
+                        text: i18n.t(`Error saving disease outbreak: ${err.message}`),
+                        type: "error",
+                    });
                 }
-            },
-            err => {
-                setGlobalMessage({
-                    text: i18n.t(`Error saving disease outbreak: ${err.message}`),
-                    type: "error",
-                });
-            }
-        );
+            );
+        }
     }, [
         configurations,
         formState,
         configurableForm,
         currentUser.username,
-        compositionRoot,
         id,
+        onSaveDiseaseOutbreakEvent,
+        compositionRoot.save,
+        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
         formSectionsToDelete,
         currentEventTracker?.id,
         goTo,
@@ -495,6 +584,9 @@ export function useForm(formType: FormType, id?: Id): State {
         globalMessage,
         formState,
         isLoading,
+        openModal,
+        modalData,
+        setOpenModal,
         handleFormChange,
         onPrimaryButtonClick,
         onCancelForm,

@@ -490,5 +490,7 @@ function givenFormProps(): FormProps {
         onFormChange: (_updatedField: FormFieldState) => {},
         onSave: () => {},
         onCancel: () => {},
+        openModal: false,
+        setOpenModal: () => {},
     };
 }
