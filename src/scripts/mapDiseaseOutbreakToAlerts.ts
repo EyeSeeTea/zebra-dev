@@ -16,10 +16,7 @@ import { NotificationD2Repository } from "../data/repositories/NotificationD2Rep
 import { Future } from "../domain/entities/generic/Future";
 import { getTEAttributeById, getUserGroupByCode } from "../data/repositories/utils/MetadataHelper";
 import { NotifyWatchStaffUseCase } from "../domain/usecases/NotifyWatchStaffUseCase";
-import {
-    getOutbreakKey,
-    mapTrackedEntityAttributesToAlertOptions,
-} from "../data/repositories/utils/AlertOutbreakMapper";
+import { mapTrackedEntityAttributesToAlertOptions } from "../data/repositories/utils/AlertOutbreakMapper";
 import { AlertSyncDataStoreRepository } from "../data/repositories/AlertSyncDataStoreRepository";
 import { getNotificationOptionsFromTrackedEntity } from "../data/repositories/utils/NotificationMapper";
 import { AlertData } from "../domain/entities/alert/AlertData";
@@ -33,6 +30,7 @@ import { Alert } from "../domain/entities/alert/Alert";
 import { AlertOptions } from "../domain/repositories/AlertRepository";
 import { Option } from "../domain/entities/Ref";
 import { ConfigurationsD2Repository } from "../data/repositories/ConfigurationsD2Repository";
+import { getOutbreakKey } from "../domain/entities/AlertsAndCaseForCasesData";
 
 //TO DO : Fetch from metadata on app load
 const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";

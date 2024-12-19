@@ -6,10 +6,13 @@ import {
     AlertSyncRepository,
 } from "../../domain/repositories/AlertSyncRepository";
 import { apiToFuture, FutureData } from "../api-futures";
-import { getOutbreakKey, getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
+import { getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
 import { Maybe } from "../../utils/ts-utils";
 import { DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
-import { AlertSynchronizationData } from "../../domain/entities/alert/AlertData";
+import {
+    AlertsAndCaseForCasesData,
+    getOutbreakKey,
+} from "../../domain/entities/AlertsAndCaseForCasesData";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { RTSL_ZEBRA_ALERTS_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import { assertOrError } from "./utils/AssertOrError";
@@ -56,12 +59,16 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
                 );
 
                 return this.getAlertObject(outbreakKey).flatMap(outbreakData => {
-                    const syncData: AlertSynchronizationData = !outbreakData
+                    const syncData: AlertsAndCaseForCasesData = !outbreakData
                         ? synchronizationData
                         : {
                               ...outbreakData,
                               lastSyncTime: new Date().toISOString(),
-                              alerts: [...outbreakData.alerts, ...synchronizationData.alerts],
+                              lastUpdated: new Date().toISOString(),
+                              alerts: [
+                                  ...(outbreakData.alerts || []),
+                                  ...(synchronizationData.alerts || []),
+                              ],
                           };
 
                     return this.saveAlertObject(outbreakKey, syncData);
@@ -88,22 +95,22 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
         ).flatMap(response => assertOrError(response.instances[0], "Tracked entity"));
     }
 
-    private getAlertObject(outbreakKey: string): FutureData<Maybe<AlertSynchronizationData>> {
-        return this.dataStoreClient.getObject<AlertSynchronizationData>(outbreakKey);
+    private getAlertObject(outbreakKey: string): FutureData<Maybe<AlertsAndCaseForCasesData>> {
+        return this.dataStoreClient.getObject<AlertsAndCaseForCasesData>(outbreakKey);
     }
 
     private saveAlertObject(
         outbreakKey: string,
-        syncData: AlertSynchronizationData
+        syncData: AlertsAndCaseForCasesData
     ): FutureData<void> {
-        return this.dataStoreClient.saveObject<AlertSynchronizationData>(outbreakKey, syncData);
+        return this.dataStoreClient.saveObject<AlertsAndCaseForCasesData>(outbreakKey, syncData);
     }
 
     private buildSynchronizationData(
         options: AlertSyncOptions,
         trackedEntity: D2TrackerTrackedEntity,
         outbreakKey: string
-    ): AlertSynchronizationData {
+    ): AlertsAndCaseForCasesData {
         const { alert, nationalDiseaseOutbreakEventId, dataSource } = options;
         const outbreakType =
             dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS ? "disease" : "hazard";
@@ -128,7 +135,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
 
         return {
             lastSyncTime: new Date().toISOString(),
-            type: outbreakType,
+            lastUpdated: new Date().toISOString(),
             nationalDiseaseOutbreakEventId: nationalDiseaseOutbreakEventId,
             [outbreakType]: outbreakKey,
             alerts: alerts,

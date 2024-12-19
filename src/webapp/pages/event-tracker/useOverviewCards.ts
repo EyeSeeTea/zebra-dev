@@ -12,9 +12,11 @@ export function useOverviewCards() {
 
     useEffect(() => {
         const type = currentEventTracker?.suspectedDiseaseCode || currentEventTracker?.hazardType;
-        if (type) {
+        const casesDataSource = currentEventTracker?.casesDataSource;
+
+        if (type && casesDataSource) {
             setIsLoading(true);
-            compositionRoot.performanceOverview.getOverviewCards.execute(type).run(
+            compositionRoot.performanceOverview.getOverviewCards.execute(type, casesDataSource).run(
                 overviewCards => {
                     setIsLoading(false);
                     setOverviewCards(overviewCards);
