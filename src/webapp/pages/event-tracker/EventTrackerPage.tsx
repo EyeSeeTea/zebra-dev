@@ -114,6 +114,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         eventDiseaseCode={currentEventTracker?.suspectedDiseaseCode}
                         eventHazardCode={currentEventTracker?.hazardType}
                         dateRangeFilter={dateRangeFilter.value || []}
+                        casesDataSource={currentEventTracker?.casesDataSource}
                     />
                 </LoaderContainer>
             </Section>
@@ -203,6 +204,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         currentEventTracker?.suspectedDisease?.name ||
                         currentEventTracker?.hazardType
                     }
+                    casesDataSource={currentEventTracker?.casesDataSource}
                 />
                 <Chart
                     title="Deaths"
@@ -211,6 +213,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         currentEventTracker?.suspectedDisease?.name ||
                         currentEventTracker?.hazardType
                     }
+                    casesDataSource={currentEventTracker?.casesDataSource}
                 />
             </Section>
             <Section

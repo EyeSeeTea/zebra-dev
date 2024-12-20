@@ -1,5 +1,8 @@
 import { FutureData } from "../../data/api-futures";
-import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    CasesDataSource,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
     TotalCardCounts,
     PerformanceOverviewMetrics,
@@ -20,5 +23,8 @@ export interface PerformanceOverviewRepository {
     ): FutureData<TotalCardCounts[]>;
     getDashboard717Performance(): FutureData<PerformanceMetrics717[]>;
     getEventTracker717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]>;
-    getEventTrackerOverviewMetrics(type: string): FutureData<OverviewCard[]>;
+    getEventTrackerOverviewMetrics(
+        type: string,
+        casesDataSource: CasesDataSource
+    ): FutureData<OverviewCard[]>;
 }

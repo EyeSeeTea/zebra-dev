@@ -27,6 +27,7 @@ const optionSetCode: Record<string, string> = {
     phoecLevel: "RTSL_ZEB_OS_PHOEC_ACT_LEVEL",
     status: "RTSL_ZEB_OS_STATUS",
     verification: "RTSL_ZEB_OS_VERIFICATION",
+    casesDataSource: "RTSL_ZEB_OS_CASE_DATA_SOURCE",
 };
 
 export class ConfigurationsD2Repository implements ConfigurationsRepository {
@@ -198,6 +199,13 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                     if (verifications)
                         selectableOptions.incidentResponseActionConfigurations.verification =
                             this.mapD2OptionSetToOptions(verifications);
+                } else if (key === "casesDataSource") {
+                    const casesDataSource = optionsResponse.optionSets.find(
+                        optionSet => optionSet.code === value
+                    );
+                    if (casesDataSource)
+                        selectableOptions.eventTrackerConfigurations.casesDataSource =
+                            this.mapD2OptionSetToOptions(casesDataSource);
                 }
             });
 
@@ -215,6 +223,7 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                 notificationSources: [],
                 incidentStatus: [],
                 incidentManagers: [],
+                casesDataSource: [],
             },
             riskAssessmentGradingConfigurations: {
                 populationAtRisk: [],
