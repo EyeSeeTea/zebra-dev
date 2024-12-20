@@ -96,8 +96,8 @@ export class NotificationD2Repository implements NotificationRepository {
 }
 
 function buildNotificationText(
-    outbreakKey: string,
-    district: string,
+    outbreakName: string,
+    districtName: string,
     notificationData: NotificationOptions
 ): string {
     const {
@@ -111,7 +111,7 @@ function buildNotificationText(
     } = notificationData;
     const verificationStatus = verificationStatusCodeMap[verificationStatusCode] ?? "";
 
-    return i18n.t(`There has been a new Outbreak detected for ${outbreakKey} in ${district}.
+    return i18n.t(`There has been a new Outbreak detected for ${outbreakName} in ${districtName}.
 
 Please see the details of the outbreak below:
 
