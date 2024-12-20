@@ -16,3 +16,8 @@ export type OutbreakAlert = {
     outbreakData: OutbreakData;
     notificationOptions: NotificationOptions;
 };
+
+export type NotifiedAlert = {
+    district: string;
+    outbreak: string;
+};

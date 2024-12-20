@@ -91,12 +91,14 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
         diseaseType: Maybe<Attribute>,
         hazardType: Maybe<Attribute>
     ): Maybe<OutbreakData> {
-        // use a full mapping (record/switch)
-        return diseaseType
-            ? { value: diseaseType.value, type: "disease" }
-            : hazardType
-            ? { value: hazardType.value, type: "hazard" }
-            : undefined;
+        switch (true) {
+            case !!diseaseType:
+                return { value: diseaseType.value, type: "disease" };
+            case !!hazardType:
+                return { value: hazardType.value, type: "hazard" };
+            default:
+                return undefined;
+        }
     }
 
     private getAlertTEAttributes(trackedEntity: D2TrackerTrackedEntity) {
