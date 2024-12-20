@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-12-18T17:43:51.092Z\n"
-"PO-Revision-Date: 2024-12-18T17:43:51.092Z\n"
+"POT-Creation-Date: 2024-12-19T16:37:02.900Z\n"
+"PO-Revision-Date: 2024-12-19T16:37:02.900Z\n"
 
 msgid "Low"
 msgstr ""
@@ -228,6 +228,15 @@ msgid "Form cannot be loaded"
 msgstr ""
 
 msgid "Disease Outbreak saved successfully"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid ""
+"You have uploaded a new data cases file. This action will replace the "
+"current data of this disease outbreak event with the data of the file. Are "
+"you sure you want to continue?"
 msgstr ""
 
 msgid "Risk Assessment Grading saved successfully"
