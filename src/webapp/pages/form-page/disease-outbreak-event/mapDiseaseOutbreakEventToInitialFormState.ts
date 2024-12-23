@@ -97,6 +97,20 @@ export function mapDiseaseOutbreakEventToInitialFormState(
     editMode: boolean,
     existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
 ): FormState {
+    return diseaseOutbreakEventWithOptions.type === "disease-outbreak-event"
+        ? getInitialFormStateForDiseaseOutbreakEvent(
+              diseaseOutbreakEventWithOptions,
+              editMode,
+              existingEventTrackerTypes
+          )
+        : getInitialFormStateForDiseaseOutbreakCaseData(diseaseOutbreakEventWithOptions);
+}
+
+function getInitialFormStateForDiseaseOutbreakEvent(
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
+    editMode: boolean,
+    existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
+): FormState {
     const {
         entity: diseaseOutbreakEvent,
         options,
@@ -104,6 +118,7 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         uploadedCasesDataFile,
         uploadedCasesDataFileId,
     } = diseaseOutbreakEventWithOptions;
+
     const {
         dataSources,
         incidentManagers,
@@ -730,6 +745,49 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             mainSections.responseActions,
             mainSections.incidentManager,
             mainSections.notes,
+        ],
+    };
+}
+
+function getInitialFormStateForDiseaseOutbreakCaseData(
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData
+): FormState {
+    const {
+        entity: diseaseOutbreakEvent,
+        caseDataFileTemplete,
+        uploadedCasesDataFile,
+        uploadedCasesDataFileId,
+    } = diseaseOutbreakEventWithOptions;
+
+    return {
+        id: diseaseOutbreakEvent?.id || "",
+        title: "Event cases data",
+        saveButtonLabel: "Save",
+        isValid: false,
+        sections: [
+            {
+                title: "Cases Data File",
+                id: "casesDataFile_section",
+                isVisible: true,
+                required: true,
+                fields: [
+                    {
+                        id: "casesDataFile",
+                        isVisible: true,
+                        errors: [],
+                        type: "file",
+                        value: uploadedCasesDataFile,
+                        required: true,
+                        showIsRequired: false,
+                        data: undefined,
+                        fileId: uploadedCasesDataFileId,
+                        fileTemplate: caseDataFileTemplete,
+                        helperText: i18n.t(
+                            "In order to add or replace cases, you need to download the current file and add the new ones."
+                        ),
+                    },
+                ],
+            },
         ],
     };
 }

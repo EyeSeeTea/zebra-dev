@@ -45,8 +45,14 @@ export class GetConfigurableFormUseCase {
         const { formType, eventTrackerDetails, configurations, id, responseActionId } = options;
 
         switch (formType) {
-            case "disease-outbreak-event": {
-                return getDiseaseOutbreakConfigurableForm(this.options, configurations, id);
+            case "disease-outbreak-event":
+            case "disease-outbreak-event-case-data": {
+                return getDiseaseOutbreakConfigurableForm(
+                    this.options,
+                    configurations,
+                    formType,
+                    id
+                );
             }
             case "risk-assessment-grading":
                 if (!eventTrackerDetails)

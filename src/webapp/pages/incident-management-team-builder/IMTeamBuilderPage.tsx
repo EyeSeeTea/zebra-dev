@@ -61,7 +61,7 @@ export const IMTeamBuilderPage: React.FC = React.memo(() => {
 
                 <Section
                     lastUpdated={lastUpdated}
-                    headerButton={
+                    headerButtons={
                         <ButtonsContainer>
                             {selectedHierarchyItemIds.length > 1 ? null : (
                                 <Button

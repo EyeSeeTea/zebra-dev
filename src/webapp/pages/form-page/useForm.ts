@@ -353,13 +353,20 @@ export function useForm(formType: FormType, id?: Id): State {
             configurableForm
         );
 
-        if (formData.type === "disease-outbreak-event") {
+        if (
+            formData.type === "disease-outbreak-event" ||
+            formData.type === "disease-outbreak-event-case-data"
+        ) {
             setIsLoading(true);
             compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
                 diseaseOutbreakEventId => {
                     setIsLoading(false);
 
-                    if (diseaseOutbreakEventId && formData.entity) {
+                    if (
+                        diseaseOutbreakEventId &&
+                        formData.entity &&
+                        formData.type === "disease-outbreak-event"
+                    ) {
                         compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
                             .execute(
                                 diseaseOutbreakEventId,
@@ -380,11 +387,26 @@ export function useForm(formType: FormType, id?: Id): State {
                             text: i18n.t(`Disease Outbreak saved successfully`),
                             type: "success",
                         });
+                    } else if (
+                        diseaseOutbreakEventId &&
+                        formData.type === "disease-outbreak-event-case-data"
+                    ) {
+                        goTo(RouteName.EVENT_TRACKER, {
+                            id: diseaseOutbreakEventId,
+                        });
+                        setGlobalMessage({
+                            text: i18n.t(`Disease outbreak case data saved successfully`),
+                            type: "success",
+                        });
                     }
                 },
                 err => {
                     setGlobalMessage({
-                        text: i18n.t(`Error saving disease outbreak: ${err.message}`),
+                        text: i18n.t(
+                            formData.type === "disease-outbreak-event-case-data"
+                                ? `Error saving disease outbreak case data: ${err.message}`
+                                : `Error saving disease outbreak: ${err.message}`
+                        ),
                         type: "error",
                     });
                 }
@@ -419,7 +441,10 @@ export function useForm(formType: FormType, id?: Id): State {
             formData.entity?.casesDataSource ===
                 CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
 
-        if (haveChangedCasesDataInDiseaseOutbreak) {
+        if (
+            haveChangedCasesDataInDiseaseOutbreak ||
+            formData.type === "disease-outbreak-event-case-data"
+        ) {
             setOpenModal(true);
             setModalData({
                 title: i18n.t("Warning"),

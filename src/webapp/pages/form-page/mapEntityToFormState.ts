@@ -31,6 +31,7 @@ export function mapEntityToFormState(options: {
 
     switch (configurableForm.type) {
         case "disease-outbreak-event":
+        case "disease-outbreak-event-case-data":
             return mapDiseaseOutbreakEventToInitialFormState(
                 configurableForm,
                 editMode ?? false,

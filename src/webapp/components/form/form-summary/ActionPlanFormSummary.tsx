@@ -59,7 +59,7 @@ export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React
             <Section
                 title={formSummary.subTitle}
                 hasSeparator={true}
-                headerButton={editButton}
+                headerButtons={editButton}
                 titleVariant="secondary"
             >
                 <SummaryContainer>

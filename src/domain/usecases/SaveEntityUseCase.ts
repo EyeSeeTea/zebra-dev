@@ -39,7 +39,8 @@ export class SaveEntityUseCase {
     ): FutureData<void | Id> {
         if (!formData || !formData.entity) return Future.error(new Error("No form data found"));
         switch (formData.type) {
-            case "disease-outbreak-event": {
+            case "disease-outbreak-event":
+            case "disease-outbreak-event-case-data": {
                 const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent({
                     ...formData.entity,
 

@@ -19,13 +19,14 @@ export function getDiseaseOutbreakConfigurableForm(
         casesFileRepository: CasesFileRepository;
     },
     configurations: Configurations,
+    formType: "disease-outbreak-event" | "disease-outbreak-event-case-data",
     id?: Id
 ): FutureData<DiseaseOutbreakEventFormData> {
     const { rules, labels } = getEventTrackerLabelsRules();
 
     return options.casesFileRepository.getTemplate().flatMap(casesFileTemplate => {
         const diseaseOutbreakForm: DiseaseOutbreakEventFormData = {
-            type: "disease-outbreak-event",
+            type: formType,
             entity: undefined,
             uploadedCasesDataFile: undefined,
             uploadedCasesDataFileId: undefined,

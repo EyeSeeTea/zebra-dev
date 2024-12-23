@@ -72,7 +72,7 @@ type BaseFormData = {
     type: FormType;
 };
 export type DiseaseOutbreakEventFormData = BaseFormData & {
-    type: "disease-outbreak-event";
+    type: "disease-outbreak-event" | "disease-outbreak-event-case-data";
     entity: Maybe<DiseaseOutbreakEvent>;
     options: DiseaseOutbreakEventOptions;
     orgUnits: OrgUnit[];

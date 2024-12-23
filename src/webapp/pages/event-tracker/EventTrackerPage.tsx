@@ -88,9 +88,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
             <EventTrackerFormSummary
                 id={id}
-                formType="disease-outbreak-event"
+                diseaseOutbreakFormType="disease-outbreak-event"
+                diseaseOutbreakCaseDataFormType="disease-outbreak-event-case-data"
                 formSummary={formSummary}
-                onOpenModal={onOpenCompleteModal}
+                onCompleteClick={onOpenCompleteModal}
                 globalMessage={globalMessage}
             />
             <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
@@ -121,7 +122,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             <Section
                 title="Risk Assessment"
                 hasSeparator={true}
-                headerButton={
+                headerButtons={
                     riskAssessmentRows.length === 0 ? (
                         <Button
                             variant="contained"

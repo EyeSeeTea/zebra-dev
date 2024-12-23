@@ -9,6 +9,7 @@ import styled from "styled-components";
 
 export type FormType =
     | "disease-outbreak-event"
+    | "disease-outbreak-event-case-data"
     | "risk-assessment-grading"
     | "risk-assessment-questionnaire"
     | "risk-assessment-summary"

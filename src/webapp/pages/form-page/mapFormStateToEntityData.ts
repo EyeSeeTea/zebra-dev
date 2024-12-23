@@ -1,22 +1,10 @@
-import {
-    CasesDataSource,
-    DataSource,
-    DiseaseOutbreakEvent,
-    DiseaseOutbreakEventBaseAttrs,
-    HazardType,
-    NationalIncidentStatus,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormState } from "../../components/form/FormState";
 import { diseaseOutbreakEventFieldIds } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
 import {
     FormFieldState,
     getAllFieldsFromSections,
-    getBooleanFieldValue,
-    getDateFieldValue,
-    getFieldFileDataById,
     getFieldFileIdById,
     getFileFieldValue,
-    getMultipleOptionsFieldValue,
     getStringFieldValue,
 } from "../../components/form/FormFieldsState";
 import {
@@ -31,7 +19,6 @@ import {
     ResponseActionFormData,
     SingleResponseActionFormData,
 } from "../../../domain/entities/ConfigurableForm";
-import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import {
     riskAssessmentGradingCodes,
@@ -58,7 +45,7 @@ import {
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
-import { getCaseDataFromField } from "./disease-outbreak-event/CaseDataFileFieldHelper";
+import { mapFormStateToDiseaseOutbreakEvent } from "./disease-outbreak-event/mapFormStateToDiseaseOutbreakEvent";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -66,11 +53,12 @@ export function mapFormStateToEntityData(
     formData: ConfigurableForm
 ): ConfigurableForm {
     switch (formData.type) {
-        case "disease-outbreak-event": {
+        case "disease-outbreak-event":
+        case "disease-outbreak-event-case-data": {
             const dieaseEntity = mapFormStateToDiseaseOutbreakEvent(
                 formState,
                 currentUserName,
-                formData.entity
+                formData
             );
 
             const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
@@ -159,179 +147,6 @@ export function mapFormStateToEntityData(
         default:
             return formData;
     }
-}
-
-function mapFormStateToDiseaseOutbreakEvent(
-    formState: FormState,
-    currentUserName: string,
-    diseaseOutbreakEvent: Maybe<DiseaseOutbreakEvent>
-): DiseaseOutbreakEvent {
-    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
-
-    const diseaseOutbreakEventEditableData = {
-        name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
-        dataSource: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.dataSource,
-            allFields
-        ) as DataSource,
-        hazardType: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.hazardType,
-            allFields
-        ) as HazardType,
-        mainSyndromeCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.mainSyndromeCode,
-            allFields
-        ),
-        suspectedDiseaseCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.suspectedDiseaseCode,
-            allFields
-        ),
-        notificationSourceCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.notificationSourceCode,
-            allFields
-        ),
-        areasAffectedProvinceIds: getMultipleOptionsFieldValue(
-            diseaseOutbreakEventFieldIds.areasAffectedProvinceIds,
-            allFields
-        ),
-        areasAffectedDistrictIds: getMultipleOptionsFieldValue(
-            diseaseOutbreakEventFieldIds.areasAffectedDistrictIds,
-            allFields
-        ),
-        incidentStatus: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentStatus,
-            allFields
-        ) as NationalIncidentStatus,
-        emerged: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.emergedNarrative,
-                allFields
-            ),
-        },
-        detected: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.detectedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.detectedNarrative,
-                allFields
-            ),
-        },
-        notified: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.notifiedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.notifiedNarrative,
-                allFields
-            ),
-        },
-        earlyResponseActions: {
-            initiateInvestigation: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.initiateInvestigation,
-                allFields
-            ) as Date,
-            conductEpidemiologicalAnalysis: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
-                allFields
-            ) as Date,
-            laboratoryConfirmation: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.laboratoryConfirmation,
-                allFields
-            ) as Date,
-            appropriateCaseManagement: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.appropriateCaseManagementNA,
-                    allFields
-                ),
-            },
-            initiatePublicHealthCounterMeasures: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresNA,
-                    allFields
-                ),
-            },
-            initiateRiskCommunication: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationNA,
-                    allFields
-                ),
-            },
-            establishCoordination: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.establishCoordinationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.establishCoordinationNa,
-                    allFields
-                ),
-            },
-            responseNarrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.responseNarrative,
-                allFields
-            ),
-        },
-        incidentManagerName: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentManagerName,
-            allFields
-        ),
-        notes: getStringFieldValue(diseaseOutbreakEventFieldIds.notes, allFields),
-        casesDataSource: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.casesDataSource,
-            allFields
-        ) as CasesDataSource,
-    };
-
-    const isCasesDataUserDefined =
-        diseaseOutbreakEventEditableData.casesDataSource ===
-        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
-
-    const uploadedCasesSheetData = isCasesDataUserDefined
-        ? getFieldFileDataById(diseaseOutbreakEventFieldIds.casesDataFile, allFields)
-        : undefined;
-
-    const hasCasesDataChange = isCasesDataUserDefined && uploadedCasesSheetData;
-
-    const casesData = hasCasesDataChange
-        ? getCaseDataFromField(uploadedCasesSheetData, currentUserName)
-        : diseaseOutbreakEvent?.uploadedCasesData;
-
-    const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
-        id: diseaseOutbreakEvent?.id || "",
-        status: diseaseOutbreakEvent?.status || "ACTIVE",
-        created: diseaseOutbreakEvent?.created,
-        lastUpdated: diseaseOutbreakEvent?.lastUpdated,
-        createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
-        ...diseaseOutbreakEventEditableData,
-    };
-    const newDiseaseOutbreakEvent = new DiseaseOutbreakEvent({
-        ...diseaseOutbreakEventBase,
-        uploadedCasesData: undefined,
-
-        // NOTICE: Not needed but required
-        createdBy: undefined,
-        mainSyndrome: undefined,
-        suspectedDisease: undefined,
-        notificationSource: undefined,
-        incidentManager: undefined,
-        riskAssessment: undefined,
-        incidentActionPlan: undefined,
-        incidentManagementTeam: undefined,
-    });
-
-    return casesData
-        ? newDiseaseOutbreakEvent.addUploadedCasesData(casesData)
-        : newDiseaseOutbreakEvent;
 }
 
 function mapFormStateToRiskAssessmentGrading(formState: FormState): RiskAssessmentGrading {
