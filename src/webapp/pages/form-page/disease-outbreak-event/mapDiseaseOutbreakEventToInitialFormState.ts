@@ -445,6 +445,10 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     data: undefined,
                     fileId: isCasesDataUserDefined ? uploadedCasesDataFileId : undefined,
                     fileTemplate: caseDataFileTemplete,
+                    fileNameLabel:
+                        isCasesDataUserDefined && uploadedCasesDataFileId
+                            ? i18n.t("HISTORICAL_CASE_DATA")
+                            : undefined,
                     helperText:
                         editMode && isCasesDataUserDefined
                             ? i18n.t(
@@ -782,6 +786,10 @@ function getInitialFormStateForDiseaseOutbreakCaseData(
                         data: undefined,
                         fileId: uploadedCasesDataFileId,
                         fileTemplate: caseDataFileTemplete,
+                        fileNameLabel: uploadedCasesDataFileId
+                            ? i18n.t("HISTORICAL_CASE_DATA")
+                            : undefined,
+
                         helperText: i18n.t(
                             "In order to add or replace cases, you need to download the current file and add the new ones."
                         ),

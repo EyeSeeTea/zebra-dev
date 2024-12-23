@@ -29,6 +29,7 @@ type ImportFileProps = {
     errorText?: string;
     error?: boolean;
     required?: boolean;
+    fileNameLabel?: string;
 };
 
 export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
@@ -43,6 +44,7 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
         required,
         fileTemplate,
         fileId,
+        fileNameLabel,
     } = props;
 
     const snackbar = useSnackbar();
@@ -118,7 +120,7 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
                             <SimpleModal
                                 open={openErrorsModal}
                                 onClose={() => setOpenErrorsModal(false)}
-                                title={i18n.t("Errors in cases data file")}
+                                title={i18n.t("Errors in file")}
                                 closeLabel={i18n.t("Close")}
                             >
                                 {openErrorsModal && <ErrorsText>{errorText}</ErrorsText>}
@@ -146,7 +148,7 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
                     />
                     <Link
                         href={URL.createObjectURL(file)}
-                        download={fileId ? "HISTORICAL_CASE_DATA" : file.name}
+                        download={fileId && fileNameLabel ? fileNameLabel : file.name}
                         underline="hover"
                     >
                         {fileId ? i18n.t("Download historical data") : file.name}

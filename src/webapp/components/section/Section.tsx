@@ -60,6 +60,11 @@ const SectionContainer = styled.section<{ $hasSeparator?: boolean }>`
 const Header = styled.div`
     display: flex;
     justify-content: space-between;
+    @media (max-width: 700px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
 `;
 
 const TitleContainer = styled.div`

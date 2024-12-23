@@ -77,6 +77,7 @@ export type FormFileFieldState = FormFieldStateBase<Maybe<File>> & {
     data: Maybe<SheetData[]>;
     fileId: Maybe<Id>;
     fileTemplate: Maybe<File>;
+    fileNameLabel?: string;
 };
 
 export type AddNewFieldState = FormFieldStateBase<null> & {

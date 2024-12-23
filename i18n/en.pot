@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-12-19T16:37:02.900Z\n"
-"PO-Revision-Date: 2024-12-19T16:37:02.900Z\n"
+"POT-Creation-Date: 2024-12-23T12:07:43.318Z\n"
+"PO-Revision-Date: 2024-12-23T12:07:43.318Z\n"
 
 msgid "Low"
 msgstr ""
@@ -87,6 +87,9 @@ msgstr ""
 msgid "Edit Details"
 msgstr ""
 
+msgid "Edit historical case data"
+msgstr ""
+
 msgid "Complete Event"
 msgstr ""
 
@@ -108,7 +111,7 @@ msgstr ""
 msgid "Select a file"
 msgstr ""
 
-msgid "Errors in cases data file"
+msgid "Errors in file"
 msgstr ""
 
 msgid "Close"
@@ -230,6 +233,9 @@ msgstr ""
 msgid "Disease Outbreak saved successfully"
 msgstr ""
 
+msgid "Disease outbreak case data saved successfully"
+msgstr ""
+
 msgid "Warning"
 msgstr ""
 
@@ -300,4 +306,8 @@ msgid "Are you sure you want to delete this team role?"
 msgstr ""
 
 msgid "Resources"
+msgstr ""
+
+msgctxt "DATA"
+msgid "HISTORICAL_CASE"
 msgstr ""

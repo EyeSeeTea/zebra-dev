@@ -23,6 +23,7 @@ export type EventTrackerFormSummaryProps = {
     formSummary: Maybe<FormSummaryData>;
     globalMessage: Maybe<GlobalMessage>;
     onCompleteClick: () => void;
+    isCasesDataUserDefined?: boolean;
 };
 
 const ROW_COUNT = 3;
@@ -35,6 +36,7 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
         formSummary,
         onCompleteClick,
         globalMessage,
+        isCasesDataUserDefined = false,
     } = props;
     const { goTo } = useRoutes();
     const snackbar = useSnackbar();
@@ -64,14 +66,18 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
             >
                 {i18n.t("Edit Details")}
             </Button>
-            <Button
-                variant="outlined"
-                color="secondary"
-                onClick={onEditCaseDataClick}
-                startIcon={<BackupIcon />}
-            >
-                {i18n.t("Edit historical case data")}
-            </Button>
+
+            {isCasesDataUserDefined ? (
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={onEditCaseDataClick}
+                    startIcon={<BackupIcon />}
+                >
+                    {i18n.t("Edit historical case data")}
+                </Button>
+            ) : null}
+
             <Button
                 variant="outlined"
                 color="secondary"
@@ -102,12 +108,12 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
                 headerButtons={headerButtons}
                 titleVariant="secondary"
             >
+                <IncidentManagerContainer>
+                    {formSummary.incidentManager && (
+                        <UserCard selectedUser={formSummary.incidentManager} />
+                    )}
+                </IncidentManagerContainer>
                 <SummaryContainer>
-                    <SummaryColumn>
-                        {formSummary.incidentManager && (
-                            <UserCard selectedUser={formSummary.incidentManager} />
-                        )}
-                    </SummaryColumn>
                     <SummaryColumn>
                         {formSummary.summary.map((labelWithValue, index) =>
                             index < ROW_COUNT
@@ -162,6 +168,11 @@ const SummaryColumn = styled.div`
 `;
 
 const StyledType = styled(Typography)`
+    margin-block-start: 10px;
     color: ${props => props.theme.palette.text.hint};
     white-space: pre-line;
+`;
+
+const IncidentManagerContainer = styled.div`
+    margin-block-end: 10px;
 `;

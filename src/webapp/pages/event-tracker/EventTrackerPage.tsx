@@ -23,6 +23,7 @@ import { StatsCard } from "../../components/stats-card/StatsCard";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 import { useOverviewCards } from "./useOverviewCards";
 import { SimpleModal } from "../../components/simple-modal/SimpleModal";
+import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -83,7 +84,6 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             changeCurrentEventTracker(eventTrackerDetails);
         }
     }, [changeCurrentEventTracker, eventTrackerDetails]);
-
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
             <EventTrackerFormSummary
@@ -93,6 +93,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 formSummary={formSummary}
                 onCompleteClick={onOpenCompleteModal}
                 globalMessage={globalMessage}
+                isCasesDataUserDefined={
+                    currentEventTracker?.casesDataSource ===
+                    CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
+                }
             />
             <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
                 <DurationFilterContainer>

@@ -105,6 +105,7 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
                     onChange={notifyChange}
                     fileTemplate={field.fileTemplate}
                     fileId={field.fileId}
+                    fileNameLabel={field.fileNameLabel}
                 />
             );
         }
