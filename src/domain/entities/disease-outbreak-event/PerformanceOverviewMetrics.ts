@@ -53,7 +53,7 @@ export type PerformanceOverviewMetrics = {
     nationalIncidentStatus: string;
 };
 
-export type IncidentStatus = "Watch" | "Alert" | "Respond" | "All";
+export type IncidentStatus = "Watch" | "Alert" | "Respond" | "ALL";
 
 type BaseCounts = {
     name: DiseaseNames | HazardNames;
