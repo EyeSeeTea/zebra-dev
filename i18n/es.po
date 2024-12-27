@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2024-12-23T12:07:43.318Z\n"
+"POT-Creation-Date: 2024-12-27T13:45:20.506Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -170,10 +170,13 @@ msgstr ""
 msgid "All public health events"
 msgstr ""
 
-msgid "7-1-7 performance"
+msgid "Alerts 7-1-7 performance"
 msgstr ""
 
 msgid "events"
+msgstr ""
+
+msgid "7-1-7 performance"
 msgstr ""
 
 msgid "Performance overview"

@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-12-23T12:10:07.048Z\n"
-"PO-Revision-Date: 2024-12-23T12:10:07.048Z\n"
+"POT-Creation-Date: 2024-12-27T13:45:20.506Z\n"
+"PO-Revision-Date: 2024-12-27T13:45:20.506Z\n"
 
 msgid "Low"
 msgstr ""
@@ -171,10 +171,13 @@ msgstr ""
 msgid "All public health events"
 msgstr ""
 
-msgid "7-1-7 performance"
+msgid "Alerts 7-1-7 performance"
 msgstr ""
 
 msgid "events"
+msgstr ""
+
+msgid "7-1-7 performance"
 msgstr ""
 
 msgid "Performance overview"
