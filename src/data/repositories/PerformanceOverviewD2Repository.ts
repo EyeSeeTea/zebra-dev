@@ -606,39 +606,98 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             .value();
     }
 
-    getDashboard717Performance(): FutureData<PerformanceMetrics717[]> {
-        return this.datastore
-            .getObject<PerformanceMetrics717[]>(PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY)
-            .flatMap(nullable717PerformanceProgramIndicators => {
-                return assertOrError(
-                    nullable717PerformanceProgramIndicators,
-                    PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
-                ).flatMap(performance717ProgramIndicators => {
-                    const dashboard717PerformanceIndicator = performance717ProgramIndicators.filter(
-                        indicator => indicator.key === "dashboard"
-                    );
-                    return apiToFuture(
-                        this.api.analytics.get({
-                            dimension: [
-                                `dx:${dashboard717PerformanceIndicator
-                                    .map(({ id }) => id)
-                                    .join(";")}`,
-                            ],
-                            startDate: DEFAULT_START_DATE,
-                            endDate: DEFAULT_END_DATE,
-                            includeMetadataDetails: true,
-                        })
-                    ).map(res => {
-                        return this.mapIndicatorsTo717PerformanceMetrics(
-                            res.rows,
-                            dashboard717PerformanceIndicator
-                        );
-                    });
-                });
+    getNational717Performance(): FutureData<PerformanceMetrics717[]> {
+        return this.getAll717PerformanceIndicators().flatMap(performance717ProgramIndicators => {
+            const dashboard717PerformanceIndicator = performance717ProgramIndicators.filter(
+                indicator => indicator.key === "national"
+            );
+            return apiToFuture(
+                this.api.analytics.get({
+                    dimension: [
+                        `dx:${dashboard717PerformanceIndicator.map(({ id }) => id).join(";")}`,
+                    ],
+                    startDate: DEFAULT_START_DATE,
+                    endDate: DEFAULT_END_DATE,
+                    includeMetadataDetails: true,
+                })
+            ).map(res => {
+                return this.mapIndicatorsTo717PerformanceMetrics(
+                    res.rows,
+                    dashboard717PerformanceIndicator
+                );
             });
+        });
     }
 
-    getEventTracker717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
+    getAlerts717Performance(): FutureData<PerformanceMetrics717[]> {
+        return this.getAll717PerformanceIndicators().flatMap(performance717ProgramIndicators => {
+            const dashboard717PerformanceIndicator = performance717ProgramIndicators.filter(
+                indicator => indicator.key === "alerts"
+            );
+
+            return apiToFuture(
+                this.api.analytics.get({
+                    dimension: [
+                        `dx:${dashboard717PerformanceIndicator.map(({ id }) => id).join(";")}`,
+                    ],
+                    startDate: DEFAULT_START_DATE,
+                    endDate: DEFAULT_END_DATE,
+                    includeMetadataDetails: true,
+                })
+            ).map(res => {
+                return this.mapIndicatorsTo717PerformanceMetrics(
+                    res.rows,
+                    dashboard717PerformanceIndicator
+                );
+            });
+        });
+    }
+
+    getEvent717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
+        return this.getAll717PerformanceIndicators().flatMap(performance717ProgramIndicators => {
+            const eventTracker717PerformanceIndicator = performance717ProgramIndicators.filter(
+                indicator => indicator.key === "event"
+            );
+            return apiToFuture(
+                this.api.analytics.getEnrollmentsQuery({
+                    programId: RTSL_ZEBRA_PROGRAM_ID,
+                    dimension: [...eventTracker717PerformanceIndicator.map(({ id }) => id)],
+                    startDate: DEFAULT_START_DATE,
+                    endDate: DEFAULT_END_DATE,
+                })
+            ).flatMap(response => {
+                const filteredRow = filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
+                    diseaseOutbreakEventId,
+                    response.rows,
+                    response.headers
+                );
+
+                if (!filteredRow)
+                    return Future.error(
+                        new Error("No data found for event tracker 7-1-7 performance")
+                    );
+
+                const mappedIndicatorsToRows: string[][] = eventTracker717PerformanceIndicator.map(
+                    ({ id }) => {
+                        return [
+                            id,
+                            filteredRow[response.headers.findIndex(header => header.name === id)] ||
+                                "",
+                        ];
+                    }
+                );
+
+                return Future.success(
+                    this.mapIndicatorsTo717PerformanceMetrics(
+                        mappedIndicatorsToRows,
+                        eventTracker717PerformanceIndicator
+                    )
+                );
+            });
+        });
+    }
+
+    private getAll717PerformanceIndicators(): FutureData<PerformanceMetrics717[]> {
         return this.datastore
             .getObject<PerformanceMetrics717[]>(PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY)
             .flatMap(nullable717PerformanceProgramIndicators => {
@@ -646,46 +705,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     nullable717PerformanceProgramIndicators,
                     PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
                 ).flatMap(performance717ProgramIndicators => {
-                    const eventTracker717PerformanceIndicator =
-                        performance717ProgramIndicators.filter(
-                            indicator => indicator.key === "event_tracker"
-                        );
-                    return apiToFuture(
-                        this.api.analytics.getEnrollmentsQuery({
-                            programId: RTSL_ZEBRA_PROGRAM_ID,
-                            dimension: [...eventTracker717PerformanceIndicator.map(({ id }) => id)],
-                            startDate: DEFAULT_START_DATE,
-                            endDate: DEFAULT_END_DATE,
-                        })
-                    ).flatMap(response => {
-                        const filteredRow = filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
-                            diseaseOutbreakEventId,
-                            response.rows,
-                            response.headers
-                        );
-
-                        if (!filteredRow)
-                            return Future.error(
-                                new Error("No data found for event tracker 7-1-7 performance")
-                            );
-
-                        const mappedIndicatorsToRows: string[][] =
-                            eventTracker717PerformanceIndicator.map(({ id }) => {
-                                return [
-                                    id,
-                                    filteredRow[
-                                        response.headers.findIndex(header => header.name === id)
-                                    ] || "",
-                                ];
-                            });
-
-                        return Future.success(
-                            this.mapIndicatorsTo717PerformanceMetrics(
-                                mappedIndicatorsToRows,
-                                eventTracker717PerformanceIndicator
-                            )
-                        );
-                    });
+                    return Future.success(performance717ProgramIndicators);
                 });
             });
     }

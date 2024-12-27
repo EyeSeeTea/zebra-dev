@@ -79,5 +79,5 @@ export type PerformanceMetrics717 = {
     name: string;
     type: "primary" | "secondary";
     value?: number | "Inc";
-    key: "dashboard" | "event_tracker";
+    key: "national" | "event" | "alerts";
 };

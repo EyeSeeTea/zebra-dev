@@ -6,9 +6,7 @@ import { PerformanceOverviewRepository } from "../../../domain/repositories/Perf
 import { FutureData } from "../../api-futures";
 
 export class PerformanceOverviewTestRepository implements PerformanceOverviewRepository {
-    getEventTracker717Performance(
-        _diseaseOutbreakEventId: Id
-    ): FutureData<PerformanceMetrics717[]> {
+    getEvent717Performance(_diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
         return Future.success([]);
     }
     getEventTrackerOverviewMetrics(): FutureData<OverviewCard[]> {
@@ -17,7 +15,11 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
     getTotalCardCounts(): FutureData<any> {
         return Future.success(0);
     }
-    getDashboard717Performance(): FutureData<any> {
+    getNational717Performance(): FutureData<any> {
+        return Future.success(0);
+    }
+
+    getAlerts717Performance(): FutureData<any> {
         return Future.success(0);
     }
 

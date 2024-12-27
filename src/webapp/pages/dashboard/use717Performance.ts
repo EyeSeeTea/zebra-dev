@@ -25,7 +25,7 @@ export type PerformanceMetric717State = {
 export type Order = { name: string; direction: "asc" | "desc" };
 
 export function use717Performance(
-    type: "dashboard" | "event_tracker",
+    type: "national" | "event" | "alerts",
     diseaseOutbreakEventId?: Id
 ): PerformanceMetric717State {
     const { compositionRoot } = useAppContext();
@@ -34,8 +34,8 @@ export function use717Performance(
     const [isLoading, setIsLoading] = useState(false);
 
     const getColor = useCallback(
-        (key: string, value: number | "Inc", type: "dashboard" | "event_tracker"): CardColors => {
-            if (type === "dashboard") {
+        (key: string, value: number | "Inc", type: "national" | "event" | "alerts"): CardColors => {
+            if (type === "national") {
                 switch (key) {
                     case "allTargets":
                         return "grey";
