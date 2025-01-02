@@ -23,6 +23,7 @@ import {
     DiseaseNames,
     PerformanceMetrics717,
     IncidentStatus,
+    PerformanceMetrics717Key,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
@@ -47,7 +48,12 @@ const ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
     "alerts-program-event-tracker-overview-ids";
 const CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
     "cases-program-event-tracker-overview-ids";
-const PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY = "717-performance-program-indicators";
+const NATIONAL_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
+    "national-717-performance-program-indicators";
+const EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
+    "event-tracker-717-performance-program-indicators";
+const ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
+    "alerts-717-performance-program-indicators";
 const PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY = "performance-overview-dimensions";
 
 type EventTrackerOverviewInDataStore = {
@@ -607,106 +613,111 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     getNational717Performance(): FutureData<PerformanceMetrics717[]> {
-        return this.getAll717PerformanceIndicators().flatMap(performance717ProgramIndicators => {
-            const dashboard717PerformanceIndicator = performance717ProgramIndicators.filter(
-                indicator => indicator.key === "national"
-            );
-            return apiToFuture(
-                this.api.analytics.get({
-                    dimension: [
-                        `dx:${dashboard717PerformanceIndicator.map(({ id }) => id).join(";")}`,
-                    ],
-                    startDate: DEFAULT_START_DATE,
-                    endDate: DEFAULT_END_DATE,
-                    includeMetadataDetails: true,
-                })
-            ).map(res => {
-                return this.mapIndicatorsTo717PerformanceMetrics(
-                    res.rows,
-                    dashboard717PerformanceIndicator
-                );
-            });
-        });
+        return this.get717PerformanceIndicators("national").flatMap(
+            performance717ProgramIndicators => {
+                return apiToFuture(
+                    this.api.analytics.get({
+                        dimension: [
+                            `dx:${performance717ProgramIndicators.map(({ id }) => id).join(";")}`,
+                        ],
+                        startDate: DEFAULT_START_DATE,
+                        endDate: DEFAULT_END_DATE,
+                        includeMetadataDetails: true,
+                    })
+                ).map(res => {
+                    return this.mapIndicatorsTo717PerformanceMetrics(
+                        res.rows,
+                        performance717ProgramIndicators
+                    );
+                });
+            }
+        );
     }
 
     getAlerts717Performance(): FutureData<PerformanceMetrics717[]> {
-        return this.getAll717PerformanceIndicators().flatMap(performance717ProgramIndicators => {
-            const dashboard717PerformanceIndicator = performance717ProgramIndicators.filter(
-                indicator => indicator.key === "alerts"
-            );
-
-            return apiToFuture(
-                this.api.analytics.get({
-                    dimension: [
-                        `dx:${dashboard717PerformanceIndicator.map(({ id }) => id).join(";")}`,
-                    ],
-                    startDate: DEFAULT_START_DATE,
-                    endDate: DEFAULT_END_DATE,
-                    includeMetadataDetails: true,
-                })
-            ).map(res => {
-                return this.mapIndicatorsTo717PerformanceMetrics(
-                    res.rows,
-                    dashboard717PerformanceIndicator
-                );
-            });
-        });
+        return this.get717PerformanceIndicators("alerts").flatMap(
+            performance717ProgramIndicators => {
+                return apiToFuture(
+                    this.api.analytics.get({
+                        dimension: [
+                            `dx:${performance717ProgramIndicators.map(({ id }) => id).join(";")}`,
+                        ],
+                        startDate: DEFAULT_START_DATE,
+                        endDate: DEFAULT_END_DATE,
+                        includeMetadataDetails: true,
+                    })
+                ).map(res => {
+                    return this.mapIndicatorsTo717PerformanceMetrics(
+                        res.rows,
+                        performance717ProgramIndicators
+                    );
+                });
+            }
+        );
     }
 
     getEvent717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
-        return this.getAll717PerformanceIndicators().flatMap(performance717ProgramIndicators => {
-            const eventTracker717PerformanceIndicator = performance717ProgramIndicators.filter(
-                indicator => indicator.key === "event"
-            );
-            return apiToFuture(
-                this.api.analytics.getEnrollmentsQuery({
-                    programId: RTSL_ZEBRA_PROGRAM_ID,
-                    dimension: [...eventTracker717PerformanceIndicator.map(({ id }) => id)],
-                    startDate: DEFAULT_START_DATE,
-                    endDate: DEFAULT_END_DATE,
-                })
-            ).flatMap(response => {
-                const filteredRow = filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
-                    diseaseOutbreakEventId,
-                    response.rows,
-                    response.headers
-                );
-
-                if (!filteredRow)
-                    return Future.error(
-                        new Error("No data found for event tracker 7-1-7 performance")
+        return this.get717PerformanceIndicators("event").flatMap(
+            performance717ProgramIndicators => {
+                return apiToFuture(
+                    this.api.analytics.getEnrollmentsQuery({
+                        programId: RTSL_ZEBRA_PROGRAM_ID,
+                        dimension: [...performance717ProgramIndicators.map(({ id }) => id)],
+                        startDate: DEFAULT_START_DATE,
+                        endDate: DEFAULT_END_DATE,
+                    })
+                ).flatMap(response => {
+                    const filteredRow = filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
+                        diseaseOutbreakEventId,
+                        response.rows,
+                        response.headers
                     );
 
-                const mappedIndicatorsToRows: string[][] = eventTracker717PerformanceIndicator.map(
-                    ({ id }) => {
-                        return [
-                            id,
-                            filteredRow[response.headers.findIndex(header => header.name === id)] ||
-                                "",
-                        ];
-                    }
-                );
+                    if (!filteredRow)
+                        return Future.error(
+                            new Error("No data found for event tracker 7-1-7 performance")
+                        );
 
-                return Future.success(
-                    this.mapIndicatorsTo717PerformanceMetrics(
-                        mappedIndicatorsToRows,
-                        eventTracker717PerformanceIndicator
-                    )
-                );
-            });
-        });
+                    const mappedIndicatorsToRows: string[][] = performance717ProgramIndicators.map(
+                        ({ id }) => {
+                            return [
+                                id,
+                                filteredRow[
+                                    response.headers.findIndex(header => header.name === id)
+                                ] || "",
+                            ];
+                        }
+                    );
+
+                    return Future.success(
+                        this.mapIndicatorsTo717PerformanceMetrics(
+                            mappedIndicatorsToRows,
+                            performance717ProgramIndicators
+                        )
+                    );
+                });
+            }
+        );
     }
 
-    private getAll717PerformanceIndicators(): FutureData<PerformanceMetrics717[]> {
+    private get717PerformanceIndicators(
+        key: PerformanceMetrics717Key
+    ): FutureData<PerformanceMetrics717[]> {
+        const datastoreKey =
+            key === "national"
+                ? NATIONAL_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+                : key === "alerts"
+                ? ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+                : EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY;
+
         return this.datastore
-            .getObject<PerformanceMetrics717[]>(PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY)
+            .getObject<PerformanceMetrics717[]>(datastoreKey)
             .flatMap(nullable717PerformanceProgramIndicators => {
-                return assertOrError(
-                    nullable717PerformanceProgramIndicators,
-                    PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
-                ).flatMap(performance717ProgramIndicators => {
-                    return Future.success(performance717ProgramIndicators);
-                });
+                return assertOrError(nullable717PerformanceProgramIndicators, datastoreKey).flatMap(
+                    performance717ProgramIndicators => {
+                        return Future.success(performance717ProgramIndicators);
+                    }
+                );
             });
     }
 
