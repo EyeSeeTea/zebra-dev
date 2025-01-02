@@ -51,8 +51,16 @@ export class CasesFileD2Repository implements CasesFileRepository {
     }
 
     save(diseaseOutbreakEventId: Id, outbreakKey: string, caseFile: CaseFile): FutureData<void> {
+        const renamedUploadedCasesDataFile = new File(
+            [caseFile.file],
+            `HISTORICAL_CASE_DATA_${diseaseOutbreakEventId}`,
+            {
+                type: caseFile.file.type,
+            }
+        );
+
         return Future.joinObj({
-            fileId: this.uploadCasesFile(caseFile.file),
+            fileId: this.uploadCasesFile(renamedUploadedCasesDataFile),
             alertsAndCaseForCasesData: this.getAlertsAndCaseForCasesDataObject(outbreakKey),
         }).flatMap(({ fileId, alertsAndCaseForCasesData }) => {
             const newAlertsAndCaseForCasesData: AlertsAndCaseForCasesData = {
@@ -62,8 +70,8 @@ export class CasesFileD2Repository implements CasesFileRepository {
                 nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
                 case: {
                     fileId,
-                    fileName: caseFile.file.name,
-                    fileType: caseFile.file.type,
+                    fileName: renamedUploadedCasesDataFile.name,
+                    fileType: renamedUploadedCasesDataFile.type,
                 },
             };
             return this.saveAlertsAndCaseForCasesDataObject(
@@ -113,7 +121,45 @@ export class CasesFileD2Repository implements CasesFileRepository {
                 name: file.name,
                 data: file,
             })
-        ).map(response => response.id);
+        ).flatMap(response => {
+            return this.dataStoreClient
+                .getObject<AppDatastoreConfig>("app-config")
+                .flatMap(appConfig => {
+                    const captureAccessUserGroups = [
+                        ...(appConfig?.userGroups.admin || []),
+                        ...(appConfig?.userGroups.capture || []),
+                    ].map(userGroupId => ({
+                        access: "rw------",
+                        id: userGroupId,
+                    }));
+
+                    const visualizerAccessUserGroups = [
+                        ...(appConfig?.userGroups.visualizer || []),
+                    ].map(userGroupId => ({
+                        access: "r-------",
+                        id: userGroupId,
+                    }));
+
+                    return apiToFuture(
+                        this.api.sharing.post(
+                            {
+                                id: response.id,
+                                type: "document",
+                            },
+                            {
+                                externalAccess: false,
+                                publicAccess: "--------",
+                                userGroupAccesses: [
+                                    ...captureAccessUserGroups,
+                                    ...visualizerAccessUserGroups,
+                                ],
+                            }
+                        )
+                    ).flatMap(() => {
+                        return Future.success(response.id);
+                    });
+                });
+        });
     }
 
     private deleteCasesFile(fileId: Id): FutureData<void> {
