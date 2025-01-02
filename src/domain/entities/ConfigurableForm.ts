@@ -76,7 +76,7 @@ export type DiseaseOutbreakEventFormData = BaseFormData & {
     entity: Maybe<DiseaseOutbreakEvent>;
     options: DiseaseOutbreakEventOptions;
     orgUnits: OrgUnit[];
-    caseDataFileTemplete: File;
+    caseDataFileTemplete: Maybe<File>;
     uploadedCasesDataFile: Maybe<File>;
     uploadedCasesDataFileId: Maybe<Id>;
     hasInitiallyCasesDataFile: boolean;
