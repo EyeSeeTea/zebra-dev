@@ -28,7 +28,7 @@ import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
 import { useIncidentActionPlan } from "../incident-action-plan/useIncidentActionPlan";
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { ModalData } from "../../components/form/Form";
-import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { useDiseaseOutbreakEventForm } from "./disease-outbreak-event/useDiseaseOutbreakEventForm";
 
 export type GlobalMessage = {
     text: string;
@@ -87,6 +87,14 @@ export function useForm(formType: FormType, id?: Id): State {
     const [entityData, setEntityData] = useState<ConfigurableForm>();
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState<ModalData>();
+
+    const { onSaveDiseaseOutbreakEvent } = useDiseaseOutbreakEventForm({
+        editMode: !!id,
+        setIsLoading,
+        setGlobalMessage,
+        setOpenModal,
+        setModalData,
+    });
 
     const allDataPerformanceEvents = dataPerformanceOverview?.map(
         event => event.hazardType || event.suspectedDisease
@@ -342,9 +350,7 @@ export function useForm(formType: FormType, id?: Id): State {
         [configurableForm]
     );
 
-    const onSaveDiseaseOutbreakEvent = useCallback(() => {
-        const { eventTrackerConfigurations } = configurations.selectableOptions;
-
+    const onPrimaryButtonClick = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
 
         const formData = mapFormStateToEntityData(
@@ -357,136 +363,13 @@ export function useForm(formType: FormType, id?: Id): State {
             formData.type === "disease-outbreak-event" ||
             formData.type === "disease-outbreak-event-case-data"
         ) {
-            setIsLoading(true);
-            compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
-                diseaseOutbreakEventId => {
-                    setIsLoading(false);
-
-                    if (
-                        diseaseOutbreakEventId &&
-                        formData.entity &&
-                        formData.type === "disease-outbreak-event"
-                    ) {
-                        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
-                            .execute(
-                                diseaseOutbreakEventId,
-                                formData.entity,
-                                eventTrackerConfigurations.hazardTypes,
-                                eventTrackerConfigurations.suspectedDiseases
-                            )
-                            .run(
-                                () => {},
-                                err => {
-                                    console.error({ err });
-                                }
-                            );
-                        goTo(RouteName.EVENT_TRACKER, {
-                            id: diseaseOutbreakEventId,
-                        });
-                        setGlobalMessage({
-                            text: i18n.t(`Disease Outbreak saved successfully`),
-                            type: "success",
-                        });
-                    } else if (
-                        diseaseOutbreakEventId &&
-                        formData.type === "disease-outbreak-event-case-data"
-                    ) {
-                        goTo(RouteName.EVENT_TRACKER, {
-                            id: diseaseOutbreakEventId,
-                        });
-                        setGlobalMessage({
-                            text: i18n.t(`Disease outbreak case data saved successfully`),
-                            type: "success",
-                        });
-                    }
-                },
-                err => {
-                    setGlobalMessage({
-                        text: i18n.t(
-                            formData.type === "disease-outbreak-event-case-data"
-                                ? `Error saving disease outbreak case data: ${err.message}`
-                                : `Error saving disease outbreak: ${err.message}`
-                        ),
-                        type: "error",
-                    });
-                }
-            );
-        }
-    }, [
-        compositionRoot,
-        configurableForm,
-        configurations,
-        currentUser.username,
-        formSectionsToDelete,
-        formState,
-        goTo,
-        id,
-    ]);
-
-    const onPrimaryButtonClick = useCallback(() => {
-        const { eventTrackerConfigurations } = configurations.selectableOptions;
-        if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
-
-        const formData = mapFormStateToEntityData(
-            formState.data,
-            currentUser.username,
-            configurableForm
-        );
-
-        const haveChangedCasesDataInDiseaseOutbreak =
-            !!id &&
-            formData.type === "disease-outbreak-event" &&
-            !formData.uploadedCasesDataFileId &&
-            !!formData.uploadedCasesDataFile &&
-            formData.entity?.casesDataSource ===
-                CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
-
-        if (
-            haveChangedCasesDataInDiseaseOutbreak ||
-            formData.type === "disease-outbreak-event-case-data"
-        ) {
-            setOpenModal(true);
-            setModalData({
-                title: i18n.t("Warning"),
-                content: i18n.t(
-                    "You have uploaded a new data cases file. This action will replace the current data of this disease outbreak event with the data of the file. Are you sure you want to continue?"
-                ),
-                cancelLabel: i18n.t("Cancel"),
-                confirmLabel: i18n.t("Save"),
-                onConfirm: onSaveDiseaseOutbreakEvent,
-            });
+            onSaveDiseaseOutbreakEvent(formData);
         } else {
             setIsLoading(true);
             compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
-                diseaseOutbreakEventId => {
+                _diseaseOutbreakEventId => {
                     setIsLoading(false);
-
                     switch (formData.type) {
-                        case "disease-outbreak-event":
-                            if (diseaseOutbreakEventId && formData.entity) {
-                                compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts
-                                    .execute(
-                                        diseaseOutbreakEventId,
-                                        formData.entity,
-                                        eventTrackerConfigurations.hazardTypes,
-                                        eventTrackerConfigurations.suspectedDiseases
-                                    )
-                                    .run(
-                                        () => {},
-                                        err => {
-                                            console.error({ err });
-                                        }
-                                    );
-                                goTo(RouteName.EVENT_TRACKER, {
-                                    id: diseaseOutbreakEventId,
-                                });
-                                setGlobalMessage({
-                                    text: i18n.t(`Disease Outbreak saved successfully`),
-                                    type: "success",
-                                });
-                            }
-                            break;
-
                         case "risk-assessment-grading":
                             if (currentEventTracker?.id)
                                 goTo(RouteName.EVENT_TRACKER, {
@@ -565,17 +448,16 @@ export function useForm(formType: FormType, id?: Id): State {
             );
         }
     }, [
-        configurations,
-        formState,
+        compositionRoot.save,
         configurableForm,
+        configurations,
+        currentEventTracker?.id,
         currentUser.username,
+        formSectionsToDelete,
+        formState,
+        goTo,
         id,
         onSaveDiseaseOutbreakEvent,
-        compositionRoot.save,
-        compositionRoot.diseaseOutbreakEvent.mapDiseaseOutbreakEventToAlerts,
-        formSectionsToDelete,
-        currentEventTracker?.id,
-        goTo,
     ]);
 
     const onCancelForm = useCallback(() => {

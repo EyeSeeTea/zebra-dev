@@ -35,6 +35,8 @@ export function getOutbreakKey(options: {
     const diseaseName = suspectedDiseases.find(disease => disease.id === outbreakValue)?.name;
     const hazardName = hazardTypes.find(hazardType => hazardType.id === outbreakValue)?.name;
 
+    if (!diseaseName && !hazardName) throw new Error(`Outbreak not found for ${outbreakValue}`);
+
     switch (dataSource) {
         case DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS:
             if (!hazardName) throw new Error(`Outbreak not found for ${outbreakValue}`);
@@ -44,7 +46,5 @@ export function getOutbreakKey(options: {
             if (!diseaseName) throw new Error(`Outbreak not found for ${outbreakValue}`);
 
             return diseaseName;
-        default:
-            throw new Error(`Unknown data source: ${dataSource}`);
     }
 }

@@ -24,81 +24,80 @@ export function getDiseaseOutbreakConfigurableForm(
 ): FutureData<DiseaseOutbreakEventFormData> {
     const { rules, labels } = getEventTrackerLabelsRules();
 
-    return options.casesFileRepository.getTemplate().flatMap(casesFileTemplate => {
-        const diseaseOutbreakForm: DiseaseOutbreakEventFormData = {
-            type: formType,
-            entity: undefined,
-            uploadedCasesDataFile: undefined,
-            uploadedCasesDataFileId: undefined,
-            hasInitiallyCasesDataFile: false,
-            caseDataFileTemplete: casesFileTemplate.file,
-            rules: rules,
-            labels: labels,
-            options: configurations.selectableOptions.eventTrackerConfigurations,
-            orgUnits: configurations.orgUnits,
-        };
+    const diseaseOutbreakForm: DiseaseOutbreakEventFormData = {
+        type: formType,
+        entity: undefined,
+        uploadedCasesDataFile: undefined,
+        uploadedCasesDataFileId: undefined,
+        hasInitiallyCasesDataFile: false,
+        caseDataFileTemplete: undefined,
+        rules: rules,
+        labels: labels,
+        options: configurations.selectableOptions.eventTrackerConfigurations,
+        orgUnits: configurations.orgUnits,
+    };
 
-        if (id) {
-            return options.diseaseOutbreakEventRepository
-                .get(id)
-                .flatMap(diseaseOutbreakEventBase => {
-                    const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent({
-                        ...diseaseOutbreakEventBase,
+    if (id) {
+        return options.diseaseOutbreakEventRepository.get(id).flatMap(diseaseOutbreakEventBase => {
+            const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent({
+                ...diseaseOutbreakEventBase,
 
-                        // NOTICE: Not needed in form but required
-                        createdBy: undefined,
-                        mainSyndrome: undefined,
-                        suspectedDisease: undefined,
-                        notificationSource: undefined,
-                        incidentManager: undefined,
-                        riskAssessment: undefined,
-                        incidentActionPlan: undefined,
-                        incidentManagementTeam: undefined,
-                        uploadedCasesData: undefined,
+                // NOTICE: Not needed in form but required
+                createdBy: undefined,
+                mainSyndrome: undefined,
+                suspectedDisease: undefined,
+                notificationSource: undefined,
+                incidentManager: undefined,
+                riskAssessment: undefined,
+                incidentActionPlan: undefined,
+                incidentManagementTeam: undefined,
+                uploadedCasesData: undefined,
+            });
+
+            const outbreakKey = getOutbreakKey({
+                dataSource: diseaseOutbreakEvent.dataSource,
+                outbreakValue:
+                    diseaseOutbreakEvent.suspectedDiseaseCode || diseaseOutbreakEvent.hazardType,
+                hazardTypes:
+                    configurations.selectableOptions.eventTrackerConfigurations.hazardTypes,
+                suspectedDiseases:
+                    configurations.selectableOptions.eventTrackerConfigurations.suspectedDiseases,
+            });
+
+            const hasCasesDataFile =
+                diseaseOutbreakEvent.casesDataSource ===
+                CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+
+            const populatedDiseaseOutbreakForm: DiseaseOutbreakEventFormData = {
+                ...diseaseOutbreakForm,
+                entity: diseaseOutbreakEvent,
+            };
+
+            if (hasCasesDataFile) {
+                return options.casesFileRepository.getTemplate().flatMap(casesFileTemplate => {
+                    return options.casesFileRepository.get(outbreakKey).flatMap(casesDataFile => {
+                        const populatedDiseaseOutbreakFormWithFile: DiseaseOutbreakEventFormData = {
+                            ...populatedDiseaseOutbreakForm,
+                            caseDataFileTemplete: casesFileTemplate.file,
+                            uploadedCasesDataFile: casesDataFile.file,
+                            uploadedCasesDataFileId: casesDataFile.fileId,
+                            hasInitiallyCasesDataFile: true,
+                        };
+                        return Future.success(populatedDiseaseOutbreakFormWithFile);
                     });
-
-                    const outbreakKey = getOutbreakKey({
-                        dataSource: diseaseOutbreakEvent.dataSource,
-                        outbreakValue:
-                            diseaseOutbreakEvent.suspectedDiseaseCode ||
-                            diseaseOutbreakEvent.hazardType,
-                        hazardTypes:
-                            configurations.selectableOptions.eventTrackerConfigurations.hazardTypes,
-                        suspectedDiseases:
-                            configurations.selectableOptions.eventTrackerConfigurations
-                                .suspectedDiseases,
-                    });
-
-                    const hasCasesDataFile =
-                        diseaseOutbreakEvent.casesDataSource ===
-                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
-
-                    const populatedDiseaseOutbreakForm: DiseaseOutbreakEventFormData = {
-                        ...diseaseOutbreakForm,
-                        entity: diseaseOutbreakEvent,
-                    };
-
-                    if (hasCasesDataFile) {
-                        return options.casesFileRepository
-                            .get(outbreakKey)
-                            .flatMap(casesDataFile => {
-                                const populatedDiseaseOutbreakFormWithFile: DiseaseOutbreakEventFormData =
-                                    {
-                                        ...populatedDiseaseOutbreakForm,
-                                        uploadedCasesDataFile: casesDataFile.file,
-                                        uploadedCasesDataFileId: casesDataFile.fileId,
-                                        hasInitiallyCasesDataFile: true,
-                                    };
-                                return Future.success(populatedDiseaseOutbreakFormWithFile);
-                            });
-                    } else {
-                        return Future.success(populatedDiseaseOutbreakForm);
-                    }
                 });
-        } else {
-            return Future.success(diseaseOutbreakForm);
-        }
-    });
+            } else {
+                return Future.success(populatedDiseaseOutbreakForm);
+            }
+        });
+    } else {
+        return options.casesFileRepository.getTemplate().flatMap(casesFileTemplate => {
+            return Future.success({
+                ...diseaseOutbreakForm,
+                caseDataFileTemplete: casesFileTemplate.file,
+            });
+        });
+    }
 }
 
 function getEventTrackerLabelsRules(): { rules: Rule[]; labels: FormLables } {
