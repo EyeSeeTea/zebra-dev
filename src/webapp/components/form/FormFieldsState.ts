@@ -6,7 +6,15 @@ import { ValidationError, ValidationErrorKey } from "../../../domain/entities/Va
 import { FormSectionState } from "./FormSectionsState";
 import { Rule } from "../../../domain/entities/Rule";
 
-export type FieldType = "text" | "boolean" | "select" | "radio" | "date" | "user" | "addNew";
+export type FieldType =
+    | "text"
+    | "boolean"
+    | "select"
+    | "radio"
+    | "date"
+    | "user"
+    | "addNew"
+    | "file";
 
 type FormFieldStateBase<T> = {
     id: string;
@@ -57,6 +65,12 @@ export type FormAvatarFieldState = FormFieldStateBase<Maybe<string>> & {
     options: User[];
 };
 
+export type FormFileFieldState = FormFieldStateBase<Maybe<File>> & {
+    type: "file";
+    fileId: Maybe<string>;
+    fileNameLabel?: string;
+};
+
 export type AddNewFieldState = FormFieldStateBase<null> & {
     type: "addNew";
 };
@@ -67,7 +81,8 @@ export type FormFieldState =
     | FormMultipleOptionsFieldState
     | FormBooleanFieldState
     | FormDateFieldState
-    | FormAvatarFieldState;
+    | FormAvatarFieldState
+    | FormFileFieldState;
 
 // HELPERS:
 
@@ -137,6 +152,8 @@ export function getFieldWithEmptyValue(field: FormFieldState): FormFieldState {
             return { ...field, value: null };
         case "user":
             return { ...field, value: undefined };
+        case "file":
+            return { ...field, value: undefined, fileId: undefined };
     }
 }
 
@@ -202,7 +219,7 @@ export function validateField(
         ? {
               property: field.id,
               errors: errors,
-              value: field.value,
+              value: field.type === "file" ? field.fileId : field.value,
           }
         : undefined;
 }

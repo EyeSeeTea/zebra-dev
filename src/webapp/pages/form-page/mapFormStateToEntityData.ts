@@ -25,6 +25,7 @@ import {
     RiskAssessmentSummaryFormData,
     ResponseActionFormData,
     SingleResponseActionFormData,
+    ResourceFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
@@ -53,6 +54,7 @@ import {
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { Resource, ResourceType } from "../../../domain/entities/resources/Resource";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -135,6 +137,15 @@ export function mapFormStateToEntityData(
                 entity: incidentManagementTeamMember,
             };
             return incidentManagementTeamMemberForm;
+        }
+        case "resource": {
+            const resource = mapFormStateToResource(formState, formData);
+            const resourceForm: ResourceFormData = {
+                ...formData,
+                entity: resource,
+            };
+
+            return resourceForm;
         }
 
         default:
@@ -754,6 +765,17 @@ function mapFormStateToIncidentManagementTeamMember(
         workPosition: teamMemberAssigned?.workPosition,
         status: teamMemberAssigned?.status,
     });
+}
+
+function mapFormStateToResource(formState: FormState, _formData: ResourceFormData): Resource {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const resource: Resource = {
+        resourceType: allFields.find(field => field.id.includes("resourceType"))
+            ?.value as ResourceType,
+    };
+
+    return resource;
 }
 
 function extractIndex(input: string): number | undefined {

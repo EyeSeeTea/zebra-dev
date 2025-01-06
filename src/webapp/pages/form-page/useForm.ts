@@ -443,6 +443,13 @@ export function useForm(formType: FormType, id?: Id): State {
                             type: "success",
                         });
                         break;
+                    case "resource":
+                        goTo(RouteName.RESOURCES);
+                        setGlobalMessage({
+                            text: i18n.t(`Resource saved successfully`),
+                            type: "success",
+                        });
+                        break;
                 }
             },
             err => {
@@ -478,6 +485,9 @@ export function useForm(formType: FormType, id?: Id): State {
                     goTo(RouteName.INCIDENT_ACTION_PLAN, {
                         id: currentEventTracker.id,
                     });
+                    break;
+                case "resource":
+                    goTo(RouteName.RESOURCES);
                     break;
                 default:
                     goTo(RouteName.EVENT_TRACKER, {

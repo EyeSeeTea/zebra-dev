@@ -18,6 +18,7 @@ import {
     getSingleResponseActionConfigurableForm,
 } from "./utils/incident-action/GetResponseActionConfigurableForm";
 import { getIncidentManagementTeamWithOptions } from "./utils/incident-management-team/GetIncidentManagementTeamWithOptions";
+import { getResourceConfigurableForm } from "./utils/resources/GetResourceConfigurableForm";
 import { getRiskAssessmentGradingConfigurableForm } from "./utils/risk-assessment/GetGradingConfigurableForm";
 import { getRiskAssessmentQuestionnaireConfigurableForm } from "./utils/risk-assessment/GetQuestionnaireConfigurableForm";
 import { getRiskAssessmentSummaryConfigurableForm } from "./utils/risk-assessment/GetSummaryConfigurableForm";
@@ -124,6 +125,15 @@ export class GetConfigurableFormUseCase {
                     },
                     configurations
                 );
+            case "resource":
+                if (!eventTrackerDetails)
+                    return Future.error(
+                        new Error(
+                            "Disease outbreak id is required for incident management team member builder"
+                        )
+                    );
+
+                return getResourceConfigurableForm(eventTrackerDetails);
             default:
                 return Future.error(new Error("Form type not supported"));
         }

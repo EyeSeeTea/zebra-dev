@@ -86,8 +86,9 @@ function validateFormState(
                 configurableForm?.currentIncidentManagementTeam?.teamHierarchy || [],
                 updatedField.id
             );
-            break;
         }
+        case "resource":
+            break;
     }
 
     return [...formValidationErrors, ...entityValidationErrors];

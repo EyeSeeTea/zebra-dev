@@ -23,6 +23,7 @@ const formTypes = [
     "incident-response-actions",
     "incident-response-action",
     "incident-management-team-member-assignment",
+    "resource",
 ] as const satisfies FormType[];
 
 const formType = `:formType(${join(formTypes, "|")})` as const;

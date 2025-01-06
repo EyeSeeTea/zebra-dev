@@ -6,6 +6,7 @@ import { Code, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
+import { Resource } from "../resources/Resource";
 
 export const hazardTypes = [
     "Biological:Human",
@@ -80,6 +81,7 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     riskAssessment: Maybe<RiskAssessment>;
     incidentActionPlan: Maybe<IncidentActionPlan>;
     incidentManagementTeam: Maybe<IncidentManagementTeam>;
+    resource: Maybe<Resource>;
 };
 
 /**

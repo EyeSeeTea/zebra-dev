@@ -100,5 +100,9 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
                 />
             );
         }
+
+        case "file": {
+            return <input type="file" />;
+        }
     }
 });

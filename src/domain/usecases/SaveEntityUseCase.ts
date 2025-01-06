@@ -117,6 +117,9 @@ export class SaveEntityUseCase {
                     );
                 }
             }
+            case "resource":
+                console.log("saved resource");
+                return Future.success(undefined);
             default:
                 return Future.error(new Error("Form type not supported"));
         }
