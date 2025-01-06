@@ -64,6 +64,10 @@ export type IncidentResponseActionOptions = {
     verification: Option[];
 };
 
+export type ResourceOptions = {
+    resourceType: Option[];
+};
+
 export type FormLables = {
     errors: Record<string, string>;
 };

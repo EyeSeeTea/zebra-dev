@@ -81,7 +81,7 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     riskAssessment: Maybe<RiskAssessment>;
     incidentActionPlan: Maybe<IncidentActionPlan>;
     incidentManagementTeam: Maybe<IncidentManagementTeam>;
-    resource: Maybe<Resource>;
+    resource: Resource[];
 };
 
 /**

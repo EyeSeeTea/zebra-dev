@@ -12,7 +12,7 @@ export function getResourceConfigurableForm(
 
     const resourceFormData: ResourceFormData = {
         type: "resource",
-        entity: eventTrackerDetails.resource,
+        entity: eventTrackerDetails.resource.find(resource => resource.resourceLabel === "abc"),
         uploadedResourceFile: undefined,
         uploadedResourceFileId: undefined,
         labels: labels,

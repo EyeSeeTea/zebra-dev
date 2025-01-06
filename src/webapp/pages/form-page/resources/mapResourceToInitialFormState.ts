@@ -2,9 +2,8 @@ import { ResourceFormData } from "../../../../domain/entities/ConfigurableForm";
 import { ResourceType } from "../../../../domain/entities/resources/Resource";
 import { FormState } from "../../../components/form/FormState";
 
-export function mapResourcesToInitialFormState(formData: ResourceFormData): FormState {
+export function mapResourceToInitialFormState(formData: ResourceFormData): FormState {
     const { entity: resource, uploadedResourceFile, uploadedResourceFileId } = formData;
-
     const isResourceDocument = resource?.resourceType === ResourceType.RESOURCE_DOCUMENT;
 
     return {
@@ -44,16 +43,16 @@ export function mapResourcesToInitialFormState(formData: ResourceFormData): Form
             },
             {
                 title: "Resource name",
-                id: "resourceName_section",
+                id: "resourceLabel_section",
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "resourceName",
+                        id: "resourceLabel",
                         isVisible: true,
                         errors: [],
                         type: "text",
-                        value: "",
+                        value: resource?.resourceLabel || "",
                         required: true,
                     },
                 ],
@@ -68,10 +67,8 @@ export function mapResourcesToInitialFormState(formData: ResourceFormData): Form
                         id: "resourceFolder",
                         isVisible: isResourceDocument,
                         errors: [],
-                        type: "select",
-                        options: [],
-                        multiple: false,
-                        value: isResourceDocument ? "" : "",
+                        type: "text",
+                        value: isResourceDocument ? resource.resourceFolder : "",
                         required: true,
                     },
                 ],

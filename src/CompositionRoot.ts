@@ -71,6 +71,10 @@ import { CompleteEventTrackerUseCase } from "./domain/usecases/CompleteEventTrac
 import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
 import { UserGroupRepository } from "./domain/repositories/UserGroupRepository";
 import { UserGroupTestRepository } from "./data/repositories/test/UserGroupTestRepository";
+import { ResourceRepository } from "./domain/repositories/ResourceRepository";
+import { ResourceDataStoreRepository } from "./data/repositories/ResourceDataStoreRepository";
+import { ResourceTestRepository } from "./data/repositories/test/ResourceTestRepository";
+import { GetResourcesUseCase } from "./domain/usecases/GetResourcesUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -91,6 +95,7 @@ type Repositories = {
     systemRepository: SystemRepository;
     configurationsRepository: ConfigurationsRepository;
     userGroupRepository: UserGroupRepository;
+    resourceRepository: ResourceRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -144,6 +149,9 @@ function getCompositionRoot(repositories: Repositories) {
         charts: {
             getCases: new GetChartConfigByTypeUseCase(repositories.chartConfigRepository),
         },
+        resources: {
+            get: new GetResourcesUseCase(repositories),
+        },
     };
 }
 
@@ -166,6 +174,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         systemRepository: new SystemD2Repository(api),
         configurationsRepository: new ConfigurationsD2Repository(api),
         userGroupRepository: new UserGroupD2Repository(api),
+        resourceRepository: new ResourceDataStoreRepository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -189,6 +198,7 @@ export function getTestCompositionRoot() {
         systemRepository: new SystemTestRepository(),
         configurationsRepository: new ConfigurationsTestRepository(),
         userGroupRepository: new UserGroupTestRepository(),
+        resourceRepository: new ResourceTestRepository(),
     };
 
     return getCompositionRoot(repositories);

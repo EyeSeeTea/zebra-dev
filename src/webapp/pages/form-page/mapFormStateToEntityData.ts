@@ -139,7 +139,7 @@ export function mapFormStateToEntityData(
             return incidentManagementTeamMemberForm;
         }
         case "resource": {
-            const resource = mapFormStateToResource(formState, formData);
+            const resource = mapFormStateToResource(formState);
             const resourceForm: ResourceFormData = {
                 ...formData,
                 entity: resource,
@@ -767,12 +767,20 @@ function mapFormStateToIncidentManagementTeamMember(
     });
 }
 
-function mapFormStateToResource(formState: FormState, _formData: ResourceFormData): Resource {
+function mapFormStateToResource(formState: FormState): Resource {
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
+    const resourceType = allFields.find(field => field.id.includes("resourceType"))
+        ?.value as ResourceType;
+    const resourceLabel = allFields.find(field => field.id.includes("resourceLabel"))
+        ?.value as string;
+    const resourceFolder = allFields.find(field => field.id.includes("resourceFolder"))
+        ?.value as string;
+
     const resource: Resource = {
-        resourceType: allFields.find(field => field.id.includes("resourceType"))
-            ?.value as ResourceType,
+        resourceType: resourceType,
+        resourceLabel: resourceLabel,
+        resourceFolder: resourceFolder,
     };
 
     return resource;

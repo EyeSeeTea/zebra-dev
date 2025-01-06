@@ -13,6 +13,7 @@ import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbrea
 import { RoleRepository } from "../repositories/RoleRepository";
 import { Configurations } from "../entities/AppConfigurations";
 import moment from "moment";
+import { ResourceRepository } from "../repositories/ResourceRepository";
 
 export class SaveEntityUseCase {
     constructor(
@@ -23,6 +24,7 @@ export class SaveEntityUseCase {
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
             teamMemberRepository: TeamMemberRepository;
             roleRepository: RoleRepository;
+            resourceRepository: ResourceRepository;
         }
     ) {}
 
@@ -118,8 +120,7 @@ export class SaveEntityUseCase {
                 }
             }
             case "resource":
-                console.log("saved resource");
-                return Future.success(undefined);
+                return this.options.resourceRepository.saveResource(formData);
             default:
                 return Future.error(new Error("Form type not supported"));
         }

@@ -15,7 +15,7 @@ import {
     mapSingleIncidentResponseActionToInitialFormState,
 } from "./incident-action/mapIncidentActionToInitialFormState";
 import { mapIncidentManagementTeamMemberToInitialFormState } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
-import { mapResourcesToInitialFormState } from "./resources/mapResourcesToInitialFormState";
+import { mapResourceToInitialFormState } from "./resources/mapResourceToInitialFormState";
 import {
     mapRiskAssessmentQuestionnaireToInitialFormState,
     mapRiskAssessmentSummaryToInitialFormState,
@@ -58,7 +58,7 @@ export function mapEntityToFormState(options: {
         case "incident-management-team-member-assignment":
             return mapIncidentManagementTeamMemberToInitialFormState(configurableForm);
         case "resource":
-            return mapResourcesToInitialFormState(configurableForm);
+            return mapResourceToInitialFormState(configurableForm);
     }
 }
 
