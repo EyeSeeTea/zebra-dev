@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import styled from "styled-components";
 import i18n from "../../../../utils/i18n";
 import {
@@ -12,22 +12,25 @@ import {
 } from "@material-ui/core";
 import { SearchInput } from "../../search-input/SearchInput";
 import { MultipleSelector } from "../../selector/MultipleSelector";
-import { useTableFilters } from "./useTableFilters";
 import { useTableCell } from "./useTableCell";
 import { useStatisticCalculations } from "./useStatisticCalculations";
 import { ColoredCell } from "./ColoredCell";
 import { CalculationRow } from "./CalculationRow";
-import { Order } from "../../../pages/dashboard/usePerformanceOverview";
 import { Option } from "../../utils/option";
 import { Maybe } from "../../../../utils/ts-utils";
-import { PerformanceOverviewMetrics } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Link } from "react-router-dom";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
+import { DateRangePicker } from "../../date-picker/DateRangePicker";
 
 export type TableColumn = {
     value: string;
     label: string;
     dark?: boolean;
+};
+
+export type Order<T> = {
+    name: keyof T;
+    direction: "asc" | "desc";
 };
 
 export type FiltersConfig = {
@@ -42,74 +45,91 @@ export type FiltersValuesType = {
     [key: TableColumn["value"]]: string[];
 };
 
+type Row = { [key: TableColumn["value"]]: string };
+
 export type StatisticTableProps = {
     columns: TableColumn[];
     columnRules: {
         [key: TableColumn["value"]]: number;
     };
-    editRiskAssessmentColumns: TableColumn["value"][];
-    rows: {
-        [key: TableColumn["value"]]: string;
-    }[];
-    filters: FiltersConfig[];
-    order: Maybe<Order>;
-    setOrder: Dispatch<SetStateAction<Maybe<Order>>>;
+    editRiskAssessmentColumns?: TableColumn["value"][];
+    rows: Row[];
+    paginatedRows?: Row[];
+    filtersConfig: FiltersConfig[];
+    order: Maybe<Order<Row>>;
+    onOrderBy: (columnValue: string) => void;
+    isPaginated?: boolean;
+    searchTerm: string;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    filters: FiltersValuesType;
+    setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
+    filterOptions: (column: string) => { value: string; label: string }[];
+    allowGoToEventOnClick?: boolean;
 };
+
+const DEFAULT_ARRAY_VALUE: string[] = [];
 
 export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
     ({
         rows,
+        paginatedRows,
         columns,
         columnRules,
-        editRiskAssessmentColumns,
-        filters: filtersConfig,
+        editRiskAssessmentColumns = DEFAULT_ARRAY_VALUE,
+        filtersConfig,
         order,
-        setOrder,
+        onOrderBy,
+        searchTerm,
+        setSearchTerm,
+        filters,
+        setFilters,
+        filterOptions,
+        allowGoToEventOnClick = false,
     }) => {
         const { generatePath } = useRoutes();
 
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
-
-        const { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions } =
-            useTableFilters(rows, filtersConfig);
         const { getCellColor } = useTableCell(editRiskAssessmentColumns, columnRules);
         const { calculateMedian, calculatePercentTargetMet } = useStatisticCalculations(
-            filteredRows,
+            rows,
             columnRules
-        );
-
-        const onOrderBy = useCallback(
-            (value: string) => {
-                setOrder(prevOrder => {
-                    return {
-                        name: value as keyof PerformanceOverviewMetrics,
-                        direction:
-                            prevOrder?.name === value
-                                ? order?.direction === "asc"
-                                    ? "desc"
-                                    : "asc"
-                                : "asc",
-                    };
-                });
-            },
-            [order, setOrder]
         );
 
         return (
             <React.Fragment>
                 <Container>
-                    {filtersConfig.map(({ value, label }) => (
-                        <MultipleSelector
-                            id={`filters-${value}`}
-                            key={`filters-${value}`}
-                            selected={filters[value] || []}
-                            placeholder={i18n.t(label)}
-                            options={filterOptions(value)}
-                            onChange={(values: string[]) => {
-                                setFilters({ ...filters, [value]: values });
-                            }}
-                        />
-                    ))}
+                    {filtersConfig.map(({ value, label, type }) => {
+                        switch (type) {
+                            case "multiselector":
+                                return (
+                                    <MultipleSelector
+                                        id={`filters-${label}-${value}`}
+                                        key={`filters-${label}-${value}`}
+                                        selected={filters[value] || []}
+                                        placeholder={i18n.t(label)}
+                                        options={filterOptions(value)}
+                                        onChange={(values: string[]) => {
+                                            setFilters({ ...filters, [value]: values });
+                                        }}
+                                    />
+                                );
+                            case "datepicker":
+                                return (
+                                    <DurationFilterContainer>
+                                        <DateRangePicker
+                                            key={`filters-${label}-${value}`}
+                                            value={filters[value] || []}
+                                            onChange={(values: string[]) => {
+                                                setFilters({ ...filters, [value]: values });
+                                            }}
+                                            placeholder={i18n.t(label)}
+                                        />
+                                    </DurationFilterContainer>
+                                );
+                            default:
+                                return null;
+                        }
+                    })}
                     <SearchInput value={searchTerm} onChange={value => setSearchTerm(value)} />
                 </Container>
                 <StyledTableContainer>
@@ -138,7 +158,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {filteredRows.map((row, rowIndex) => (
+                            {(paginatedRows || rows).map((row, rowIndex) => (
                                 <TableRow key={rowIndex}>
                                     {columns.map((column, columnIndex) =>
                                         calculateColumns.includes(column.value) ? (
@@ -153,9 +173,9 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                         ) : (
                                             <StyledTableCell
                                                 key={`${rowIndex}-${column.value}`}
-                                                $link={columnIndex === 0}
+                                                $link={columnIndex === 0 && allowGoToEventOnClick}
                                             >
-                                                {row.id ? (
+                                                {row.id && allowGoToEventOnClick ? (
                                                     <StyledLink
                                                         to={generatePath(RouteName.EVENT_TRACKER, {
                                                             id: row.id,
@@ -243,7 +263,11 @@ const Container = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
     width: 100%;
     gap: 1rem;
+`;
+
+const DurationFilterContainer = styled.div`
+    max-width: 250px;
+    width: 100%;
 `;

@@ -4,7 +4,7 @@ import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
 import { Section } from "../../components/section/Section";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
-import { usePerformanceOverview } from "./usePerformanceOverview";
+import { useNationalPerformanceOverview } from "./useNationalPerformanceOverview";
 import { useCardCounts } from "./useCardCounts";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import styled from "styled-components";
@@ -18,6 +18,8 @@ import { PerformanceMetric717, use717Performance } from "./use717Performance";
 import { Loader } from "../../components/loader/Loader";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 import LoaderContainer from "../../components/loader/LoaderContainer";
+import { useAlertsPerformanceOverview } from "./useAlertsPerformanceOverview";
+import { Pagination } from "../../components/pagination/Pagination";
 
 export const DashboardPage: React.FC = React.memo(() => {
     const {
@@ -30,15 +32,21 @@ export const DashboardPage: React.FC = React.memo(() => {
     } = useAlertsActiveVerifiedFilters();
 
     const {
-        columns,
-        dataPerformanceOverview,
-        filters: performanceOverviewFilters,
-        order,
-        setOrder,
-        columnRules,
+        dataNationalPerformanceOverview,
         editRiskAssessmentColumns,
         isLoading: performanceOverviewLoading,
-    } = usePerformanceOverview();
+        ...restNationalPerformanceOverview
+    } = useNationalPerformanceOverview();
+
+    const {
+        dataAlertsPerformanceOverview,
+        paginatedDataAlertsPerformanceOverview,
+        isLoading: alertsPerformanceOverviewLoading,
+        totalPages,
+        currentPage,
+        goToPage,
+        ...restAlertsPerformanceOverview
+    } = useAlertsPerformanceOverview();
 
     const {
         performanceMetrics717: nationalPerformanceMetrics717,
@@ -62,7 +70,10 @@ export const DashboardPage: React.FC = React.memo(() => {
         resetCurrentEventTrackerId();
     }, [resetCurrentEventTrackerId]);
 
-    return performanceOverviewLoading || national717CardsLoading || alerts717CardsLoading ? (
+    return performanceOverviewLoading ||
+        alertsPerformanceOverviewLoading ||
+        national717CardsLoading ||
+        alerts717CardsLoading ? (
         <Loader />
     ) : (
         <Layout
@@ -149,6 +160,20 @@ export const DashboardPage: React.FC = React.memo(() => {
                     )}
                 </GridWrapper>
             </Section>
+            <Section title={i18n.t("Alerts Performance overview")}>
+                <StatisticTableWrapper>
+                    <StatisticTable
+                        rows={dataAlertsPerformanceOverview}
+                        paginatedRows={paginatedDataAlertsPerformanceOverview}
+                        {...restAlertsPerformanceOverview}
+                    />
+                    <Pagination
+                        totalPages={totalPages}
+                        currentPage={currentPage}
+                        onChange={goToPage}
+                    />
+                </StatisticTableWrapper>
+            </Section>
             <Section title={i18n.t("7-1-7 performance")}>
                 <GridWrapper>
                     {nationalPerformanceMetrics717.map(
@@ -169,13 +194,9 @@ export const DashboardPage: React.FC = React.memo(() => {
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>
                     <StatisticTable
-                        columns={columns}
-                        rows={dataPerformanceOverview}
-                        filters={performanceOverviewFilters}
-                        order={order}
-                        setOrder={setOrder}
-                        columnRules={columnRules}
+                        rows={dataNationalPerformanceOverview}
                         editRiskAssessmentColumns={editRiskAssessmentColumns}
+                        {...restNationalPerformanceOverview}
                     />
                 </StatisticTableWrapper>
             </Section>
@@ -196,6 +217,7 @@ export const StyledStatsCard = styled(StatsCard)`
 
 const StatisticTableWrapper = styled.div`
     display: grid;
+    row-gap: 16px;
 `;
 
 const FiltersContainer = styled.div`

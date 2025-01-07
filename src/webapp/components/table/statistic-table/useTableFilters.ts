@@ -32,8 +32,20 @@ export const useTableFilters = (
                 .filter(row => {
                     const matchesFilters = Object.keys(filters).every(key => {
                         const filterValues = filters[key] || [];
-                        if (filterValues.length === 0) return true;
-                        return filterValues.includes(row[key] || "");
+                        const isDatePickerFilter =
+                            filtersConfig.find(filter => filter.value === key)?.type ===
+                            "datepicker";
+
+                        if (filterValues.length === 0) {
+                            return true;
+                        } else if (isDatePickerFilter) {
+                            return row[key] && filterValues[0] && filterValues[1]
+                                ? filterValues[0] <= (row[key] || "") &&
+                                      (row[key] || "") <= filterValues[1]
+                                : true;
+                        } else {
+                            return filterValues.includes(row[key] || "");
+                        }
                     });
 
                     const matchesSearchTerm = _(Object.values(row)).some(cell =>
@@ -44,7 +56,7 @@ export const useTableFilters = (
                 })
                 .value();
         }
-    }, [rows, searchTerm, filters]);
+    }, [filters, searchTerm, rows, filtersConfig]);
 
     const filterOptions = useCallback(
         (column: TableColumn["value"]) => {

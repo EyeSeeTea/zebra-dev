@@ -51,6 +51,7 @@ export type PerformanceOverviewMetrics = {
     suspectedDisease: DiseaseNames;
     hazardType: HazardNames;
     nationalIncidentStatus: string;
+    date: string;
 };
 
 export type IncidentStatus = "Watch" | "Alert" | "Respond" | "ALL";

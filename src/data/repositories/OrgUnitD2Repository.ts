@@ -1,14 +1,9 @@
 import { D2Api, MetadataPick } from "../../types/d2-api";
-import { OrgUnit, OrgUnitLevelType } from "../../domain/entities/OrgUnit";
+import { OrgUnit, orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { Id } from "../../domain/entities/Ref";
 import { OrgUnitRepository } from "../../domain/repositories/OrgUnitRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 
-const orgUnitLevelTypeByLevelNumber: Record<number, OrgUnitLevelType> = {
-    1: "National",
-    2: "Province",
-    3: "District",
-};
 export class OrgUnitD2Repository implements OrgUnitRepository {
     constructor(private api: D2Api) {}
 
