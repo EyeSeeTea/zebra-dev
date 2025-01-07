@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-01-03T08:28:56.703Z\n"
+"POT-Creation-Date: 2025-01-07T16:11:42.869Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -176,10 +176,91 @@ msgstr ""
 msgid "events"
 msgstr ""
 
+msgid "Alerts Performance overview"
+msgstr ""
+
 msgid "7-1-7 performance"
 msgstr ""
 
 msgid "Performance overview"
+msgstr ""
+
+msgid "Disease - Hazard type"
+msgstr ""
+
+msgid "Province"
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Location"
+msgstr ""
+
+msgid "Organisation unit"
+msgstr ""
+
+msgid "Organisation unit type"
+msgstr ""
+
+msgid "Cases"
+msgstr ""
+
+msgid "Deaths"
+msgstr ""
+
+msgid "Manager"
+msgstr ""
+
+msgid "Detect 7d"
+msgstr ""
+
+msgid "Notify 1d"
+msgstr ""
+
+msgid "Respond 7d"
+msgstr ""
+
+msgid "Incident Status"
+msgstr ""
+
+msgid "Event"
+msgstr ""
+
+msgid "ERA1"
+msgstr ""
+
+msgid "ERA2"
+msgstr ""
+
+msgid "ERA3"
+msgstr ""
+
+msgid "ERA4"
+msgstr ""
+
+msgid "ERA5"
+msgstr ""
+
+msgid "ERA6"
+msgstr ""
+
+msgid "ERA7"
+msgstr ""
+
+msgid "Alert"
+msgstr ""
+
+msgid "Closed"
+msgstr ""
+
+msgid "Discarded"
+msgstr ""
+
+msgid "Respond"
+msgstr ""
+
+msgid "Watch"
 msgstr ""
 
 msgid "Event Tracker"
