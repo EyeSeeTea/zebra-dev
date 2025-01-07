@@ -13,7 +13,7 @@ export class ResourceTestRepository implements ResourceRepository {
             },
             {
                 resourceLabel: "Excel line list",
-                resourceType: ResourceType.RESOURCE_DOCUMENT,
+                resourceType: ResourceType.RESPONSE_DOCUMENT,
                 resourceFolder: "Case line lists",
             },
         ];

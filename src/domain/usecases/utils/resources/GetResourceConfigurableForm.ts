@@ -36,7 +36,7 @@ function getResourceLabelsRules(): { rules: Rule[]; labels: FormLables } {
             {
                 type: "toggleSectionsVisibilityByFieldValue",
                 fieldId: "resourceType",
-                fieldValue: ResourceType.RESOURCE_DOCUMENT,
+                fieldValue: ResourceType.RESPONSE_DOCUMENT,
                 sectionIds: ["resourceFolder_section"],
             },
         ],

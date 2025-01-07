@@ -4,7 +4,7 @@ import { FormState } from "../../../components/form/FormState";
 
 export function mapResourceToInitialFormState(formData: ResourceFormData): FormState {
     const { entity: resource, uploadedResourceFile, uploadedResourceFileId } = formData;
-    const isResourceDocument = resource?.resourceType === ResourceType.RESOURCE_DOCUMENT;
+    const isResourceDocument = resource?.resourceType === ResourceType.RESPONSE_DOCUMENT;
 
     return {
         id: "",
@@ -28,8 +28,8 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
                         multiple: false,
                         options: [
                             {
-                                value: ResourceType.RESOURCE_DOCUMENT,
-                                label: "Resource document",
+                                value: ResourceType.RESPONSE_DOCUMENT,
+                                label: "Response document",
                             },
                             {
                                 value: ResourceType.TEMPLATE,

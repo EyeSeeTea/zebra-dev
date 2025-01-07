@@ -1,6 +1,6 @@
 export enum ResourceType {
     TEMPLATE = "template",
-    RESOURCE_DOCUMENT = "resource-document",
+    RESPONSE_DOCUMENT = "response-document",
 }
 
 type ResourceBase = {
@@ -8,8 +8,8 @@ type ResourceBase = {
     resourceLabel: string;
 };
 
-export type ResourceDocument = ResourceBase & {
-    resourceType: ResourceType.RESOURCE_DOCUMENT;
+export type ResponseDocument = ResourceBase & {
+    resourceType: ResourceType.RESPONSE_DOCUMENT;
     resourceFolder: string;
 };
 
@@ -17,4 +17,4 @@ export type Template = ResourceBase & {
     resourceType: ResourceType.TEMPLATE;
 };
 
-export type Resource = ResourceDocument | Template;
+export type Resource = ResponseDocument | Template;

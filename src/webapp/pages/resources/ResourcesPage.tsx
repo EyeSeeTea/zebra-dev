@@ -7,27 +7,21 @@ import { Button } from "@material-ui/core";
 import { FileFileUpload } from "material-ui/svg-icons";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAppContext } from "../../contexts/app-context";
-import { ResourceDocument, Template } from "../../../domain/entities/resources/Resource";
 import { Maybe } from "../../../utils/ts-utils";
-import { DescriptionOutlined, FolderOutlined } from "@material-ui/icons";
+import { DescriptionOutlined } from "@material-ui/icons";
+import styled from "styled-components";
+import { ResponseDocumentHierarchyView } from "../../components/response-document-hierarchy/ResponseDocumentHierarchyView";
+import { ResourceData } from "../../../domain/usecases/GetResourcesUseCase";
 
 export const ResourcesPage: React.FC = React.memo(() => {
     const { compositionRoot } = useAppContext();
-    // const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
-    // const currentEventTracker = getCurrentEventTracker();
-
     const { goTo } = useRoutes();
 
     const onUploadFileClick = useCallback(() => {
         goTo(RouteName.CREATE_FORM, { formType: "resource" });
     }, [goTo]);
 
-    const [resources, setResources] = useState<
-        Maybe<{
-            templates: Template[];
-            resourceDocuments: ResourceDocument[];
-        }>
-    >(undefined);
+    const [resources, setResources] = useState<Maybe<ResourceData>>(undefined);
 
     useEffect(() => {
         compositionRoot.resources.get.execute().run(
@@ -37,23 +31,6 @@ export const ResourcesPage: React.FC = React.memo(() => {
             error => console.debug({ error })
         );
     }, [compositionRoot.resources.get]);
-
-    // useEffect(() => {
-    //     if (
-    //         currentEventTracker &&
-    //         (currentEventTracker.incidentActionPlan?.actionPlan?.lastUpdated !==
-    //             incidentActionPlan?.actionPlan?.lastUpdated ||
-    //             currentEventTracker.incidentActionPlan?.responseActions.length !==
-    //                 incidentActionPlan?.responseActions.length)
-    //     ) {
-    //         const updatedEventTracker = new DiseaseOutbreakEvent({
-    //             ...currentEventTracker,
-    //             resource: resources,
-    //         });
-
-    //         changeCurrentEventTracker(updatedEventTracker);
-    //     }
-    // }, [changeCurrentEventTracker, currentEventTracker]);
 
     const uploadButton = (
         <Button
@@ -70,54 +47,36 @@ export const ResourcesPage: React.FC = React.memo(() => {
         <Layout title={i18n.t("Resources")}>
             <Section headerButton={uploadButton}>
                 {resources &&
-                (resources.resourceDocuments.length > 0 || resources.templates.length > 0) ? (
-                    <div
-                        style={{
-                            display: "grid",
-                            width: "100%",
-                            gridTemplateColumns: "repeat(2, 1fr)",
-                            gap: "16px",
-                        }}
-                    >
-                        {resources.resourceDocuments.length > 0 && (
+                (resources.responseDocuments.length > 0 || resources.templates.length > 0) ? (
+                    <ContentWrapper>
+                        {resources.responseDocuments.length > 0 && (
                             <div>
-                                <p>Response Documents</p>
+                                <ResourceTypeLabel>Response Documents</ResourceTypeLabel>
 
-                                <div style={{ backgroundColor: "white", padding: "8px 16px" }}>
-                                    {resources.resourceDocuments.map(responseDocument => {
-                                        return (
-                                            <p
-                                                key={responseDocument.resourceLabel}
-                                                style={{ display: "flex", gap: "0 8px" }}
-                                            >
-                                                <FolderOutlined fontSize="small" />
-                                                <span> {responseDocument.resourceFolder}</span>
-                                            </p>
-                                        );
-                                    })}
-                                </div>
+                                <Container>
+                                    <ResponseDocumentHierarchyView
+                                        responseDocuments={resources.responseDocuments}
+                                    />
+                                </Container>
                             </div>
                         )}
 
                         {resources.templates.length > 0 && (
                             <div>
-                                <p>Templates</p>
-                                <div style={{ backgroundColor: "white", padding: "8px 16px" }}>
+                                <ResourceTypeLabel>Templates</ResourceTypeLabel>
+                                <Container>
                                     {resources.templates.map(template => {
                                         return (
-                                            <p
-                                                key={template.resourceLabel}
-                                                style={{ display: "flex", gap: "0 8px" }}
-                                            >
+                                            <StyledTemplateLabel key={template.resourceLabel}>
                                                 <DescriptionOutlined fontSize="small" />
                                                 <span>{template.resourceLabel}</span>
-                                            </p>
+                                            </StyledTemplateLabel>
                                         );
                                     })}
-                                </div>
+                                </Container>
                             </div>
                         )}
-                    </div>
+                    </ContentWrapper>
                 ) : (
                     <p>No resources created</p>
                 )}
@@ -125,3 +84,32 @@ export const ResourcesPage: React.FC = React.memo(() => {
         </Layout>
     );
 });
+
+const Container = styled.div`
+    background-color: ${props => props.theme.palette.common.white};
+    color: ${props => props.theme.palette.common.grey700};
+    padding: 8px 16px;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    height: 100%;
+`;
+
+const ContentWrapper = styled.div`
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+`;
+
+const ResourceTypeLabel = styled.p`
+    font-size: 20px;
+`;
+
+const StyledTemplateLabel = styled.p`
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    cursor: pointer;
+`;
