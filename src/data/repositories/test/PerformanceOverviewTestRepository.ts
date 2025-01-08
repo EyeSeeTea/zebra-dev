@@ -28,7 +28,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
         return Future.success([
             {
                 id: "JPenxAnjdhY",
-                manager: "user, dev (dev.user)",
+                incidentManagerUsername: "dev.user",
                 creationDate: "2024-08-27 11:07:48.68",
                 province: "zm Zambia Ministry of Health",
                 suspectedDisease: "Cholera",
@@ -45,7 +45,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
             },
             {
                 id: "oHSPSlkb7J5",
-                manager: "user, dev (dev.user)",
+                incidentManagerUsername: "dev.user",
                 creationDate: "2024-08-26 17:03:17.532",
                 province: "zm Zambia Ministry of Health",
                 suspectedDisease: "Acute respiratory",
@@ -62,7 +62,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
             },
             {
                 id: "g5C6Veut61t",
-                manager: "user, dev (dev.user)",
+                incidentManagerUsername: "dev.user",
                 creationDate: "2024-08-27 11:06:36.869",
                 province: "zm Zambia Ministry of Health",
                 suspectedDisease: "Acute VHF",

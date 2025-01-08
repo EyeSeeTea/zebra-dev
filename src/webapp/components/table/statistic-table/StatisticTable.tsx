@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useCallback } from "react";
 import styled from "styled-components";
 import i18n from "../../../../utils/i18n";
 import {
@@ -21,6 +21,7 @@ import { Maybe } from "../../../../utils/ts-utils";
 import { Link } from "react-router-dom";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import { DateRangePicker } from "../../date-picker/DateRangePicker";
+import { useAppContext } from "../../../contexts/app-context";
 
 export type TableColumn = {
     value: string;
@@ -87,12 +88,20 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         allowGoToEventOnClick = false,
     }) => {
         const { generatePath } = useRoutes();
+        const { currentUser } = useAppContext();
 
         const calculateColumns = [...editRiskAssessmentColumns, ...Object.keys(columnRules)];
         const { getCellColor } = useTableCell(editRiskAssessmentColumns, columnRules);
         const { calculateMedian, calculatePercentTargetMet } = useStatisticCalculations(
             rows,
             columnRules
+        );
+
+        const isCurrentUserIncidentManager = useCallback(
+            (username: string) => {
+                return currentUser.username === username;
+            },
+            [currentUser.username]
         );
 
         return (
@@ -159,7 +168,12 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                         </TableHead>
                         <TableBody>
                             {(paginatedRows || rows).map((row, rowIndex) => (
-                                <TableRow key={rowIndex}>
+                                <StyledTableRow
+                                    key={rowIndex}
+                                    $isHighlighted={isCurrentUserIncidentManager(
+                                        row.incidentManagerUsername || ""
+                                    )}
+                                >
                                     {columns.map((column, columnIndex) =>
                                         calculateColumns.includes(column.value) ? (
                                             <ColoredCell
@@ -190,7 +204,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                             </StyledTableCell>
                                         )
                                     )}
-                                </TableRow>
+                                </StyledTableRow>
                             ))}
                             <CalculationRow
                                 columns={columns}
@@ -242,6 +256,11 @@ const HeadTableCell = styled(TableCell)<{ $dark?: boolean }>`
     background-color: ${props => (props.$dark ? props.theme.palette.common.grey2 : "initial")};
     color: ${props => (props.$dark ? props.theme.palette.common.white : "initial")};
     font-weight: 600;
+`;
+
+const StyledTableRow = styled(TableRow)<{ $isHighlighted?: boolean }>`
+    background-color: ${props =>
+        props.$isHighlighted ? props.theme.palette.common.greyLight2 : "initial"};
 `;
 
 const StyledTableCell = styled(TableCell)<{ $link?: boolean }>`

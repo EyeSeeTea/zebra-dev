@@ -7,15 +7,46 @@ import {
     TableColumn,
 } from "../../components/table/statistic-table/StatisticTable";
 import { Maybe } from "../../../utils/ts-utils";
-import { PerformanceOverviewMetrics } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    DiseaseNames,
+    HazardNames,
+    PerformanceOverviewMetrics,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { NationalIncidentStatus } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
 import i18n from "../../../utils/i18n";
+import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { Id } from "@eyeseetea/d2-api";
+
+export type PerformanceOverviewMetricsTableData = {
+    id: Id;
+    event: string;
+    province: string;
+    duration: string;
+    incidentManager: string;
+    cases: string;
+    deaths: string;
+    era1: string;
+    era2: string;
+    era3: string;
+    era4: string;
+    era5: string;
+    era6: string;
+    era7: string;
+    detect7d: string;
+    notify1d: string;
+    respond7d: string;
+    suspectedDisease: DiseaseNames;
+    hazardType: HazardNames;
+    nationalIncidentStatus: string;
+    date: string;
+    incidentManagerUsername: string;
+};
 
 type State = {
     columns: TableColumn[];
-    dataNationalPerformanceOverview: PerformanceOverviewMetrics[];
+    dataNationalPerformanceOverview: PerformanceOverviewMetricsTableData[];
     editRiskAssessmentColumns: string[];
     columnRules: { [key: string]: number };
     order: Maybe<Order>;
@@ -33,10 +64,14 @@ type State = {
     allowGoToEventOnClick: true;
 };
 
-export type Order = { name: keyof PerformanceOverviewMetrics; direction: "asc" | "desc" };
+export type Order = { name: keyof PerformanceOverviewMetricsTableData; direction: "asc" | "desc" };
 
 export function useNationalPerformanceOverview(): State {
-    const { compositionRoot } = useAppContext();
+    const {
+        compositionRoot,
+        configurations: { teamMembers },
+    } = useAppContext();
+
     const { changeExistingEventTrackerTypes } = useExistingEventTrackerTypes();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +92,7 @@ export function useNationalPerformanceOverview(): State {
             { label: i18n.t("Cases"), value: "cases" },
             { label: i18n.t("Deaths"), value: "deaths" },
             { label: i18n.t("Duration"), value: "duration" },
-            { label: i18n.t("Manager"), value: "manager" },
+            { label: i18n.t("Manager"), value: "incidentManager" },
             { label: i18n.t("Detect 7d"), dark: true, value: "detect7d" },
             { label: i18n.t("Notify 1d"), dark: true, value: "notify1d" },
             { label: i18n.t("ERA1"), value: "era1" },
@@ -100,7 +135,7 @@ export function useNationalPerformanceOverview(): State {
         totalPages,
         currentPage,
         goToPage,
-    } = usePerformanceOverviewTable<PerformanceOverviewMetrics>(filtersConfig);
+    } = usePerformanceOverviewTable<PerformanceOverviewMetricsTableData>(filtersConfig);
 
     const getNationalIncidentStatusString = useCallback((status: string): string => {
         switch (status as NationalIncidentStatus) {
@@ -118,13 +153,21 @@ export function useNationalPerformanceOverview(): State {
     }, []);
 
     const mapEntityToTableData = useCallback(
-        (programIndicator: PerformanceOverviewMetrics): PerformanceOverviewMetrics => {
+        (
+            programIndicator: PerformanceOverviewMetrics,
+            allTeamMembers: TeamMember[]
+        ): PerformanceOverviewMetricsTableData => {
+            const incidentManagerName = allTeamMembers.find(
+                tm => tm.username === programIndicator.incidentManagerUsername
+            )?.name;
+
             return {
                 ...programIndicator,
                 nationalIncidentStatus: getNationalIncidentStatusString(
                     programIndicator.nationalIncidentStatus
                 ),
                 event: programIndicator.event,
+                incidentManager: incidentManagerName || programIndicator.incidentManagerUsername,
             };
         },
         [getNationalIncidentStatusString]
@@ -139,7 +182,8 @@ export function useNationalPerformanceOverview(): State {
                 );
                 changeExistingEventTrackerTypes(existingEventTrackerTypes);
                 const mappedData = performanceOverviewMetrics.map(
-                    (data: PerformanceOverviewMetrics) => mapEntityToTableData(data)
+                    (data: PerformanceOverviewMetrics) =>
+                        mapEntityToTableData(data, teamMembers.all)
                 );
                 setDataPerformanceOverview(mappedData);
                 setIsLoading(false);
@@ -154,6 +198,7 @@ export function useNationalPerformanceOverview(): State {
         compositionRoot.performanceOverview.getNationalPerformanceOverviewMetrics,
         mapEntityToTableData,
         setDataPerformanceOverview,
+        teamMembers.all,
     ]);
 
     return {

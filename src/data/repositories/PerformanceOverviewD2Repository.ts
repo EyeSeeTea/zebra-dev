@@ -555,7 +555,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 const metrics = {
                                                     id: event.id,
                                                     event: event.name,
-                                                    manager: event.incidentManagerName,
+                                                    incidentManagerUsername:
+                                                        event.incidentManagerName,
                                                     duration: duration,
                                                     nationalIncidentStatus: event.incidentStatus,
                                                     cases: currentCases?.value || "",
@@ -566,7 +567,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 const metrics = {
                                                     ...baseIndicator,
                                                     nationalIncidentStatus: event.incidentStatus,
-                                                    manager: event.incidentManagerName,
+                                                    incidentManagerUsername:
+                                                        event.incidentManagerName,
                                                     duration: duration,
                                                     cases: currentCases?.value || "",
                                                     deaths: currentDeaths?.value || "",

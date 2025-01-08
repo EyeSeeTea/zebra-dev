@@ -33,6 +33,7 @@ type AlertsPerformanceOverviewMetricsTableData = {
     notify1d: string;
     detect7d: string;
     incidentManager: string;
+    incidentManagerUsername: string;
     respond7d: string;
     incidentStatus: string;
 };
@@ -125,14 +126,13 @@ export function useAlertsPerformanceOverview(): State {
             data: AlertsPerformanceOverviewMetrics,
             allTeamMembers: TeamMember[]
         ): AlertsPerformanceOverviewMetricsTableData => {
-            const incidentManagerName = allTeamMembers.find(
-                tm => tm.name === data.incidentManager
-            )?.name;
+            const incidentManager = allTeamMembers.find(tm => tm.name === data.incidentManager);
 
             return {
                 ...data,
                 event: data.hazardType || data.suspectedDisease,
-                incidentManager: incidentManagerName || data.incidentManager,
+                incidentManager: incidentManager?.name || data.incidentManager,
+                incidentManagerUsername: incidentManager?.username || "",
             };
         },
         []
