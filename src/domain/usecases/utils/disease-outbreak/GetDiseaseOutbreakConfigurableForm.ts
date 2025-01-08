@@ -52,6 +52,7 @@ export function getDiseaseOutbreakConfigurableForm(
                 incidentActionPlan: undefined,
                 incidentManagementTeam: undefined,
                 uploadedCasesData: undefined,
+                resource: [],
             });
 
             const outbreakKey = getOutbreakKey({

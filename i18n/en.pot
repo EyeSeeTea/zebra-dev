@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-01-03T08:28:56.703Z\n"
-"PO-Revision-Date: 2025-01-03T08:28:56.703Z\n"
+"POT-Creation-Date: 2025-01-08T10:28:12.841Z\n"
+"PO-Revision-Date: 2025-01-08T10:28:12.841Z\n"
 
 msgid "Low"
 msgstr ""
@@ -303,6 +303,9 @@ msgid "Are you sure you want to delete these team roles?"
 msgstr ""
 
 msgid "Are you sure you want to delete this team role?"
+msgstr ""
+
+msgid "Upload File"
 msgstr ""
 
 msgid "Resources"

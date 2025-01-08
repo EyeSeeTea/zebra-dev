@@ -45,7 +45,7 @@ export const ResourcesPage: React.FC = React.memo(() => {
 
     return (
         <Layout title={i18n.t("Resources")}>
-            <Section headerButton={uploadButton}>
+            <Section headerButtons={uploadButton}>
                 {resources &&
                 (resources.responseDocuments.length > 0 || resources.templates.length > 0) ? (
                     <ContentWrapper>

@@ -87,6 +87,8 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
                         value: uploadedResourceFile || undefined,
                         fileId: uploadedResourceFileId || undefined,
                         required: false,
+                        data: undefined,
+                        fileTemplate: undefined,
                     },
                 ],
             },
