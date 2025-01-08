@@ -2,7 +2,7 @@ import { TreeItem as TreeItemMUI } from "@material-ui/lab";
 import React from "react";
 import { ResponseDocumentsByFolder } from "../../../domain/usecases/GetResourcesUseCase";
 import styled from "styled-components";
-import { DescriptionOutlined } from "@material-ui/icons";
+import { ResourceLabel } from "../../pages/resources/ResourceLabel";
 
 type ResponseDocumentHierarchyItemProps = {
     responseDocument: ResponseDocumentsByFolder;
@@ -22,9 +22,16 @@ export const ResponseDocumentHierarchyItem: React.FC<ResponseDocumentHierarchyIt
                         <StyledTreeItemMUI
                             key={resource.resourceLabel}
                             nodeId={resource.resourceLabel}
-                            label={resource.resourceLabel}
-                            icon={<DescriptionOutlined fontSize="small" />}
-                        ></StyledTreeItemMUI>
+                            label={
+                                <ResourceLabel
+                                    resource={{
+                                        resourceFileId: resource.resourceFileId,
+                                        resourceLabel: resource.resourceLabel,
+                                        resourceType: responseDocument.resourceType,
+                                    }}
+                                />
+                            }
+                        />
                     );
                 })}
             </StyledTreeItemMUI>

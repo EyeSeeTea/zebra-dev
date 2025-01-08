@@ -6,7 +6,6 @@ import { Code, Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
-import { Resource } from "../resources/Resource";
 import _ from "../generic/Collection";
 import { Username } from "../User";
 
@@ -100,7 +99,6 @@ export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     incidentActionPlan: Maybe<IncidentActionPlan>;
     incidentManagementTeam: Maybe<IncidentManagementTeam>;
     uploadedCasesData: Maybe<CaseData[]>;
-    resource: Resource[];
 };
 
 /**

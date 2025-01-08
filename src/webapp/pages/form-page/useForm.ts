@@ -437,6 +437,12 @@ export function useForm(formType: FormType, id?: Id): State {
                                 type: "success",
                             });
                             break;
+                        case "resource":
+                            goTo(RouteName.RESOURCES);
+                            setGlobalMessage({
+                                text: i18n.t(`Resource saved successfully`),
+                                type: "success",
+                            });
                     }
                 },
                 err => {

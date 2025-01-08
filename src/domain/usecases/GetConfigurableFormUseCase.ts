@@ -155,7 +155,7 @@ export class GetConfigurableFormUseCase {
                         )
                     );
 
-                return getResourceConfigurableForm(eventTrackerDetails);
+                return getResourceConfigurableForm();
             default:
                 return Future.error(new Error("Form type not supported"));
         }

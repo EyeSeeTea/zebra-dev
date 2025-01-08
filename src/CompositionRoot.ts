@@ -77,6 +77,7 @@ import { ResourceRepository } from "./domain/repositories/ResourceRepository";
 import { ResourceDataStoreRepository } from "./data/repositories/ResourceDataStoreRepository";
 import { ResourceTestRepository } from "./data/repositories/test/ResourceTestRepository";
 import { GetResourcesUseCase } from "./domain/usecases/GetResourcesUseCase";
+import { DownloadResourceFileUseCase } from "./domain/usecases/DownloadResourceFileUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -153,7 +154,8 @@ function getCompositionRoot(repositories: Repositories) {
             getCases: new GetChartConfigByTypeUseCase(repositories.chartConfigRepository),
         },
         resources: {
-            get: new GetResourcesUseCase(repositories),
+            get: new GetResourcesUseCase(repositories.resourceRepository),
+            downloadResourceFile: new DownloadResourceFileUseCase(repositories.resourceRepository),
         },
     };
 }

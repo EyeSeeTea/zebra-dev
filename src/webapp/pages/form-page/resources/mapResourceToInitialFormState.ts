@@ -1,10 +1,32 @@
 import { ResourceFormData } from "../../../../domain/entities/ConfigurableForm";
 import { ResourceType } from "../../../../domain/entities/resources/Resource";
+import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
 import { FormState } from "../../../components/form/FormState";
+
+export const resourceFieldIds = {
+    resourceType: "resourceType",
+    resourceLabel: "resourceLabel",
+    resourceFolder: "resourceFolder",
+    resourceFile: "resourceFile",
+};
+
+const resourceTypeOptions = [
+    {
+        value: ResourceType.RESPONSE_DOCUMENT,
+        label: "Response document",
+    },
+    {
+        value: ResourceType.TEMPLATE,
+        label: "Template",
+    },
+];
 
 export function mapResourceToInitialFormState(formData: ResourceFormData): FormState {
     const { entity: resource, uploadedResourceFile, uploadedResourceFileId } = formData;
     const isResourceDocument = resource?.resourceType === ResourceType.RESPONSE_DOCUMENT;
+
+    const fromIdsDictionary = (key: keyof typeof resourceFieldIds) =>
+        getFieldIdFromIdsDictionary(key, resourceFieldIds);
 
     return {
         id: "",
@@ -15,27 +37,18 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
         sections: [
             {
                 title: "Resource type",
-                id: "resourceType_section",
+                id: `${fromIdsDictionary("resourceType")}_section`,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "resourceType",
+                        id: fromIdsDictionary("resourceType"),
                         placeholder: "Select a resource type",
                         isVisible: true,
                         errors: [],
                         type: "select",
                         multiple: false,
-                        options: [
-                            {
-                                value: ResourceType.RESPONSE_DOCUMENT,
-                                label: "Response document",
-                            },
-                            {
-                                value: ResourceType.TEMPLATE,
-                                label: "Template",
-                            },
-                        ],
+                        options: resourceTypeOptions,
                         value: resource?.resourceType || "",
                         required: true,
                     },
@@ -43,12 +56,12 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
             },
             {
                 title: "Resource name",
-                id: "resourceLabel_section",
+                id: `${fromIdsDictionary("resourceLabel")}_section`,
                 isVisible: true,
                 required: true,
                 fields: [
                     {
-                        id: "resourceLabel",
+                        id: fromIdsDictionary("resourceLabel"),
                         isVisible: true,
                         errors: [],
                         type: "text",
@@ -59,12 +72,12 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
             },
             {
                 title: "Resource folder",
-                id: "resourceFolder_section",
+                id: `${fromIdsDictionary("resourceFolder")}_section`,
                 isVisible: isResourceDocument,
                 required: true,
                 fields: [
                     {
-                        id: "resourceFolder",
+                        id: fromIdsDictionary("resourceFolder"),
                         isVisible: isResourceDocument,
                         errors: [],
                         type: "text",
@@ -75,18 +88,18 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
             },
             {
                 title: "Resource file",
-                id: "resourceFile_section",
+                id: `${fromIdsDictionary("resourceFile")}_section`,
                 isVisible: true,
-                required: false,
+                required: true,
                 fields: [
                     {
-                        id: "resourceFile",
+                        id: fromIdsDictionary("resourceFile"),
                         isVisible: true,
                         errors: [],
                         type: "file",
                         value: uploadedResourceFile || undefined,
                         fileId: uploadedResourceFileId || undefined,
-                        required: false,
+                        required: true,
                         data: undefined,
                         fileTemplate: undefined,
                     },

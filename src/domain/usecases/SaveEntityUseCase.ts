@@ -122,7 +122,6 @@ export class SaveEntityUseCase {
                                         incidentActionPlan: undefined,
                                         incidentManagementTeam: undefined,
                                         uploadedCasesData: undefined,
-                                        resource: [],
                                     });
                                 return saveDiseaseOutbreak(
                                     this.options,

@@ -206,7 +206,6 @@ function getDiseaseOutbreakEventFromDiseaseOutbreakForm(
         riskAssessment: undefined,
         incidentActionPlan: undefined,
         incidentManagementTeam: undefined,
-        resource: [],
     });
 
     return casesData
@@ -253,7 +252,6 @@ function getDiseaseOutbreakEventFromDiseaseOutbreakCaseDataForm(
         riskAssessment: undefined,
         incidentActionPlan: undefined,
         incidentManagementTeam: undefined,
-        resource: diseaseOutbreakEvent?.resource || [],
     });
 
     return casesData

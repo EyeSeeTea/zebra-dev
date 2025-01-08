@@ -147,9 +147,16 @@ export function mapFormStateToEntityData(
         }
         case "resource": {
             const resource = mapFormStateToResource(formState);
+
+            const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+            const uploadedResourceFileValue = getFileFieldValue("resourceFile", allFields);
+            const uploadedResourceFileId = getFieldFileIdById("resourceFile", allFields);
+
             const resourceForm: ResourceFormData = {
                 ...formData,
                 entity: resource,
+                uploadedResourceFile: uploadedResourceFileValue,
+                uploadedResourceFileId: uploadedResourceFileId,
             };
 
             return resourceForm;
@@ -638,17 +645,16 @@ function mapFormStateToIncidentManagementTeamMember(
 function mapFormStateToResource(formState: FormState): Resource {
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
-    const resourceType = allFields.find(field => field.id.includes("resourceType"))
-        ?.value as ResourceType;
-    const resourceLabel = allFields.find(field => field.id.includes("resourceLabel"))
-        ?.value as string;
-    const resourceFolder = allFields.find(field => field.id.includes("resourceFolder"))
-        ?.value as string;
+    const resourceType = getStringFieldValue("resourceType", allFields) as ResourceType;
+    const resourceLabel = getStringFieldValue("resourceLabel", allFields);
+    const resourceFolder = getStringFieldValue("resourceFolder", allFields);
+    const uploadedResourceFileId = getFieldFileIdById("resourceFile", allFields);
 
     const resource: Resource = {
         resourceType: resourceType,
         resourceLabel: resourceLabel,
         resourceFolder: resourceFolder,
+        resourceFileId: uploadedResourceFileId,
     };
 
     return resource;

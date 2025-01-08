@@ -1,11 +1,20 @@
+import { Maybe } from "../../../utils/ts-utils";
+import { Id } from "../Ref";
+
+export type ResourceFile = {
+    fileId: Id;
+    file: File;
+};
+
 export enum ResourceType {
     TEMPLATE = "template",
     RESPONSE_DOCUMENT = "response-document",
 }
 
-type ResourceBase = {
+export type ResourceBase = {
     resourceType: ResourceType;
     resourceLabel: string;
+    resourceFileId: Maybe<Id>;
 };
 
 export type ResponseDocument = ResourceBase & {

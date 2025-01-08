@@ -8,10 +8,11 @@ import { FileFileUpload } from "material-ui/svg-icons";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { useAppContext } from "../../contexts/app-context";
 import { Maybe } from "../../../utils/ts-utils";
-import { DescriptionOutlined } from "@material-ui/icons";
 import styled from "styled-components";
 import { ResponseDocumentHierarchyView } from "../../components/response-document-hierarchy/ResponseDocumentHierarchyView";
 import { ResourceData } from "../../../domain/usecases/GetResourcesUseCase";
+import { ResourceLabel } from "./ResourceLabel";
+import { NoticeBox } from "../../components/notice-box/NoticeBox";
 
 export const ResourcesPage: React.FC = React.memo(() => {
     const { compositionRoot } = useAppContext();
@@ -65,20 +66,20 @@ export const ResourcesPage: React.FC = React.memo(() => {
                             <div>
                                 <ResourceTypeLabel>Templates</ResourceTypeLabel>
                                 <Container>
-                                    {resources.templates.map(template => {
-                                        return (
-                                            <StyledTemplateLabel key={template.resourceLabel}>
-                                                <DescriptionOutlined fontSize="small" />
-                                                <span>{template.resourceLabel}</span>
-                                            </StyledTemplateLabel>
-                                        );
-                                    })}
+                                    {resources.templates.map(template => (
+                                        <ResourceLabel
+                                            key={template.resourceFileId}
+                                            resource={template}
+                                        />
+                                    ))}
                                 </Container>
                             </div>
                         )}
                     </ContentWrapper>
                 ) : (
-                    <p>No resources created</p>
+                    <NoticeBox title={i18n.t("No resources created")}>
+                        {i18n.t("You can upload a file to create a new resource")}
+                    </NoticeBox>
                 )}
             </Section>
         </Layout>
@@ -105,11 +106,4 @@ const ContentWrapper = styled.div`
 
 const ResourceTypeLabel = styled.p`
     font-size: 20px;
-`;
-
-const StyledTemplateLabel = styled.p`
-    display: flex;
-    gap: 8px;
-    margin: 0;
-    cursor: pointer;
 `;
