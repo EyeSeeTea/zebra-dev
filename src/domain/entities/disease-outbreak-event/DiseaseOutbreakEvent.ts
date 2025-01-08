@@ -2,11 +2,13 @@ import { Struct } from "../generic/Struct";
 import { IncidentActionPlan } from "../incident-action-plan/IncidentActionPlan";
 import { IncidentManagementTeam } from "../incident-management-team/IncidentManagementTeam";
 import { TeamMember } from "../incident-management-team/TeamMember";
-import { Code, NamedRef } from "../Ref";
+import { Code, Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
 import { Resource } from "../resources/Resource";
+import _ from "../generic/Collection";
+import { Username } from "../User";
 
 export const hazardTypes = [
     "Biological:Human",
@@ -32,6 +34,11 @@ export enum DataSource {
     RTSL_ZEB_OS_DATA_SOURCE_EBS = "RTSL_ZEB_OS_DATA_SOURCE_EBS",
 }
 
+export enum CasesDataSource {
+    RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR = "RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR",
+    RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF = "RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF",
+}
+
 type DateWithNarrative = {
     date: Date;
     narrative: string;
@@ -53,6 +60,16 @@ type EarlyResponseActions = {
     responseNarrative: string;
 };
 
+export type CaseData = {
+    updatedBy: Username;
+    orgUnit: Id;
+    reportDate: string;
+    suspectedCases: number;
+    probableCases: number;
+    confirmedCases: number;
+    deaths: number;
+};
+
 export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     status: "ACTIVE" | "COMPLETED" | "CANCELLED";
     created?: Date;
@@ -70,17 +87,19 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     earlyResponseActions: EarlyResponseActions;
     incidentManagerName: string;
     notes: Maybe<string>;
+    casesDataSource: CasesDataSource;
 };
 
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
     createdBy: Maybe<TeamMember>;
     mainSyndrome: Maybe<NamedRef>;
     suspectedDisease: Maybe<NamedRef>;
-    notificationSource: NamedRef;
+    notificationSource: Maybe<NamedRef>;
     incidentManager: Maybe<TeamMember>; //TO DO : make mandatory once form rules applied.
     riskAssessment: Maybe<RiskAssessment>;
     incidentActionPlan: Maybe<IncidentActionPlan>;
     incidentManagementTeam: Maybe<IncidentManagementTeam>;
+    uploadedCasesData: Maybe<CaseData[]>;
     resource: Resource[];
 };
 
@@ -93,5 +112,9 @@ export class DiseaseOutbreakEvent extends Struct<DiseaseOutbreakEventAttrs>() {
     //TODO: Add required validations if exists:
     static validate(_data: DiseaseOutbreakEventBaseAttrs): ValidationError[] {
         return [];
+    }
+
+    addUploadedCasesData(casesData: CaseData[]): DiseaseOutbreakEvent {
+        return this._update({ uploadedCasesData: casesData });
     }
 }

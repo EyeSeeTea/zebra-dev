@@ -40,7 +40,7 @@ export const ResponseActionTable: React.FC<ResponseActionTableProps> = React.mem
             <Section
                 title="Response Actions"
                 hasSeparator={true}
-                headerButton={
+                headerButtons={
                     <Button
                         variant="outlined"
                         color="secondary"

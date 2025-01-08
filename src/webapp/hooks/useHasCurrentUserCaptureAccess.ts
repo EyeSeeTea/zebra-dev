@@ -15,6 +15,9 @@ export function useCheckWritePermission(formType: FormType) {
                 case "disease-outbreak-event":
                     snackbar.error("You do not have permission to create/edit events");
                     break;
+                case "disease-outbreak-event-case-data":
+                    snackbar.error("You do not have permission to edit historical case data");
+                    break;
                 case "incident-management-team-member-assignment":
                     snackbar.error(
                         "You do not have permission to create/edit IM team member assignments"

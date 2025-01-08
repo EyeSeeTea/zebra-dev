@@ -81,6 +81,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                         riskAssessment: riskAssessment,
                         incidentActionPlan: undefined, //IAP is fetched on menu click. It is not needed here.
                         incidentManagementTeam: undefined, //IMT is fetched on menu click. It is not needed here.
+                        uploadedCasesData: undefined, // Uploaded case data is not needed
                         resource: [], // Resource is fetched on menu click. It is not needed here.
                     });
                     return Future.success(diseaseOutbreakEvent);

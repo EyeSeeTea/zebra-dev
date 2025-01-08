@@ -16,6 +16,7 @@ export enum RouteName {
 
 const formTypes = [
     "disease-outbreak-event",
+    "disease-outbreak-event-case-data",
     "risk-assessment-grading",
     "risk-assessment-summary",
     "risk-assessment-questionnaire",

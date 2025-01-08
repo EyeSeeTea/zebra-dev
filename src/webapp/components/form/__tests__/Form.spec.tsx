@@ -233,7 +233,7 @@ function givenFormProps(): FormProps {
                             label: "Field text visible not required",
                             isVisible: true,
                             helperText: "text field helper text not required",
-                            errors: ["this_is_an_error"],
+                            errors: ["There is an error in this field"],
                             type: "text",
                             value: "text value not required",
                             multiline: false,
@@ -490,5 +490,7 @@ function givenFormProps(): FormProps {
         onFormChange: (_updatedField: FormFieldState) => {},
         onSave: () => {},
         onCancel: () => {},
+        openModal: false,
+        setOpenModal: () => {},
     };
 }

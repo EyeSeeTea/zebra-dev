@@ -9,6 +9,7 @@ import styled from "styled-components";
 
 export type FormType =
     | "disease-outbreak-event"
+    | "disease-outbreak-event-case-data"
     | "risk-assessment-grading"
     | "risk-assessment-questionnaire"
     | "risk-assessment-summary"
@@ -30,6 +31,9 @@ export const FormPage: React.FC = React.memo(() => {
         globalMessage,
         formState,
         isLoading,
+        openModal,
+        modalData,
+        setOpenModal,
         handleFormChange,
         onPrimaryButtonClick,
         onCancelForm,
@@ -56,6 +60,9 @@ export const FormPage: React.FC = React.memo(() => {
             errorLabels={formLabels?.errors}
             handleAddNew={handleAddNew}
             handleRemove={handleRemove}
+            openModal={openModal}
+            modalData={modalData}
+            setOpenModal={setOpenModal}
         />
     ) : (
         formState.message && <ErrorMessageContainer>{formState.message}</ErrorMessageContainer>
