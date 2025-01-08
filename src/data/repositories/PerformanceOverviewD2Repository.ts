@@ -611,6 +611,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.incidentManager,
                                     performanceOverviewDimensions.respond7d,
                                     performanceOverviewDimensions.incidentStatus,
+                                    performanceOverviewDimensions.emergedDate,
                                 ],
                                 startDate: DEFAULT_START_DATE,
                                 endDate: DEFAULT_END_DATE,
@@ -633,16 +634,22 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             header => header.name === dimension
                                         );
                                         if (dimension === "enrollmentdate") {
-                                            const duration = `${moment()
-                                                .diff(moment(row[index]), "days")
-                                                .toString()}d`;
-
                                             const inputDate = row[index];
                                             const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
                                             return {
                                                 ...acc,
-                                                duration: duration,
                                                 [dimensionKey]: formattedDate,
+                                            };
+                                        } else if (dimensionKey === "emergedDate") {
+                                            const duration = row[index]
+                                                ? `${moment()
+                                                      .diff(moment(row[index]), "days")
+                                                      .toString()}d`
+                                                : "";
+
+                                            return {
+                                                ...acc,
+                                                duration: duration,
                                             };
                                         } else if (dimension === "ounamehierarchy") {
                                             const hierarchyArray = row[index]?.split("/");
