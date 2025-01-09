@@ -74,10 +74,11 @@ import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository
 import { UserGroupRepository } from "./domain/repositories/UserGroupRepository";
 import { UserGroupTestRepository } from "./data/repositories/test/UserGroupTestRepository";
 import { ResourceRepository } from "./domain/repositories/ResourceRepository";
-import { ResourceDataStoreRepository } from "./data/repositories/ResourceDataStoreRepository";
+import { ResourceD2Repository } from "./data/repositories/ResourceD2Repository";
 import { ResourceTestRepository } from "./data/repositories/test/ResourceTestRepository";
 import { GetResourcesUseCase } from "./domain/usecases/GetResourcesUseCase";
 import { DownloadResourceFileUseCase } from "./domain/usecases/DownloadResourceFileUseCase";
+import { DeleteResourceFileUseCase } from "./domain/usecases/DeleteResourceFileUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -156,6 +157,7 @@ function getCompositionRoot(repositories: Repositories) {
         resources: {
             get: new GetResourcesUseCase(repositories.resourceRepository),
             downloadResourceFile: new DownloadResourceFileUseCase(repositories.resourceRepository),
+            deleteResourceFile: new DeleteResourceFileUseCase(repositories.resourceRepository),
         },
     };
 }
@@ -180,7 +182,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         configurationsRepository: new ConfigurationsD2Repository(api),
         casesFileRepository: new CasesFileD2Repository(api, dataStoreClient),
         userGroupRepository: new UserGroupD2Repository(api),
-        resourceRepository: new ResourceDataStoreRepository(api),
+        resourceRepository: new ResourceD2Repository(api),
     };
 
     return getCompositionRoot(repositories);

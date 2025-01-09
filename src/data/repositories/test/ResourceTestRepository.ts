@@ -4,7 +4,6 @@ import { Future } from "../../../domain/entities/generic/Future";
 import { Resource, ResourceFile, ResourceType } from "../../../domain/entities/resources/Resource";
 import { ResourceRepository } from "../../../domain/repositories/ResourceRepository";
 import { FutureData } from "../../api-futures";
-import { Maybe } from "../../../utils/ts-utils";
 
 export class ResourceTestRepository implements ResourceRepository {
     getAllResources(): FutureData<Resource[]> {
@@ -25,9 +24,9 @@ export class ResourceTestRepository implements ResourceRepository {
         return Future.success(resources);
     }
 
-    downloadFile(_fileId: Maybe<Id>): FutureData<ResourceFile> {
+    downloadFile(fileId: Id): FutureData<ResourceFile> {
         return Future.success({
-            fileId: "123",
+            fileId: fileId,
             file: new File(["test"], "test.txt", { type: "text/plain" }),
         });
     }
@@ -36,7 +35,7 @@ export class ResourceTestRepository implements ResourceRepository {
         return Future.success(undefined);
     }
 
-    deleteResource(): FutureData<void> {
+    deleteResource(_fileId: Id): FutureData<void> {
         return Future.success(undefined);
     }
 }

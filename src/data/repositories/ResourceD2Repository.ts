@@ -6,12 +6,11 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
 import { ResourceFormData } from "../../domain/entities/ConfigurableForm";
 import { Id } from "../../domain/entities/Ref";
-import { Maybe } from "../../utils/ts-utils";
 import _c from "../../domain/entities/generic/Collection";
 
 const RESOURCES_KEY = "resources";
 
-export class ResourceDataStoreRepository implements ResourceRepository {
+export class ResourceD2Repository implements ResourceRepository {
     private dataStoreClient: DataStoreClient;
 
     constructor(private api: D2Api) {
@@ -24,7 +23,8 @@ export class ResourceDataStoreRepository implements ResourceRepository {
             .flatMap(resources => Future.success(resources ?? []));
     }
 
-    downloadFile(fileId: Maybe<Id>): FutureData<ResourceFile> {
+    // should this be in it's own ResourceFileRepository? or should it be a useCase?
+    downloadFile(fileId: Id): FutureData<ResourceFile> {
         if (!fileId) return Future.error(new Error("No file id found"));
 
         return apiToFuture(this.api.files.get(fileId))
@@ -40,33 +40,45 @@ export class ResourceDataStoreRepository implements ResourceRepository {
     }
 
     saveResource(formData: ResourceFormData): FutureData<void> {
-        const { entity: resource, uploadedResourceFile, uploadedResourceFileId } = formData;
+        const { entity: resource, uploadedResourceFile } = formData;
 
         if (!resource) throw new Error("No resource form data found");
         if (!uploadedResourceFile) return Future.error(new Error("No file uploaded"));
 
         return this.getAllResources().flatMap(resourcesInDataStore => {
             return this.uploadFile(uploadedResourceFile).flatMap(resourceFileId => {
-                const isResourceExisting = resourcesInDataStore.some(
-                    resourceInDataStore =>
-                        resourceInDataStore.resourceLabel === resource.resourceLabel
+                const updatedResources = this.getResourcesToSave(
+                    resourcesInDataStore,
+                    resource,
+                    resourceFileId
                 );
-
-                const resourceWithFileId = { ...resource, resourceFileId: resourceFileId };
-                const updatedResources = isResourceExisting
-                    ? resourcesInDataStore.map(resourceInDataStore =>
-                          resourceInDataStore.resourceLabel === resource.resourceLabel
-                              ? resourceWithFileId
-                              : resourceInDataStore
-                      )
-                    : [...resourcesInDataStore, resourceWithFileId];
 
                 return this.dataStoreClient.saveObject<Resource[]>(RESOURCES_KEY, updatedResources);
             });
         });
     }
 
-    uploadFile(file: File): FutureData<Id> {
+    private getResourcesToSave(
+        resourcesInDataStore: Resource[],
+        resource: Resource,
+        resourceFileId: string
+    ) {
+        const isResourceExisting = resourcesInDataStore.some(
+            resourceInDataStore => resourceInDataStore.resourceLabel === resource.resourceLabel
+        );
+
+        const resourceWithFileId = { ...resource, resourceFileId: resourceFileId };
+        const updatedResources = isResourceExisting
+            ? resourcesInDataStore.map(resourceInDataStore =>
+                  resourceInDataStore.resourceLabel === resource.resourceLabel
+                      ? resourceWithFileId
+                      : resourceInDataStore
+              )
+            : [...resourcesInDataStore, resourceWithFileId];
+        return updatedResources;
+    }
+
+    private uploadFile(file: File): FutureData<Id> {
         return apiToFuture(
             this.api.files.upload({
                 name: file.name,
@@ -75,7 +87,22 @@ export class ResourceDataStoreRepository implements ResourceRepository {
         ).flatMap(fileResource => Future.success(fileResource.id));
     }
 
-    deleteResource(): FutureData<void> {
-        throw new Error("Method not implemented.");
+    deleteResource(fileId: Id): FutureData<void> {
+        return apiToFuture(this.api.files.delete(fileId)).flatMap(response => {
+            if (response.httpStatus === "OK") {
+                return this.getAllResources().flatMap(resources => {
+                    const updatedResources = resources.filter(
+                        resource => resource.resourceFileId !== fileId
+                    );
+
+                    return this.dataStoreClient.saveObject<Resource[]>(
+                        RESOURCES_KEY,
+                        updatedResources
+                    );
+                });
+            } else {
+                return Future.error(new Error("Error while deleting resource file"));
+            }
+        });
     }
 }

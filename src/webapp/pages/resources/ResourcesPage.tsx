@@ -1,37 +1,32 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 import { Layout } from "../../components/layout/Layout";
 import i18n from "../../../utils/i18n";
 import { Section } from "../../components/section/Section";
 import { Button } from "@material-ui/core";
 import { FileFileUpload } from "material-ui/svg-icons";
-import { RouteName, useRoutes } from "../../hooks/useRoutes";
-import { useAppContext } from "../../contexts/app-context";
-import { Maybe } from "../../../utils/ts-utils";
 import styled from "styled-components";
 import { ResponseDocumentHierarchyView } from "../../components/response-document-hierarchy/ResponseDocumentHierarchyView";
-import { ResourceData } from "../../../domain/usecases/GetResourcesUseCase";
 import { ResourceLabel } from "./ResourceLabel";
 import { NoticeBox } from "../../components/notice-box/NoticeBox";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import { useResources } from "./useResources";
 
 export const ResourcesPage: React.FC = React.memo(() => {
-    const { compositionRoot } = useAppContext();
-    const { goTo } = useRoutes();
-
-    const onUploadFileClick = useCallback(() => {
-        goTo(RouteName.CREATE_FORM, { formType: "resource" });
-    }, [goTo]);
-
-    const [resources, setResources] = useState<Maybe<ResourceData>>(undefined);
+    const snackbar = useSnackbar();
+    const { resources, onUploadFileClick, globalMessage, getResources } = useResources();
+    const [reload, setReload] = useState(false);
 
     useEffect(() => {
-        compositionRoot.resources.get.execute().run(
-            resources => {
-                setResources(resources);
-            },
-            error => console.debug({ error })
-        );
-    }, [compositionRoot.resources.get]);
+        if (!globalMessage) return;
+
+        snackbar[globalMessage.type](globalMessage.text);
+    }, [globalMessage, snackbar]);
+
+    const handleReload = useCallback(() => {
+        getResources();
+        setReload(!reload);
+    }, [getResources, reload]);
 
     const uploadButton = (
         <Button
@@ -44,9 +39,22 @@ export const ResourcesPage: React.FC = React.memo(() => {
         </Button>
     );
 
+    const reloadButton = (
+        <Button variant="outlined" color="primary" onClick={handleReload}>
+            {i18n.t("Delete Resources")}
+        </Button>
+    );
+
     return (
         <Layout title={i18n.t("Resources")}>
-            <Section headerButtons={uploadButton}>
+            <Section
+                headerButtons={
+                    <>
+                        {uploadButton}
+                        {reloadButton}
+                    </>
+                }
+            >
                 {resources &&
                 (resources.responseDocuments.length > 0 || resources.templates.length > 0) ? (
                     <ContentWrapper>

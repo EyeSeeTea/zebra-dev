@@ -39,7 +39,6 @@ export const ResponseDocumentHierarchyItem: React.FC<ResponseDocumentHierarchyIt
     });
 
 const StyledTreeItemMUI = styled(TreeItemMUI)`
-    cursor: pointer;
     .MuiTreeItem-label {
         margin-left: 12px;
     }

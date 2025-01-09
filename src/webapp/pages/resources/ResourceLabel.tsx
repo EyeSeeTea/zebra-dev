@@ -1,47 +1,59 @@
 import styled from "styled-components";
-import { ResourceBase, ResourceFile } from "../../../domain/entities/resources/Resource";
-import { Maybe } from "../../../utils/ts-utils";
-import { DescriptionOutlined } from "@material-ui/icons";
+import { ResourceBase } from "../../../domain/entities/resources/Resource";
+import { Delete, DescriptionOutlined } from "@material-ui/icons";
 import { Link } from "@mui/material";
-import { useEffect, useState } from "react";
-import { useAppContext } from "../../contexts/app-context";
+import { useEffect } from "react";
+import { Button } from "@material-ui/core";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import { useResourceFile } from "./useResourceFile";
 
 interface ResourceLabelProps {
     resource: ResourceBase;
 }
 
 export const ResourceLabel: React.FC<ResourceLabelProps> = ({ resource }) => {
-    const { compositionRoot } = useAppContext();
-    const [resourceFile, setResourceFile] = useState<Maybe<ResourceFile>>(undefined);
+    const snackbar = useSnackbar();
+    const { resourceFileId, resourceLabel } = resource;
+    const { globalMessage, resourceFile, deleteResource } = useResourceFile(resourceFileId);
 
     useEffect(() => {
-        compositionRoot.resources.downloadResourceFile.execute(resource.resourceFileId).run(
-            resourceFile => {
-                setResourceFile(resourceFile);
-            },
-            err => {
-                console.log({ err });
-            }
-        );
-    }, [compositionRoot.resources.downloadResourceFile, resource.resourceFileId]);
+        if (!globalMessage) return;
+
+        snackbar[globalMessage.type](globalMessage.text);
+    }, [globalMessage, snackbar]);
 
     return (
-        <StyledTemplateLabel key={resource.resourceLabel}>
-            <DescriptionOutlined fontSize="small" />
-            <Link
-                href={resourceFile ? URL.createObjectURL(resourceFile.file) : undefined}
-                download={resource.resourceLabel}
-                underline="hover"
-            >
-                {resource.resourceLabel}
-            </Link>
+        <StyledTemplateLabel key={resourceLabel}>
+            <p>
+                <DescriptionOutlined fontSize="small" />
+                <Link
+                    href={resourceFile ? URL.createObjectURL(resourceFile.file) : undefined}
+                    download={resourceLabel}
+                    underline="hover"
+                >
+                    {resourceLabel}
+                </Link>
+            </p>
+
+            {resourceFileId && (
+                <Button onClick={() => deleteResource(resourceFileId)}>
+                    <Delete fontSize="small" color="error" />
+                </Button>
+            )}
         </StyledTemplateLabel>
     );
 };
 
-const StyledTemplateLabel = styled.p`
+const StyledTemplateLabel = styled.div`
     display: flex;
-    gap: 8px;
-    margin: 0;
-    cursor: pointer;
+
+    justify-content: space-between;
+    align-items: center;
+
+    p {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin: 0;
+    }
 `;
