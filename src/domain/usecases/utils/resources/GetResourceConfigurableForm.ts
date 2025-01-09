@@ -1,22 +1,65 @@
 import { FutureData } from "../../../../data/api-futures";
 import { FormLables, ResourceFormData } from "../../../entities/ConfigurableForm";
+import _c from "../../../entities/generic/Collection";
 import { Future } from "../../../entities/generic/Future";
-import { ResourceType } from "../../../entities/resources/Resource";
+import { Option } from "../../../entities/Ref";
+import { Resource, ResourceType } from "../../../entities/resources/Resource";
 import { Rule } from "../../../entities/Rule";
+import { ResourceRepository } from "../../../repositories/ResourceRepository";
 
-export function getResourceConfigurableForm(): FutureData<ResourceFormData> {
+const resourceTypeOptions: Option[] = [
+    {
+        id: ResourceType.RESPONSE_DOCUMENT,
+        name: "Response document",
+    },
+    {
+        id: ResourceType.TEMPLATE,
+        name: "Template",
+    },
+];
+
+export function getResourceConfigurableForm(props: {
+    resourceRepository: ResourceRepository;
+}): FutureData<ResourceFormData> {
+    const { resourceRepository } = props;
     const { rules, labels } = getResourceLabelsRules();
 
-    const resourceFormData: ResourceFormData = {
-        type: "resource",
-        entity: undefined,
-        uploadedResourceFile: undefined,
-        uploadedResourceFileId: undefined,
-        labels: labels,
-        rules: rules,
-    };
+    return resourceRepository.getAllResources().flatMap(resources => {
+        const resourceFolderOptions = getResourceFolderOptions(resources);
 
-    return Future.success(resourceFormData);
+        const resourceFormData: ResourceFormData = {
+            type: "resource",
+            entity: undefined,
+            options: {
+                resourceType: resourceTypeOptions,
+                resourceFolder: resourceFolderOptions,
+            },
+            uploadedResourceFile: undefined,
+            uploadedResourceFileId: undefined,
+            labels: labels,
+            rules: rules,
+        };
+
+        return Future.success(resourceFormData);
+    });
+}
+
+function getResourceFolderOptions(resources: Resource[]): Option[] {
+    const resourceFolders = _c(resources)
+        .map(resource =>
+            resource.resourceType === ResourceType.RESPONSE_DOCUMENT
+                ? resource.resourceLabel
+                : undefined
+        )
+        .compact()
+        .uniq()
+        .value();
+
+    const resourceFolderOptions: Option[] = resourceFolders.map(resourceFolder => ({
+        id: `${resourceFolder}_folder`,
+        name: resourceFolder,
+    }));
+    return resourceFolderOptions;
 }
 
 function getResourceLabelsRules(): { rules: Rule[]; labels: FormLables } {

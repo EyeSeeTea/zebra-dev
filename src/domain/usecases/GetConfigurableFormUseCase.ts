@@ -13,6 +13,7 @@ import { CasesFileRepository } from "../repositories/CasesFileRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
+import { ResourceRepository } from "../repositories/ResourceRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getDiseaseOutbreakConfigurableForm } from "./utils/disease-outbreak/GetDiseaseOutbreakConfigurableForm";
@@ -36,6 +37,7 @@ export class GetConfigurableFormUseCase {
             incidentActionRepository: IncidentActionRepository;
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
             casesFileRepository: CasesFileRepository;
+            resourceRepository: ResourceRepository;
         }
     ) {}
 
@@ -155,7 +157,9 @@ export class GetConfigurableFormUseCase {
                         )
                     );
 
-                return getResourceConfigurableForm();
+                return getResourceConfigurableForm({
+                    resourceRepository: this.options.resourceRepository,
+                });
             default:
                 return Future.error(new Error("Form type not supported"));
         }

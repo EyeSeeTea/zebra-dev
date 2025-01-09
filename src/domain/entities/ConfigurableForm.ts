@@ -65,6 +65,7 @@ export type IncidentResponseActionOptions = {
 
 export type ResourceOptions = {
     resourceType: Option[];
+    resourceFolder: Option[];
 };
 
 export type FormLables = {
@@ -134,6 +135,7 @@ export type ResourceFormData = BaseFormData & {
     entity: Maybe<Resource>;
     uploadedResourceFile: Maybe<File>;
     uploadedResourceFileId: Maybe<Id>;
+    options: ResourceOptions;
 };
 
 export type IncidentManagementTeamRoleOptions = {

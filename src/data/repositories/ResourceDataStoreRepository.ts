@@ -7,6 +7,7 @@ import { Future } from "../../domain/entities/generic/Future";
 import { ResourceFormData } from "../../domain/entities/ConfigurableForm";
 import { Id } from "../../domain/entities/Ref";
 import { Maybe } from "../../utils/ts-utils";
+import _c from "../../domain/entities/generic/Collection";
 
 const RESOURCES_KEY = "resources";
 

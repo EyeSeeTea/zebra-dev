@@ -1,7 +1,9 @@
 import { ResourceFormData } from "../../../../domain/entities/ConfigurableForm";
 import { ResourceType } from "../../../../domain/entities/resources/Resource";
 import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
+import { Option as UIOption } from "../../../components/utils/option";
 import { FormState } from "../../../components/form/FormState";
+import { mapToPresentationOptions } from "../mapEntityToFormState";
 
 export const resourceFieldIds = {
     resourceType: "resourceType",
@@ -10,20 +12,13 @@ export const resourceFieldIds = {
     resourceFile: "resourceFile",
 };
 
-const resourceTypeOptions = [
-    {
-        value: ResourceType.RESPONSE_DOCUMENT,
-        label: "Response document",
-    },
-    {
-        value: ResourceType.TEMPLATE,
-        label: "Template",
-    },
-];
-
 export function mapResourceToInitialFormState(formData: ResourceFormData): FormState {
-    const { entity: resource, uploadedResourceFile, uploadedResourceFileId } = formData;
+    const { entity: resource, uploadedResourceFile, uploadedResourceFileId, options } = formData;
     const isResourceDocument = resource?.resourceType === ResourceType.RESPONSE_DOCUMENT;
+
+    const { resourceType, resourceFolder } = options;
+    const resourceTypeOptions: UIOption[] = mapToPresentationOptions(resourceType);
+    const resourceFolderOptions: UIOption[] = mapToPresentationOptions(resourceFolder);
 
     const fromIdsDictionary = (key: keyof typeof resourceFieldIds) =>
         getFieldIdFromIdsDictionary(key, resourceFieldIds);
@@ -80,7 +75,10 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
                         id: fromIdsDictionary("resourceFolder"),
                         isVisible: isResourceDocument,
                         errors: [],
-                        type: "text",
+                        type: "select",
+                        options: resourceFolderOptions,
+                        multiple: false,
+                        addNewOption: true,
                         value: isResourceDocument ? resource.resourceFolder : "",
                         required: true,
                     },
