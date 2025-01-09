@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect } from "react";
 
 import { Layout } from "../../components/layout/Layout";
 import i18n from "../../../utils/i18n";
@@ -14,19 +14,14 @@ import { useResources } from "./useResources";
 
 export const ResourcesPage: React.FC = React.memo(() => {
     const snackbar = useSnackbar();
-    const { resources, onUploadFileClick, globalMessage, getResources } = useResources();
-    const [reload, setReload] = useState(false);
+    const { resources, onUploadFileClick, globalMessage, isDeleting, handleDelete } =
+        useResources();
 
     useEffect(() => {
         if (!globalMessage) return;
 
         snackbar[globalMessage.type](globalMessage.text);
     }, [globalMessage, snackbar]);
-
-    const handleReload = useCallback(() => {
-        getResources();
-        setReload(!reload);
-    }, [getResources, reload]);
 
     const uploadButton = (
         <Button
@@ -39,22 +34,9 @@ export const ResourcesPage: React.FC = React.memo(() => {
         </Button>
     );
 
-    const reloadButton = (
-        <Button variant="outlined" color="primary" onClick={handleReload}>
-            {i18n.t("Delete Resources")}
-        </Button>
-    );
-
     return (
         <Layout title={i18n.t("Resources")}>
-            <Section
-                headerButtons={
-                    <>
-                        {uploadButton}
-                        {reloadButton}
-                    </>
-                }
-            >
+            <Section headerButtons={uploadButton}>
                 {resources &&
                 (resources.responseDocuments.length > 0 || resources.templates.length > 0) ? (
                     <ContentWrapper>
@@ -65,6 +47,8 @@ export const ResourcesPage: React.FC = React.memo(() => {
                                 <Container>
                                     <ResponseDocumentHierarchyView
                                         responseDocuments={resources.responseDocuments}
+                                        onDelete={handleDelete}
+                                        isDeleting={isDeleting}
                                     />
                                 </Container>
                             </div>
@@ -78,6 +62,8 @@ export const ResourcesPage: React.FC = React.memo(() => {
                                         <ResourceLabel
                                             key={template.resourceFileId}
                                             resource={template}
+                                            isDeleting={isDeleting}
+                                            onDelete={handleDelete}
                                         />
                                     ))}
                                 </Container>

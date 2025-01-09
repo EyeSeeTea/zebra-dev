@@ -5,12 +5,14 @@ import styled from "styled-components";
 import { ResourceLabel } from "../../pages/resources/ResourceLabel";
 
 type ResponseDocumentHierarchyItemProps = {
+    isDeleting: boolean;
     responseDocument: ResponseDocumentsByFolder;
+    onDelete: () => void;
 };
 
 export const ResponseDocumentHierarchyItem: React.FC<ResponseDocumentHierarchyItemProps> =
     React.memo(props => {
-        const { responseDocument } = props;
+        const { isDeleting, responseDocument, onDelete } = props;
 
         return (
             <StyledTreeItemMUI
@@ -24,6 +26,8 @@ export const ResponseDocumentHierarchyItem: React.FC<ResponseDocumentHierarchyIt
                             nodeId={resource.resourceLabel}
                             label={
                                 <ResourceLabel
+                                    isDeleting={isDeleting}
+                                    onDelete={onDelete}
                                     resource={{
                                         resourceFileId: resource.resourceFileId,
                                         resourceLabel: resource.resourceLabel,

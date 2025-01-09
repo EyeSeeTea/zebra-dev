@@ -63,9 +63,14 @@ export class ResourceD2Repository implements ResourceRepository {
         resource: Resource,
         resourceFileId: string
     ) {
-        const isResourceExisting = resourcesInDataStore.some(
-            resourceInDataStore => resourceInDataStore.resourceLabel === resource.resourceLabel
-        );
+        const isResourceExisting = resourcesInDataStore.some(resourceInDataStore => {
+            const isMatchingResourceType =
+                resourceInDataStore.resourceType === resource.resourceType;
+            const isMatchingResourceLabel =
+                resourceInDataStore.resourceLabel === resource.resourceLabel;
+
+            return isMatchingResourceType && isMatchingResourceLabel;
+        });
 
         const resourceWithFileId = { ...resource, resourceFileId: resourceFileId };
         const updatedResources = isResourceExisting

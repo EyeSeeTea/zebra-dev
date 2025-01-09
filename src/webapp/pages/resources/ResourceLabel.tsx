@@ -6,15 +6,21 @@ import { useEffect } from "react";
 import { Button } from "@material-ui/core";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useResourceFile } from "./useResourceFile";
+import { Loader } from "../../components/loader/Loader";
 
 interface ResourceLabelProps {
+    isDeleting: boolean;
     resource: ResourceBase;
+    onDelete: () => void;
 }
 
-export const ResourceLabel: React.FC<ResourceLabelProps> = ({ resource }) => {
+export const ResourceLabel: React.FC<ResourceLabelProps> = ({ isDeleting, resource, onDelete }) => {
     const snackbar = useSnackbar();
     const { resourceFileId, resourceLabel } = resource;
-    const { globalMessage, resourceFile, deleteResource } = useResourceFile(resourceFileId);
+    const { globalMessage, resourceFile, deleteResource } = useResourceFile({
+        resourceFileId: resourceFileId,
+        onDelete: onDelete,
+    });
 
     useEffect(() => {
         if (!globalMessage) return;
@@ -36,9 +42,12 @@ export const ResourceLabel: React.FC<ResourceLabelProps> = ({ resource }) => {
             </p>
 
             {resourceFileId && (
-                <Button onClick={() => deleteResource(resourceFileId)}>
-                    <Delete fontSize="small" color="error" />
-                </Button>
+                <div>
+                    {isDeleting && <Loader />}
+                    <Button onClick={() => deleteResource(resourceFileId)}>
+                        <Delete fontSize="small" color="error" />
+                    </Button>
+                </div>
             )}
         </StyledTemplateLabel>
     );

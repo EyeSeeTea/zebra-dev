@@ -48,7 +48,7 @@ function getResourceFolderOptions(resources: Resource[]): Option[] {
     const resourceFolders = _c(resources)
         .map(resource =>
             resource.resourceType === ResourceType.RESPONSE_DOCUMENT
-                ? resource.resourceLabel
+                ? resource.resourceFolder
                 : undefined
         )
         .compact()
@@ -56,7 +56,7 @@ function getResourceFolderOptions(resources: Resource[]): Option[] {
         .value();
 
     const resourceFolderOptions: Option[] = resourceFolders.map(resourceFolder => ({
-        id: `${resourceFolder}_folder`,
+        id: resourceFolder,
         name: resourceFolder,
     }));
     return resourceFolderOptions;

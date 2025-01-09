@@ -5,7 +5,19 @@ import { Maybe } from "../../../utils/ts-utils";
 import { GlobalMessage } from "../form-page/useForm";
 import { Id } from "../../../domain/entities/Ref";
 
-export function useResourceFile(resourceFileId: Maybe<Id>) {
+type ResourceFileProps = {
+    resourceFileId: Maybe<Id>;
+    onDelete: () => void;
+};
+
+type ResourceFileState = {
+    globalMessage: Maybe<GlobalMessage>;
+    resourceFile: Maybe<ResourceFile>;
+    deleteResource: (fileId: string) => void;
+};
+
+export function useResourceFile(props: ResourceFileProps): ResourceFileState {
+    const { resourceFileId, onDelete } = props;
     const { compositionRoot } = useAppContext();
 
     const [resourceFile, setResourceFile] = useState<Maybe<ResourceFile>>(undefined);
@@ -32,6 +44,7 @@ export function useResourceFile(resourceFileId: Maybe<Id>) {
             return compositionRoot.resources.deleteResourceFile.execute(fileId).run(
                 () => {
                     setResourceFile(undefined);
+                    onDelete();
                 },
                 error => {
                     setGlobalMessage({
@@ -41,7 +54,7 @@ export function useResourceFile(resourceFileId: Maybe<Id>) {
                 }
             );
         },
-        [compositionRoot.resources.deleteResourceFile]
+        [compositionRoot.resources.deleteResourceFile, onDelete]
     );
 
     return {

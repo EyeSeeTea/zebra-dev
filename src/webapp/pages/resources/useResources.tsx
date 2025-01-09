@@ -11,6 +11,7 @@ export function useResources() {
 
     const [resources, setResources] = useState<Maybe<ResourceData>>(undefined);
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const onUploadFileClick = useCallback(() => {
         goTo(RouteName.CREATE_FORM, { formType: "resource" });
@@ -20,6 +21,7 @@ export function useResources() {
         compositionRoot.resources.get.execute().run(
             resources => {
                 setResources(resources);
+                setIsDeleting(false);
             },
             error => {
                 setGlobalMessage({
@@ -30,14 +32,20 @@ export function useResources() {
         );
     }, [compositionRoot.resources.get]);
 
+    const handleDelete = useCallback(() => {
+        setIsDeleting(true);
+        getResources();
+    }, [getResources]);
+
     useEffect(() => {
         getResources();
     }, [getResources]);
 
     return {
         globalMessage,
+        isDeleting,
         resources,
+        handleDelete,
         onUploadFileClick,
-        getResources,
     };
 }
