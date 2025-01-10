@@ -180,37 +180,42 @@ export function useDiseaseOutbreakEvent(id: Id) {
     );
 
     const onCompleteClick = useCallback(() => {
-        compositionRoot.diseaseOutbreakEvent.complete.execute(id).run(
-            () => {
-                const eventTrackerName =
-                    eventTrackerDetails?.hazardType ?? eventTrackerDetails?.suspectedDisease?.name;
+        if (eventTrackerDetails) {
+            compositionRoot.diseaseOutbreakEvent.complete
+                .execute(eventTrackerDetails, configurations)
+                .run(
+                    () => {
+                        const eventTrackerName =
+                            eventTrackerDetails?.hazardType ??
+                            eventTrackerDetails?.suspectedDisease?.name;
 
-                const updatedEventTrackerTypes = existingEventTrackerTypes.filter(
-                    eventTrackerType => eventTrackerType !== eventTrackerName
+                        const updatedEventTrackerTypes = existingEventTrackerTypes.filter(
+                            eventTrackerType => eventTrackerType !== eventTrackerName
+                        );
+
+                        if (eventTrackerName) {
+                            changeExistingEventTrackerTypes(updatedEventTrackerTypes);
+                        }
+
+                        setGlobalMessage({
+                            type: "success",
+                            text: `Event tracker with id: ${id} has been completed`,
+                        });
+                    },
+                    err => {
+                        console.error(err);
+                        setGlobalMessage({
+                            type: "error",
+                            text: `Failed to complete event: : ${err.message}`,
+                        });
+                    }
                 );
-
-                if (eventTrackerName) {
-                    changeExistingEventTrackerTypes(updatedEventTrackerTypes);
-                }
-
-                setGlobalMessage({
-                    type: "success",
-                    text: `Event tracker with id: ${id} has been completed`,
-                });
-            },
-            err => {
-                console.error(err);
-                setGlobalMessage({
-                    type: "error",
-                    text: `Failed to complete event: : ${err.message}`,
-                });
-            }
-        );
+        }
     }, [
         changeExistingEventTrackerTypes,
         compositionRoot.diseaseOutbreakEvent.complete,
-        eventTrackerDetails?.hazardType,
-        eventTrackerDetails?.suspectedDisease?.name,
+        configurations,
+        eventTrackerDetails,
         existingEventTrackerTypes,
         id,
     ]);

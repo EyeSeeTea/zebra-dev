@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2024-12-26T14:33:54.409Z\n"
-"PO-Revision-Date: 2024-12-26T14:33:54.409Z\n"
+"POT-Creation-Date: 2025-01-03T08:28:56.703Z\n"
+"PO-Revision-Date: 2025-01-03T08:28:56.703Z\n"
 
 msgid "Low"
 msgstr ""
@@ -75,9 +75,6 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-msgid "There is an error in this field"
-msgstr ""
-
 msgid "Indicates required"
 msgstr ""
 
@@ -88,6 +85,9 @@ msgid "Edit Action Plan"
 msgstr ""
 
 msgid "Edit Details"
+msgstr ""
+
+msgid "Edit historical case data"
 msgstr ""
 
 msgid "Complete Event"
@@ -102,6 +102,36 @@ msgstr ""
 msgid "Currently assigned:"
 msgstr ""
 
+msgid "Multiple uploads not allowed, please select one file"
+msgstr ""
+
+msgid "Error uploading file."
+msgstr ""
+
+msgid "Select a file"
+msgstr ""
+
+msgid "Errors in file"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Download empty template"
+msgstr ""
+
+msgid "Download historical data"
+msgstr ""
+
+msgid "Confirm remove the file"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Are you sure you want to remove the file?"
+msgstr ""
+
 msgid "Error loading current Incident Management Team"
 msgstr ""
 
@@ -112,9 +142,6 @@ msgid "The map with these filters could not be found."
 msgstr ""
 
 msgid "Map not found."
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "Search"
@@ -207,13 +234,33 @@ msgstr ""
 msgid "N/A"
 msgstr ""
 
+msgid ""
+"In order to add or replace cases, you need to download the current file and "
+"add the new ones."
+msgstr ""
+
+msgid "Please, download the template and add the required data."
+msgstr ""
+
+msgid "Disease Outbreak saved successfully"
+msgstr ""
+
+msgid "Disease outbreak case data saved successfully"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid ""
+"You have uploaded a new data cases file. This action will replace the "
+"current data of this disease outbreak event with the data of the file. Are "
+"you sure you want to continue?"
+msgstr ""
+
 msgid "Add another"
 msgstr ""
 
 msgid "Form cannot be loaded"
-msgstr ""
-
-msgid "Disease Outbreak saved successfully"
 msgstr ""
 
 msgid "Risk Assessment Grading saved successfully"
@@ -270,8 +317,15 @@ msgstr ""
 msgid "Confirm deletion"
 msgstr ""
 
-msgid "Delete"
+msgid "Are you sure you want to delete these team roles?"
+msgstr ""
+
+msgid "Are you sure you want to delete this team role?"
 msgstr ""
 
 msgid "Resources"
+msgstr ""
+
+msgctxt "DATA"
+msgid "HISTORICAL_CASE"
 msgstr ""

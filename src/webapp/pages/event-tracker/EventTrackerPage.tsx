@@ -24,6 +24,7 @@ import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 import { useOverviewCards } from "./useOverviewCards";
 import { SimpleModal } from "../../components/simple-modal/SimpleModal";
 import { RiskAssessmentSummaryInfo } from "./RiskAssessmentSummaryInfo";
+import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -84,15 +85,19 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             changeCurrentEventTracker(eventTrackerDetails);
         }
     }, [changeCurrentEventTracker, eventTrackerDetails]);
-
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
             <EventTrackerFormSummary
                 id={id}
-                formType="disease-outbreak-event"
+                diseaseOutbreakFormType="disease-outbreak-event"
+                diseaseOutbreakCaseDataFormType="disease-outbreak-event-case-data"
                 formSummary={formSummary}
-                onOpenModal={onOpenCompleteModal}
+                onCompleteClick={onOpenCompleteModal}
                 globalMessage={globalMessage}
+                isCasesDataUserDefined={
+                    currentEventTracker?.casesDataSource ===
+                    CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
+                }
             />
             <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
                 <DurationFilterContainer>
@@ -115,6 +120,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         eventDiseaseCode={currentEventTracker?.suspectedDiseaseCode}
                         eventHazardCode={currentEventTracker?.hazardType}
                         dateRangeFilter={dateRangeFilter.value || []}
+                        casesDataSource={currentEventTracker?.casesDataSource}
                     />
                 </LoaderContainer>
             </Section>
@@ -123,7 +129,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     riskAssessmentRows.length === 0 ? "Risk Assessment" : "Risk Assessment Summary"
                 }
                 hasSeparator={true}
-                headerButton={
+                headerButtons={
                     riskAssessmentRows.length === 0 ? (
                         <Button
                             variant="contained"
@@ -167,7 +173,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     title="Risk Assessment Grade"
                     hasSeparator={true}
                     titleVariant="secondary"
-                    headerButton={
+                    headerButtons={
                         <Button
                             variant="outlined"
                             color="secondary"
@@ -220,6 +226,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         currentEventTracker?.suspectedDisease?.name ||
                         currentEventTracker?.hazardType
                     }
+                    casesDataSource={currentEventTracker?.casesDataSource}
                 />
                 <Chart
                     title="Deaths"
@@ -228,6 +235,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         currentEventTracker?.suspectedDisease?.name ||
                         currentEventTracker?.hazardType
                     }
+                    casesDataSource={currentEventTracker?.casesDataSource}
                 />
             </Section>
             <Section
