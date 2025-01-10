@@ -7,6 +7,7 @@ import {
 } from "../../../domain/entities/MapConfig";
 import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../utils/ts-utils";
+import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type LoadingState = {
     kind: "loading";
@@ -49,6 +50,7 @@ export function useMap(params: {
     allOrgUnitsIds: string[];
     eventDiseaseCode?: string;
     eventHazardCode?: string;
+    casesDataSource?: CasesDataSource;
     dateRangeFilter?: string[];
     singleSelectFilters?: Record<string, string>;
     multiSelectFilters?: Record<string, string[]>;
@@ -58,6 +60,7 @@ export function useMap(params: {
         allOrgUnitsIds,
         eventDiseaseCode,
         eventHazardCode,
+        casesDataSource,
         dateRangeFilter,
         singleSelectFilters,
         multiSelectFilters,
@@ -181,11 +184,16 @@ export function useMap(params: {
     ]);
 
     useEffect(() => {
-        if (mapKey === "event_tracker" && !eventDiseaseCode && !eventHazardCode) {
+        if (
+            mapKey === "event_tracker" &&
+            !eventDiseaseCode &&
+            !eventHazardCode &&
+            !casesDataSource
+        ) {
             return;
         }
 
-        compositionRoot.maps.getConfig.execute(mapKey).run(
+        compositionRoot.maps.getConfig.execute(mapKey, casesDataSource).run(
             config => {
                 setMapProgramIndicators(config.programIndicators);
                 setDefaultStartDate(config.startDate);
@@ -233,7 +241,14 @@ export function useMap(params: {
                 });
             }
         );
-    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds, eventDiseaseCode, eventHazardCode]);
+    }, [
+        compositionRoot.maps.getConfig,
+        mapKey,
+        allOrgUnitsIds,
+        eventDiseaseCode,
+        eventHazardCode,
+        casesDataSource,
+    ]);
 
     return {
         mapConfigState,

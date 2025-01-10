@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { CompositionRoot } from "../../CompositionRoot";
 import { User } from "../../domain/entities/User";
 import { D2Api } from "../../types/d2-api";
-import { OrgUnit } from "../../domain/entities/OrgUnit";
 import { Configurations } from "../../domain/entities/AppConfigurations";
 
 export interface AppContextState {
@@ -10,7 +9,6 @@ export interface AppContextState {
     isDev: boolean;
     currentUser: User;
     compositionRoot: CompositionRoot;
-    orgUnits: OrgUnit[];
     configurations: Configurations;
 }
 

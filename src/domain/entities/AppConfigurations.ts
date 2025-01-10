@@ -6,6 +6,7 @@ import {
     RiskAssessmentSummaryOptions,
 } from "./ConfigurableForm";
 import { TeamMember } from "./incident-management-team/TeamMember";
+import { OrgUnit } from "./OrgUnit";
 
 import {
     LowPopulationAtRisk,
@@ -52,4 +53,5 @@ export type Configurations = {
         incidentManagers: TeamMember[];
         responseOfficers: TeamMember[];
     };
+    orgUnits: OrgUnit[];
 };
