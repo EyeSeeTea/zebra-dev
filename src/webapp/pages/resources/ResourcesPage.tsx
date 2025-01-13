@@ -83,7 +83,9 @@ export const ResourcesPage: React.FC = React.memo(() => {
                     </ContentWrapper>
                 ) : (
                     <NoticeBox title={i18n.t("No resources created")}>
-                        {i18n.t("You can upload a file to create a new resource")}
+                        {userCanUploadAndDelete
+                            ? i18n.t("You can upload a file to create a new resource")
+                            : i18n.t("Contact admin to create resources")}
                     </NoticeBox>
                 )}
             </Section>
