@@ -1,8 +1,8 @@
 import { TreeItem as TreeItemMUI } from "@material-ui/lab";
 import React from "react";
-import { ResponseDocumentsByFolder } from "../../../domain/usecases/GetResourcesUseCase";
 import styled from "styled-components";
 import { ResourceLabel } from "../../pages/resources/ResourceLabel";
+import { ResponseDocumentsByFolder } from "../../pages/resources/useResources";
 
 type ResponseDocumentHierarchyItemProps = {
     isDeleting: boolean;

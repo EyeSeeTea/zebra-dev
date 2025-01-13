@@ -1,11 +1,11 @@
 import { FutureData } from "../../data/api-futures";
-import { ResourceFile } from "../entities/resources/Resource";
-import { ResourceRepository } from "../repositories/ResourceRepository";
+import { ResourceFile } from "../entities/resources/ResourceFile";
+import { ResourceFileRepository } from "../repositories/ResourceFileRepository";
 
 export class DownloadResourceFileUseCase {
-    constructor(private resourceRepository: ResourceRepository) {}
+    constructor(private resourceFileRepository: ResourceFileRepository) {}
 
     public execute(fileId: string): FutureData<ResourceFile> {
-        return this.resourceRepository.downloadFile(fileId);
+        return this.resourceFileRepository.downloadFile(fileId);
     }
 }

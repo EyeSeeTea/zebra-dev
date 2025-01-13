@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
-import { ResourceFile } from "../../../domain/entities/resources/Resource";
+import { ResourceFile } from "../../../domain/entities/resources/ResourceFile";
 import { Maybe } from "../../../utils/ts-utils";
 import { GlobalMessage } from "../form-page/useForm";
 import { Id } from "../../../domain/entities/Ref";

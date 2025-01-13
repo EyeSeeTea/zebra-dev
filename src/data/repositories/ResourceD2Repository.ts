@@ -1,7 +1,7 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { ResourceRepository } from "../../domain/repositories/ResourceRepository";
 import { DataStoreClient } from "../DataStoreClient";
-import { Resource, ResourceFile } from "../../domain/entities/resources/Resource";
+import { isExistingResource, Resource } from "../../domain/entities/resources/Resource";
 import { apiToFuture, FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
 import { ResourceFormData } from "../../domain/entities/ConfigurableForm";
@@ -21,22 +21,6 @@ export class ResourceD2Repository implements ResourceRepository {
         return this.dataStoreClient
             .getObject<Resource[]>(RESOURCES_KEY)
             .flatMap(resources => Future.success(resources ?? []));
-    }
-
-    // should this be in it's own ResourceFileRepository? or should it be a useCase?
-    downloadFile(fileId: Id): FutureData<ResourceFile> {
-        if (!fileId) return Future.error(new Error("No file id found"));
-
-        return apiToFuture(this.api.files.get(fileId))
-            .map(blob => {
-                return new File([blob], "file", { type: "application/pdf" });
-            })
-            .flatMap(file =>
-                Future.success({
-                    fileId: fileId,
-                    file: file,
-                })
-            );
     }
 
     saveResource(formData: ResourceFormData): FutureData<void> {
@@ -63,14 +47,7 @@ export class ResourceD2Repository implements ResourceRepository {
         resource: Resource,
         resourceFileId: string
     ) {
-        const isResourceExisting = resourcesInDataStore.some(resourceInDataStore => {
-            const isMatchingResourceType =
-                resourceInDataStore.resourceType === resource.resourceType;
-            const isMatchingResourceLabel =
-                resourceInDataStore.resourceLabel === resource.resourceLabel;
-
-            return isMatchingResourceType && isMatchingResourceLabel;
-        });
+        const isResourceExisting = isExistingResource(resourcesInDataStore, resource);
 
         const resourceWithFileId = { ...resource, resourceFileId: resourceFileId };
         const updatedResources = isResourceExisting

@@ -3,7 +3,7 @@ import { FormLables, ResourceFormData } from "../../../entities/ConfigurableForm
 import _c from "../../../entities/generic/Collection";
 import { Future } from "../../../entities/generic/Future";
 import { Option } from "../../../entities/Ref";
-import { Resource, ResourceType } from "../../../entities/resources/Resource";
+import { isResponseDocument, Resource, ResourceType } from "../../../entities/resources/Resource";
 import { Rule } from "../../../entities/Rule";
 import { ResourceRepository } from "../../../repositories/ResourceRepository";
 
@@ -46,11 +46,7 @@ export function getResourceConfigurableForm(props: {
 
 function getResourceFolderOptions(resources: Resource[]): Option[] {
     const resourceFolders = _c(resources)
-        .map(resource =>
-            resource.resourceType === ResourceType.RESPONSE_DOCUMENT
-                ? resource.resourceFolder
-                : undefined
-        )
+        .map(resource => (isResponseDocument(resource) ? resource.resourceFolder : undefined))
         .compact()
         .uniq()
         .value();

@@ -29,6 +29,7 @@ import { useIncidentActionPlan } from "../incident-action-plan/useIncidentAction
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { ModalData } from "../../components/form/Form";
 import { useDiseaseOutbreakEventForm } from "./disease-outbreak-event/useDiseaseOutbreakEventForm";
+import { useResourceForm } from "./resources/useResourceForm";
 
 export type GlobalMessage = {
     text: string;
@@ -94,6 +95,14 @@ export function useForm(formType: FormType, id?: Id): State {
         setGlobalMessage,
         setOpenModal,
         setModalData,
+    });
+
+    const { onSaveResourceForm } = useResourceForm({
+        editMode: !!id,
+        setOpenModal,
+        setModalData,
+        setGlobalMessage,
+        setIsLoading,
     });
 
     const allDataPerformanceEvents = dataPerformanceOverview?.map(
@@ -364,6 +373,8 @@ export function useForm(formType: FormType, id?: Id): State {
             formData.type === "disease-outbreak-event-case-data"
         ) {
             onSaveDiseaseOutbreakEvent(formData);
+        } else if (formData.type === "resource") {
+            onSaveResourceForm(formData);
         } else {
             setIsLoading(true);
             compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
@@ -437,12 +448,6 @@ export function useForm(formType: FormType, id?: Id): State {
                                 type: "success",
                             });
                             break;
-                        case "resource":
-                            // goTo(RouteName.RESOURCES);
-                            setGlobalMessage({
-                                text: i18n.t(`Resource saved successfully`),
-                                type: "success",
-                            });
                     }
                 },
                 err => {
@@ -464,6 +469,7 @@ export function useForm(formType: FormType, id?: Id): State {
         goTo,
         id,
         onSaveDiseaseOutbreakEvent,
+        onSaveResourceForm,
     ]);
 
     const onCancelForm = useCallback(() => {

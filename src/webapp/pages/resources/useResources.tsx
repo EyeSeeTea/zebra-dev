@@ -2,8 +2,31 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { Maybe } from "../../../utils/ts-utils";
-import { ResourceData } from "../../../domain/usecases/GetResourcesUseCase";
 import { GlobalMessage } from "../form-page/useForm";
+import {
+    isResponseDocument,
+    isTemplate,
+    Resource,
+    ResourceType,
+    ResponseDocument,
+    Template,
+} from "../../../domain/entities/resources/Resource";
+import { Id } from "../../../domain/entities/Ref";
+import _c from "../../../domain/entities/generic/Collection";
+
+export type ResponseDocumentsByFolder = {
+    resourceFolder: string;
+    resourceType: ResourceType;
+    resources: {
+        resourceFileId: Maybe<Id>;
+        resourceLabel: string;
+    }[];
+};
+
+export type ResourceData = {
+    templates: Template[];
+    responseDocuments: ResponseDocumentsByFolder[];
+};
 
 export function useResources() {
     const { goTo } = useRoutes();
@@ -20,7 +43,8 @@ export function useResources() {
     const getResources = useCallback(() => {
         compositionRoot.resources.get.execute().run(
             resources => {
-                setResources(resources);
+                const resourceData: ResourceData = getResourceData(resources);
+                setResources(resourceData);
                 setIsDeleting(false);
             },
             error => {
@@ -48,4 +72,42 @@ export function useResources() {
         handleDelete,
         onUploadFileClick,
     };
+}
+
+function getResourceData(resources: Resource[]) {
+    const templates = resources.filter(resource => isTemplate(resource)) as Template[];
+    const resourceDocumentsByFolder = getResponseDocumentsByFolder(resources);
+
+    const resourceData: ResourceData = {
+        templates: templates,
+        responseDocuments: resourceDocumentsByFolder,
+    };
+    return resourceData;
+}
+
+function getResponseDocumentsByFolder(resources: Resource[]): ResponseDocumentsByFolder[] {
+    const responseDocuments = resources.filter(resource =>
+        isResponseDocument(resource)
+    ) as ResponseDocument[];
+    const groupedResources = _c(responseDocuments)
+        .groupBy(responseDocument => responseDocument.resourceFolder)
+        .values();
+
+    const responseDocumentsByFolder: ResponseDocumentsByFolder[] = _c(groupedResources)
+        .compactMap(group => {
+            const responseDocument = group[0];
+            if (!responseDocument) return undefined;
+
+            return {
+                resourceFolder: responseDocument.resourceFolder,
+                resourceType: responseDocument.resourceType,
+                resources: group.map(({ resourceFileId, resourceLabel }) => ({
+                    resourceFileId: resourceFileId,
+                    resourceLabel: resourceLabel,
+                })),
+            };
+        })
+        .value();
+
+    return responseDocumentsByFolder;
 }

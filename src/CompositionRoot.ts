@@ -79,6 +79,9 @@ import { ResourceTestRepository } from "./data/repositories/test/ResourceTestRep
 import { GetResourcesUseCase } from "./domain/usecases/GetResourcesUseCase";
 import { DownloadResourceFileUseCase } from "./domain/usecases/DownloadResourceFileUseCase";
 import { DeleteResourceFileUseCase } from "./domain/usecases/DeleteResourceFileUseCase";
+import { ResourceFileTestRepository } from "./data/repositories/test/ResourceFileTestRepository";
+import { ResourceFileRepository } from "./domain/repositories/ResourceFileRepository";
+import { ResourceFileD2Repository } from "./data/repositories/ResourceFileD2Repository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -101,6 +104,7 @@ type Repositories = {
     casesFileRepository: CasesFileRepository;
     userGroupRepository: UserGroupRepository;
     resourceRepository: ResourceRepository;
+    resourceFileRepository: ResourceFileRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -156,7 +160,9 @@ function getCompositionRoot(repositories: Repositories) {
         },
         resources: {
             get: new GetResourcesUseCase(repositories.resourceRepository),
-            downloadResourceFile: new DownloadResourceFileUseCase(repositories.resourceRepository),
+            downloadResourceFile: new DownloadResourceFileUseCase(
+                repositories.resourceFileRepository
+            ),
             deleteResourceFile: new DeleteResourceFileUseCase(repositories.resourceRepository),
         },
     };
@@ -183,6 +189,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         casesFileRepository: new CasesFileD2Repository(api, dataStoreClient),
         userGroupRepository: new UserGroupD2Repository(api),
         resourceRepository: new ResourceD2Repository(api),
+        resourceFileRepository: new ResourceFileD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -208,6 +215,7 @@ export function getTestCompositionRoot() {
         casesFileRepository: new CasesFileTestRepository(),
         userGroupRepository: new UserGroupTestRepository(),
         resourceRepository: new ResourceTestRepository(),
+        resourceFileRepository: new ResourceFileTestRepository(),
     };
 
     return getCompositionRoot(repositories);

@@ -1,7 +1,7 @@
 import { Id } from "@eyeseetea/d2-api";
 import { ResourceFormData } from "../../../domain/entities/ConfigurableForm";
 import { Future } from "../../../domain/entities/generic/Future";
-import { Resource, ResourceFile, ResourceType } from "../../../domain/entities/resources/Resource";
+import { Resource, ResourceType } from "../../../domain/entities/resources/Resource";
 import { ResourceRepository } from "../../../domain/repositories/ResourceRepository";
 import { FutureData } from "../../api-futures";
 
@@ -22,13 +22,6 @@ export class ResourceTestRepository implements ResourceRepository {
         ];
 
         return Future.success(resources);
-    }
-
-    downloadFile(fileId: Id): FutureData<ResourceFile> {
-        return Future.success({
-            fileId: fileId,
-            file: new File(["test"], "test.txt", { type: "text/plain" }),
-        });
     }
 
     saveResource(_formData: ResourceFormData): FutureData<void> {

@@ -2,7 +2,7 @@ import { TreeView as TreeViewMUI } from "@material-ui/lab";
 import React from "react";
 import { ArrowDropDown, ArrowRight, FolderOpenOutlined, FolderOutlined } from "@material-ui/icons";
 import { ResponseDocumentHierarchyItem } from "./ResponseDocumentHierarchyItem";
-import { ResponseDocumentsByFolder } from "../../../domain/usecases/GetResourcesUseCase";
+import { ResponseDocumentsByFolder } from "../../pages/resources/useResources";
 
 type ResponseDocumentHierarchyViewProps = {
     isDeleting: boolean;
