@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-01-08T10:28:12.841Z\n"
-"PO-Revision-Date: 2025-01-08T10:28:12.841Z\n"
+"POT-Creation-Date: 2025-01-13T12:50:10.915Z\n"
+"PO-Revision-Date: 2025-01-13T12:50:10.915Z\n"
 
 msgid "Low"
 msgstr ""
@@ -239,6 +239,14 @@ msgid ""
 "you sure you want to continue?"
 msgstr ""
 
+msgid "Resource saved successfully"
+msgstr ""
+
+msgid ""
+"You have uploaded a new resource with an existing file name. This action "
+"will replace the current resource. Are you sure you want to continue?"
+msgstr ""
+
 msgid "Add another"
 msgstr ""
 
@@ -309,6 +317,12 @@ msgid "Upload File"
 msgstr ""
 
 msgid "Resources"
+msgstr ""
+
+msgid "No resources created"
+msgstr ""
+
+msgid "You can upload a file to create a new resource"
 msgstr ""
 
 msgctxt "DATA"
