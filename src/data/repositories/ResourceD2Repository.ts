@@ -52,9 +52,7 @@ export class ResourceD2Repository implements ResourceRepository {
         const resourceWithFileId = { ...resource, resourceFileId: resourceFileId };
         const updatedResources = isResourceExisting
             ? resourcesInDataStore.map(resourceInDataStore =>
-                  resourceInDataStore.resourceLabel === resource.resourceLabel
-                      ? resourceWithFileId
-                      : resourceInDataStore
+                  isResourceExisting ? resourceWithFileId : resourceInDataStore
               )
             : [...resourcesInDataStore, resourceWithFileId];
         return updatedResources;
