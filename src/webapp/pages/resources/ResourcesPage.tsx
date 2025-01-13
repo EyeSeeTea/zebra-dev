@@ -14,8 +14,15 @@ import { useResources } from "./useResources";
 
 export const ResourcesPage: React.FC = React.memo(() => {
     const snackbar = useSnackbar();
-    const { resources, onUploadFileClick, globalMessage, isDeleting, handleDelete } =
-        useResources();
+    const {
+        globalMessage,
+        isDeleting,
+        resources,
+        userCanUploadAndDelete,
+        userCanDownload,
+        onUploadFileClick,
+        handleDelete,
+    } = useResources();
 
     useEffect(() => {
         if (!globalMessage) return;
@@ -36,7 +43,7 @@ export const ResourcesPage: React.FC = React.memo(() => {
 
     return (
         <Layout title={i18n.t("Resources")}>
-            <Section headerButtons={uploadButton}>
+            <Section headerButtons={userCanUploadAndDelete ? uploadButton : undefined}>
                 {resources &&
                 (resources.responseDocuments.length > 0 || resources.templates.length > 0) ? (
                     <ContentWrapper>
@@ -49,6 +56,8 @@ export const ResourcesPage: React.FC = React.memo(() => {
                                         responseDocuments={resources.responseDocuments}
                                         onDelete={handleDelete}
                                         isDeleting={isDeleting}
+                                        userCanDelete={userCanUploadAndDelete}
+                                        userCanDownload={userCanDownload}
                                     />
                                 </Container>
                             </div>
@@ -64,6 +73,8 @@ export const ResourcesPage: React.FC = React.memo(() => {
                                             resource={template}
                                             isDeleting={isDeleting}
                                             onDelete={handleDelete}
+                                            userCanDelete={userCanUploadAndDelete}
+                                            userCanDownload={userCanDownload}
                                         />
                                     ))}
                                 </Container>

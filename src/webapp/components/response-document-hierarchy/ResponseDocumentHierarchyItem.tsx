@@ -7,12 +7,14 @@ import { ResponseDocumentsByFolder } from "../../pages/resources/useResources";
 type ResponseDocumentHierarchyItemProps = {
     isDeleting: boolean;
     responseDocument: ResponseDocumentsByFolder;
+    userCanDelete: boolean;
+    userCanDownload: boolean;
     onDelete: () => void;
 };
 
 export const ResponseDocumentHierarchyItem: React.FC<ResponseDocumentHierarchyItemProps> =
     React.memo(props => {
-        const { isDeleting, responseDocument, onDelete } = props;
+        const { isDeleting, responseDocument, userCanDelete, userCanDownload, onDelete } = props;
 
         return (
             <StyledTreeItemMUI
@@ -33,6 +35,8 @@ export const ResponseDocumentHierarchyItem: React.FC<ResponseDocumentHierarchyIt
                                         resourceLabel: resource.resourceLabel,
                                         resourceType: responseDocument.resourceType,
                                     }}
+                                    userCanDelete={userCanDelete}
+                                    userCanDownload={userCanDownload}
                                 />
                             }
                         />

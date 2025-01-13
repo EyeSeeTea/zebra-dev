@@ -82,6 +82,10 @@ import { DeleteResourceFileUseCase } from "./domain/usecases/DeleteResourceFileU
 import { ResourceFileTestRepository } from "./data/repositories/test/ResourceFileTestRepository";
 import { ResourceFileRepository } from "./domain/repositories/ResourceFileRepository";
 import { ResourceFileD2Repository } from "./data/repositories/ResourceFileD2Repository";
+import { ResourcePermissionsD2Repository } from "./data/repositories/ResourcePermissionsD2Repository";
+import { ResourcePermissionsTestRepository } from "./data/repositories/test/ResourcePermissionsTestRepository";
+import { ResourcePermissionsRepository } from "./domain/repositories/ResourcePermissionsRepository";
+import { GetResourceUserPermissionsUseCase } from "./domain/usecases/GetResourceUserPermissionsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -105,6 +109,7 @@ type Repositories = {
     userGroupRepository: UserGroupRepository;
     resourceRepository: ResourceRepository;
     resourceFileRepository: ResourceFileRepository;
+    resourcePermissionsRepository: ResourcePermissionsRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -164,6 +169,9 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.resourceFileRepository
             ),
             deleteResourceFile: new DeleteResourceFileUseCase(repositories.resourceRepository),
+            getPermissions: new GetResourceUserPermissionsUseCase(
+                repositories.resourcePermissionsRepository
+            ),
         },
     };
 }
@@ -190,6 +198,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         userGroupRepository: new UserGroupD2Repository(api),
         resourceRepository: new ResourceD2Repository(api),
         resourceFileRepository: new ResourceFileD2Repository(api),
+        resourcePermissionsRepository: new ResourcePermissionsD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -216,6 +225,7 @@ export function getTestCompositionRoot() {
         userGroupRepository: new UserGroupTestRepository(),
         resourceRepository: new ResourceTestRepository(),
         resourceFileRepository: new ResourceFileTestRepository(),
+        resourcePermissionsRepository: new ResourcePermissionsTestRepository(),
     };
 
     return getCompositionRoot(repositories);

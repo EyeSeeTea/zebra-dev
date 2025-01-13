@@ -11,10 +11,18 @@ import { Loader } from "../../components/loader/Loader";
 interface ResourceLabelProps {
     isDeleting: boolean;
     resource: ResourceBase;
+    userCanDelete: boolean;
+    userCanDownload: boolean;
     onDelete: () => void;
 }
 
-export const ResourceLabel: React.FC<ResourceLabelProps> = ({ isDeleting, resource, onDelete }) => {
+export const ResourceLabel: React.FC<ResourceLabelProps> = ({
+    isDeleting,
+    resource,
+    userCanDelete,
+    userCanDownload,
+    onDelete,
+}) => {
     const snackbar = useSnackbar();
     const { resourceFileId, resourceLabel } = resource;
     const { globalMessage, resourceFile, deleteResource } = useResourceFile({
@@ -32,16 +40,20 @@ export const ResourceLabel: React.FC<ResourceLabelProps> = ({ isDeleting, resour
         <StyledTemplateLabel key={resourceLabel}>
             <p>
                 <DescriptionOutlined fontSize="small" />
-                <Link
-                    href={resourceFile ? URL.createObjectURL(resourceFile.file) : undefined}
-                    download={resourceLabel}
-                    underline="hover"
-                >
-                    {resourceLabel}
-                </Link>
+                {userCanDownload ? (
+                    <Link
+                        href={resourceFile ? URL.createObjectURL(resourceFile.file) : undefined}
+                        download={resourceLabel}
+                        underline="hover"
+                    >
+                        {resourceLabel}
+                    </Link>
+                ) : (
+                    resourceLabel
+                )}
             </p>
 
-            {resourceFileId && (
+            {resourceFileId && userCanDelete && (
                 <div>
                     {isDeleting && <Loader />}
                     <Button onClick={() => deleteResource(resourceFileId)}>

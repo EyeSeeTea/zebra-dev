@@ -7,12 +7,14 @@ import { ResponseDocumentsByFolder } from "../../pages/resources/useResources";
 type ResponseDocumentHierarchyViewProps = {
     isDeleting: boolean;
     responseDocuments: ResponseDocumentsByFolder[];
+    userCanDelete: boolean;
+    userCanDownload: boolean;
     onDelete: () => void;
 };
 
 export const ResponseDocumentHierarchyView: React.FC<ResponseDocumentHierarchyViewProps> =
     React.memo(props => {
-        const { isDeleting, responseDocuments, onDelete } = props;
+        const { isDeleting, responseDocuments, userCanDelete, userCanDownload, onDelete } = props;
 
         const defaultCollapseIcon = (
             <>
@@ -40,6 +42,8 @@ export const ResponseDocumentHierarchyView: React.FC<ResponseDocumentHierarchyVi
                             key={responseDocument.resourceFolder}
                             isDeleting={isDeleting}
                             responseDocument={responseDocument}
+                            userCanDelete={userCanDelete}
+                            userCanDownload={userCanDownload}
                             onDelete={onDelete}
                         />
                     );

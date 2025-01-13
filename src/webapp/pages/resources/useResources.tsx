@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { Maybe } from "../../../utils/ts-utils";
@@ -13,6 +13,7 @@ import {
 } from "../../../domain/entities/resources/Resource";
 import { Id } from "../../../domain/entities/Ref";
 import _c from "../../../domain/entities/generic/Collection";
+import { ResourcePermissions } from "../../../domain/entities/resources/ResourcePermissions";
 
 export type ResponseDocumentsByFolder = {
     resourceFolder: string;
@@ -30,11 +31,15 @@ export type ResourceData = {
 
 export function useResources() {
     const { goTo } = useRoutes();
-    const { compositionRoot } = useAppContext();
+    const { currentUser, compositionRoot } = useAppContext();
 
     const [resources, setResources] = useState<Maybe<ResourceData>>(undefined);
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [userPermissions, setUserPermissions] =
+        useState<ResourcePermissions>(defaultUserPermissions);
+
+    const { isAccess, isAdmin, isDataCapture } = userPermissions;
 
     const onUploadFileClick = useCallback(() => {
         goTo(RouteName.CREATE_FORM, { formType: "resource" });
@@ -65,14 +70,45 @@ export function useResources() {
         getResources();
     }, [getResources]);
 
+    useEffect(() => {
+        compositionRoot.resources.getPermissions.execute(currentUser).run(
+            permissions => {
+                setUserPermissions(permissions);
+            },
+            error => {
+                setGlobalMessage({
+                    type: "error",
+                    text: `Error getting user permissions: ${error}`,
+                });
+            }
+        );
+    }, [compositionRoot.resources.getPermissions, currentUser]);
+
+    const userCanUploadAndDelete = useMemo(() => {
+        return isAdmin || isDataCapture;
+    }, [isAdmin, isDataCapture]);
+
+    const userCanDownload = useMemo(() => {
+        return isAccess || isDataCapture || isAdmin;
+    }, [isAccess, isAdmin, isDataCapture]);
+
     return {
         globalMessage,
         isDeleting,
         resources,
+        userCanUploadAndDelete,
+        userCanDownload,
+        userPermissions,
         handleDelete,
         onUploadFileClick,
     };
 }
+
+const defaultUserPermissions = {
+    isAdmin: false,
+    isDataCapture: false,
+    isAccess: true,
+};
 
 function getResourceData(resources: Resource[]) {
     const templates = resources.filter(resource => isTemplate(resource)) as Template[];

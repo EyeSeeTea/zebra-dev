@@ -1,4 +1,4 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { D2Api } from "../../types/d2-api";
 import { ResourceRepository } from "../../domain/repositories/ResourceRepository";
 import { DataStoreClient } from "../DataStoreClient";
 import { isExistingResource, Resource } from "../../domain/entities/resources/Resource";

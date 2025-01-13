@@ -4,6 +4,7 @@ import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFields
 import { Option as UIOption } from "../../../components/utils/option";
 import { FormState } from "../../../components/form/FormState";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
+import { ResourcePermissions } from "../../../../domain/entities/resources/ResourcePermissions";
 
 export const resourceFieldIds = {
     resourceType: "resourceType",
@@ -12,7 +13,10 @@ export const resourceFieldIds = {
     resourceFile: "resourceFile",
 };
 
-export function mapResourceToInitialFormState(formData: ResourceFormData): FormState {
+export function mapResourceToInitialFormState(
+    formData: ResourceFormData,
+    resourcePermissions: ResourcePermissions
+): FormState {
     const { entity: resource, uploadedResourceFile, uploadedResourceFileId, options } = formData;
     const isResourceDocument = resource?.resourceType === ResourceType.RESPONSE_DOCUMENT;
 
@@ -22,6 +26,8 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
 
     const fromIdsDictionary = (key: keyof typeof resourceFieldIds) =>
         getFieldIdFromIdsDictionary(key, resourceFieldIds);
+
+    const { isAdmin } = resourcePermissions;
 
     return {
         id: "",
@@ -78,7 +84,7 @@ export function mapResourceToInitialFormState(formData: ResourceFormData): FormS
                         type: "select",
                         options: resourceFolderOptions,
                         multiple: false,
-                        addNewOption: true,
+                        addNewOption: isAdmin,
                         value: isResourceDocument ? resource.resourceFolder : "",
                         required: true,
                     },

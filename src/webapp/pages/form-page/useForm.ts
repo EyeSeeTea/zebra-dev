@@ -30,6 +30,7 @@ import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-asses
 import { ModalData } from "../../components/form/Form";
 import { useDiseaseOutbreakEventForm } from "./disease-outbreak-event/useDiseaseOutbreakEventForm";
 import { useResourceForm } from "./resources/useResourceForm";
+import { useResources } from "../resources/useResources";
 
 export type GlobalMessage = {
     text: string;
@@ -104,6 +105,7 @@ export function useForm(formType: FormType, id?: Id): State {
         setGlobalMessage,
         setIsLoading,
     });
+    const { userPermissions: resourcePermissions } = useResources();
 
     const allDataPerformanceEvents = dataPerformanceOverview?.map(
         event => event.hazardType || event.suspectedDisease
@@ -134,6 +136,7 @@ export function useForm(formType: FormType, id?: Id): State {
                             editMode: !!id,
                             existingEventTrackerTypes: existingEventTrackerTypes,
                             isIncidentManager: isIncidentManager,
+                            resourcePermissions: resourcePermissions,
                         }),
                     });
                     setEntityData(formData);
@@ -160,6 +163,7 @@ export function useForm(formType: FormType, id?: Id): State {
         goTo,
         isIncidentManager,
         existingEventTrackerTypes,
+        resourcePermissions,
     ]);
 
     const handleAddNew = useCallback(() => {

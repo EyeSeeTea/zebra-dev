@@ -1,4 +1,4 @@
-import { D2Api } from "@eyeseetea/d2-api/2.36";
+import { D2Api } from "../../types/d2-api";
 import { ResourceFile } from "../../domain/entities/resources/ResourceFile";
 import { apiToFuture, FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
