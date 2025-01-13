@@ -26,7 +26,6 @@ export function mapResourceToInitialFormState(
 
     const fromIdsDictionary = (key: keyof typeof resourceFieldIds) =>
         getFieldIdFromIdsDictionary(key, resourceFieldIds);
-
     const { isAdmin } = resourcePermissions;
 
     return {
@@ -36,6 +35,22 @@ export function mapResourceToInitialFormState(
         saveButtonLabel: "Save",
         isValid: false,
         sections: [
+            {
+                title: "Resource name",
+                id: `${fromIdsDictionary("resourceLabel")}_section`,
+                isVisible: true,
+                required: true,
+                fields: [
+                    {
+                        id: fromIdsDictionary("resourceLabel"),
+                        isVisible: true,
+                        errors: [],
+                        type: "text",
+                        value: resource?.resourceLabel || "",
+                        required: true,
+                    },
+                ],
+            },
             {
                 title: "Resource type",
                 id: `${fromIdsDictionary("resourceType")}_section`,
@@ -55,40 +70,37 @@ export function mapResourceToInitialFormState(
                     },
                 ],
             },
-            {
-                title: "Resource name",
-                id: `${fromIdsDictionary("resourceLabel")}_section`,
-                isVisible: true,
-                required: true,
-                fields: [
-                    {
-                        id: fromIdsDictionary("resourceLabel"),
-                        isVisible: true,
-                        errors: [],
-                        type: "text",
-                        value: resource?.resourceLabel || "",
-                        required: true,
-                    },
-                ],
-            },
+
             {
                 title: "Resource folder",
                 id: `${fromIdsDictionary("resourceFolder")}_section`,
                 isVisible: isResourceDocument,
                 required: true,
-                fields: [
-                    {
-                        id: fromIdsDictionary("resourceFolder"),
-                        isVisible: isResourceDocument,
-                        errors: [],
-                        type: "select",
-                        options: resourceFolderOptions,
-                        multiple: false,
-                        addNewOption: isAdmin,
-                        value: isResourceDocument ? resource.resourceFolder : "",
-                        required: true,
-                    },
-                ],
+                fields:
+                    resourceFolderOptions.length === 0
+                        ? [
+                              {
+                                  id: fromIdsDictionary("resourceFolder"),
+                                  isVisible: isResourceDocument,
+                                  errors: [],
+                                  type: "text",
+                                  value: isResourceDocument ? resource.resourceFolder : "",
+                                  required: true,
+                              },
+                          ]
+                        : [
+                              {
+                                  id: fromIdsDictionary("resourceFolder"),
+                                  isVisible: isResourceDocument,
+                                  errors: [],
+                                  type: "select",
+                                  options: resourceFolderOptions,
+                                  multiple: false,
+                                  addNewOption: isAdmin,
+                                  value: isResourceDocument ? resource.resourceFolder : "",
+                                  required: true,
+                              },
+                          ],
             },
             {
                 title: "Resource file",
