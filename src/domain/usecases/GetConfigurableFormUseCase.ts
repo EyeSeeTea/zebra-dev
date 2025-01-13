@@ -150,13 +150,6 @@ export class GetConfigurableFormUseCase {
                     configurations
                 );
             case "resource":
-                if (!eventTrackerDetails)
-                    return Future.error(
-                        new Error(
-                            "Disease outbreak id is required for incident management team member builder"
-                        )
-                    );
-
                 return getResourceConfigurableForm({
                     resourceRepository: this.options.resourceRepository,
                 });
