@@ -491,15 +491,15 @@ export function useForm(formType: FormType, id?: Id): State {
                         id: currentEventTracker.id,
                     });
                     break;
-                case "resource":
-                    goTo(RouteName.RESOURCES);
-                    break;
+
                 default:
                     goTo(RouteName.EVENT_TRACKER, {
                         id: currentEventTracker.id,
                     });
                     break;
             }
+        } else if (formType === "resource") {
+            goTo(RouteName.RESOURCES);
         } else {
             goTo(RouteName.DASHBOARD);
         }
