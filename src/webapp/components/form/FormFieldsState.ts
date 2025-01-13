@@ -257,7 +257,7 @@ export function validateField(
         ? {
               property: field.id,
               errors: errors,
-              value: field.type === "file" ? field.fileId : field.value,
+              value: field.value,
           }
         : undefined;
 }
