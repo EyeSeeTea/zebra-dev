@@ -478,26 +478,15 @@ export function useForm(formType: FormType, id?: Id): State {
 
     const onCancelForm = useCallback(() => {
         if (currentEventTracker) {
-            switch (formType) {
-                case "incident-management-team-member-assignment":
-                    goTo(RouteName.IM_TEAM_BUILDER, {
-                        id: currentEventTracker.id,
-                    });
-                    break;
-                case "incident-action-plan":
-                case "incident-response-actions":
-                case "incident-response-action":
-                    goTo(RouteName.INCIDENT_ACTION_PLAN, {
-                        id: currentEventTracker.id,
-                    });
-                    break;
+            const routeMap: Record<string, RouteName> = {
+                "incident-management-team-member-assignment": RouteName.IM_TEAM_BUILDER,
+                "incident-action-plan": RouteName.INCIDENT_ACTION_PLAN,
+                "incident-response-actions": RouteName.INCIDENT_ACTION_PLAN,
+                "incident-response-action": RouteName.INCIDENT_ACTION_PLAN,
+            };
 
-                default:
-                    goTo(RouteName.EVENT_TRACKER, {
-                        id: currentEventTracker.id,
-                    });
-                    break;
-            }
+            const route = routeMap[formType] || RouteName.EVENT_TRACKER;
+            goTo(route, { id: currentEventTracker.id });
         } else if (formType === "resource") {
             goTo(RouteName.RESOURCES);
         } else {
