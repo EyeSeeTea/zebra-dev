@@ -171,10 +171,13 @@ msgstr ""
 msgid "All public health events"
 msgstr ""
 
-msgid "7-1-7 performance"
+msgid "Alerts 7-1-7 performance"
 msgstr ""
 
 msgid "events"
+msgstr ""
+
+msgid "7-1-7 performance"
 msgstr ""
 
 msgid "Performance overview"

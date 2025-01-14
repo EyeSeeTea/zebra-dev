@@ -21,8 +21,9 @@ export interface PerformanceOverviewRepository {
         multiSelectFilters?: Record<string, string[]>,
         dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]>;
-    getDashboard717Performance(): FutureData<PerformanceMetrics717[]>;
-    getEventTracker717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]>;
+    getNational717Performance(): FutureData<PerformanceMetrics717[]>;
+    getEvent717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]>;
+    getAlerts717Performance(): FutureData<PerformanceMetrics717[]>;
     getEventTrackerOverviewMetrics(
         type: string,
         casesDataSource: CasesDataSource

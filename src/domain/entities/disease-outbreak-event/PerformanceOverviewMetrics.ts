@@ -74,10 +74,12 @@ type HazardCounts = BaseCounts & {
 
 export type TotalCardCounts = DiseaseCounts | HazardCounts;
 
+export type PerformanceMetrics717Key = "national" | "event" | "alerts";
+
 export type PerformanceMetrics717 = {
     id: string;
     name: string;
     type: "primary" | "secondary";
     value?: number | "Inc";
-    key: "dashboard" | "event_tracker";
+    key: PerformanceMetrics717Key;
 };
