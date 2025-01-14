@@ -23,6 +23,7 @@ import { StatsCard } from "../../components/stats-card/StatsCard";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 import { useOverviewCards } from "./useOverviewCards";
 import { SimpleModal } from "../../components/simple-modal/SimpleModal";
+import { RiskAssessmentSummaryInfo } from "./RiskAssessmentSummaryInfo";
 import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 //TO DO : Create Risk assessment section
@@ -124,7 +125,9 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 </LoaderContainer>
             </Section>
             <Section
-                title="Risk Assessment"
+                title={
+                    riskAssessmentRows.length === 0 ? "Risk Assessment" : "Risk Assessment Summary"
+                }
                 hasSeparator={true}
                 headerButtons={
                     riskAssessmentRows.length === 0 ? (
@@ -139,55 +142,69 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             {i18n.t("Create Risk Assessment")}
                         </Button>
                     ) : (
-                        <ButtonContainer>
-                            <Button
-                                variant="outlined"
-                                color="secondary"
-                                startIcon={<AddCircleOutline />}
-                                onClick={() => {
-                                    goToRiskSummaryForm();
-                                }}
-                            >
-                                {i18n.t("Edit Risk Assessment")}
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="secondary"
-                                startIcon={<AddCircleOutline />}
-                                onClick={() => {
-                                    goToRiskGradingForm();
-                                }}
-                            >
-                                {i18n.t("Add new Grade")}
-                            </Button>
-                        </ButtonContainer>
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            startIcon={<EditOutlined />}
+                            onClick={() => {
+                                goToRiskSummaryForm();
+                            }}
+                        >
+                            {i18n.t("Edit Risk Assessment")}
+                        </Button>
                     )
                 }
                 titleVariant="secondary"
             >
-                {riskAssessmentRows.length > 0 ? (
-                    <BasicTable
-                        columns={riskAssessmentColumns}
-                        rows={riskAssessmentRows}
-                        onOrderBy={orderByRiskAssessmentDate}
-                    />
+                {currentEventTracker?.riskAssessment?.summary ? (
+                    <div>
+                        <RiskAssessmentSummaryInfo
+                            riskAssessmentSummary={currentEventTracker?.riskAssessment?.summary}
+                        />
+                    </div>
                 ) : (
                     <NoticeBox title={i18n.t("Risk assessment incomplete")}>
                         {i18n.t("Risks associated with this event have not yet been assessed.")}
                     </NoticeBox>
                 )}
-                <Box sx={{ m: 5 }} />
-                {!!currentEventTracker?.riskAssessment?.grading?.length && (
-                    <Chart
-                        title="Risk Assessment History"
-                        chartType="risk-assessment-history"
-                        chartKey={
-                            currentEventTracker?.suspectedDisease?.name ||
-                            currentEventTracker?.hazardType
-                        }
-                    />
-                )}
             </Section>
+            {riskAssessmentRows.length > 0 ? (
+                <Section
+                    title="Risk Assessment Grade"
+                    hasSeparator={true}
+                    titleVariant="secondary"
+                    headerButtons={
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            startIcon={<AddCircleOutline />}
+                            onClick={() => {
+                                goToRiskGradingForm();
+                            }}
+                        >
+                            {i18n.t("Add new Grade")}
+                        </Button>
+                    }
+                >
+                    <BasicTable
+                        columns={riskAssessmentColumns}
+                        rows={riskAssessmentRows}
+                        onOrderBy={orderByRiskAssessmentDate}
+                    />
+                    <Box sx={{ m: 5 }} />
+                    {!!currentEventTracker?.riskAssessment?.grading?.length && (
+                        <Chart
+                            title="Risk Assessment History"
+                            chartType="risk-assessment-history"
+                            chartKey={
+                                currentEventTracker?.suspectedDisease?.name ||
+                                currentEventTracker?.hazardType
+                            }
+                        />
+                    )}
+                </Section>
+            ) : null}
+
             <Section title="Overview" hasSeparator={true} titleVariant="secondary">
                 <GridWrapper>
                     {overviewCards?.map((card, index) => (
@@ -269,9 +286,4 @@ export const EventTrackerPage: React.FC = React.memo(() => {
 
 const DurationFilterContainer = styled.div`
     max-width: 250px;
-`;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    gap: 8px;
 `;

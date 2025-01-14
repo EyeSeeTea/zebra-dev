@@ -191,13 +191,13 @@ msgstr ""
 msgid "Edit Risk Assessment"
 msgstr ""
 
-msgid "Add new Grade"
-msgstr ""
-
 msgid "Risk assessment incomplete"
 msgstr ""
 
 msgid "Risks associated with this event have not yet been assessed."
+msgstr ""
+
+msgid "Add new Grade"
 msgstr ""
 
 msgid "Complete event"
@@ -210,6 +210,24 @@ msgid "Complete"
 msgstr ""
 
 msgid "Are you sure you want to complete this Event? This cannot be undone."
+msgstr ""
+
+msgid "Overall Risk"
+msgstr ""
+
+msgid "National:"
+msgstr ""
+
+msgid "Regional:"
+msgstr ""
+
+msgid "Global:"
+msgstr ""
+
+msgid "Overall Confidence"
+msgstr ""
+
+msgid "Risk Assessment Date: "
 msgstr ""
 
 msgid "N/A"
