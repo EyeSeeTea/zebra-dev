@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-01-07T16:11:42.869Z\n"
-"PO-Revision-Date: 2025-01-07T16:11:42.869Z\n"
+"POT-Creation-Date: 2025-01-14T15:51:01.421Z\n"
+"PO-Revision-Date: 2025-01-14T15:51:01.421Z\n"
 
 msgid "Low"
 msgstr ""
@@ -159,9 +159,6 @@ msgstr ""
 msgid "Status: "
 msgstr ""
 
-msgid "Dashboard"
-msgstr ""
-
 msgid "Select duration"
 msgstr ""
 
@@ -171,28 +168,28 @@ msgstr ""
 msgid "All public health events"
 msgstr ""
 
-msgid "Alerts 7-1-7 performance"
+msgid "7-1-7 performance"
 msgstr ""
 
 msgid "events"
 msgstr ""
 
-msgid "Alerts Performance overview"
-msgstr ""
-
-msgid "7-1-7 performance"
-msgstr ""
-
 msgid "Performance overview"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Alerts"
+msgstr ""
+
+msgid "National"
 msgstr ""
 
 msgid "Disease - Hazard type"
 msgstr ""
 
 msgid "Province"
-msgstr ""
-
-msgid "Date"
 msgstr ""
 
 msgid "Location"

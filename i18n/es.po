@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-01-07T16:11:42.869Z\n"
+"POT-Creation-Date: 2025-01-14T15:51:01.421Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -158,9 +158,6 @@ msgstr ""
 msgid "Status: "
 msgstr ""
 
-msgid "Dashboard"
-msgstr ""
-
 msgid "Select duration"
 msgstr ""
 
@@ -170,28 +167,28 @@ msgstr ""
 msgid "All public health events"
 msgstr ""
 
-msgid "Alerts 7-1-7 performance"
+msgid "7-1-7 performance"
 msgstr ""
 
 msgid "events"
 msgstr ""
 
-msgid "Alerts Performance overview"
-msgstr ""
-
-msgid "7-1-7 performance"
-msgstr ""
-
 msgid "Performance overview"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Alerts"
+msgstr ""
+
+msgid "National"
 msgstr ""
 
 msgid "Disease - Hazard type"
 msgstr ""
 
 msgid "Province"
-msgstr ""
-
-msgid "Date"
 msgstr ""
 
 msgid "Location"
