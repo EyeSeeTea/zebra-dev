@@ -260,7 +260,7 @@ const HeadTableCell = styled(TableCell)<{ $dark?: boolean }>`
 
 const StyledTableRow = styled(TableRow)<{ $isHighlighted?: boolean }>`
     background-color: ${props =>
-        props.$isHighlighted ? props.theme.palette.common.greyLight2 : "initial"};
+        props.$isHighlighted ? props.theme.palette.common.green100 : "initial"};
 `;
 
 const StyledTableCell = styled(TableCell)<{ $link?: boolean }>`

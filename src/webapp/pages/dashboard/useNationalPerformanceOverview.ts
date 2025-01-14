@@ -80,7 +80,7 @@ export function useNationalPerformanceOverview(): State {
         () => [
             { value: "event", label: i18n.t("Event"), type: "multiselector" },
             { value: "province", label: i18n.t("Province"), type: "multiselector" },
-            { value: "date", label: i18n.t("Date"), type: "datepicker" },
+            { value: "date", label: i18n.t("Duration"), type: "datepicker" },
         ],
         []
     );

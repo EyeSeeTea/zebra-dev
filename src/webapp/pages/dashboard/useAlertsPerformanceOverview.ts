@@ -15,7 +15,7 @@ import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
 import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 
-type AlertsPerformanceOverviewMetricsTableData = {
+export type AlertsPerformanceOverviewMetricsTableData = {
     event: string;
     teiId: Id;
     eventEBSId: Id;
@@ -82,7 +82,7 @@ export function useAlertsPerformanceOverview(): State {
         () => [
             { value: "event", label: i18n.t("Disease - Hazard type"), type: "multiselector" },
             { value: "province", label: i18n.t("Province"), type: "multiselector" },
-            { value: "date", label: i18n.t("Date"), type: "datepicker" },
+            { value: "date", label: i18n.t("Duration"), type: "datepicker" },
         ],
         []
     );
