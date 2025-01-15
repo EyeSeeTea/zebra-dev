@@ -1,4 +1,7 @@
-import { DiseaseOutbreakEventBaseAttrs } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    CasesDataSource,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     DiseaseOutbreakCode,
@@ -12,12 +15,13 @@ import {
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+    casesDataSourceMap,
 } from "../consts/DiseaseOutbreakConstants";
 import _ from "../../../domain/entities/generic/Collection";
 import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2TrackedEntityAttributeSchema } from "../../../types/d2-api";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
-import { getCurrentTimeString } from "./DateTimeHelper";
+import { getCurrentTimeString, getISODateAsLocaleDateString } from "./DateTimeHelper";
 
 type D2TrackedEntityAttribute = {
     trackedEntityAttribute: SelectedPick<
@@ -39,6 +43,9 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 
     const dataSource = dataSourceMap[fromMap("dataSource")];
     const incidentStatus = incidentStatusMap[fromMap("incidentStatus")];
+    const casesDataSource =
+        casesDataSourceMap[fromMap("casesDataSource")] ??
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR;
 
     if (!dataSource || !incidentStatus) throw new Error("Data source or incident status not valid");
 
@@ -47,15 +54,17 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         status: trackedEntity.enrollments?.[0]?.status ?? "ACTIVE", //Zebra Outbreak has only one enrollment
         name: fromMap("name"),
         dataSource: dataSource,
-        created: trackedEntity.createdAt ? new Date(trackedEntity.createdAt) : undefined,
-        lastUpdated: trackedEntity.updatedAt ? new Date(trackedEntity.updatedAt) : undefined,
+        created: trackedEntity.createdAt
+            ? getISODateAsLocaleDateString(trackedEntity.createdAt)
+            : undefined,
+        lastUpdated: trackedEntity.updatedAt
+            ? getISODateAsLocaleDateString(trackedEntity.updatedAt)
+            : undefined,
         createdByName: undefined,
         hazardType: getHazardTypeByCode(fromMap("hazardType")),
         mainSyndromeCode: fromMap("mainSyndrome"),
         suspectedDiseaseCode: fromMap("suspectedDisease"),
         notificationSourceCode: fromMap("notificationSource"),
-        areasAffectedProvinceIds: getMultipleOUFromText(fromMap("areasAffectedProvinces")),
-        areasAffectedDistrictIds: getMultipleOUFromText(fromMap("areasAffectedDistricts")),
         incidentStatus: incidentStatus,
         emerged: {
             date: new Date(fromMap("emergedDate")),
@@ -73,10 +82,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         earlyResponseActions: {
             initiateInvestigation: new Date(fromMap("initiateInvestigation")),
             conductEpidemiologicalAnalysis: new Date(fromMap("conductEpidemiologicalAnalysis")),
-            laboratoryConfirmation: {
-                date: new Date(fromMap("laboratoryConfirmationDate")),
-                na: fromMap("laboratoryConfirmationNA") === "true",
-            },
+            laboratoryConfirmation: new Date(fromMap("laboratoryConfirmation")),
             appropriateCaseManagement: {
                 date: new Date(fromMap("appropriateCaseManagementDate")),
                 na: fromMap("appropriateCaseManagementNA") === "true",
@@ -89,18 +95,17 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
                 date: new Date(fromMap("initiateRiskCommunicationDate")),
                 na: fromMap("initiateRiskCommunicationNA") === "true",
             },
-            establishCoordination: new Date(fromMap("establishCoordination")),
+            establishCoordination: {
+                date: new Date(fromMap("establishCoordinationDate")),
+                na: fromMap("establishCoordinationNA") === "true",
+            },
             responseNarrative: fromMap("responseNarrative"),
         },
         notes: fromMap("notes"),
+        casesDataSource: casesDataSource,
     };
 
     return diseaseOutbreak;
-}
-
-function getMultipleOUFromText(text: string): string[] {
-    //TO DO : FIXME handle multiple provinces when metadata change is done
-    return [text].filter(ou => ou !== "");
 }
 
 export function mapDiseaseOutbreakEventToTrackedEntityAttributes(

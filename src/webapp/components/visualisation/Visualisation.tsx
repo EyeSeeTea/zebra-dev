@@ -29,13 +29,8 @@ export const Visualisation: React.FC<VisualisationProps> = React.memo(props => {
                     await setMapStyling(iframe);
                     setState(prevState => ({ ...prevState, type: "loaded" }));
                 } else {
-                    if (srcUrl.includes("dhis-web-data-visualizer")) {
-                        await setChartStyling(iframe);
-                        setState(prevState => ({ ...prevState, type: "loaded" }));
-                    } else {
-                        await setEventChartStyling(iframe);
-                        setState(prevState => ({ ...prevState, type: "loaded" }));
-                    }
+                    await setChartStyling(iframe);
+                    setState(prevState => ({ ...prevState, type: "loaded" }));
                 }
             });
         }
@@ -145,30 +140,11 @@ async function setChartStyling(iframe: HTMLIFrameElement) {
 
     iframeDocument.querySelectorAll(".main-center-titlebar").forEach(el => el.remove());
     iFrameRoot?.querySelectorAll(".main-center-titlebar").forEach(el => el.remove());
-}
 
-async function setEventChartStyling(iframe: HTMLIFrameElement) {
-    if (!iframe.contentWindow) return;
-    const iframeDocument = iframe.contentWindow.document;
-
-    await waitforDocumentToLoad(iframeDocument, "#viewport-1316-embedded-center");
-    await waitforDocumentToLoad(iframeDocument, ".x-box-inner");
-
-    const iFrameRoot = iframeDocument.querySelector<HTMLElement>("#viewport-1316-embedded-center");
-    console.debug(`iFrameRoot: ${iFrameRoot}`);
-
-    console.debug(` toolbar-north : ${iframeDocument.querySelectorAll(".toolbar-north")}`);
-    iframeDocument.querySelectorAll(".toolbar-north").forEach(el => el.remove());
-    iFrameRoot?.querySelectorAll(".toolbar-north").forEach(el => el.remove());
-
-    console.debug(`#panel-1305 : ${iframeDocument.querySelectorAll("#panel-1305")}`);
-    iframeDocument.querySelectorAll("#panel-1305").forEach(el => {
-        console.debug(`Removing element: ${el}`);
-        el.remove();
-    });
-    iFrameRoot?.querySelectorAll("#panel-1305").forEach(el => el.remove());
-
-    const eventChartContainer = iframeDocument.querySelector<HTMLElement>("#panel-1310");
-    console.debug(`eventChartContainer: ${eventChartContainer}`);
-    if (eventChartContainer) eventChartContainer.style.inset = "0px";
+    iframeDocument
+        .querySelectorAll('div[data-test="dhis2-analytics-toolbar"]')
+        .forEach(el => el.remove());
+    iFrameRoot
+        ?.querySelectorAll('div[data-test="dhis2-analytics-toolbar"]')
+        .forEach(el => el.remove());
 }

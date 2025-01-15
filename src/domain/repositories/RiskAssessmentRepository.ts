@@ -25,6 +25,7 @@ export interface RiskAssessmentRepository {
             | RiskAssessmentGradingFormData
             | RiskAssessmentSummaryFormData
             | RiskAssessmentQuestionnaireFormData,
-        diseaseOutbreakId: Id
+        diseaseOutbreakId: Id,
+        formOptionsToDelete?: Id[]
     ): FutureData<void>;
 }

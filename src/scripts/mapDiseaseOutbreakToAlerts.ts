@@ -5,12 +5,12 @@ import { getApiInstanceFromEnvVariables } from "./common";
 import _ from "../domain/entities/generic/Collection";
 import { AlertD2Repository } from "../data/repositories/AlertD2Repository";
 import { NotificationD2Repository } from "../data/repositories/NotificationD2Repository";
-import { OptionsD2Repository } from "../data/repositories/OptionsD2Repository";
 import { AlertSyncDataStoreRepository } from "../data/repositories/AlertSyncDataStoreRepository";
 import { UserGroupD2Repository } from "../data/repositories/UserGroupD2Repository";
 import { MapAndSaveAlertsUseCase } from "../domain/usecases/MapAndSaveAlertsUseCase";
 import { OutbreakAlertD2Repository } from "../data/repositories/OutbreakAlertD2Repository";
 import { DiseaseOutbreakEventD2Repository } from "../data/repositories/DiseaseOutbreakEventD2Repository";
+import { ConfigurationsD2Repository } from "../data/repositories/ConfigurationsD2Repository";
 
 function main() {
     const cmd = command({
@@ -33,8 +33,8 @@ function main() {
             const alertSyncRepository = new AlertSyncDataStoreRepository(api);
             const diseaseOutbreakEventRepository = new DiseaseOutbreakEventD2Repository(api);
             const notificationRepository = new NotificationD2Repository(api);
-            const optionsRepository = new OptionsD2Repository(api);
             const outbreakAlertRepository = new OutbreakAlertD2Repository(api);
+            const configurationsRepository = new ConfigurationsD2Repository(api);
             const userGroupRepository = new UserGroupD2Repository(api);
 
             const mapAndSaveAlertsUseCase = new MapAndSaveAlertsUseCase({
@@ -43,8 +43,8 @@ function main() {
                 alertSyncRepository: alertSyncRepository,
                 diseaseOutbreakEventRepository: diseaseOutbreakEventRepository,
                 notificationRepository: notificationRepository,
-                optionsRepository: optionsRepository,
                 userGroupRepository: userGroupRepository,
+                configurationsRepository: configurationsRepository,
             });
 
             return await mapAndSaveAlertsUseCase.execute();

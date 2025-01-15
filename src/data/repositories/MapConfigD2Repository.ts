@@ -1,3 +1,4 @@
+import { CasesDataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../domain/entities/generic/Future";
 import {
     MapKey,
@@ -24,11 +25,14 @@ export class MapConfigD2Repository implements MapConfigRepository {
         this.dataStoreClient = new DataStoreClient(api);
     }
 
-    public get(mapKey: MapKey): FutureData<MapConfig> {
+    public get(mapKey: MapKey, casesDataSource?: CasesDataSource): FutureData<MapConfig> {
         const programIndicatorsDatastoreKey =
             mapKey === "dashboard"
                 ? ProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts
-                : ProgramIndicatorsDatastoreKey.CasesAlerts;
+                : casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
+                ? ProgramIndicatorsDatastoreKey.SuspectedCasesCasesProgram
+                : ProgramIndicatorsDatastoreKey.SuspectedCasesAlertsProgram;
+
         return this.dataStoreClient
             .getObject<MapsConfigDatastore>(MAPS_CONFIG_KEY)
             .flatMap(mapsConfigDatastore => {
@@ -42,7 +46,10 @@ export class MapConfigD2Repository implements MapConfigRepository {
                 const mapConfigDataStore =
                     mapKey === "dashboard"
                         ? mapsConfigDatastore?.dashboard
-                        : mapsConfigDatastore?.event_tracker;
+                        : casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
+                        ? mapsConfigDatastore?.event_tracker_cases
+                        : mapsConfigDatastore?.event_tracker_alerts;
+
                 return getProgramIndicatorsFromDatastore(
                     this.dataStoreClient,
                     programIndicatorsDatastoreKey
@@ -82,7 +89,8 @@ export class MapConfigD2Repository implements MapConfigRepository {
 
 type MapsConfigDatastore = {
     dashboard: MapConfigDatastore;
-    event_tracker: MapConfigDatastore;
+    event_tracker_alerts: MapConfigDatastore;
+    event_tracker_cases: MapConfigDatastore;
 };
 
 type MapConfigDatastore = {

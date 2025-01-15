@@ -2,16 +2,16 @@ import { Maybe } from "../../utils/ts-utils";
 import { TeamMember } from "./incident-management-team/TeamMember";
 import { Id, Option } from "./Ref";
 import { Rule } from "./Rule";
-import {
-    DiseaseOutbreakEvent,
-    DiseaseOutbreakEventBaseAttrs,
-} from "./disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEvent } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
 import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
 import { RiskAssessmentQuestionnaire } from "./risk-assessment/RiskAssessmentQuestionnaire";
+import { ActionPlanAttrs } from "./incident-action-plan/ActionPlan";
+import { ResponseAction } from "./incident-action-plan/ResponseAction";
 import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
 import { Role } from "./incident-management-team/Role";
+import { OrgUnit } from "./OrgUnit";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -21,6 +21,7 @@ export type DiseaseOutbreakEventOptions = {
     notificationSources: Option[];
     incidentStatus: Option[];
     incidentManagers: TeamMember[];
+    casesDataSource: Option[];
 };
 
 export type RiskAssessmentGradingOptions = {
@@ -50,6 +51,17 @@ export type RiskAssessmentQuestionnaireOptions = {
     risk: Option[];
 };
 
+export type IncidentActionPlanOptions = {
+    iapType: Option[];
+    phoecLevel: Option[];
+};
+
+export type IncidentResponseActionOptions = {
+    searchAssignRO: TeamMember[];
+    status: Option[];
+    verification: Option[];
+};
+
 export type FormLables = {
     errors: Record<string, string>;
 };
@@ -60,9 +72,14 @@ type BaseFormData = {
     type: FormType;
 };
 export type DiseaseOutbreakEventFormData = BaseFormData & {
-    type: "disease-outbreak-event";
-    entity: Maybe<DiseaseOutbreakEventBaseAttrs>;
+    type: "disease-outbreak-event" | "disease-outbreak-event-case-data";
+    entity: Maybe<DiseaseOutbreakEvent>;
     options: DiseaseOutbreakEventOptions;
+    orgUnits: OrgUnit[];
+    caseDataFileTemplete: Maybe<File>;
+    uploadedCasesDataFile: Maybe<File>;
+    uploadedCasesDataFileId: Maybe<Id>;
+    hasInitiallyCasesDataFile: boolean;
 };
 
 export type RiskAssessmentGradingFormData = BaseFormData & {
@@ -86,6 +103,27 @@ export type RiskAssessmentQuestionnaireFormData = BaseFormData & {
     options: RiskAssessmentQuestionnaireOptions;
 };
 
+export type ActionPlanFormData = BaseFormData & {
+    type: "incident-action-plan";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: Maybe<ActionPlanAttrs>;
+    options: IncidentActionPlanOptions;
+};
+
+export type ResponseActionFormData = BaseFormData & {
+    type: "incident-response-actions";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: ResponseAction[];
+    options: IncidentResponseActionOptions;
+};
+
+export type SingleResponseActionFormData = BaseFormData & {
+    type: "incident-response-action";
+    eventTrackerDetails: DiseaseOutbreakEvent;
+    entity: ResponseAction;
+    options: IncidentResponseActionOptions;
+};
+
 export type IncidentManagementTeamRoleOptions = {
     roles: Role[];
     teamMembers: TeamMember[];
@@ -106,4 +144,7 @@ export type ConfigurableForm =
     | RiskAssessmentGradingFormData
     | RiskAssessmentSummaryFormData
     | RiskAssessmentQuestionnaireFormData
+    | ActionPlanFormData
+    | ResponseActionFormData
+    | SingleResponseActionFormData
     | IncidentManagementTeamMemberFormData;

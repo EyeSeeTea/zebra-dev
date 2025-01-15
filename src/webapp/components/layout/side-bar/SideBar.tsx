@@ -35,6 +35,10 @@ export const SideBar: React.FC<SideBarProps> = React.memo(
 );
 
 const StyledDrawer = styled(Drawer)`
+    .MuiBackdrop-root {
+        background-color: transparent;
+    }
+
     .MuiDrawer-paper {
         height: calc(100% - 48px);
         top: 48px;

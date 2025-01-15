@@ -1,6 +1,7 @@
 import { render, RenderResult } from "@testing-library/react";
 import { SnackbarProvider } from "@eyeseetea/d2-ui-components";
 import { ReactNode } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { AppContext, AppContextState } from "../webapp/contexts/app-context";
 import { getTestCompositionRoot } from "../CompositionRoot";
 import { createAdminUser } from "../domain/entities/__tests__/userFixtures";
@@ -16,8 +17,59 @@ export function getTestContext() {
         currentUser: createAdminUser(),
         compositionRoot: getTestCompositionRoot(),
         api: {} as D2Api,
-        orgUnits: [],
         isDev: true,
+        configurations: {
+            incidentManagerUserGroup: { id: "incidentManagerUserGroup" },
+            selectableOptions: {
+                eventTrackerConfigurations: {
+                    dataSources: [],
+                    hazardTypes: [],
+                    mainSyndromes: [],
+                    suspectedDiseases: [],
+                    notificationSources: [],
+                    incidentStatus: [],
+                    incidentManagers: [],
+                    casesDataSource: [],
+                },
+                riskAssessmentGradingConfigurations: {
+                    populationAtRisk: [],
+                    geographicalSpread: [],
+                    capability: [],
+                    capacity: [],
+                    lowMediumHigh: [],
+                },
+                riskAssessmentSummaryConfigurations: {
+                    overAllConfidencGlobal: [],
+                    overAllConfidencNational: [],
+                    overAllConfidencRegional: [],
+                    overallRiskGlobal: [],
+                    overallRiskNational: [],
+                    overallRiskRegional: [],
+                    riskAssessors: [],
+                },
+                riskAssessmentQuestionnaireConfigurations: {
+                    consequences: [],
+                    likelihood: [],
+                    risk: [],
+                },
+                incidentActionPlanConfigurations: {
+                    iapType: [],
+                    phoecLevel: [],
+                },
+                incidentResponseActionConfigurations: {
+                    searchAssignRO: [],
+                    status: [],
+                    verification: [],
+                },
+            },
+            teamMembers: {
+                all: [],
+                riskAssessors: [],
+                incidentManagers: [],
+                responseOfficers: [],
+            },
+            orgUnits: [],
+        },
     };
 
     return context;
@@ -30,9 +82,11 @@ export function getReactComponent(children: ReactNode): RenderResult {
         <MuiThemeProvider theme={muiTheme}>
             <ThemeProvider theme={muiTheme}>
                 <OldMuiThemeProvider muiTheme={muiThemeLegacy}>
-                    <AppContext.Provider value={context}>
-                        <SnackbarProvider>{children}</SnackbarProvider>
-                    </AppContext.Provider>
+                    <MemoryRouter>
+                        <AppContext.Provider value={context}>
+                            <SnackbarProvider>{children}</SnackbarProvider>
+                        </AppContext.Provider>
+                    </MemoryRouter>
                 </OldMuiThemeProvider>
             </ThemeProvider>
         </MuiThemeProvider>

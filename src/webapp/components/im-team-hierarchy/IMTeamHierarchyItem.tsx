@@ -15,10 +15,11 @@ type IMTeamHierarchyItemProps = {
     teamRole: string;
     member: Maybe<TeamMember>;
     disabled?: boolean;
-    onSelectedChange: (nodeId: string, selected: boolean) => void;
+    onSelectedChange?: (nodeId: string, selected: boolean) => void;
     subChildren: IMTeamHierarchyOption[];
     diseaseOutbreakEventName: string;
-    selectedItemId: Id;
+    selectedItemIds?: Id[];
+    isSelectable?: boolean;
 };
 
 export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.memo(props => {
@@ -30,30 +31,36 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
         onSelectedChange,
         subChildren,
         diseaseOutbreakEventName,
-        selectedItemId,
+        selectedItemIds,
+        isSelectable = false,
     } = props;
 
     const [openMemberProfile, setOpenMemberProfile] = React.useState(false);
 
     const onCheckboxChange = React.useCallback(
         (isChecked: boolean) => {
-            !disabled && onSelectedChange(nodeId, isChecked);
+            if (onSelectedChange && isSelectable && !disabled) {
+                onSelectedChange(nodeId, isChecked);
+            }
         },
-        [disabled, nodeId, onSelectedChange]
+        [disabled, nodeId, onSelectedChange, isSelectable]
     );
 
     const onTeamRoleClick = React.useCallback(
         (event: React.MouseEvent<Element, MouseEvent>) => {
-            event.preventDefault();
-            !disabled && onSelectedChange(nodeId, !(selectedItemId === nodeId));
+            if (isSelectable && onSelectedChange && selectedItemIds) {
+                event.preventDefault();
+                !disabled && onSelectedChange(nodeId, !selectedItemIds.includes(nodeId));
+            }
         },
-        [disabled, nodeId, onSelectedChange, selectedItemId]
+        [disabled, nodeId, onSelectedChange, selectedItemIds, isSelectable]
     );
 
     const onMemberClick = React.useCallback(
         (event: React.MouseEvent<Element, MouseEvent>) => {
+            event.stopPropagation();
+            event.preventDefault();
             if (member) {
-                event.preventDefault();
                 setOpenMemberProfile(true);
             }
         },
@@ -65,14 +72,17 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
             <StyledIMTeamHierarchyItem
                 nodeId={nodeId}
                 aria-disabled={disabled}
+                onLabelClick={onTeamRoleClick}
                 label={
                     <LabelWrapper>
-                        <Checkbox
-                            id={`team-role-hierarchy-checkbox-${nodeId}`}
-                            checked={selectedItemId === nodeId}
-                            onChange={onCheckboxChange}
-                            disabled={disabled}
-                        />
+                        {isSelectable && selectedItemIds && (
+                            <Checkbox
+                                id={`team-role-hierarchy-checkbox-${nodeId}`}
+                                checked={selectedItemIds.includes(nodeId)}
+                                onChange={onCheckboxChange}
+                                disabled={disabled}
+                            />
+                        )}
 
                         <RoleAndMemberWrapper>
                             <IconUser24 color="#4A5768" />
@@ -92,10 +102,11 @@ export const IMTeamHierarchyItem: React.FC<IMTeamHierarchyItemProps> = React.mem
                         nodeId={child.id}
                         teamRole={child.teamRole}
                         member={child.member}
-                        selectedItemId={selectedItemId}
+                        selectedItemIds={selectedItemIds}
                         onSelectedChange={onSelectedChange}
                         diseaseOutbreakEventName={diseaseOutbreakEventName}
                         subChildren={child.children}
+                        isSelectable={isSelectable}
                     />
                 ))}
             </StyledIMTeamHierarchyItem>

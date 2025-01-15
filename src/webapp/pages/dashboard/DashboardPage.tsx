@@ -40,7 +40,14 @@ export const DashboardPage: React.FC = React.memo(() => {
         isLoading: performanceOverviewLoading,
     } = usePerformanceOverview();
 
-    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance("dashboard");
+    const {
+        performanceMetrics717: nationalPerformanceMetrics717,
+        isLoading: national717CardsLoading,
+    } = use717Performance("national");
+
+    const { performanceMetrics717: alertsPerformanceMetrics717, isLoading: alerts717CardsLoading } =
+        use717Performance("alerts");
+
     const { cardCounts, isLoading: cardCountsLoading } = useCardCounts(
         singleSelectFilters,
         multiSelectFilters,
@@ -53,9 +60,9 @@ export const DashboardPage: React.FC = React.memo(() => {
     useEffect(() => {
         //On navigating to the dashboard page, reset the current event tracker id
         resetCurrentEventTrackerId();
-    });
+    }, [resetCurrentEventTrackerId]);
 
-    return performanceOverviewLoading || _717CardsLoading ? (
+    return performanceOverviewLoading || national717CardsLoading || alerts717CardsLoading ? (
         <Loader />
     ) : (
         <Layout
@@ -63,7 +70,7 @@ export const DashboardPage: React.FC = React.memo(() => {
             showCreateEvent
             lastAnalyticsRuntime={lastAnalyticsRuntime}
         >
-            <Section title={i18n.t("Respond, alert, watch")}>
+            <Section>
                 <FiltersContainer>
                     {selectorFiltersConfig.map(({ id, label, placeholder, options, type }) => {
                         return (
@@ -125,9 +132,26 @@ export const DashboardPage: React.FC = React.memo(() => {
                     dateRangeFilter={dateRangeFilter.value}
                 />
             </Section>
+            <Section title={i18n.t("Alerts 7-1-7 performance")}>
+                <GridWrapper>
+                    {alertsPerformanceMetrics717.map(
+                        (perfMetric717: PerformanceMetric717, index: number) => (
+                            <StatsCard
+                                key={index}
+                                stat={`${perfMetric717.primaryValue}`}
+                                title={perfMetric717.title}
+                                pretitle={`${perfMetric717.secondaryValue} ${i18n.t("events")}`}
+                                color={perfMetric717.color}
+                                fillParent
+                                isPercentage
+                            />
+                        )
+                    )}
+                </GridWrapper>
+            </Section>
             <Section title={i18n.t("7-1-7 performance")}>
                 <GridWrapper>
-                    {performanceMetrics717.map(
+                    {nationalPerformanceMetrics717.map(
                         (perfMetric717: PerformanceMetric717, index: number) => (
                             <StatsCard
                                 key={index}

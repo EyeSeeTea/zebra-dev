@@ -18,6 +18,7 @@ export function createUserWithGroups(userGroups: NamedRef[] = []): User {
         username: "user",
         userRoles: [],
         userGroups,
+        hasCaptureAccess: false,
     });
 }
 function createUser(userRoles: UserRole[], userGroups: NamedRef[] = []): User {
@@ -27,5 +28,6 @@ function createUser(userRoles: UserRole[], userGroups: NamedRef[] = []): User {
         username: "user",
         userRoles,
         userGroups,
+        hasCaptureAccess: false,
     });
 }

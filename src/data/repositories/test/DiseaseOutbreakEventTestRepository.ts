@@ -1,5 +1,6 @@
 import { OutbreakData } from "../../../domain/entities/alert/OutbreakAlert";
 import {
+    CasesDataSource,
     DataSource,
     DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
@@ -11,6 +12,9 @@ import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/Dis
 import { FutureData } from "../../api-futures";
 
 export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventRepository {
+    complete(_id: Id): FutureData<void> {
+        return Future.success(undefined);
+    }
     get(id: Id): FutureData<DiseaseOutbreakEventBaseAttrs> {
         return Future.success({
             id: id,
@@ -33,15 +37,16 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             earlyResponseActions: {
                 initiateInvestigation: new Date(),
                 conductEpidemiologicalAnalysis: new Date(),
-                laboratoryConfirmation: { date: new Date(), na: false },
+                laboratoryConfirmation: new Date(),
                 appropriateCaseManagement: { date: new Date(), na: false },
                 initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                 initiateRiskCommunication: { date: new Date(), na: false },
-                establishCoordination: new Date(),
+                establishCoordination: { date: new Date(), na: false },
                 responseNarrative: "responseNarrative",
             },
             incidentManagerName: "incidentManager",
             notes: undefined,
+            casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
         });
     }
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
@@ -67,15 +72,16 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 earlyResponseActions: {
                     initiateInvestigation: new Date(),
                     conductEpidemiologicalAnalysis: new Date(),
-                    laboratoryConfirmation: { date: new Date(), na: false },
+                    laboratoryConfirmation: new Date(),
                     appropriateCaseManagement: { date: new Date(), na: false },
                     initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                     initiateRiskCommunication: { date: new Date(), na: false },
-                    establishCoordination: new Date(),
+                    establishCoordination: { date: new Date(), na: false },
                     responseNarrative: "responseNarrative",
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
+                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
             },
             {
                 id: "2",
@@ -98,15 +104,16 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 earlyResponseActions: {
                     initiateInvestigation: new Date(),
                     conductEpidemiologicalAnalysis: new Date(),
-                    laboratoryConfirmation: { date: new Date(), na: false },
+                    laboratoryConfirmation: new Date(),
                     appropriateCaseManagement: { date: new Date(), na: false },
                     initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                     initiateRiskCommunication: { date: new Date(), na: false },
-                    establishCoordination: new Date(),
+                    establishCoordination: { date: new Date(), na: false },
                     responseNarrative: "responseNarrative",
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
+                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
             },
         ]);
     }
@@ -134,16 +141,17 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 earlyResponseActions: {
                     initiateInvestigation: new Date(),
                     conductEpidemiologicalAnalysis: new Date(),
-                    laboratoryConfirmation: { date: new Date(), na: false },
+                    laboratoryConfirmation: new Date(),
                     appropriateCaseManagement: { date: new Date(), na: false },
                     initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                     initiateRiskCommunication: { date: new Date(), na: false },
-                    establishCoordination: new Date(),
+                    establishCoordination: { date: new Date(), na: false },
                     responseNarrative: "responseNarrative",
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
                 status: "ACTIVE",
+                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
             },
             {
                 id: "2",
@@ -165,16 +173,17 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 earlyResponseActions: {
                     initiateInvestigation: new Date(),
                     conductEpidemiologicalAnalysis: new Date(),
-                    laboratoryConfirmation: { date: new Date(), na: false },
+                    laboratoryConfirmation: new Date(),
                     appropriateCaseManagement: { date: new Date(), na: false },
                     initiatePublicHealthCounterMeasures: { date: new Date(), na: false },
                     initiateRiskCommunication: { date: new Date(), na: false },
-                    establishCoordination: new Date(),
+                    establishCoordination: { date: new Date(), na: false },
                     responseNarrative: "responseNarrative",
                 },
                 incidentManagerName: "incidentManager",
                 notes: undefined,
                 status: "COMPLETED",
+                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
             },
         ]);
     }

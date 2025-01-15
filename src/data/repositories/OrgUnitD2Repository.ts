@@ -1,9 +1,14 @@
 import { D2Api, MetadataPick } from "../../types/d2-api";
-import { OrgUnit } from "../../domain/entities/OrgUnit";
+import { OrgUnit, OrgUnitLevelType } from "../../domain/entities/OrgUnit";
 import { Id } from "../../domain/entities/Ref";
 import { OrgUnitRepository } from "../../domain/repositories/OrgUnitRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 
+const orgUnitLevelTypeByLevelNumber: Record<number, OrgUnitLevelType> = {
+    1: "National",
+    2: "Province",
+    3: "District",
+};
 export class OrgUnitD2Repository implements OrgUnitRepository {
     constructor(private api: D2Api) {}
 
@@ -12,13 +17,11 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
             this.api.metadata.get({
                 organisationUnits: {
                     fields: d2OrgUnitFields,
+                    filter: { level: { in: ["1", "2", "3"] } },
                 },
             })
         ).map(response => {
-            const d2OrgUnitsProvinceOrDistrict = response.organisationUnits.filter(
-                ou => ou.level === 2 || ou.level === 3
-            );
-            return this.mapD2OrgUnitsToOrgUnits(d2OrgUnitsProvinceOrDistrict);
+            return this.mapD2OrgUnitsToOrgUnits(response.organisationUnits);
         });
     }
 
@@ -48,14 +51,18 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
     }
 
     private mapD2OrgUnitsToOrgUnits(d2OrgUnit: D2OrgUnit[]): OrgUnit[] {
-        return d2OrgUnit.map(
-            (ou): OrgUnit => ({
-                id: ou.id,
-                name: ou.name,
-                code: ou.code,
-                level: ou.level === 2 ? "Province" : "District",
+        return d2OrgUnit
+            .map(ou => {
+                if (orgUnitLevelTypeByLevelNumber[ou.level]) {
+                    return {
+                        id: ou.id,
+                        name: ou.name,
+                        code: ou.code,
+                        level: orgUnitLevelTypeByLevelNumber[ou.level],
+                    };
+                }
             })
-        );
+            .filter((orgUnit): orgUnit is OrgUnit => orgUnit !== undefined);
     }
 }
 

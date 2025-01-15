@@ -206,6 +206,7 @@ const StyledTableContainer = styled(TableContainer)`
     }
     & .MuiTableBody-root {
         color: ${props => props.theme.palette.common.grey};
+        background-color: ${props => props.theme.palette.common.white};
     }
     & .MuiTableCell-root {
         min-width: 2rem;

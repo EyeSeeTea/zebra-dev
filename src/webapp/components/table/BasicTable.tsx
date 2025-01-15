@@ -1,10 +1,22 @@
-import React from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
+import React, { useCallback, useState } from "react";
+import {
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TableSortLabel,
+} from "@material-ui/core";
 import styled from "styled-components";
 import { Maybe } from "../../../utils/ts-utils";
 import i18n from "../../../utils/i18n";
 import { Option } from "../utils/option";
 import { Cell } from "./Cell";
+import _c from "../../../domain/entities/generic/Collection";
+import { EditOutlined } from "@material-ui/icons";
+import { RouteName, useRoutes } from "../../hooks/useRoutes";
+import { FormType } from "../../pages/form-page/FormPage";
 
 const noop = () => {};
 
@@ -34,18 +46,58 @@ interface BasicTableProps {
     rows: TableRowType[];
     onChange?: (cell: Maybe<string>, rowIndex: number, column: TableColumn["value"]) => void;
     showRowIndex?: boolean;
+    onOrderBy?: (direction: "asc" | "desc") => void;
+    formType?: FormType;
+    onClickRow?: (rowId: string) => void;
 }
 
+const sortableColumnLabels = ["Assessment Date", "Due date"];
+
 export const BasicTable: React.FC<BasicTableProps> = React.memo(
-    ({ columns, rows, onChange = noop, showRowIndex = false }) => {
+    ({ columns, rows, onChange = noop, showRowIndex = false, onOrderBy, formType, onClickRow }) => {
+        const [order, setOrder] = useState<"asc" | "desc">();
+        const { goTo } = useRoutes();
+
+        const orderBy = useCallback(() => {
+            const updatedOrder = order === "asc" ? "desc" : "asc";
+            setOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
+            onOrderBy && onOrderBy(updatedOrder);
+        }, [onOrderBy, order]);
+
+        const goToEdit = useCallback(
+            (id: string) => {
+                if (formType)
+                    goTo(RouteName.EDIT_FORM, {
+                        formType: formType,
+                        id,
+                    });
+            },
+            [formType, goTo]
+        );
+
         return (
             <StyledTable stickyHeader>
                 <TableHead>
                     <TableRow>
                         {showRowIndex && <TableCell />}
-                        {columns.map(({ value, label }) => (
-                            <TableCell key={value}>{i18n.t(label)}</TableCell>
-                        ))}
+                        {columns.map(({ value, label }) =>
+                            sortableColumnLabels.includes(label) ? (
+                                <TableCell key={value} sortDirection={order}>
+                                    <TableSortLabel
+                                        direction={order}
+                                        onClick={orderBy}
+                                        active={true}
+                                    >
+                                        {label}
+                                    </TableSortLabel>
+                                </TableCell>
+                            ) : (
+                                <TableCell key={value} sortDirection={order}>
+                                    {i18n.t(label)}
+                                </TableCell>
+                            )
+                        )}
+                        {onClickRow && <TableCell />}
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -61,6 +113,20 @@ export const BasicTable: React.FC<BasicTableProps> = React.memo(
                                     onChange={onChange}
                                 />
                             ))}
+                            {onClickRow && (
+                                <TableCell>
+                                    <Button
+                                        onClick={() => {
+                                            if (row.id) {
+                                                onClickRow(row.id);
+                                                goToEdit(row.id);
+                                            }
+                                        }}
+                                    >
+                                        <EditOutlined />
+                                    </Button>
+                                </TableCell>
+                            )}
                         </TableRow>
                     ))}
                 </TableBody>
@@ -82,6 +148,7 @@ const StyledTable = styled(Table)`
     }
     & .MuiTableBody-root {
         color: ${props => props.theme.palette.common.grey};
+        background-color: ${props => props.theme.palette.common.white};
     }
     & .MuiTableCell-root {
         font-size: 0.75rem;

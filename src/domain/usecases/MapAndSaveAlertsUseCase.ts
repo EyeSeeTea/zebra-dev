@@ -2,7 +2,6 @@ import { Future } from "../entities/generic/Future";
 import { Option } from "../entities/Ref";
 import { AlertOptions, AlertRepository } from "../repositories/AlertRepository";
 import { AlertSyncRepository } from "../repositories/AlertSyncRepository";
-import { OptionsRepository } from "../repositories/OptionsRepository";
 import _ from "../entities/generic/Collection";
 import {
     DataSource,
@@ -16,6 +15,7 @@ import { OutbreakAlertRepository } from "../repositories/OutbreakAlertRepository
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { getOutbreakKey } from "../entities/alert/AlertSynchronizationData";
 import { promiseMap } from "../../utils/promiseMap";
+import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 
 export class MapAndSaveAlertsUseCase {
     constructor(
@@ -25,8 +25,8 @@ export class MapAndSaveAlertsUseCase {
             alertSyncRepository: AlertSyncRepository;
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             notificationRepository: NotificationRepository;
-            optionsRepository: OptionsRepository;
             userGroupRepository: UserGroupRepository;
+            configurationsRepository: ConfigurationsRepository;
         }
     ) {}
 
@@ -107,12 +107,20 @@ export class MapAndSaveAlertsUseCase {
     }
 
     private getOptions(): Promise<{ hazardTypes: Option[]; suspectedDiseases: Option[] }> {
-        const { optionsRepository } = this.options;
+        const { configurationsRepository } = this.options;
 
-        return Future.joinObj({
-            hazardTypes: optionsRepository.getHazardTypesByCode(),
-            suspectedDiseases: optionsRepository.getSuspectedDiseases(),
-        }).toPromise();
+        return configurationsRepository
+            .getSelectableOptions()
+            .flatMap(selectableOptions => {
+                const { hazardTypes, suspectedDiseases } =
+                    selectableOptions.eventTrackerConfigurations;
+
+                return Future.success({
+                    hazardTypes: hazardTypes,
+                    suspectedDiseases: suspectedDiseases,
+                });
+            })
+            .toPromise();
     }
 
     private mapAndSaveAlertData(

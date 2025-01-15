@@ -1,14 +1,22 @@
 import { FutureData } from "../../../../data/api-futures";
 import { INCIDENT_MANAGER_ROLE } from "../../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
-import { DiseaseOutbreakEventBaseAttrs } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { getOutbreakKey } from "../../../entities/AlertsAndCaseForCasesData";
+import { Configurations } from "../../../entities/AppConfigurations";
+import {
+    CasesDataSource,
+    DiseaseOutbreakEvent,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
 import { Role } from "../../../entities/incident-management-team/Role";
 import { TeamMember, TeamRole } from "../../../entities/incident-management-team/TeamMember";
 import { Id } from "../../../entities/Ref";
+import { CasesFileRepository } from "../../../repositories/CasesFileRepository";
 import { DiseaseOutbreakEventRepository } from "../../../repositories/DiseaseOutbreakEventRepository";
 import { IncidentManagementTeamRepository } from "../../../repositories/IncidentManagementTeamRepository";
 import { RoleRepository } from "../../../repositories/RoleRepository";
 import { TeamMemberRepository } from "../../../repositories/TeamMemberRepository";
+import { Maybe } from "../../../../utils/ts-utils";
 
 export function saveDiseaseOutbreak(
     repositories: {
@@ -16,13 +24,75 @@ export function saveDiseaseOutbreak(
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
         teamMemberRepository: TeamMemberRepository;
         roleRepository: RoleRepository;
+        casesFileRepository: CasesFileRepository;
     },
-    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreakEvent: DiseaseOutbreakEvent,
+    configurations: Configurations,
+    editMode: boolean,
+    casesDataOptions?: {
+        uploadedCasesDataFile: Maybe<File>;
+        uploadedCasesDataFileId: Maybe<Id>;
+        hasInitiallyCasesDataFile: boolean;
+    }
 ): FutureData<Id> {
+    const { uploadedCasesDataFile, uploadedCasesDataFileId, hasInitiallyCasesDataFile } =
+        casesDataOptions || {};
+
+    const hasNewCasesData =
+        (!editMode || !hasInitiallyCasesDataFile) &&
+        !!uploadedCasesDataFile &&
+        diseaseOutbreakEvent.casesDataSource ===
+            CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+    const haveChangedCasesData =
+        editMode &&
+        hasInitiallyCasesDataFile &&
+        !uploadedCasesDataFileId &&
+        !!uploadedCasesDataFile &&
+        diseaseOutbreakEvent.casesDataSource ===
+            CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+
     return repositories.diseaseOutbreakEventRepository
-        .save(diseaseOutbreakEventBaseAttrs)
-        .flatMap(() => {
-            return saveIncidentManagerTeamMemberRole(repositories, diseaseOutbreakEventBaseAttrs);
+        .save(diseaseOutbreakEvent, haveChangedCasesData)
+        .flatMap((diseaseOutbreakId: Id) => {
+            const diseaseOutbreakEventWithId = { ...diseaseOutbreakEvent, id: diseaseOutbreakId };
+            return saveIncidentManagerTeamMemberRole(
+                repositories,
+                diseaseOutbreakEventWithId,
+                configurations
+            ).flatMap(() => {
+                if (hasNewCasesData || haveChangedCasesData) {
+                    const outbreakKey = getOutbreakKey({
+                        dataSource: diseaseOutbreakEventWithId.dataSource,
+                        outbreakValue:
+                            diseaseOutbreakEventWithId.suspectedDiseaseCode ||
+                            diseaseOutbreakEventWithId.hazardType,
+                        hazardTypes:
+                            configurations.selectableOptions.eventTrackerConfigurations.hazardTypes,
+                        suspectedDiseases:
+                            configurations.selectableOptions.eventTrackerConfigurations
+                                .suspectedDiseases,
+                    });
+
+                    if (haveChangedCasesData) {
+                        // NOTICE: If the cases data file has changed, we need to replace the old one with the new one
+                        return repositories.casesFileRepository.delete(outbreakKey).flatMap(() => {
+                            return repositories.casesFileRepository
+                                .save(diseaseOutbreakEvent.id, outbreakKey, {
+                                    file: uploadedCasesDataFile,
+                                })
+                                .flatMap(() => Future.success(diseaseOutbreakId));
+                        });
+                    } else {
+                        return repositories.casesFileRepository
+                            .save(diseaseOutbreakEvent.id, outbreakKey, {
+                                file: uploadedCasesDataFile,
+                            })
+                            .flatMap(() => Future.success(diseaseOutbreakId));
+                    }
+                } else {
+                    return Future.success(diseaseOutbreakId);
+                }
+            });
         });
 }
 
@@ -30,15 +100,13 @@ function saveIncidentManagerTeamMemberRole(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
-        teamMemberRepository: TeamMemberRepository;
         roleRepository: RoleRepository;
     },
-    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs
+    diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
+    configurations: Configurations
 ): FutureData<Id> {
-    return Future.joinObj({
-        roles: repositories.roleRepository.getAll(),
-        teamMembers: repositories.teamMemberRepository.getAll(),
-    }).flatMap(({ roles, teamMembers }) => {
+    return repositories.roleRepository.getAll().flatMap(roles => {
+        const teamMembers = configurations.teamMembers.all;
         return repositories.incidentManagementTeamRepository
             .get(diseaseOutbreakEventBaseAttrs.id, teamMembers, roles)
             .flatMap(incidentManagementTeam => {
@@ -53,8 +121,14 @@ function saveIncidentManagerTeamMemberRole(
                     teamRole => teamRole.roleId === INCIDENT_MANAGER_ROLE
                 );
 
-                if (
-                    incidentManagerTeamMemberFound &&
+                if (!incidentManagerTeamMemberFound) {
+                    return createNewIncidentManager(
+                        repositories,
+                        diseaseOutbreakEventBaseAttrs,
+                        teamMembers,
+                        roles
+                    );
+                } else if (
                     incidentManagerTeamMemberFound.username !==
                         diseaseOutbreakEventBaseAttrs.incidentManagerName &&
                     incidentManagerTeamRole
@@ -68,12 +142,7 @@ function saveIncidentManagerTeamMemberRole(
                         roles
                     );
                 } else {
-                    return createNewIncidentManager(
-                        repositories,
-                        diseaseOutbreakEventBaseAttrs,
-                        teamMembers,
-                        roles
-                    );
+                    return Future.success(diseaseOutbreakEventBaseAttrs.id);
                 }
             });
     });
@@ -83,7 +152,6 @@ function changeIncidentManager(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
-        teamMemberRepository: TeamMemberRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
     oldIncidentManager: TeamMember,
@@ -112,12 +180,9 @@ function changeIncidentManager(
         };
 
         return repositories.incidentManagementTeamRepository
-            .deleteIncidentManagementTeamMemberRole(
-                oldIncidentManagerTeamRole,
-                oldIncidentManager,
-                diseaseOutbreakEventBaseAttrs.id,
-                roles
-            )
+            .deleteIncidentManagementTeamMemberRoles(diseaseOutbreakEventBaseAttrs.id, [
+                oldIncidentManagerTeamRole.id,
+            ])
             .flatMap(() => {
                 return repositories.incidentManagementTeamRepository
                     .saveIncidentManagementTeamMemberRole(
@@ -137,7 +202,6 @@ function createNewIncidentManager(
     repositories: {
         diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
         incidentManagementTeamRepository: IncidentManagementTeamRepository;
-        teamMemberRepository: TeamMemberRepository;
     },
     diseaseOutbreakEventBaseAttrs: DiseaseOutbreakEventBaseAttrs,
     teamMembers: TeamMember[],

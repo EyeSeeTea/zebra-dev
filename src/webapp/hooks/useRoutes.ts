@@ -16,9 +16,13 @@ export enum RouteName {
 
 const formTypes = [
     "disease-outbreak-event",
+    "disease-outbreak-event-case-data",
     "risk-assessment-grading",
     "risk-assessment-summary",
     "risk-assessment-questionnaire",
+    "incident-action-plan",
+    "incident-response-actions",
+    "incident-response-action",
     "incident-management-team-member-assignment",
 ] as const satisfies FormType[];
 
@@ -28,8 +32,8 @@ export const routes: Record<RouteName, string> = {
     [RouteName.CREATE_FORM]: `/create/${formType}`,
     [RouteName.EDIT_FORM]: `/edit/${formType}/:id`,
     [RouteName.EVENT_TRACKER]: "/event-tracker/:id",
-    [RouteName.IM_TEAM_BUILDER]: "/incident-management-team-builder/:id",
-    [RouteName.INCIDENT_ACTION_PLAN]: "/incident-action-plan",
+    [RouteName.IM_TEAM_BUILDER]: "/:id/incident-management-team-builder",
+    [RouteName.INCIDENT_ACTION_PLAN]: "/:id/incident-action-plan",
     [RouteName.RESOURCES]: "/resources",
     [RouteName.DASHBOARD]: "/",
 } as const;
@@ -39,7 +43,7 @@ type RouteParams = {
     [RouteName.EDIT_FORM]: { formType: FormType; id: string };
     [RouteName.EVENT_TRACKER]: { id: string };
     [RouteName.IM_TEAM_BUILDER]: { id: string };
-    [RouteName.INCIDENT_ACTION_PLAN]: undefined;
+    [RouteName.INCIDENT_ACTION_PLAN]: { id: string };
     [RouteName.RESOURCES]: undefined;
     [RouteName.DASHBOARD]: undefined;
 };

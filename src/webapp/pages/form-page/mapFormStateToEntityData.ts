@@ -1,29 +1,24 @@
-import {
-    DataSource,
-    DiseaseOutbreakEventBaseAttrs,
-    HazardType,
-    NationalIncidentStatus,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormState } from "../../components/form/FormState";
 import { diseaseOutbreakEventFieldIds } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
 import {
     FormFieldState,
     getAllFieldsFromSections,
-    getBooleanFieldValue,
-    getDateFieldValue,
-    getMultipleOptionsFieldValue,
+    getFieldFileIdById,
+    getFileFieldValue,
     getStringFieldValue,
 } from "../../components/form/FormFieldsState";
 import {
     ConfigurableForm,
     DiseaseOutbreakEventFormData,
+    ActionPlanFormData,
     IncidentManagementTeamMemberFormData,
     RiskAssessmentGradingFormData,
     RiskAssessmentQuestionnaireFormData,
     RiskAssessmentQuestionnaireOptions,
     RiskAssessmentSummaryFormData,
+    ResponseActionFormData,
+    SingleResponseActionFormData,
 } from "../../../domain/entities/ConfigurableForm";
-import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import {
     riskAssessmentGradingCodes,
@@ -35,9 +30,22 @@ import {
     RiskAssessmentQuestion,
     RiskAssessmentQuestionnaire,
 } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
+import { ActionPlanAttrs } from "../../../domain/entities/incident-action-plan/ActionPlan";
+import {
+    actionPlanConstants as actionPlanConstants,
+    getVerificationTypeByCode,
+    responseActionConstants,
+    verificationCodeMap,
+} from "../../../data/repositories/consts/IncidentActionConstants";
+import {
+    ResponseAction,
+    Status,
+    Verification,
+} from "../../../domain/entities/incident-action-plan/ResponseAction";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { mapFormStateToDiseaseOutbreakEvent } from "./disease-outbreak-event/mapFormStateToDiseaseOutbreakEvent";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -45,15 +53,29 @@ export function mapFormStateToEntityData(
     formData: ConfigurableForm
 ): ConfigurableForm {
     switch (formData.type) {
-        case "disease-outbreak-event": {
+        case "disease-outbreak-event":
+        case "disease-outbreak-event-case-data": {
             const dieaseEntity = mapFormStateToDiseaseOutbreakEvent(
                 formState,
                 currentUserName,
-                formData.entity
+                formData
             );
+
+            const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+            const uploadedCasesDataFileValue = getFileFieldValue(
+                diseaseOutbreakEventFieldIds.casesDataFile,
+                allFields
+            );
+            const uploadedCasesDataFileId = getFieldFileIdById(
+                diseaseOutbreakEventFieldIds.casesDataFile,
+                allFields
+            );
+
             const diseaseForm: DiseaseOutbreakEventFormData = {
                 ...formData,
                 entity: dieaseEntity,
+                uploadedCasesDataFile: uploadedCasesDataFileValue,
+                uploadedCasesDataFileId: uploadedCasesDataFileId,
             };
             return diseaseForm;
         }
@@ -85,7 +107,33 @@ export function mapFormStateToEntityData(
             };
             return riskQuestionnaireForm;
         }
+        case "incident-action-plan": {
+            const actionPlan = mapFormStateToIncidentActionPlan(formState, formData);
+            const actionPlanForm: ActionPlanFormData = {
+                ...formData,
+                entity: actionPlan,
+            };
 
+            return actionPlanForm;
+        }
+        case "incident-response-actions": {
+            const responseActions = mapFormStateToIncidentResponseActions(formState, formData);
+            const responseActionForm: ResponseActionFormData = {
+                ...formData,
+                entity: responseActions,
+            };
+
+            return responseActionForm;
+        }
+        case "incident-response-action": {
+            const responseAction = mapFormStateToIncidentResponseAction(formState, formData);
+            const responseActionForm: SingleResponseActionFormData = {
+                ...formData,
+                entity: responseAction,
+            };
+
+            return responseActionForm;
+        }
         case "incident-management-team-member-assignment": {
             const incidentManagementTeamMember: TeamMember =
                 mapFormStateToIncidentManagementTeamMember(formState, formData);
@@ -99,145 +147,6 @@ export function mapFormStateToEntityData(
         default:
             return formData;
     }
-}
-
-function mapFormStateToDiseaseOutbreakEvent(
-    formState: FormState,
-    currentUserName: string,
-    diseaseOutbreakEvent: Maybe<DiseaseOutbreakEventBaseAttrs>
-): DiseaseOutbreakEventBaseAttrs {
-    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
-
-    const diseaseOutbreakEventEditableData = {
-        name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
-        dataSource: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.dataSource,
-            allFields
-        ) as DataSource,
-        hazardType: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.hazardType,
-            allFields
-        ) as HazardType,
-        mainSyndromeCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.mainSyndromeCode,
-            allFields
-        ),
-        suspectedDiseaseCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.suspectedDiseaseCode,
-            allFields
-        ),
-        notificationSourceCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.notificationSourceCode,
-            allFields
-        ),
-        areasAffectedProvinceIds: getMultipleOptionsFieldValue(
-            diseaseOutbreakEventFieldIds.areasAffectedProvinceIds,
-            allFields
-        ),
-        areasAffectedDistrictIds: getMultipleOptionsFieldValue(
-            diseaseOutbreakEventFieldIds.areasAffectedDistrictIds,
-            allFields
-        ),
-        incidentStatus: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentStatus,
-            allFields
-        ) as NationalIncidentStatus,
-        emerged: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.emergedNarrative,
-                allFields
-            ),
-        },
-        detected: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.detectedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.detectedNarrative,
-                allFields
-            ),
-        },
-        notified: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.notifiedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.notifiedNarrative,
-                allFields
-            ),
-        },
-        earlyResponseActions: {
-            initiateInvestigation: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.initiateInvestigation,
-                allFields
-            ) as Date,
-            conductEpidemiologicalAnalysis: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
-                allFields
-            ) as Date,
-            laboratoryConfirmation: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.laboratoryConfirmationNA,
-                    allFields
-                ),
-            },
-            appropriateCaseManagement: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.appropriateCaseManagementNA,
-                    allFields
-                ),
-            },
-            initiatePublicHealthCounterMeasures: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresNA,
-                    allFields
-                ),
-            },
-            initiateRiskCommunication: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationNA,
-                    allFields
-                ),
-            },
-            establishCoordination: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.establishCoordination,
-                allFields
-            ) as Date,
-            responseNarrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.responseNarrative,
-                allFields
-            ),
-        },
-        incidentManagerName: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentManagerName,
-            allFields
-        ),
-        notes: getStringFieldValue(diseaseOutbreakEventFieldIds.notes, allFields),
-    };
-
-    const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
-        id: diseaseOutbreakEvent?.id || "",
-        status: diseaseOutbreakEvent?.status || "ACTIVE",
-        created: diseaseOutbreakEvent?.created || new Date(),
-        lastUpdated: diseaseOutbreakEvent?.lastUpdated || new Date(),
-        createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
-        ...diseaseOutbreakEventEditableData,
-    };
-
-    return diseaseOutbreakEventBase;
 }
 
 function mapFormStateToRiskAssessmentGrading(formState: FormState): RiskAssessmentGrading {
@@ -430,8 +339,9 @@ function mapFormStateToRiskAssessmentQuestionnaire(
                     formData.options,
                     index.toString()
                 );
+
             return {
-                id: customSection.id.replace("additionalQuestions", ""),
+                id: customSection.id.replace("additionalQuestions", "").replace(`_${index}`, ""),
                 question: allFields.find(field => field.id.includes(`custom-question${index}`))
                     ?.value as string,
                 likelihood: likelihoodOption,
@@ -453,6 +363,186 @@ function mapFormStateToRiskAssessmentQuestionnaire(
             additionalQuestions: additionalQuestions,
         });
     return riskAssessmentQuestionnaire;
+}
+
+function mapFormStateToIncidentActionPlan(
+    formState: FormState,
+    formData: ActionPlanFormData
+): ActionPlanAttrs {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const iapType = allFields.find(field => field.id.includes(actionPlanConstants.iapType))
+        ?.value as string;
+
+    const phoecLevel = allFields.find(field => field.id.includes(actionPlanConstants.phoecLevel))
+        ?.value as string;
+
+    const criticalInfoRequirements = allFields.find(field =>
+        field.id.includes(actionPlanConstants.criticalInfoRequirements)
+    )?.value as string;
+
+    const planningAssumptions = allFields.find(field =>
+        field.id.includes(actionPlanConstants.planningAssumptions)
+    )?.value as string;
+
+    const responseObjectives = allFields.find(field =>
+        field.id.includes(actionPlanConstants.responseObjectives)
+    )?.value as string;
+
+    const responseStrategies = allFields.find(field =>
+        field.id.includes(actionPlanConstants.responseStrategies)
+    )?.value as string;
+
+    const expectedResults = allFields.find(field =>
+        field.id.includes(actionPlanConstants.expectedResults)
+    )?.value as string;
+
+    const responseActivitiesNarrative = allFields.find(field =>
+        field.id.includes(actionPlanConstants.responseActivitiesNarrative)
+    )?.value as string;
+
+    const incidentActionPlan: ActionPlanAttrs = {
+        lastUpdated: new Date(),
+        iapType: iapType,
+        phoecLevel: phoecLevel,
+        id: formData.entity?.id ?? "",
+        criticalInfoRequirements: criticalInfoRequirements,
+        planningAssumptions: planningAssumptions,
+        responseObjectives: responseObjectives,
+        responseStrategies: responseStrategies,
+        expectedResults: expectedResults,
+        responseActivitiesNarrative: responseActivitiesNarrative,
+    };
+
+    return incidentActionPlan;
+}
+
+function mapFormStateToIncidentResponseActions(
+    formState: FormState,
+    formData: ResponseActionFormData
+): ResponseAction[] {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const incidentResponseActions: ResponseAction[] = formState.sections
+        .filter(section => !section.id.includes("addNewResponseActionSection"))
+        .map((section): ResponseAction => {
+            const sectionIndex = extractIndex(section.id);
+
+            const mainTask = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.mainTask}_${sectionIndex}`)
+            )?.value as string;
+            const subActivities = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.subActivities}_${sectionIndex}`)
+            )?.value as string;
+            const subPillar = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.subPillar}_${sectionIndex}`)
+            )?.value as string;
+            const dueDate = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.dueDate}_${sectionIndex}`)
+            )?.value as Date;
+
+            const searchAssignROValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.searchAssignRO}_${sectionIndex}`)
+            )?.value as string;
+            const searchAssignRO = formData.options.searchAssignRO.find(
+                option => option.id === searchAssignROValue
+            );
+            if (!searchAssignRO) throw new Error("Responsible officer not found");
+
+            const statusValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.status}_${sectionIndex}`)
+            )?.value as string;
+            const status = formData.options.status.find(option => option.id === statusValue);
+            if (!status) throw new Error("Status not found");
+
+            const verificationValue = allFields.find(field =>
+                field.id.includes(`${responseActionConstants.verification}_${sectionIndex}`)
+            )?.value as string;
+            const verification = formData.options.verification.find(
+                option => option.id === verificationValue
+            ) ?? {
+                id: verificationCodeMap.Unverified,
+                name: getVerificationTypeByCode(verificationCodeMap.Unverified) ?? "",
+            };
+            if (!verification) throw new Error("Verification not found");
+
+            const selectedEntityData =
+                sectionIndex !== undefined ? formData.entity[sectionIndex] : undefined;
+            const isResponseActionValid = selectedEntityData !== undefined;
+            const responseActionId = isResponseActionValid ? selectedEntityData.id : "";
+
+            const responseAction = new ResponseAction({
+                id: responseActionId,
+                mainTask: mainTask,
+                subActivities: subActivities,
+                subPillar: subPillar,
+                dueDate: dueDate,
+                searchAssignRO: searchAssignRO,
+                status: status.id as Status,
+                verification: verification.id as Verification,
+            });
+
+            return responseAction;
+        });
+
+    return incidentResponseActions;
+}
+
+function mapFormStateToIncidentResponseAction(
+    formState: FormState,
+    formData: SingleResponseActionFormData
+): ResponseAction {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const mainTask = allFields.find(field => field.id.includes(responseActionConstants.mainTask))
+        ?.value as string;
+
+    const subActivities = allFields.find(field =>
+        field.id.includes(responseActionConstants.subActivities)
+    )?.value as string;
+
+    const subPillar = allFields.find(field => field.id.includes(responseActionConstants.subPillar))
+        ?.value as string;
+
+    const dueDate = allFields.find(field => field.id.includes(responseActionConstants.dueDate))
+        ?.value as Date;
+
+    const searchAssignROValue = allFields.find(field =>
+        field.id.includes(responseActionConstants.searchAssignRO)
+    )?.value as string;
+    const searchAssignRO = formData.options.searchAssignRO.find(
+        option => option.id === searchAssignROValue
+    );
+    if (!searchAssignRO) throw new Error("Responsible officer not found");
+
+    const statusValue = allFields.find(field => field.id.includes(responseActionConstants.status))
+        ?.value as string;
+    const status = formData.options.status.find(option => option.id === statusValue);
+    if (!status) throw new Error("Status not found");
+
+    const verificationValue = allFields.find(field =>
+        field.id.includes(responseActionConstants.verification)
+    )?.value as string;
+    const verification = formData.options.verification.find(
+        option => option.id === verificationValue
+    ) ?? {
+        id: verificationCodeMap.Unverified,
+        name: getVerificationTypeByCode(verificationCodeMap.Unverified) ?? "",
+    };
+    if (!verification) throw new Error("Verification not found");
+
+    const responseAction = new ResponseAction({
+        id: formData.entity?.id ?? "",
+        mainTask: mainTask,
+        subActivities: subActivities,
+        subPillar: subPillar,
+        dueDate: dueDate,
+        searchAssignRO: searchAssignRO,
+        status: status.id as Status,
+        verification: verification.id as Verification,
+    });
+
+    return responseAction;
 }
 
 function getRiskAssessmentQuestionsWithOption(
@@ -532,4 +622,12 @@ function mapFormStateToIncidentManagementTeamMember(
         workPosition: teamMemberAssigned?.workPosition,
         status: teamMemberAssigned?.status,
     });
+}
+
+function extractIndex(input: string): number | undefined {
+    const parts = input.split("_");
+    const lastPart = parts[parts.length - 1];
+    const index = Number(lastPart);
+
+    return isNaN(index) ? undefined : index;
 }

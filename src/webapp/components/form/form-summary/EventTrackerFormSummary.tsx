@@ -1,50 +1,92 @@
 import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import i18n from "@eyeseetea/d2-ui-components/locales";
+import { EditOutlined } from "@material-ui/icons";
+import { CheckOutlined } from "@material-ui/icons";
+import BackupIcon from "@material-ui/icons/Backup";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
+
 import { Section } from "../../section/Section";
 import { Box, Button, Typography } from "@material-ui/core";
 import { UserCard } from "../../user-selector/UserCard";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
-import { EditOutlined } from "@material-ui/icons";
 import { Loader } from "../../loader/Loader";
-import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { FormSummaryData } from "../../../pages/event-tracker/useDiseaseOutbreakEvent";
 import { Maybe } from "../../../../utils/ts-utils";
-import { FormType } from "../../../pages/form-page/FormPage";
 import { Id } from "../../../../domain/entities/Ref";
+import { GlobalMessage } from "../../../pages/form-page/useForm";
 
-export type FormSummaryProps = {
+export type EventTrackerFormSummaryProps = {
     id: Id;
-    formType: FormType;
+    diseaseOutbreakFormType: "disease-outbreak-event";
+    diseaseOutbreakCaseDataFormType: "disease-outbreak-event-case-data";
     formSummary: Maybe<FormSummaryData>;
-    summaryError: Maybe<string>;
+    globalMessage: Maybe<GlobalMessage>;
+    onCompleteClick: () => void;
+    isCasesDataUserDefined?: boolean;
 };
 
 const ROW_COUNT = 3;
 
-export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
-    const { id, formType, formSummary, summaryError } = props;
+export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = React.memo(props => {
+    const {
+        id,
+        diseaseOutbreakCaseDataFormType,
+        diseaseOutbreakFormType,
+        formSummary,
+        onCompleteClick,
+        globalMessage,
+        isCasesDataUserDefined = false,
+    } = props;
     const { goTo } = useRoutes();
     const snackbar = useSnackbar();
 
     useEffect(() => {
-        if (!summaryError) return;
+        if (!globalMessage) return;
 
-        snackbar.error(summaryError);
+        snackbar[globalMessage.type](globalMessage.text);
         goTo(RouteName.DASHBOARD);
-    }, [summaryError, snackbar, goTo]);
+    }, [globalMessage, goTo, snackbar]);
 
-    const editButton = (
-        <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => {
-                goTo(RouteName.EDIT_FORM, { formType: formType, id: id }); //TO DO : Change to dynamic formType when available
-            }}
-            startIcon={<EditOutlined />}
-        >
-            {i18n.t("Edit Details")}
-        </Button>
+    const onEditClick = useCallback(() => {
+        goTo(RouteName.EDIT_FORM, { formType: diseaseOutbreakFormType, id: id });
+    }, [diseaseOutbreakFormType, goTo, id]);
+
+    const onEditCaseDataClick = useCallback(() => {
+        goTo(RouteName.EDIT_FORM, { formType: diseaseOutbreakCaseDataFormType, id: id });
+    }, [diseaseOutbreakCaseDataFormType, goTo, id]);
+
+    const headerButtons = (
+        <>
+            <Button
+                variant="outlined"
+                color="secondary"
+                onClick={onEditClick}
+                startIcon={<EditOutlined />}
+            >
+                {i18n.t("Edit Details")}
+            </Button>
+
+            {isCasesDataUserDefined ? (
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={onEditCaseDataClick}
+                    startIcon={<BackupIcon />}
+                >
+                    {i18n.t("Edit historical case data")}
+                </Button>
+            ) : null}
+
+            <Button
+                variant="outlined"
+                color="secondary"
+                onClick={onCompleteClick}
+                startIcon={<CheckOutlined />}
+            >
+                {i18n.t("Complete Event")}
+            </Button>
+        </>
     );
 
     const getSummaryColumn = useCallback((index: number, label: string, value: string) => {
@@ -63,9 +105,14 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
             <Section
                 title={formSummary.subTitle}
                 hasSeparator={true}
-                headerButton={editButton}
+                headerButtons={headerButtons}
                 titleVariant="secondary"
             >
+                <IncidentManagerContainer>
+                    {formSummary.incidentManager && (
+                        <UserCard selectedUser={formSummary.incidentManager} />
+                    )}
+                </IncidentManagerContainer>
                 <SummaryContainer>
                     <SummaryColumn>
                         {formSummary.summary.map((labelWithValue, index) =>
@@ -89,11 +136,6 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
                                   )
                         )}
                     </SummaryColumn>
-                    <SummaryColumn>
-                        {formSummary.incidentManager && (
-                            <UserCard selectedUser={formSummary.incidentManager} />
-                        )}
-                    </SummaryColumn>
                 </SummaryContainer>
                 <StyledType>
                     <Box fontWeight="bold" display="inline">
@@ -111,7 +153,7 @@ export const FormSummary: React.FC<FormSummaryProps> = React.memo(props => {
 const SummaryContainer = styled.div`
     display: flex;
     flex-wrap: wrap;
-    width: max-content;
+    width: 100%;
     align-items: flex-start;
     margin-top: 0rem;
     @media (max-width: 1200px) {
@@ -126,5 +168,11 @@ const SummaryColumn = styled.div`
 `;
 
 const StyledType = styled(Typography)`
+    margin-block-start: 10px;
     color: ${props => props.theme.palette.text.hint};
+    white-space: pre-line;
+`;
+
+const IncidentManagerContainer = styled.div`
+    margin-block-end: 10px;
 `;

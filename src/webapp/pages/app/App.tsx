@@ -17,6 +17,7 @@ import { HeaderBar } from "../../components/layout/header-bar/HeaderBar";
 import { D2Api } from "../../../types/d2-api";
 import "./App.css";
 import { CurrentEventTrackerContextProvider } from "../../contexts/CurrentEventTrackerProvider";
+import { ExistingEventTrackerTypesProvider } from "../../contexts/ExistingEventTrackerTypes";
 
 export interface AppProps {
     compositionRoot: CompositionRoot;
@@ -34,9 +35,19 @@ function App(props: AppProps) {
             const isShareButtonVisible = appConfig.appearance.showShareButton;
             const currentUser = await compositionRoot.users.getCurrent.execute().toPromise();
             if (!currentUser) throw new Error("User not logged in");
-            const orgUnits = await compositionRoot.orgUnits.getAll.execute().toPromise();
+
+            const configurations = await compositionRoot.diseaseOutbreakEvent.getConfigurations
+                .execute()
+                .toPromise();
+
             const isDev = process.env.NODE_ENV === "development";
-            setAppContext({ currentUser, compositionRoot, isDev, api, orgUnits });
+            setAppContext({
+                currentUser,
+                compositionRoot,
+                isDev,
+                api,
+                configurations,
+            });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
         }
@@ -61,7 +72,9 @@ function App(props: AppProps) {
                         <div id="app" className="content">
                             <AppContext.Provider value={appContext}>
                                 <CurrentEventTrackerContextProvider>
-                                    <Router />
+                                    <ExistingEventTrackerTypesProvider>
+                                        <Router />
+                                    </ExistingEventTrackerTypesProvider>
                                 </CurrentEventTrackerContextProvider>
                             </AppContext.Provider>
                         </div>

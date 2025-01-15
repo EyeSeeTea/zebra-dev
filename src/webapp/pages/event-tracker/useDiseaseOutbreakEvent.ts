@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
@@ -7,15 +7,16 @@ import {
     DiseaseOutbreakEvent,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
-    getDateAsLocaleDateString,
-    getDateAsLocaleDateTimeString,
     getDateAsMonthYearString,
+    getISODateAsLocaleDateString,
 } from "../../../data/repositories/utils/DateTimeHelper";
 
 import { User } from "../../components/user-selector/UserSelector";
 import { TableRowType } from "../../components/table/BasicTable";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
+import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
+import { GlobalMessage } from "../form-page/useForm";
 
 const EventTypeLabel = "Event type";
 const DiseaseLabel = "Disease";
@@ -31,14 +32,17 @@ export type FormSummaryData = {
     notes: string;
 };
 export function useDiseaseOutbreakEvent(id: Id) {
-    const { compositionRoot } = useAppContext();
+    const { compositionRoot, configurations } = useAppContext();
     const [formSummary, setFormSummary] = useState<FormSummaryData>();
-    const [summaryError, setSummaryError] = useState<string>();
+    const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [riskAssessmentRows, setRiskAssessmentRows] = useState<TableRowType[]>([]);
     const [eventTrackerDetails, setEventTrackerDetails] = useState<DiseaseOutbreakEvent>();
+    const [openCompleteModal, setOpenCompleteModal] = useState(false);
+    const { changeExistingEventTrackerTypes, existingEventTrackerTypes } =
+        useExistingEventTrackerTypes();
 
     useEffect(() => {
-        compositionRoot.diseaseOutbreakEvent.get.execute(id).run(
+        compositionRoot.diseaseOutbreakEvent.get.execute(id, configurations).run(
             diseaseOutbreakEvent => {
                 setFormSummary(mapDiseaseOutbreakEventToFormSummary(diseaseOutbreakEvent));
                 setRiskAssessmentRows(
@@ -48,10 +52,13 @@ export function useDiseaseOutbreakEvent(id: Id) {
             },
             err => {
                 console.debug(err);
-                setSummaryError(`Event tracker with id: ${id} does not exist`);
+                setGlobalMessage({
+                    type: "error",
+                    text: `Event tracker with id: ${id} does not exist`,
+                });
             }
         );
-    }, [compositionRoot.diseaseOutbreakEvent.get, id]);
+    }, [compositionRoot.diseaseOutbreakEvent.get, configurations, id]);
 
     const mapDiseaseOutbreakEventToFormSummary = (
         diseaseOutbreakEvent: DiseaseOutbreakEvent
@@ -72,7 +79,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
                 {
                     label: "Last updated",
                     value: diseaseOutbreakEvent.lastUpdated
-                        ? getDateAsLocaleDateTimeString(diseaseOutbreakEvent.lastUpdated)
+                        ? diseaseOutbreakEvent.lastUpdated.toString()
                         : "",
                 },
                 dataSourceLabelValue,
@@ -106,7 +113,9 @@ export function useDiseaseOutbreakEvent(id: Id) {
         if (diseaseOutbreakEvent.riskAssessment) {
             return diseaseOutbreakEvent.riskAssessment.grading.map(riskAssessmentGrading => ({
                 riskAssessmentDate: riskAssessmentGrading.lastUpdated
-                    ? getDateAsLocaleDateString(riskAssessmentGrading.lastUpdated)
+                    ? getISODateAsLocaleDateString(
+                          riskAssessmentGrading.lastUpdated.toISOString()
+                      ).toDateString()
                     : "",
                 grade: RiskAssessmentGrading.getTranslatedLabel(
                     riskAssessmentGrading.getGrade().getOrThrow()
@@ -141,5 +150,94 @@ export function useDiseaseOutbreakEvent(id: Id) {
         }
     };
 
-    return { formSummary, summaryError, riskAssessmentRows, eventTrackerDetails };
+    const orderByRiskAssessmentDate = useCallback(
+        (direction: "asc" | "desc") => {
+            setRiskAssessmentRows(prevRows => {
+                if (direction === "asc") {
+                    const sortedRows = prevRows.sort((a, b) => {
+                        if (!a.riskAssessmentDate) return -1;
+                        if (!b.riskAssessmentDate) return 1;
+
+                        const dateA = new Date(a.riskAssessmentDate).toISOString();
+                        const dateB = new Date(b.riskAssessmentDate).toISOString();
+                        return dateA < dateB ? -1 : dateA > dateB ? 1 : 0;
+                    });
+                    return sortedRows;
+                } else {
+                    const sortedRows = prevRows.sort((a, b) => {
+                        if (!a.riskAssessmentDate) return -1;
+                        if (!b.riskAssessmentDate) return -1;
+
+                        const dateA = new Date(a.riskAssessmentDate).toISOString();
+                        const dateB = new Date(b.riskAssessmentDate).toISOString();
+                        return dateA < dateB ? 1 : dateA > dateB ? -1 : 0;
+                    });
+                    return sortedRows;
+                }
+            });
+        },
+        [setRiskAssessmentRows]
+    );
+
+    const onCompleteClick = useCallback(() => {
+        if (eventTrackerDetails) {
+            compositionRoot.diseaseOutbreakEvent.complete
+                .execute(eventTrackerDetails, configurations)
+                .run(
+                    () => {
+                        const eventTrackerName =
+                            eventTrackerDetails?.hazardType ??
+                            eventTrackerDetails?.suspectedDisease?.name;
+
+                        const updatedEventTrackerTypes = existingEventTrackerTypes.filter(
+                            eventTrackerType => eventTrackerType !== eventTrackerName
+                        );
+
+                        if (eventTrackerName) {
+                            changeExistingEventTrackerTypes(updatedEventTrackerTypes);
+                        }
+
+                        setGlobalMessage({
+                            type: "success",
+                            text: `Event tracker with id: ${id} has been completed`,
+                        });
+                    },
+                    err => {
+                        console.error(err);
+                        setGlobalMessage({
+                            type: "error",
+                            text: `Failed to complete event: : ${err.message}`,
+                        });
+                    }
+                );
+        }
+    }, [
+        changeExistingEventTrackerTypes,
+        compositionRoot.diseaseOutbreakEvent.complete,
+        configurations,
+        eventTrackerDetails,
+        existingEventTrackerTypes,
+        id,
+    ]);
+
+    const onOpenCompleteModal = useCallback(
+        () => setOpenCompleteModal(true),
+        [setOpenCompleteModal]
+    );
+    const onCloseCompleteModal = useCallback(
+        () => setOpenCompleteModal(false),
+        [setOpenCompleteModal]
+    );
+
+    return {
+        formSummary,
+        globalMessage,
+        riskAssessmentRows,
+        eventTrackerDetails,
+        openCompleteModal,
+        onCloseCompleteModal,
+        onCompleteClick,
+        onOpenCompleteModal,
+        orderByRiskAssessmentDate,
+    };
 }

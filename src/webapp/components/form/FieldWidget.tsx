@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 
-import i18n from "../../../utils/i18n";
 import { TextInput } from "../text-input/TextInput";
 import { UserSelector } from "../user-selector/UserSelector";
 import { MultipleSelector } from "../selector/MultipleSelector";
@@ -9,7 +8,8 @@ import { RadioButtonsGroup } from "../radio-buttons-group/RadioButtonsGroup";
 import { TextArea } from "../text-input/TextArea";
 import { DatePicker } from "../date-picker/DatePicker";
 import { Checkbox } from "../checkbox/Checkbox";
-import { FormFieldState, updateFieldState } from "./FormFieldsState";
+import { FormFieldState, updateFieldState, SheetData } from "./FormFieldsState";
+import { ImportFile } from "../import-file/ImportFile";
 
 export type FieldWidgetProps = {
     onChange: (updatedField: FormFieldState) => void;
@@ -22,8 +22,8 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
     const { field, onChange, disabled = false, errorLabels } = props;
 
     const notifyChange = useCallback(
-        (newValue: FormFieldState["value"]) => {
-            onChange(updateFieldState(field, newValue));
+        (newValue: FormFieldState["value"], sheetsData?: SheetData[]) => {
+            onChange(updateFieldState(field, newValue, sheetsData));
         },
         [field, onChange]
     );
@@ -35,11 +35,7 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
         helperText: field.helperText,
         errorText: field.errors
             ? field.errors
-                  .map(error =>
-                      errorLabels && errorLabels[error]
-                          ? errorLabels[error]
-                          : i18n.t("There is an error in this field")
-                  )
+                  .map(error => (errorLabels && errorLabels[error] ? errorLabels[error] : error))
                   .join("\n")
             : "",
         error: field.errors && field.errors.length > 0,
@@ -97,6 +93,19 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
                     placeholder={field.placeholder}
                     selected={field.value}
                     options={field.options}
+                />
+            );
+        }
+
+        case "file": {
+            return (
+                <ImportFile
+                    {...commonProps}
+                    file={field.value}
+                    onChange={notifyChange}
+                    fileTemplate={field.fileTemplate}
+                    fileId={field.fileId}
+                    fileNameLabel={field.fileNameLabel}
                 />
             );
         }

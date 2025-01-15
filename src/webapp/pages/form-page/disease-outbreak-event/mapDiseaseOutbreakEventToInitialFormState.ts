@@ -1,6 +1,9 @@
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
-import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    CasesDataSource,
+    DataSource,
+} from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { TeamMember } from "../../../../domain/entities/incident-management-team/TeamMember";
 import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
@@ -8,9 +11,15 @@ import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
+import {
+    DiseaseNames,
+    HazardNames,
+} from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
+    casesDataSource: "casesDataSource",
+    casesDataFile: "casesDataFile",
     dataSource: "dataSource",
     hazardType: "hazardType",
     mainSyndromeCode: "mainSyndromeCode",
@@ -27,15 +36,15 @@ export const diseaseOutbreakEventFieldIds = {
     notifiedNarrative: "notifiedNarrative",
     initiateInvestigation: "initiateInvestigation",
     conductEpidemiologicalAnalysis: "conductEpidemiologicalAnalysis",
-    laboratoryConfirmationDate: "laboratoryConfirmationDate",
-    laboratoryConfirmationNA: "laboratoryConfirmationNA",
+    laboratoryConfirmation: "laboratoryConfirmation",
     appropriateCaseManagementDate: "appropriateCaseManagementDate",
     appropriateCaseManagementNA: "appropriateCaseManagementNA",
     initiatePublicHealthCounterMeasuresDate: "initiatePublicHealthCounterMeasuresDate",
     initiatePublicHealthCounterMeasuresNA: "initiatePublicHealthCounterMeasuresNA",
     initiateRiskCommunicationDate: "initiateRiskCommunicationDate",
     initiateRiskCommunicationNA: "initiateRiskCommunicationNA",
-    establishCoordination: "establishCoordination",
+    establishCoordinationNa: "establishCoordinationNa",
+    establishCoordinationDate: "establishCoordinationDate",
     responseNarrative: "responseNarrative",
     incidentManagerName: "incidentManagerName",
     notes: "notes",
@@ -57,6 +66,8 @@ export function mapTeamMemberToUser(teamMember: TeamMember): User {
 }
 type MainSectionKeys =
     | "name"
+    | "casesDataSource"
+    | "casesDataFile"
     | "dataSource"
     | "hazardType"
     | "mainSyndrome"
@@ -83,9 +94,31 @@ type ResponseActionsSubsectionKeys =
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
 export function mapDiseaseOutbreakEventToInitialFormState(
     diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
-    editMode: boolean
+    editMode: boolean,
+    existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
 ): FormState {
-    const { entity: diseaseOutbreakEvent, options } = diseaseOutbreakEventWithOptions;
+    return diseaseOutbreakEventWithOptions.type === "disease-outbreak-event"
+        ? getInitialFormStateForDiseaseOutbreakEvent(
+              diseaseOutbreakEventWithOptions,
+              editMode,
+              existingEventTrackerTypes
+          )
+        : getInitialFormStateForDiseaseOutbreakCaseData(diseaseOutbreakEventWithOptions);
+}
+
+function getInitialFormStateForDiseaseOutbreakEvent(
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
+    editMode: boolean,
+    existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
+): FormState {
+    const {
+        entity: diseaseOutbreakEvent,
+        options,
+        caseDataFileTemplete,
+        uploadedCasesDataFile,
+        uploadedCasesDataFileId,
+    } = diseaseOutbreakEventWithOptions;
+
     const {
         dataSources,
         incidentManagers,
@@ -94,15 +127,25 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         suspectedDiseases,
         notificationSources,
         incidentStatus,
+        casesDataSource,
     } = options;
 
-    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
+    //If An Event Tracker has already been created for a given suspected disease or harzd type,
+    //then do not allow to create another one. Remove it from dropwdown options
+    const filteredHazardTypes = hazardTypes.filter(hazardType => {
+        return !existingEventTrackerTypes.includes(hazardType.name as HazardNames);
+    });
+    const filteredSuspectedDiseases = suspectedDiseases.filter(suspectedDisease => {
+        return !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames);
+    });
 
+    const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
     const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
-    const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(hazardTypes);
+    const casesDataSourceOptions: PresentationOption[] = mapToPresentationOptions(casesDataSource);
+    const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(filteredHazardTypes);
     const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
     const suspectedDiseasesOptions: PresentationOption[] =
-        mapToPresentationOptions(suspectedDiseases);
+        mapToPresentationOptions(filteredSuspectedDiseases);
     const notificationSourcesOptions: PresentationOption[] =
         mapToPresentationOptions(notificationSources);
     const incidentStatusOptions: PresentationOption[] = mapToPresentationOptions(incidentStatus);
@@ -111,6 +154,9 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         diseaseOutbreakEvent?.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
     const isIBSDataSource =
         diseaseOutbreakEvent?.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS;
+    const isCasesDataUserDefined =
+        diseaseOutbreakEvent?.casesDataSource ===
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
 
     const fromIdsDictionary = (key: keyof typeof diseaseOutbreakEventFieldIds) =>
         getFieldIdFromIdsDictionary(key, diseaseOutbreakEventFieldIds);
@@ -163,31 +209,16 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: fromIdsDictionary("laboratoryConfirmationDate"),
+                    id: fromIdsDictionary("laboratoryConfirmation"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
                     type: "date",
                     value:
-                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.date ||
-                        null,
+                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation || null,
                     width: "200px",
-                    hasNotApplicable: true,
                     required: true,
                     showIsRequired: false,
-                    disabled: diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.na,
-                },
-                {
-                    id: fromIdsDictionary("laboratoryConfirmationNA"),
-                    label: i18n.t("N/A"),
-                    isVisible: true,
-                    errors: [],
-                    type: "boolean",
-                    value:
-                        diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation.na ||
-                        false,
-                    width: "65px",
-                    notApplicableFieldId: fromIdsDictionary("laboratoryConfirmationDate"),
                 },
             ],
         },
@@ -309,15 +340,31 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             required: true,
             fields: [
                 {
-                    id: fromIdsDictionary("establishCoordination"),
+                    id: fromIdsDictionary("establishCoordinationDate"),
                     label: "Date Completed",
                     isVisible: true,
                     errors: [],
                     type: "date",
-                    value: diseaseOutbreakEvent?.earlyResponseActions.establishCoordination || null,
+                    value:
+                        diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.date ||
+                        null,
                     width: "200px",
+                    hasNotApplicable: true,
                     required: true,
                     showIsRequired: false,
+                    disabled: diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.na,
+                },
+                {
+                    id: fromIdsDictionary("establishCoordinationNa"),
+                    label: i18n.t("N/A"),
+                    isVisible: true,
+                    errors: [],
+                    type: "boolean",
+                    value:
+                        diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.na ||
+                        false,
+                    width: "65px",
+                    notApplicableFieldId: fromIdsDictionary("establishCoordinationDate"),
                 },
             ],
         },
@@ -356,6 +403,58 @@ export function mapDiseaseOutbreakEventToInitialFormState(
                     multiline: false,
                     required: true,
                     showIsRequired: false,
+                },
+            ],
+        },
+        casesDataSource: {
+            title: "Cases Data Source",
+            id: "casesDataSource_section",
+            isVisible: true,
+            required: true,
+            fields: [
+                {
+                    id: fromIdsDictionary("casesDataSource"),
+                    placeholder: "Select the cases data source",
+                    isVisible: true,
+                    errors: [],
+                    type: "select",
+                    multiple: false,
+                    options: casesDataSourceOptions,
+                    value: diseaseOutbreakEvent?.casesDataSource || "",
+                    width: "300px",
+                    required: true,
+                    showIsRequired: false,
+                    disabled: editMode && isCasesDataUserDefined,
+                },
+            ],
+        },
+        casesDataFile: {
+            title: "Cases Data File",
+            id: "casesDataFile_section",
+            isVisible: isCasesDataUserDefined,
+            required: true,
+            fields: [
+                {
+                    id: fromIdsDictionary("casesDataFile"),
+                    isVisible: isCasesDataUserDefined,
+                    errors: [],
+                    type: "file",
+                    value: isCasesDataUserDefined ? uploadedCasesDataFile : undefined,
+                    required: true,
+                    showIsRequired: false,
+                    data: undefined,
+                    fileId: isCasesDataUserDefined ? uploadedCasesDataFileId : undefined,
+                    fileTemplate: caseDataFileTemplete,
+                    fileNameLabel:
+                        isCasesDataUserDefined && uploadedCasesDataFileId
+                            ? i18n.t("HISTORICAL_CASE_DATA")
+                            : undefined,
+                    helperText:
+                        editMode && isCasesDataUserDefined
+                            ? i18n.t(
+                                  "In order to add or replace cases, you need to download the current file and add the new ones."
+                              )
+                            : i18n.t("Please, download the template and add the required data."),
                 },
             ],
         },
@@ -636,10 +735,12 @@ export function mapDiseaseOutbreakEventToInitialFormState(
         isValid: false,
         sections: [
             mainSections.name,
+            mainSections.casesDataSource,
+            mainSections.casesDataFile,
             mainSections.dataSource,
             mainSections.hazardType,
-            mainSections.mainSyndrome,
             mainSections.suspectedDisease,
+            mainSections.mainSyndrome,
             mainSections.notificationSource,
             mainSections.incidentStatus,
             mainSections.dateEmerged,
@@ -648,6 +749,53 @@ export function mapDiseaseOutbreakEventToInitialFormState(
             mainSections.responseActions,
             mainSections.incidentManager,
             mainSections.notes,
+        ],
+    };
+}
+
+function getInitialFormStateForDiseaseOutbreakCaseData(
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData
+): FormState {
+    const {
+        entity: diseaseOutbreakEvent,
+        caseDataFileTemplete,
+        uploadedCasesDataFile,
+        uploadedCasesDataFileId,
+    } = diseaseOutbreakEventWithOptions;
+
+    return {
+        id: diseaseOutbreakEvent?.id || "",
+        title: "Event cases data",
+        saveButtonLabel: "Save",
+        isValid: false,
+        sections: [
+            {
+                title: "Cases Data File",
+                id: "casesDataFile_section",
+                isVisible: true,
+                required: true,
+                fields: [
+                    {
+                        id: "casesDataFile",
+                        isVisible: true,
+                        errors: [],
+                        type: "file",
+                        value: uploadedCasesDataFile,
+                        required: true,
+                        showIsRequired: false,
+                        data: undefined,
+                        fileId: uploadedCasesDataFileId,
+                        fileTemplate: caseDataFileTemplete,
+                        fileNameLabel: uploadedCasesDataFileId
+                            ? i18n.t("HISTORICAL_CASE_DATA")
+                            : undefined,
+
+                        helperText: i18n.t(
+                            "In order to add or replace cases, you need to download the current file and add the new ones."
+                        ),
+                    },
+                ],
+            },
         ],
     };
 }

@@ -12,10 +12,21 @@ type SimpleModalProps = {
     open: boolean;
     onClose: () => void;
     closeLabel?: string;
+    alignFooterButtons?: "start" | "center" | "end";
+    buttonDirection?: "row" | "column" | "row-reverse" | "column-reverse";
 };
 
 export const SimpleModal: React.FC<SimpleModalProps> = React.memo(
-    ({ children, footerButtons, closeLabel, open = false, onClose, title }) => {
+    ({
+        alignFooterButtons,
+        buttonDirection,
+        children,
+        footerButtons,
+        closeLabel,
+        open = false,
+        onClose,
+        title,
+    }) => {
         return (
             <Modal
                 aria-labelledby={`modal-${title}`}
@@ -31,7 +42,10 @@ export const SimpleModal: React.FC<SimpleModalProps> = React.memo(
                         <StyledCardContent>{children}</StyledCardContent>
                     </Content>
 
-                    <Footer>
+                    <Footer
+                        alignFooterButtons={alignFooterButtons}
+                        buttonDirection={buttonDirection}
+                    >
                         {footerButtons ?? null}
                         <Button variant="outlined" color="secondary" onClick={onClose}>
                             {closeLabel ? closeLabel : i18n.t("Close")}
@@ -56,10 +70,12 @@ const Title = styled.span`
     font-weight: 500;
 `;
 
-const Footer = styled.div`
+const Footer = styled.div<{ alignFooterButtons?: string; buttonDirection?: string }>`
     display: flex;
     margin-block-start: 16px;
     gap: 8px;
+    justify-content: ${props => props.alignFooterButtons};
+    flex-direction: ${props => props.buttonDirection};
 `;
 
 const StyledCard = styled(Card)`
