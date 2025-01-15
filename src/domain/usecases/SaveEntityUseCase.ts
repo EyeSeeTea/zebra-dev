@@ -18,6 +18,7 @@ import { Configurations } from "../entities/AppConfigurations";
 import moment from "moment";
 import { CasesFileRepository } from "../repositories/CasesFileRepository";
 import { ResourceRepository } from "../repositories/ResourceRepository";
+import { ResourceFileRepository } from "../repositories/ResourceFileRepository";
 
 export class SaveEntityUseCase {
     constructor(
@@ -30,6 +31,7 @@ export class SaveEntityUseCase {
             roleRepository: RoleRepository;
             casesFileRepository: CasesFileRepository;
             resourceRepository: ResourceRepository;
+            resourceFileRepository: ResourceFileRepository;
         }
     ) {}
 
@@ -150,8 +152,19 @@ export class SaveEntityUseCase {
                     );
                 }
             }
-            case "resource":
-                return this.options.resourceRepository.saveResource(formData);
+            case "resource": {
+                const { uploadedResourceFile } = formData;
+                if (!uploadedResourceFile) return Future.error(new Error("No file uploaded"));
+
+                return this.options.resourceFileRepository
+                    .uploadFile(uploadedResourceFile)
+                    .flatMap(resourceFileId => {
+                        return this.options.resourceRepository.saveResource({
+                            ...formData,
+                            uploadedResourceFileId: resourceFileId,
+                        });
+                    });
+            }
             default:
                 return Future.error(new Error("Form type not supported"));
         }

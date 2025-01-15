@@ -6,7 +6,6 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
 import { ResourceFormData } from "../../domain/entities/ConfigurableForm";
 import { Id } from "../../domain/entities/Ref";
-import _c from "../../domain/entities/generic/Collection";
 
 const RESOURCES_KEY = "resources";
 
@@ -24,21 +23,19 @@ export class ResourceD2Repository implements ResourceRepository {
     }
 
     saveResource(formData: ResourceFormData): FutureData<void> {
-        const { entity: resource, uploadedResourceFile } = formData;
+        const { entity: resource, uploadedResourceFileId } = formData;
 
-        if (!resource) throw new Error("No resource form data found");
-        if (!uploadedResourceFile) return Future.error(new Error("No file uploaded"));
+        if (!resource) return Future.error(new Error("No resource form data found"));
+        if (!uploadedResourceFileId) return Future.error(new Error("No resource file id found"));
 
         return this.getAllResources().flatMap(resourcesInDataStore => {
-            return this.uploadFile(uploadedResourceFile).flatMap(resourceFileId => {
-                const updatedResources = this.getResourcesToSave(
-                    resourcesInDataStore,
-                    resource,
-                    resourceFileId
-                );
+            const updatedResources = this.getResourcesToSave(
+                resourcesInDataStore,
+                resource,
+                uploadedResourceFileId
+            );
 
-                return this.dataStoreClient.saveObject<Resource[]>(RESOURCES_KEY, updatedResources);
-            });
+            return this.dataStoreClient.saveObject<Resource[]>(RESOURCES_KEY, updatedResources);
         });
     }
 
@@ -56,15 +53,6 @@ export class ResourceD2Repository implements ResourceRepository {
               )
             : [...resourcesInDataStore, resourceWithFileId];
         return updatedResources;
-    }
-
-    private uploadFile(file: File): FutureData<Id> {
-        return apiToFuture(
-            this.api.files.upload({
-                name: file.name,
-                data: file,
-            })
-        ).flatMap(fileResource => Future.success(fileResource.id));
     }
 
     deleteResource(fileId: Id): FutureData<void> {

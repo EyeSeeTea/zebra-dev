@@ -8,6 +8,15 @@ import { ResourceFileRepository } from "../../domain/repositories/ResourceFileRe
 export class ResourceFileD2Repository implements ResourceFileRepository {
     constructor(private api: D2Api) {}
 
+    uploadFile(file: File): FutureData<Id> {
+        return apiToFuture(
+            this.api.files.upload({
+                name: file.name,
+                data: file,
+            })
+        ).flatMap(fileResource => Future.success(fileResource.id));
+    }
+
     downloadFile(fileId: Id): FutureData<ResourceFile> {
         if (!fileId) return Future.error(new Error("No file id found"));
 

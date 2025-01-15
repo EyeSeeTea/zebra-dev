@@ -5,6 +5,10 @@ import { ResourceFileRepository } from "../../../domain/repositories/ResourceFil
 import { ResourceFile } from "../../../domain/entities/resources/ResourceFile";
 
 export class ResourceFileTestRepository implements ResourceFileRepository {
+    uploadFile(_file: File): FutureData<Id> {
+        return Future.success("test-file-id");
+    }
+
     downloadFile(fileId: Id): FutureData<ResourceFile> {
         return Future.success({
             fileId: fileId,
