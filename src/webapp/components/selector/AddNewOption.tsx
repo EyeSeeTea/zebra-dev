@@ -31,7 +31,7 @@ export const AddNewOption: React.FC<AddNewOptionProps> = React.memo(
                     }}
                 />
 
-                <Button onClick={onAddNewOption}>Add</Button>
+                <Button onClick={onAddNewOption}>{i18n.t("Add")}</Button>
             </>
         );
     }
