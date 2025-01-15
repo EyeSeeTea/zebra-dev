@@ -2,7 +2,7 @@ import { D2Api } from "../../types/d2-api";
 import { ResourceRepository } from "../../domain/repositories/ResourceRepository";
 import { DataStoreClient } from "../DataStoreClient";
 import { isExistingResource, Resource } from "../../domain/entities/resources/Resource";
-import { apiToFuture, FutureData } from "../api-futures";
+import { FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
 import { ResourceFormData } from "../../domain/entities/ConfigurableForm";
 import { Id } from "../../domain/entities/Ref";
@@ -56,21 +56,12 @@ export class ResourceD2Repository implements ResourceRepository {
     }
 
     deleteResource(fileId: Id): FutureData<void> {
-        return apiToFuture(this.api.files.delete(fileId)).flatMap(response => {
-            if (response.httpStatus === "OK") {
-                return this.getAllResources().flatMap(resources => {
-                    const updatedResources = resources.filter(
-                        resource => resource.resourceFileId !== fileId
-                    );
+        return this.getAllResources().flatMap(resources => {
+            const updatedResources = resources.filter(
+                resource => resource.resourceFileId !== fileId
+            );
 
-                    return this.dataStoreClient.saveObject<Resource[]>(
-                        RESOURCES_KEY,
-                        updatedResources
-                    );
-                });
-            } else {
-                return Future.error(new Error("Error while deleting resource file"));
-            }
+            return this.dataStoreClient.saveObject<Resource[]>(RESOURCES_KEY, updatedResources);
         });
     }
 }

@@ -31,4 +31,11 @@ export class ResourceFileD2Repository implements ResourceFileRepository {
                 })
             );
     }
+
+    deleteResourceFile(fileId: Id): FutureData<void> {
+        return apiToFuture(this.api.files.delete(fileId)).flatMap(response => {
+            if (response.httpStatus === "OK") return Future.success(undefined);
+            else return Future.error(new Error("Error while deleting resource file"));
+        });
+    }
 }

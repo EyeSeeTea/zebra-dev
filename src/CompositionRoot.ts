@@ -168,7 +168,7 @@ function getCompositionRoot(repositories: Repositories) {
             downloadResourceFile: new DownloadResourceFileUseCase(
                 repositories.resourceFileRepository
             ),
-            deleteResourceFile: new DeleteResourceFileUseCase(repositories.resourceRepository),
+            deleteResourceFile: new DeleteResourceFileUseCase(repositories),
             getPermissions: new GetResourceUserPermissionsUseCase(
                 repositories.resourcePermissionsRepository
             ),

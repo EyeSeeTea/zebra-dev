@@ -15,4 +15,8 @@ export class ResourceFileTestRepository implements ResourceFileRepository {
             file: new File(["test"], "test.txt", { type: "text/plain" }),
         });
     }
+
+    deleteResourceFile(_fileId: Id): FutureData<void> {
+        return Future.success(undefined);
+    }
 }
