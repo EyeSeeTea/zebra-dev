@@ -66,6 +66,7 @@ export function useAlertsPerformanceOverview(): State {
     const {
         compositionRoot,
         configurations: { teamMembers },
+        currentUser,
     } = useAppContext();
     const [isLoading, setIsLoading] = useState(true);
 
@@ -146,7 +147,18 @@ export function useAlertsPerformanceOverview(): State {
                     mapEntityToTableData(data, teamMembers.all)
                 );
 
-                setAlertsDataPerformanceOverview(tableData);
+                const dataSortedByCurrentUser = tableData.sort((a, b) => {
+                    const isCurrentUserA = a.incidentManagerUsername === currentUser.username;
+                    const isCurrentUserB = b.incidentManagerUsername === currentUser.username;
+
+                    if (isCurrentUserA === isCurrentUserB) {
+                        return 0;
+                    }
+
+                    return isCurrentUserA ? -1 : 1;
+                });
+
+                setAlertsDataPerformanceOverview(dataSortedByCurrentUser);
                 setIsLoading(false);
             },
             error => {
@@ -159,6 +171,7 @@ export function useAlertsPerformanceOverview(): State {
         mapEntityToTableData,
         setAlertsDataPerformanceOverview,
         teamMembers.all,
+        currentUser.username,
     ]);
 
     return {

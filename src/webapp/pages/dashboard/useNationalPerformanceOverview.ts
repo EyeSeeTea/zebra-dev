@@ -70,6 +70,7 @@ export function useNationalPerformanceOverview(): State {
     const {
         compositionRoot,
         configurations: { teamMembers },
+        currentUser,
     } = useAppContext();
 
     const { changeExistingEventTrackerTypes } = useExistingEventTrackerTypes();
@@ -185,7 +186,17 @@ export function useNationalPerformanceOverview(): State {
                     (data: PerformanceOverviewMetrics) =>
                         mapEntityToTableData(data, teamMembers.all)
                 );
-                setDataPerformanceOverview(mappedData);
+                const dataSortedByCurrentUser = mappedData.sort((a, b) => {
+                    const isCurrentUserA = a.incidentManagerUsername === currentUser.username;
+                    const isCurrentUserB = b.incidentManagerUsername === currentUser.username;
+
+                    if (isCurrentUserA === isCurrentUserB) {
+                        return 0;
+                    }
+
+                    return isCurrentUserA ? -1 : 1;
+                });
+                setDataPerformanceOverview(dataSortedByCurrentUser);
                 setIsLoading(false);
             },
             error => {
@@ -196,6 +207,7 @@ export function useNationalPerformanceOverview(): State {
     }, [
         changeExistingEventTrackerTypes,
         compositionRoot.performanceOverview.getNationalPerformanceOverviewMetrics,
+        currentUser.username,
         mapEntityToTableData,
         setDataPerformanceOverview,
         teamMembers.all,
