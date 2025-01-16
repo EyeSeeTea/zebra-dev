@@ -35,7 +35,7 @@ import { MapConfigTestRepository } from "./data/repositories/test/MapConfigTestR
 import { GetMapConfigUseCase } from "./domain/usecases/GetMapConfigUseCase";
 import { GetProvincesOrgUnits } from "./domain/usecases/GetProvincesOrgUnits";
 import { PerformanceOverviewRepository } from "./domain/repositories/PerformanceOverviewRepository";
-import { GetAllPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllPerformanceOverviewMetricsUseCase";
+import { GetAllNationalPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllNationalPerformanceOverviewMetricsUseCase";
 import { PerformanceOverviewD2Repository } from "./data/repositories/PerformanceOverviewD2Repository";
 import { PerformanceOverviewTestRepository } from "./data/repositories/test/PerformanceOverviewTestRepository";
 import { AlertSyncDataStoreRepository } from "./data/repositories/AlertSyncDataStoreRepository";
@@ -73,6 +73,7 @@ import { CasesFileTestRepository } from "./data/repositories/test/CasesFileTestR
 import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository";
 import { UserGroupRepository } from "./domain/repositories/UserGroupRepository";
 import { UserGroupTestRepository } from "./data/repositories/test/UserGroupTestRepository";
+import { GetAllAlertsPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllAlertsPerformanceOverviewMetricsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -128,7 +129,9 @@ function getCompositionRoot(repositories: Repositories) {
                 new DeleteIncidentManagementTeamMemberRolesUseCase(repositories),
         },
         performanceOverview: {
-            getPerformanceOverviewMetrics: new GetAllPerformanceOverviewMetricsUseCase(
+            getNationalPerformanceOverviewMetrics:
+                new GetAllNationalPerformanceOverviewMetricsUseCase(repositories),
+            getAlertsPerformanceOverviewMetrics: new GetAllAlertsPerformanceOverviewMetricsUseCase(
                 repositories
             ),
             getTotalCardCounts: new GetTotalCardCountsUseCase(repositories),

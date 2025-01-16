@@ -24,7 +24,7 @@ import {
 } from "./incident-action/mapIncidentActionToInitialFormState";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { useCheckWritePermission } from "../../hooks/useHasCurrentUserCaptureAccess";
-import { usePerformanceOverview } from "../dashboard/usePerformanceOverview";
+import { useNationalPerformanceOverview } from "../dashboard/useNationalPerformanceOverview";
 import { useIncidentActionPlan } from "../incident-action-plan/useIncidentActionPlan";
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { ModalData } from "../../components/form/Form";
@@ -73,7 +73,7 @@ export function useForm(formType: FormType, id?: Id): State {
     const { getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
     const { existingEventTrackerTypes } = useExistingEventTrackerTypes();
-    const { dataPerformanceOverview } = usePerformanceOverview();
+    const { dataNationalPerformanceOverview } = useNationalPerformanceOverview();
     const { isIncidentManager } = useIncidentActionPlan(currentEventTracker?.id ?? "");
     const snackbar = useSnackbar();
     useCheckWritePermission(formType);
@@ -96,7 +96,7 @@ export function useForm(formType: FormType, id?: Id): State {
         setModalData,
     });
 
-    const allDataPerformanceEvents = dataPerformanceOverview?.map(
+    const allDataPerformanceEvents = dataNationalPerformanceOverview?.map(
         event => event.hazardType || event.suspectedDisease
     );
 
