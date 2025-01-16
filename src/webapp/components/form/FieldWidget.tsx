@@ -10,6 +10,7 @@ import { DatePicker } from "../date-picker/DatePicker";
 import { Checkbox } from "../checkbox/Checkbox";
 import { FormFieldState, updateFieldState, SheetData } from "./FormFieldsState";
 import { ImportFile } from "../import-file/ImportFile";
+import MarkdownEditor from "../markdown-editor/MarkdownEditor";
 
 export type FieldWidgetProps = {
     onChange: (updatedField: FormFieldState) => void;
@@ -78,6 +79,9 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
             ) : (
                 <TextInput {...commonProps} value={field.value} />
             );
+
+        case "markdown":
+            return <MarkdownEditor {...commonProps} value={field.value} />;
 
         case "date":
             return <DatePicker {...commonProps} value={field.value} />;
