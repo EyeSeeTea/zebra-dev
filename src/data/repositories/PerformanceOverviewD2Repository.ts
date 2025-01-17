@@ -2,7 +2,11 @@ import { Maybe } from "../../utils/ts-utils";
 import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { PerformanceOverviewRepository } from "../../domain/repositories/PerformanceOverviewRepository";
 import { apiToFuture, FutureData } from "../api-futures";
-import { RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
+import {
+    RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+    RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID,
+    RTSL_ZEBRA_PROGRAM_ID,
+} from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
@@ -33,6 +37,13 @@ import {
     ProgramIndicatorsDatastore,
     ProgramIndicatorsDatastoreKey,
 } from "./common/getProgramIndicatorsFromDatastore";
+import { AlertsPerformanceOverviewMetrics } from "../../domain/entities/alert/AlertsPerformanceOverviewMetrics";
+import {
+    AlertsPerformanceOverviewDimensions,
+    AlertsPerformanceOverviewDimensionsKey,
+    AlertsPerformanceOverviewDimensionsValue,
+} from "./consts/AlertsPerformanceOverviewConstants";
+import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -55,6 +66,8 @@ const EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
 const ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "alerts-717-performance-program-indicators";
 const PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY = "performance-overview-dimensions";
+const ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY =
+    "alerts-performance-overview-dimensions";
 
 type EventTrackerOverviewInDataStore = {
     key: string;
@@ -429,7 +442,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         );
     }
 
-    getPerformanceOverviewMetrics(
+    getNationalPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]> {
         return this.datastore
@@ -542,7 +555,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 const metrics = {
                                                     id: event.id,
                                                     event: event.name,
-                                                    manager: event.incidentManagerName,
+                                                    incidentManagerUsername:
+                                                        event.incidentManagerName,
                                                     duration: duration,
                                                     nationalIncidentStatus: event.incidentStatus,
                                                     cases: currentCases?.value || "",
@@ -553,7 +567,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 const metrics = {
                                                     ...baseIndicator,
                                                     nationalIncidentStatus: event.incidentStatus,
-                                                    manager: event.incidentManagerName,
+                                                    incidentManagerUsername:
+                                                        event.incidentManagerName,
                                                     duration: duration,
                                                     cases: currentCases?.value || "",
                                                     deaths: currentDeaths?.value || "",
@@ -566,6 +581,109 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 });
                             }
                         );
+                    });
+                });
+            });
+    }
+
+    getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.datastore
+            .getObject<AlertsPerformanceOverviewDimensions>(
+                ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
+            )
+            .flatMap(nullablePerformanceOverviewDimensions => {
+                return assertOrError(
+                    nullablePerformanceOverviewDimensions,
+                    ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
+                ).flatMap(performanceOverviewDimensions => {
+                    return apiToFuture(
+                        this.api.get<AnalyticsResponse>(
+                            `/analytics/enrollments/query/${RTSL_ZEBRA_ALERTS_PROGRAM_ID}`,
+                            {
+                                dimension: [
+                                    performanceOverviewDimensions.eventEBSId,
+                                    performanceOverviewDimensions.eventIBSId,
+                                    performanceOverviewDimensions.nationalDiseaseOutbreakEventId,
+                                    performanceOverviewDimensions.hazardType,
+                                    performanceOverviewDimensions.suspectedDisease,
+                                    performanceOverviewDimensions.cases,
+                                    performanceOverviewDimensions.deaths,
+                                    performanceOverviewDimensions.notify1d,
+                                    performanceOverviewDimensions.detect7d,
+                                    performanceOverviewDimensions.incidentManager,
+                                    performanceOverviewDimensions.respond7d,
+                                    performanceOverviewDimensions.incidentStatus,
+                                    performanceOverviewDimensions.emergedDate,
+                                ],
+                                startDate: DEFAULT_START_DATE,
+                                endDate: DEFAULT_END_DATE,
+                                paging: false,
+                                programStatus: "ACTIVE",
+                                filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED`,
+                            }
+                        )
+                    ).flatMap(response => {
+                        const mappedIndicators: AlertsPerformanceOverviewMetrics[] =
+                            response.rows.map((row: string[]) => {
+                                return Object.keys(performanceOverviewDimensions).reduce(
+                                    (acc, dimensionKey) => {
+                                        const dimension: AlertsPerformanceOverviewDimensionsValue =
+                                            performanceOverviewDimensions[
+                                                dimensionKey as AlertsPerformanceOverviewDimensionsKey
+                                            ];
+
+                                        const index = response.headers.findIndex(
+                                            header => header.name === dimension
+                                        );
+                                        if (dimension === "enrollmentdate") {
+                                            const inputDate = row[index];
+                                            const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
+                                            return {
+                                                ...acc,
+                                                [dimensionKey]: formattedDate,
+                                            };
+                                        } else if (dimensionKey === "emergedDate") {
+                                            const duration = row[index]
+                                                ? `${moment()
+                                                      .diff(moment(row[index]), "days")
+                                                      .toString()}d`
+                                                : "";
+
+                                            return {
+                                                ...acc,
+                                                duration: duration,
+                                            };
+                                        } else if (dimension === "ounamehierarchy") {
+                                            const hierarchyArray = row[index]?.split("/");
+                                            return {
+                                                ...acc,
+                                                province:
+                                                    (hierarchyArray && hierarchyArray.length > 1
+                                                        ? hierarchyArray[1]
+                                                        : row[index]) || "",
+                                                orgUnitType:
+                                                    hierarchyArray && hierarchyArray.length > 0
+                                                        ? orgUnitLevelTypeByLevelNumber[
+                                                              hierarchyArray.length
+                                                          ] || "National"
+                                                        : "National",
+                                            };
+                                        } else {
+                                            const nameValue = Object.values(
+                                                response.metaData.items
+                                            ).find(item => item.code === row[index])?.name;
+
+                                            return {
+                                                ...acc,
+                                                [dimensionKey]: nameValue || row[index],
+                                            };
+                                        }
+                                    },
+                                    {} as AlertsPerformanceOverviewMetrics
+                                );
+                            });
+
+                        return Future.success(mappedIndicators);
                     });
                 });
             });
@@ -803,6 +921,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     acc.respond7d = row[index];
                     break;
 
+                case "date": {
+                    const inputDate = row[index];
+                    const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
+                    acc.date = formattedDate;
+                    break;
+                }
                 default:
                     acc[key] = row[index];
                     break;
