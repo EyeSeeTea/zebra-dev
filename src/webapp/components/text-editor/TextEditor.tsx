@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import ReactMde from "react-mde";
-import "react-mde/lib/styles/css/react-mde-all.css";
-import styled from "styled-components";
 import { FormHelperText, InputLabel } from "@material-ui/core";
-import MarkdownPreview from "./MarkdownPreview";
+import React from "react";
+import ReactQuill from "react-quill";
+import styled from "styled-components";
+import "react-quill/dist/quill.snow.css";
 
-type MarkdownEditorProps = {
+type TextEditorProps = {
     id: string;
     label?: string;
     value: string;
@@ -13,10 +12,11 @@ type MarkdownEditorProps = {
     helperText?: string;
     errorText?: string;
     required?: boolean;
+    disabled?: boolean;
     error?: boolean;
 };
 
-const MarkdownEditor: React.FC<MarkdownEditorProps> = React.memo(
+export const TextEditor: React.FC<TextEditorProps> = React.memo(
     ({
         id,
         label,
@@ -25,45 +25,58 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = React.memo(
         helperText = "",
         errorText = "",
         required = false,
+        disabled = false,
         error = false,
     }) => {
-        const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
-
         return (
-            <MarkdownEditorContainer>
+            <TextEditorContainer>
                 {label && (
                     <Label className={required ? "required" : ""} htmlFor={id}>
                         {label}
                     </Label>
                 )}
 
-                <ReactMde
+                <ReactQuill
                     value={value}
                     onChange={onChange}
-                    selectedTab={selectedTab}
-                    onTabChange={setSelectedTab}
-                    generateMarkdownPreview={markdown =>
-                        Promise.resolve(<MarkdownPreview value={markdown} />)
-                    }
-                    toolbarCommands={[
-                        ["bold", "italic"],
-                        ["unordered-list", "ordered-list"],
-                        ["link", "code"],
-                    ]}
+                    modules={{ toolbar: toolbarOptions }}
+                    formats={formats}
+                    readOnly={disabled}
                 />
 
                 <StyledFormHelperText id={`${id}-helper-text`} error={error && !!errorText}>
-                    {error && !!errorText ? errorText : helperText}
+                    {error && !!errorText ? errorText : helperText}{" "}
                 </StyledFormHelperText>
-            </MarkdownEditorContainer>
+            </TextEditorContainer>
         );
     }
 );
 
-export default MarkdownEditor;
+export const TextPreview: React.FC<{
+    value: string;
+}> = React.memo(({ value }) => {
+    return <StyledTextEditor value={value} modules={{ toolbar: false }} readOnly={true} />;
+});
 
-const MarkdownEditorContainer = styled.div`
+const StyledTextEditor = styled(ReactQuill)`
+    .ql-editor {
+        line-height: 2;
+    }
+    .ql-container {
+        border: none;
+        font-size: 16px;
+    }
+`;
+
+const TextEditorContainer = styled.div`
     width: 100%;
+    .ql-editor {
+        line-height: 2;
+
+        p {
+            margin: 8px;
+        }
+    }
 `;
 
 const Label = styled(InputLabel)`
@@ -84,3 +97,13 @@ const StyledFormHelperText = styled(FormHelperText)<{ error?: boolean }>`
     color: ${props =>
         props.error ? props.theme.palette.common.red700 : props.theme.palette.common.grey700};
 `;
+
+const toolbarOptions = [
+    [{ bold: true }, { italic: true }, { underline: true }],
+    [{ size: ["small", false, "large", "huge"] }],
+    [{ color: [] }],
+    [{ align: [] }],
+    [{ list: "ordered" }, { list: "bullet" }],
+];
+
+const formats = ["bold", "italic", "underline", "size", "color", "align", "list", "bullet"];

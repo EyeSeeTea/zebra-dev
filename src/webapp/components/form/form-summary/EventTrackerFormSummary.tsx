@@ -15,7 +15,7 @@ import { FormSummaryData } from "../../../pages/event-tracker/useDiseaseOutbreak
 import { Maybe } from "../../../../utils/ts-utils";
 import { Id } from "../../../../domain/entities/Ref";
 import { GlobalMessage } from "../../../pages/form-page/useForm";
-import MarkdownPreview from "../../markdown-editor/MarkdownPreview";
+import { TextPreview } from "../../text-editor/TextEditor";
 
 export type EventTrackerFormSummaryProps = {
     id: Id;
@@ -142,7 +142,7 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
                     <Box fontWeight="bold" display="inline">
                         {i18n.t("Notes")}:
                     </Box>{" "}
-                    <MarkdownPreview value={formSummary.notes} />
+                    <TextPreview value={formSummary.notes} />
                 </StyledType>
             </Section>
         </>

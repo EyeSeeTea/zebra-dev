@@ -192,7 +192,7 @@ export function mapIncidentActionPlanToInitialFormState(
                     id: `${actionPlanConstants.responseActivitiesNarrative}-section`,
                     isVisible: true,
                     errors: [],
-                    type: "markdown",
+                    type: "text-editor",
                     value: incidentActionPlan?.responseActivitiesNarrative || "",
                 },
             ],

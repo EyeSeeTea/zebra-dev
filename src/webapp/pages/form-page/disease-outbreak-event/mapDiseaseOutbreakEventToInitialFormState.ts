@@ -720,7 +720,7 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     id: fromIdsDictionary("notes"),
                     isVisible: true,
                     errors: [],
-                    type: "markdown",
+                    type: "text-editor",
                     value: diseaseOutbreakEvent?.notes || "",
                 },
             ],

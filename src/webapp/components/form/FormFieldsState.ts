@@ -16,7 +16,7 @@ export type FieldType =
     | "user"
     | "addNew"
     | "file"
-    | "markdown";
+    | "text-editor";
 
 type FormFieldStateBase<T> = {
     id: string;
@@ -81,8 +81,8 @@ export type FormFileFieldState = FormFieldStateBase<Maybe<File>> & {
     fileNameLabel?: string;
 };
 
-export type FormMarkdownFieldState = FormFieldStateBase<string> & {
-    type: "markdown";
+export type FormTextEditorFieldState = FormFieldStateBase<string> & {
+    type: "text-editor";
 };
 
 export type AddNewFieldState = FormFieldStateBase<null> & {
@@ -97,7 +97,7 @@ export type FormFieldState =
     | FormDateFieldState
     | FormAvatarFieldState
     | FormFileFieldState
-    | FormMarkdownFieldState;
+    | FormTextEditorFieldState;
 
 // HELPERS:
 
@@ -166,7 +166,7 @@ export function getFieldIdFromIdsDictionary<T extends Record<string, string>>(
 export function getFieldWithEmptyValue(field: FormFieldState): FormFieldState {
     switch (field.type) {
         case "text":
-        case "markdown":
+        case "text-editor":
             return { ...field, value: "" };
         case "boolean":
             return { ...field, value: false };

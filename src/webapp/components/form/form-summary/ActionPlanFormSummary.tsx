@@ -14,7 +14,7 @@ import {
     IncidentActionSummary,
 } from "../../../pages/incident-action-plan/useIncidentActionPlan";
 import { Maybe } from "../../../../utils/ts-utils";
-import MarkdownPreview from "../../markdown-editor/MarkdownPreview";
+import { TextPreview } from "../../text-editor/TextEditor";
 
 type ActionPlanFormSummaryProps = {
     id: Id;
@@ -54,17 +54,18 @@ export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React
         const { field, label, value } = incidentActionSummary;
 
         switch (field) {
-            case "responseStrategies":
+            case "responseActivitiesNarrative":
                 return (
-                    <>
+                    <Typography key={field}>
                         <Box fontWeight="bold">{i18n.t(label)}:</Box>
-                        <MarkdownPreview value={value} />
-                    </>
+                        <TextPreview value={value} />
+                    </Typography>
                 );
             default:
                 return (
                     <Typography key={field}>
-                        <Box fontWeight="bold">{i18n.t(label)}:</Box> {i18n.t(value)}
+                        <Box fontWeight="bold">{i18n.t(label)}:</Box>
+                        {i18n.t(value)}
                     </Typography>
                 );
         }
