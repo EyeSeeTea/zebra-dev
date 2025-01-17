@@ -1,44 +1,39 @@
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
-import { AlertOptions } from "../../../domain/repositories/AlertRepository";
 import { alertOutbreakCodes } from "../consts/AlertConstants";
 import { getValueFromMap } from "./DiseaseOutbreakMapper";
+import { NotificationOptions } from "../../../domain/repositories/NotificationRepository";
+import { OutbreakDataType } from "../../../domain/entities/alert/OutbreakAlert";
+import { Id } from "../../../domain/entities/Ref";
 import {
-    dataSourceMap,
-    diseaseOutbreakCodes,
-    incidentStatusMap,
+    RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
+    RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
 } from "../consts/DiseaseOutbreakConstants";
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertVerificationStatus } from "../../../domain/entities/alert/Alert";
 
-export function mapTrackedEntityAttributesToAlertOptions(
-    nationalTrackedEntity: D2TrackerTrackedEntity,
-    alertTrackedEntity: D2TrackerTrackedEntity
-): AlertOptions {
-    if (!nationalTrackedEntity.trackedEntity) throw new Error("Tracked entity not found");
+export function mapTrackedEntityAttributesToNotificationOptions(
+    trackedEntity: D2TrackerTrackedEntity
+): NotificationOptions {
+    const verificationStatus = getAlertValueFromMap(
+        "verificationStatus",
+        trackedEntity
+    ) as AlertVerificationStatus;
+    const incidentManager = getAlertValueFromMap("incidentManager", trackedEntity);
+    const emergenceDate = getValueFromMap("emergedDate", trackedEntity);
+    const detectionDate = getValueFromMap("detectedDate", trackedEntity);
+    const notificationDate = getValueFromMap("notifiedDate", trackedEntity);
+    const emsId = getAlertValueFromMap("emsId", trackedEntity);
+    const outbreakId = getAlertValueFromMap("outbreakId", trackedEntity);
 
-    const fromDiseaseOutbreakMap = (
-        key: keyof typeof diseaseOutbreakCodes,
-        trackedEntity: D2TrackerTrackedEntity
-    ) => getValueFromMap(key, trackedEntity);
-
-    const fromAlertOutbreakMap = (
-        key: keyof typeof alertOutbreakCodes,
-        trackedEntity: D2TrackerTrackedEntity
-    ) => getAlertValueFromMap(key, trackedEntity);
-
-    const dataSource = dataSourceMap[fromDiseaseOutbreakMap("dataSource", nationalTrackedEntity)];
-    const incidentStatus =
-        incidentStatusMap[fromDiseaseOutbreakMap("incidentStatus", nationalTrackedEntity)];
-
-    if (!dataSource || !incidentStatus) throw new Error("Data source or incident status not valid");
-
-    const diseaseOutbreak: AlertOptions = {
-        eventId: nationalTrackedEntity.trackedEntity,
-        dataSource: dataSource,
-        hazardTypeCode: fromAlertOutbreakMap("hazardType", alertTrackedEntity),
-        suspectedDiseaseCode: fromAlertOutbreakMap("suspectedDisease", alertTrackedEntity),
-        incidentStatus: incidentStatus,
+    return {
+        detectionDate: detectionDate,
+        emergenceDate: emergenceDate,
+        incidentManager: incidentManager,
+        notificationDate: notificationDate,
+        verificationStatus: verificationStatus,
+        emsId: emsId,
+        outbreakId: outbreakId,
     };
-
-    return diseaseOutbreak;
 }
 
 export function getAlertValueFromMap(
@@ -50,3 +45,15 @@ export function getAlertValueFromMap(
             ?.value ?? ""
     );
 }
+
+export const outbreakTEAMapping: Record<OutbreakDataType, TrackedEntityAttributeId> = {
+    disease: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
+    hazard: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
+};
+
+export const outbreakDataSourceMapping: Record<DataSource, OutbreakDataType> = {
+    [DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS]: "disease",
+    [DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS]: "hazard",
+};
+
+type TrackedEntityAttributeId = Id;

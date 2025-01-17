@@ -1,8 +1,6 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
-    RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
-    RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
@@ -12,32 +10,26 @@ import { AlertOptions, AlertRepository } from "../../domain/repositories/AlertRe
 import { Id } from "../../domain/entities/Ref";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
-import {
-    D2TrackerTrackedEntity,
-    TrackedEntitiesGetResponse,
-} from "@eyeseetea/d2-api/api/trackerTrackedEntities";
+import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
 import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Alert } from "../../domain/entities/alert/Alert";
-
-export type Filter = {
-    id: Id;
-    value: Maybe<string>;
-};
+import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
+import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
+import { outbreakDataSourceMapping, outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
 
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
 
     updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]> {
-        const { dataSource, eventId, hazardTypeCode, incidentStatus, suspectedDiseaseCode } =
-            alertOptions;
-        const filter = this.getAlertFilter(dataSource, suspectedDiseaseCode, hazardTypeCode);
+        const { dataSource, eventId, incidentStatus, outbreakValue } = alertOptions;
+        const outbreakData = this.getAlertOutbreakData(dataSource, outbreakValue);
 
         return this.getTrackedEntitiesByTEACode({
             program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
             orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
             ouMode: "DESCENDANTS",
-            filter: filter,
+            filter: outbreakData,
         }).flatMap(alertTrackedEntities => {
             const alertsToMap: Alert[] = alertTrackedEntities.map(trackedEntity => ({
                 id: trackedEntity.trackedEntity || "",
@@ -79,78 +71,38 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    private async getTrackedEntitiesByTEACodeAsync(options: {
+    private getTrackedEntitiesByTEACode(options: {
         program: Id;
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
-        filter?: Filter;
-    }): Promise<D2TrackerTrackedEntity[]> {
-        const { program, orgUnit, ouMode, filter } = options;
-        const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
-
-        const pageSize = 250;
-        let page = 1;
-        let result: TrackedEntitiesGetResponse;
-
-        try {
-            do {
-                result = await this.api.tracker.trackedEntities
-                    .get({
-                        program: program,
-                        orgUnit: orgUnit,
-                        ouMode: ouMode,
-                        totalPages: true,
-                        page: page,
-                        pageSize: pageSize,
-                        fields: {
-                            attributes: true,
-                            orgUnit: true,
-                            trackedEntity: true,
-                            trackedEntityType: true,
-                            enrollments: {
-                                events: {
-                                    createdAt: true,
-                                    dataValues: {
-                                        dataElement: true,
-                                        value: true,
-                                    },
-                                    event: true,
-                                },
-                            },
-                        },
-                        filter: filter ? `${filter.id}:eq:${filter.value}` : undefined,
-                    })
-                    .getData();
-
-                d2TrackerTrackedEntities.push(...result.instances);
-
-                page++;
-            } while (result.page < Math.ceil((result.total as number) / pageSize));
-            return d2TrackerTrackedEntities;
-        } catch {
-            return [];
-        }
-    }
-
-    getTrackedEntitiesByTEACode(options: {
-        program: Id;
-        orgUnit: Id;
-        ouMode: "SELECTED" | "DESCENDANTS";
-        filter?: Filter;
+        filter: OutbreakData;
     }): FutureData<D2TrackerTrackedEntity[]> {
-        return Future.fromPromise(this.getTrackedEntitiesByTEACodeAsync(options));
+        const { program, orgUnit, ouMode, filter } = options;
+
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: program,
+                orgUnitId: orgUnit,
+                ouMode: ouMode,
+                filter: {
+                    id: this.getOutbreakFilterId(filter),
+                    value: filter.value,
+                },
+            })
+        );
     }
 
-    private getAlertFilter(
+    private getOutbreakFilterId(filter: OutbreakData): string {
+        return outbreakTEAMapping[filter.type];
+    }
+
+    private getAlertOutbreakData(
         dataSource: DataSource,
-        suspectedDiseaseCode: Maybe<string>,
-        hazardTypeCode: Maybe<string>
-    ): Filter {
-        switch (dataSource) {
-            case DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS:
-                return { id: RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID, value: suspectedDiseaseCode };
-            case DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS:
-                return { id: RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID, value: hazardTypeCode };
-        }
+        outbreakValue: Maybe<string>
+    ): OutbreakData {
+        return {
+            type: outbreakDataSourceMapping[dataSource],
+            value: outbreakValue,
+        };
     }
 }
