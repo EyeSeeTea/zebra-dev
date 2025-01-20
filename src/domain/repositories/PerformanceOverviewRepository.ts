@@ -1,4 +1,5 @@
 import { FutureData } from "../../data/api-futures";
+import { AlertsPerformanceOverviewMetrics } from "../entities/alert/AlertsPerformanceOverviewMetrics";
 import {
     CasesDataSource,
     DiseaseOutbreakEventBaseAttrs,
@@ -12,9 +13,10 @@ import { OverviewCard } from "../entities/PerformanceOverview";
 import { Id } from "../entities/Ref";
 
 export interface PerformanceOverviewRepository {
-    getPerformanceOverviewMetrics(
+    getNationalPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]>;
+    getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]>;
     getTotalCardCounts(
         allProvincesIds: string[],
         singleSelectFilters?: Record<string, string>,
