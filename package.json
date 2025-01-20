@@ -1,7 +1,7 @@
 {
     "name": "zebra",
     "description": "Zambia Emergency Bridge for Response Application",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "license": "GPL-3.0",
     "author": "EyeSeeTea team",
     "homepage": ".",
@@ -18,6 +18,7 @@
         "@emotion/react": "11.11.4",
         "@emotion/styled": "11.11.5",
         "@eyeseetea/d2-api": "1.16.0-beta.12",
+        "@eyeseetea/d2-logger": "^1.1.0",
         "@eyeseetea/d2-ui-components": "v2.9.0-beta.2",
         "@eyeseetea/feedback-component": "0.0.3",
         "@material-ui/core": "4.12.4",

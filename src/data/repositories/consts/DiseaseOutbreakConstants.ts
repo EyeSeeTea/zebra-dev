@@ -25,6 +25,7 @@ export const RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID = "Pq1d
 export const RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID = "agsVaIpit4S";
 export const RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID = "ydsfY6zyvt7";
 export const RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID = "DzGqKzjhIsz";
+export const RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID = "HvgldgBK8Th";
 
 export const hazardTypeCodeMap: Record<HazardType, string> = {
     "Biological:Human": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_HUMAN",

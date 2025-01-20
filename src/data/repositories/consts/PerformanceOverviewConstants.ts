@@ -22,6 +22,7 @@ export type PerformanceOverviewDimensions = {
     suspectedDisease: Id;
     hazardType: Id;
     nationalIncidentStatus: "incidentStatus";
+    date: "enrollmentdate";
 };
 
 type EventTrackerCountIndicatorBase = {

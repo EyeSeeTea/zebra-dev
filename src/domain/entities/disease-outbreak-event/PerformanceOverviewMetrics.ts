@@ -35,7 +35,6 @@ export type PerformanceOverviewMetrics = {
     event: string;
     province: string;
     duration: string;
-    manager: string;
     cases: string;
     deaths: string;
     era1: string;
@@ -51,6 +50,8 @@ export type PerformanceOverviewMetrics = {
     suspectedDisease: DiseaseNames;
     hazardType: HazardNames;
     nationalIncidentStatus: string;
+    date: string;
+    incidentManagerUsername: string;
 };
 
 export type IncidentStatus = "Watch" | "Alert" | "Respond" | "ALL";
@@ -74,10 +75,12 @@ type HazardCounts = BaseCounts & {
 
 export type TotalCardCounts = DiseaseCounts | HazardCounts;
 
+export type PerformanceMetrics717Key = "national" | "event" | "alerts";
+
 export type PerformanceMetrics717 = {
     id: string;
     name: string;
     type: "primary" | "secondary";
     value?: number | "Inc";
-    key: "dashboard" | "event_tracker";
+    key: PerformanceMetrics717Key;
 };

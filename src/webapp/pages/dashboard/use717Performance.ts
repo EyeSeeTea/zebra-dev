@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 import { StatsCardProps } from "../../components/stats-card/StatsCard";
-import { PerformanceMetrics717 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    PerformanceMetrics717,
+    PerformanceMetrics717Key,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../../domain/entities/Ref";
 
 type CardColors = StatsCardProps["color"];
@@ -25,7 +28,7 @@ export type PerformanceMetric717State = {
 export type Order = { name: string; direction: "asc" | "desc" };
 
 export function use717Performance(
-    type: "dashboard" | "event_tracker",
+    type: PerformanceMetrics717Key,
     diseaseOutbreakEventId?: Id
 ): PerformanceMetric717State {
     const { compositionRoot } = useAppContext();
@@ -34,8 +37,8 @@ export function use717Performance(
     const [isLoading, setIsLoading] = useState(false);
 
     const getColor = useCallback(
-        (key: string, value: number | "Inc", type: "dashboard" | "event_tracker"): CardColors => {
-            if (type === "dashboard") {
+        (key: string, value: number | "Inc", type: PerformanceMetrics717Key): CardColors => {
+            if (type === "national") {
                 switch (key) {
                     case "allTargets":
                         return "grey";
