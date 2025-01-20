@@ -55,16 +55,18 @@ export const TextEditor: React.FC<TextEditorProps> = React.memo(
 export const TextPreview: React.FC<{
     value: string;
 }> = React.memo(({ value }) => {
-    return <StyledTextEditor value={value} modules={{ toolbar: false }} readOnly={true} />;
+    return <StyledTextPreview dangerouslySetInnerHTML={{ __html: value }} />;
 });
 
-const StyledTextEditor = styled(ReactQuill)`
-    .ql-editor {
-        line-height: 2;
+const StyledTextPreview = styled.div`
+    .ql-size-large {
+        font-size: 1.5em;
     }
-    .ql-container {
-        border: none;
-        font-size: 16px;
+    .ql-size-huge {
+        font-size: 2.5em;
+    }
+    .ql-size-small {
+        font-size: 0.75em;
     }
 `;
 
