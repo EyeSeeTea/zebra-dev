@@ -54,6 +54,11 @@ export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React
         const { field, label, value } = incidentActionSummary;
 
         switch (field) {
+            case "criticalInfoRequirements":
+            case "expectedResults":
+            case "planningAssumptions":
+            case "responseObjectives":
+            case "responseStrategies":
             case "responseActivitiesNarrative":
                 return (
                     <Typography key={field}>
