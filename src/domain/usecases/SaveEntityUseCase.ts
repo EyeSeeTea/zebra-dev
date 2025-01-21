@@ -159,10 +159,16 @@ export class SaveEntityUseCase {
                 return this.options.resourceFileRepository
                     .uploadFile(uploadedResourceFile)
                     .flatMap(resourceFileId => {
-                        return this.options.resourceRepository.saveResource({
-                            ...formData,
-                            uploadedResourceFileId: resourceFileId,
-                        });
+                        const { entity } = formData;
+
+                        if (!entity) return Future.error(new Error("No resource found"));
+
+                        const resource = {
+                            ...entity,
+                            resourceFileId: resourceFileId,
+                        };
+
+                        return this.options.resourceRepository.saveResource(resource);
                     });
             }
             default:

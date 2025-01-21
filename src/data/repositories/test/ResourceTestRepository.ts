@@ -1,5 +1,4 @@
 import { Id } from "@eyeseetea/d2-api";
-import { ResourceFormData } from "../../../domain/entities/ConfigurableForm";
 import { Future } from "../../../domain/entities/generic/Future";
 import { Resource, ResourceType } from "../../../domain/entities/resources/Resource";
 import { ResourceRepository } from "../../../domain/repositories/ResourceRepository";
@@ -24,7 +23,7 @@ export class ResourceTestRepository implements ResourceRepository {
         return Future.success(resources);
     }
 
-    saveResource(_formData: ResourceFormData): FutureData<void> {
+    saveResource(_resource: Resource): FutureData<void> {
         return Future.success(undefined);
     }
 

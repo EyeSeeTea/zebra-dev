@@ -17,7 +17,7 @@ export function mapResourceToInitialFormState(
     formData: ResourceFormData,
     resourcePermissions: ResourcePermissions
 ): FormState {
-    const { entity: resource, uploadedResourceFile, uploadedResourceFileId, options } = formData;
+    const { entity: resource, uploadedResourceFile, options } = formData;
     const isResourceDocument = resource?.resourceType === ResourceType.RESPONSE_DOCUMENT;
 
     const { resourceType, resourceFolder } = options;
@@ -114,7 +114,7 @@ export function mapResourceToInitialFormState(
                         errors: [],
                         type: "file",
                         value: uploadedResourceFile || undefined,
-                        fileId: uploadedResourceFileId || undefined,
+                        fileId: resource?.resourceFileId || undefined,
                         required: true,
                         data: undefined,
                         fileTemplate: undefined,

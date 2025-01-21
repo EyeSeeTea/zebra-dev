@@ -150,13 +150,11 @@ export function mapFormStateToEntityData(
 
             const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
             const uploadedResourceFileValue = getFileFieldValue("resourceFile", allFields);
-            const uploadedResourceFileId = getFieldFileIdById("resourceFile", allFields);
 
             const resourceForm: ResourceFormData = {
                 ...formData,
                 entity: resource,
                 uploadedResourceFile: uploadedResourceFileValue,
-                uploadedResourceFileId: uploadedResourceFileId,
             };
 
             return resourceForm;

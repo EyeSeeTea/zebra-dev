@@ -35,7 +35,6 @@ export function getResourceConfigurableForm(props: {
                 resourceFolder: resourceFolderOptions,
             },
             uploadedResourceFile: undefined,
-            uploadedResourceFileId: undefined,
             labels: labels,
             rules: rules,
         };

@@ -134,7 +134,6 @@ export type ResourceFormData = BaseFormData & {
     type: "resource";
     entity: Maybe<Resource>;
     uploadedResourceFile: Maybe<File>;
-    uploadedResourceFileId: Maybe<Id>;
     options: ResourceOptions;
 };
 

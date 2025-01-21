@@ -4,7 +4,6 @@ import { DataStoreClient } from "../DataStoreClient";
 import { isExistingResource, Resource } from "../../domain/entities/resources/Resource";
 import { FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
-import { ResourceFormData } from "../../domain/entities/ConfigurableForm";
 import { Id } from "../../domain/entities/Ref";
 
 const RESOURCES_KEY = "resources";
@@ -22,36 +21,24 @@ export class ResourceD2Repository implements ResourceRepository {
             .flatMap(resources => Future.success(resources ?? []));
     }
 
-    saveResource(formData: ResourceFormData): FutureData<void> {
-        const { entity: resource, uploadedResourceFileId } = formData;
-
+    saveResource(resource: Resource): FutureData<void> {
         if (!resource) return Future.error(new Error("No resource form data found"));
-        if (!uploadedResourceFileId) return Future.error(new Error("No resource file id found"));
 
         return this.getAllResources().flatMap(resourcesInDataStore => {
-            const updatedResources = this.getResourcesToSave(
-                resourcesInDataStore,
-                resource,
-                uploadedResourceFileId
-            );
+            const updatedResources = this.getResourcesToSave(resourcesInDataStore, resource);
 
             return this.dataStoreClient.saveObject<Resource[]>(RESOURCES_KEY, updatedResources);
         });
     }
 
-    private getResourcesToSave(
-        resourcesInDataStore: Resource[],
-        resource: Resource,
-        resourceFileId: string
-    ) {
+    private getResourcesToSave(resourcesInDataStore: Resource[], resource: Resource) {
         const isResourceExisting = isExistingResource(resourcesInDataStore, resource);
 
-        const resourceWithFileId = { ...resource, resourceFileId: resourceFileId };
         const updatedResources = isResourceExisting
             ? resourcesInDataStore.map(resourceInDataStore =>
-                  isResourceExisting ? resourceWithFileId : resourceInDataStore
+                  isResourceExisting ? resource : resourceInDataStore
               )
-            : [...resourcesInDataStore, resourceWithFileId];
+            : [...resourcesInDataStore, resource];
         return updatedResources;
     }
 
