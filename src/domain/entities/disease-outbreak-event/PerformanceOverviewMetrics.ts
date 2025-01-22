@@ -1,4 +1,5 @@
 import { Id } from "../Ref";
+import { DataSource } from "./DiseaseOutbreakEvent";
 
 export const diseaseNames = [
     "AFP",
@@ -52,6 +53,7 @@ export type PerformanceOverviewMetrics = {
     nationalIncidentStatus: string;
     date: string;
     incidentManagerUsername: string;
+    eventSource: DataSource;
 };
 
 export type IncidentStatus = "Watch" | "Alert" | "Respond" | "ALL";

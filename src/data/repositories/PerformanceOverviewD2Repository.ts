@@ -16,6 +16,7 @@ import {
 import moment from "moment";
 import {
     CasesDataSource,
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
     NationalIncidentStatus,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -469,6 +470,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 performanceOverviewDimensions.detect7dProgramIndicator,
                                 performanceOverviewDimensions.notify1dProgramIndicator,
                                 performanceOverviewDimensions.respond7dProgramIndicator,
+                                performanceOverviewDimensions.eventSource,
                             ],
                             startDate: DEFAULT_START_DATE,
                             endDate: DEFAULT_END_DATE,
@@ -623,8 +625,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             }
                         )
                     ).flatMap(response => {
-                        const mappedIndicators: AlertsPerformanceOverviewMetrics[] =
-                            response.rows.map((row: string[]) => {
+                        const mappedIndicators: AlertsPerformanceOverviewMetrics[] = response.rows
+                            .map((row: string[]) => {
                                 return Object.keys(performanceOverviewDimensions).reduce(
                                     (acc, dimensionKey) => {
                                         const dimension: AlertsPerformanceOverviewDimensionsValue =
@@ -679,9 +681,15 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             };
                                         }
                                     },
-                                    {} as AlertsPerformanceOverviewMetrics
+                                    {} as Omit<AlertsPerformanceOverviewMetrics, "eventSource">
                                 );
-                            });
+                            })
+                            .map(metrics => ({
+                                ...metrics,
+                                eventSource: metrics.eventEBSId
+                                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                            }));
 
                         return Future.success(mappedIndicators);
                     });
@@ -927,6 +935,11 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     acc.date = formattedDate;
                     break;
                 }
+
+                case "eventSource":
+                    acc.eventSource = row[index] as DataSource;
+                    break;
+
                 default:
                     acc[key] = row[index];
                     break;

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import _ from "../../../../domain/entities/generic/Collection";
+import { useAppContext } from "../../../contexts/app-context";
 import {
     FiltersValuesType,
     FiltersConfig,
@@ -11,7 +12,9 @@ export const useTableFilters = (
     rows: StatisticTableProps["rows"],
     filtersConfig: FiltersConfig[]
 ) => {
+    const { configurations } = useAppContext();
     const [searchTerm, setSearchTerm] = useState<string>("");
+    const [eventSourceSelected, setEventSourceSelected] = useState<string>("");
 
     const [filters, setFilters] = useState<FiltersValuesType>(
         filtersConfig.reduce((acc: FiltersValuesType, filter) => {
@@ -20,12 +23,21 @@ export const useTableFilters = (
         }, {})
     );
 
+    const eventSourceOptions = useMemo(() => {
+        return configurations.selectableOptions.eventTrackerConfigurations.dataSources.map(
+            dataSource => ({
+                value: dataSource.id,
+                label: dataSource.name,
+            })
+        );
+    }, [configurations.selectableOptions.eventTrackerConfigurations.dataSources]);
+
     const filteredRows = useMemo(() => {
         const allFiltersEmpty = Object.keys(filters).every(
             key => (filters[key] || []).length === 0
         );
 
-        if (searchTerm === "" && allFiltersEmpty) {
+        if (searchTerm === "" && allFiltersEmpty && eventSourceSelected === "") {
             return rows;
         } else {
             return _(rows)
@@ -52,11 +64,14 @@ export const useTableFilters = (
                         (cell || "").toLowerCase().includes(searchTerm.toLowerCase())
                     );
 
-                    return matchesFilters && matchesSearchTerm;
+                    const matchesEventSource =
+                        eventSourceSelected === "" || row.eventSource === eventSourceSelected;
+
+                    return matchesFilters && matchesSearchTerm && matchesEventSource;
                 })
                 .value();
         }
-    }, [filters, searchTerm, rows, filtersConfig]);
+    }, [filters, searchTerm, eventSourceSelected, rows, filtersConfig]);
 
     const filterOptions = useCallback(
         (column: TableColumn["value"]) => {
@@ -71,5 +86,15 @@ export const useTableFilters = (
         [rows]
     );
 
-    return { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions };
+    return {
+        searchTerm,
+        setSearchTerm,
+        filters,
+        setFilters,
+        filteredRows,
+        filterOptions,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
+    };
 };

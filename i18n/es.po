@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-01-14T15:51:01.421Z\n"
+"POT-Creation-Date: 2025-01-22T08:21:28.265Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -149,6 +149,9 @@ msgstr ""
 msgid "Last updated: "
 msgstr ""
 
+msgid "Event Source"
+msgstr ""
+
 msgid "Median"
 msgstr ""
 
@@ -176,22 +179,22 @@ msgstr ""
 msgid "Performance overview"
 msgstr ""
 
-msgid "Dashboard"
+msgid "eIDSR Alerts Dashboard"
 msgstr ""
 
-msgid "Alerts"
+msgid "Zebra Events Dashboard"
 msgstr ""
 
-msgid "National"
-msgstr ""
-
-msgid "Disease - Hazard type"
+msgid "Disease/Hazard Type"
 msgstr ""
 
 msgid "Province"
 msgstr ""
 
-msgid "Location"
+msgid "Hazard Type"
+msgstr ""
+
+msgid "Disease"
 msgstr ""
 
 msgid "Organisation unit"
@@ -219,6 +222,12 @@ msgid "Respond 7d"
 msgstr ""
 
 msgid "Incident Status"
+msgstr ""
+
+msgid "EMS Id"
+msgstr ""
+
+msgid "Outbreak Id"
 msgstr ""
 
 msgid "Event"

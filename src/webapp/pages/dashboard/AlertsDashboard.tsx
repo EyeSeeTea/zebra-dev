@@ -21,6 +21,7 @@ import { SelectorFiltersConfig } from "./useAlertsActiveVerifiedFilters";
 import { TotalCardCounts } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { AlertsPerformanceOverviewMetricsTableData, Order } from "./useAlertsPerformanceOverview";
 import { Maybe } from "../../../utils/ts-utils";
+import { Option } from "../../components/utils/option";
 
 export type AlertsDashboardProps = {
     selectorFiltersConfig: SelectorFiltersConfig[];
@@ -53,6 +54,10 @@ export type AlertsDashboardProps = {
     totalPages: number;
     currentPage: number;
     goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;
+    eventSourceOptions: Option[];
+    eventSourceSelected: string;
+    setEventSourceSelected: (selection: string) => void;
+    hasEventSourceFilter?: boolean;
 };
 
 export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props => {

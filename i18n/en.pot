@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-01-15T17:33:26.984Z\n"
-"PO-Revision-Date: 2025-01-15T17:33:26.984Z\n"
+"POT-Creation-Date: 2025-01-22T08:21:28.265Z\n"
+"PO-Revision-Date: 2025-01-22T08:21:28.265Z\n"
 
 msgid "Low"
 msgstr ""
@@ -150,6 +150,9 @@ msgstr ""
 msgid "Last updated: "
 msgstr ""
 
+msgid "Event Source"
+msgstr ""
+
 msgid "Median"
 msgstr ""
 
@@ -177,22 +180,22 @@ msgstr ""
 msgid "Performance overview"
 msgstr ""
 
-msgid "Dashboard"
+msgid "eIDSR Alerts Dashboard"
 msgstr ""
 
-msgid "Alerts"
+msgid "Zebra Events Dashboard"
 msgstr ""
 
-msgid "National"
-msgstr ""
-
-msgid "Disease - Hazard type"
+msgid "Disease/Hazard Type"
 msgstr ""
 
 msgid "Province"
 msgstr ""
 
-msgid "Location"
+msgid "Hazard Type"
+msgstr ""
+
+msgid "Disease"
 msgstr ""
 
 msgid "Organisation unit"
@@ -220,6 +223,12 @@ msgid "Respond 7d"
 msgstr ""
 
 msgid "Incident Status"
+msgstr ""
+
+msgid "EMS Id"
+msgstr ""
+
+msgid "Outbreak Id"
 msgstr ""
 
 msgid "Event"

@@ -13,6 +13,7 @@ import {
 import { PerformanceMetric717 } from "./use717Performance";
 import { Order, PerformanceOverviewMetricsTableData } from "./useNationalPerformanceOverview";
 import { Maybe } from "../../../utils/ts-utils";
+import { Option } from "../../components/utils/option";
 
 export type NationalDashboardProps = {
     nationalPerformanceMetrics717: PerformanceMetric717[];
@@ -33,6 +34,10 @@ export type NationalDashboardProps = {
     currentPage: number;
     goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;
     allowGoToEventOnClick: true;
+    eventSourceOptions: Option[];
+    eventSourceSelected: string;
+    setEventSourceSelected: (selection: string) => void;
+    hasEventSourceFilter?: boolean;
 };
 
 export const NationalDashboard: React.FC<NationalDashboardProps> = React.memo(props => {

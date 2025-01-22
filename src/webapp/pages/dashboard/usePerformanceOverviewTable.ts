@@ -8,6 +8,7 @@ import {
 } from "../../components/table/statistic-table/StatisticTable";
 import { useTableFilters } from "../../components/table/statistic-table/useTableFilters";
 import { Row } from "../../components/form/FormFieldsState";
+import { Option } from "../../components/utils/option";
 
 export type Order<T> = { name: keyof T; direction: "asc" | "desc" };
 
@@ -25,6 +26,9 @@ type State<T> = {
     totalPages: number;
     currentPage: number;
     goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;
+    eventSourceOptions: Option[];
+    eventSourceSelected: string;
+    setEventSourceSelected: (selection: string) => void;
 };
 
 const PAGE_SIZE = 20;
@@ -38,8 +42,17 @@ export function usePerformanceOverviewTable<T>(
     const [order, setOrder] = useState<Order<T>>();
     const [currentPage, setCurrentPage] = useState(1);
 
-    const { searchTerm, setSearchTerm, filters, setFilters, filteredRows, filterOptions } =
-        useTableFilters(data as Row[], filtersConfig);
+    const {
+        searchTerm,
+        setSearchTerm,
+        filters,
+        setFilters,
+        filteredRows,
+        filterOptions,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
+    } = useTableFilters(data as Row[], filtersConfig);
 
     useEffect(() => {
         setFilteredData(filteredRows as T[]);
@@ -104,5 +117,8 @@ export function usePerformanceOverviewTable<T>(
         totalPages,
         currentPage,
         goToPage,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
     };
 }

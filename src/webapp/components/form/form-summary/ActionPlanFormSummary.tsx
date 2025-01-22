@@ -28,7 +28,7 @@ export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React
         if (!summaryError) return;
 
         snackbar.error(summaryError);
-        goTo(RouteName.DASHBOARD);
+        goTo(RouteName.ZEBRA_DASHBOARD);
     }, [summaryError, snackbar, goTo]);
 
     const goToActionPlan = useCallback(() => {

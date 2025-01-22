@@ -45,7 +45,7 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
         if (!globalMessage) return;
 
         snackbar[globalMessage.type](globalMessage.text);
-        goTo(RouteName.DASHBOARD);
+        goTo(RouteName.ZEBRA_DASHBOARD);
     }, [globalMessage, goTo, snackbar]);
 
     const onEditClick = useCallback(() => {
