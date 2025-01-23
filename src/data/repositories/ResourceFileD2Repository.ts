@@ -22,7 +22,7 @@ export class ResourceFileD2Repository implements ResourceFileRepository {
 
         return apiToFuture(this.api.files.get(fileId))
             .map(blob => {
-                return new File([blob], "file", { type: "application/pdf" });
+                return new File([blob], "file", { type: blob.type });
             })
             .flatMap(file =>
                 Future.success({
