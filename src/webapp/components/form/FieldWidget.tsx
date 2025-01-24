@@ -59,6 +59,7 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
                     placeholder={field.placeholder}
                     selected={field.value}
                     options={field.options}
+                    addNewOption={field.addNewOption}
                 />
             );
         }
