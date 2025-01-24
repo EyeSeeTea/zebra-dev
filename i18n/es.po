@@ -152,6 +152,9 @@ msgstr ""
 msgid "Last updated: "
 msgstr ""
 
+msgid "Add"
+msgstr "Añadir"
+
 msgid "Median"
 msgstr ""
 
@@ -361,6 +364,14 @@ msgid ""
 "you sure you want to continue?"
 msgstr ""
 
+msgid "Resource saved successfully"
+msgstr ""
+
+msgid ""
+"You have uploaded a new resource with an existing file name. This action "
+"will replace the current resource. Are you sure you want to continue?"
+msgstr ""
+
 msgid "Add another"
 msgstr ""
 
@@ -427,15 +438,28 @@ msgstr ""
 msgid "Are you sure you want to delete this team role?"
 msgstr ""
 
+msgid ""
+"Are you sure you want to delete this resource? This action cannot be undone."
+msgstr ""
+
+msgid "Upload File"
+msgstr ""
+
 msgid "Resources"
+msgstr ""
+
+msgid "No resources created"
+msgstr ""
+
+msgid "You can upload a file to create a new resource"
+msgstr ""
+
+msgid "Contact admin to create resources"
 msgstr ""
 
 msgctxt "DATA"
 msgid "HISTORICAL_CASE"
 msgstr ""
-
-#~ msgid "Add"
-#~ msgstr "Añadir"
 
 #~ msgid "List"
 #~ msgstr "Listar"

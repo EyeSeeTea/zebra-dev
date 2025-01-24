@@ -10,6 +10,7 @@ import { DatePicker } from "../date-picker/DatePicker";
 import { Checkbox } from "../checkbox/Checkbox";
 import { FormFieldState, updateFieldState, SheetData } from "./FormFieldsState";
 import { ImportFile } from "../import-file/ImportFile";
+import { TextEditor } from "../text-editor/TextEditor";
 
 export type FieldWidgetProps = {
     onChange: (updatedField: FormFieldState) => void;
@@ -58,6 +59,7 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
                     placeholder={field.placeholder}
                     selected={field.value}
                     options={field.options}
+                    addNewOption={field.addNewOption}
                 />
             );
         }
@@ -78,6 +80,9 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
             ) : (
                 <TextInput {...commonProps} value={field.value} />
             );
+
+        case "text-editor":
+            return <TextEditor {...commonProps} value={field.value} />;
 
         case "date":
             return <DatePicker {...commonProps} value={field.value} />;

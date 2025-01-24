@@ -723,7 +723,7 @@ function getRiskAssessmentStdQuestionSection(
                 label: "Rational",
                 isVisible: true,
                 errors: [],
-                type: "text",
+                type: "text-editor",
                 value: riskAssessmentQuestionnaire ? riskAssessmentQuestionnaire[id].rational : "",
                 required: false,
                 showIsRequired: true,
@@ -824,7 +824,7 @@ function getRiskAssessmentCustomQuestionSection(
                 label: "Rational",
                 isVisible: true,
                 errors: [],
-                type: "text",
+                type: "text-editor",
                 value: riskAssessmentQuestionnaire
                     ? riskAssessmentQuestionnaire[id][index]?.rational || ""
                     : "",

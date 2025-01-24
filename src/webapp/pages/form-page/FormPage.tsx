@@ -16,7 +16,8 @@ export type FormType =
     | "incident-action-plan"
     | "incident-response-actions"
     | "incident-response-action"
-    | "incident-management-team-member-assignment";
+    | "incident-management-team-member-assignment"
+    | "resource";
 
 export const FormPage: React.FC = React.memo(() => {
     const { formType, id } = useParams<{
