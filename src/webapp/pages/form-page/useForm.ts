@@ -29,6 +29,8 @@ import { useIncidentActionPlan } from "../incident-action-plan/useIncidentAction
 import { RiskAssessmentQuestionnaire } from "../../../domain/entities/risk-assessment/RiskAssessmentQuestionnaire";
 import { ModalData } from "../../components/form/Form";
 import { useDiseaseOutbreakEventForm } from "./disease-outbreak-event/useDiseaseOutbreakEventForm";
+import { useResourceForm } from "./resources/useResourceForm";
+import { useResources } from "../resources/useResources";
 
 export type GlobalMessage = {
     text: string;
@@ -96,6 +98,15 @@ export function useForm(formType: FormType, id?: Id): State {
         setModalData,
     });
 
+    const { onSaveResourceForm } = useResourceForm({
+        editMode: !!id,
+        setOpenModal,
+        setModalData,
+        setGlobalMessage,
+        setIsLoading,
+    });
+    const { userPermissions: resourcePermissions } = useResources();
+
     const allDataPerformanceEvents = dataNationalPerformanceOverview?.map(
         event => event.hazardType || event.suspectedDisease
     );
@@ -125,6 +136,7 @@ export function useForm(formType: FormType, id?: Id): State {
                             editMode: !!id,
                             existingEventTrackerTypes: existingEventTrackerTypes,
                             isIncidentManager: isIncidentManager,
+                            resourcePermissions: resourcePermissions,
                         }),
                     });
                     setEntityData(formData);
@@ -151,6 +163,7 @@ export function useForm(formType: FormType, id?: Id): State {
         goTo,
         isIncidentManager,
         existingEventTrackerTypes,
+        resourcePermissions,
     ]);
 
     const handleAddNew = useCallback(() => {
@@ -364,6 +377,8 @@ export function useForm(formType: FormType, id?: Id): State {
             formData.type === "disease-outbreak-event-case-data"
         ) {
             onSaveDiseaseOutbreakEvent(formData);
+        } else if (formData.type === "resource") {
+            onSaveResourceForm(formData);
         } else {
             setIsLoading(true);
             compositionRoot.save.execute(formData, configurations, !!id, formSectionsToDelete).run(
@@ -458,6 +473,7 @@ export function useForm(formType: FormType, id?: Id): State {
         goTo,
         id,
         onSaveDiseaseOutbreakEvent,
+        onSaveResourceForm,
     ]);
 
     const onCancelForm = useCallback(() => {
@@ -474,6 +490,9 @@ export function useForm(formType: FormType, id?: Id): State {
                     goTo(RouteName.INCIDENT_ACTION_PLAN, {
                         id: currentEventTracker.id,
                     });
+                    break;
+                case "resource":
+                    goTo(RouteName.RESOURCES);
                     break;
                 default:
                     goTo(RouteName.EVENT_TRACKER, {

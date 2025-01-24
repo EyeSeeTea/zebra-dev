@@ -18,6 +18,7 @@ import {
     RiskAssessmentSummaryFormData,
     ResponseActionFormData,
     SingleResponseActionFormData,
+    ResourceFormData,
 } from "../../../domain/entities/ConfigurableForm";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import {
@@ -46,6 +47,7 @@ import { TeamMember } from "../../../domain/entities/incident-management-team/Te
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { mapFormStateToDiseaseOutbreakEvent } from "./disease-outbreak-event/mapFormStateToDiseaseOutbreakEvent";
+import { Resource, ResourceType } from "../../../domain/entities/resources/Resource";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -142,6 +144,20 @@ export function mapFormStateToEntityData(
                 entity: incidentManagementTeamMember,
             };
             return incidentManagementTeamMemberForm;
+        }
+        case "resource": {
+            const resource = mapFormStateToResource(formState);
+
+            const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+            const uploadedResourceFileValue = getFileFieldValue("resourceFile", allFields);
+
+            const resourceForm: ResourceFormData = {
+                ...formData,
+                entity: resource,
+                uploadedResourceFile: uploadedResourceFileValue,
+            };
+
+            return resourceForm;
         }
 
         default:
@@ -622,6 +638,24 @@ function mapFormStateToIncidentManagementTeamMember(
         workPosition: teamMemberAssigned?.workPosition,
         status: teamMemberAssigned?.status,
     });
+}
+
+function mapFormStateToResource(formState: FormState): Resource {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const resourceType = getStringFieldValue("resourceType", allFields) as ResourceType;
+    const resourceLabel = getStringFieldValue("resourceLabel", allFields);
+    const resourceFolder = getStringFieldValue("resourceFolder", allFields);
+    const uploadedResourceFileId = getFieldFileIdById("resourceFile", allFields);
+
+    const resource: Resource = {
+        resourceType: resourceType,
+        resourceLabel: resourceLabel,
+        resourceFolder: resourceFolder,
+        resourceFileId: uploadedResourceFileId,
+    };
+
+    return resource;
 }
 
 function extractIndex(input: string): number | undefined {

@@ -5,6 +5,7 @@ import {
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../../domain/entities/Ref";
+import { ResourcePermissions } from "../../../domain/entities/resources/ResourcePermissions";
 import { FormState } from "../../components/form/FormState";
 import { User } from "../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../components/utils/option";
@@ -15,6 +16,7 @@ import {
     mapSingleIncidentResponseActionToInitialFormState,
 } from "./incident-action/mapIncidentActionToInitialFormState";
 import { mapIncidentManagementTeamMemberToInitialFormState } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
+import { mapResourceToInitialFormState } from "./resources/mapResourceToInitialFormState";
 import {
     mapRiskAssessmentQuestionnaireToInitialFormState,
     mapRiskAssessmentSummaryToInitialFormState,
@@ -26,8 +28,15 @@ export function mapEntityToFormState(options: {
     editMode?: boolean;
     existingEventTrackerTypes?: (DiseaseNames | HazardNames)[];
     isIncidentManager?: boolean;
+    resourcePermissions: ResourcePermissions;
 }): FormState {
-    const { configurableForm, editMode, existingEventTrackerTypes, isIncidentManager } = options;
+    const {
+        configurableForm,
+        editMode,
+        existingEventTrackerTypes,
+        isIncidentManager,
+        resourcePermissions,
+    } = options;
 
     switch (configurableForm.type) {
         case "disease-outbreak-event":
@@ -57,6 +66,8 @@ export function mapEntityToFormState(options: {
             );
         case "incident-management-team-member-assignment":
             return mapIncidentManagementTeamMemberToInitialFormState(configurableForm);
+        case "resource":
+            return mapResourceToInitialFormState(configurableForm, resourcePermissions);
     }
 }
 

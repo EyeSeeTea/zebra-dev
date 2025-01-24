@@ -49,12 +49,14 @@ export type FormMultipleOptionsFieldState = FormFieldStateBase<string[]> & {
     type: "select";
     options: Option[];
     multiple: true;
+    addNewOption?: boolean;
 };
 
 export type FormOptionsFieldState = FormFieldStateBase<string> & {
     type: "select" | "radio";
     options: Option[];
     multiple: false;
+    addNewOption?: boolean;
 };
 
 export type FormDateFieldState = FormFieldStateBase<Date | null> & {
