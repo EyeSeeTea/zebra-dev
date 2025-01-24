@@ -11,6 +11,7 @@ import { ActionPlanAttrs } from "./incident-action-plan/ActionPlan";
 import { ResponseAction } from "./incident-action-plan/ResponseAction";
 import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
 import { Role } from "./incident-management-team/Role";
+import { Resource } from "./resources/Resource";
 import { OrgUnit } from "./OrgUnit";
 
 export type DiseaseOutbreakEventOptions = {
@@ -60,6 +61,11 @@ export type IncidentResponseActionOptions = {
     searchAssignRO: TeamMember[];
     status: Option[];
     verification: Option[];
+};
+
+export type ResourceOptions = {
+    resourceType: Option[];
+    resourceFolder: Option[];
 };
 
 export type FormLables = {
@@ -124,6 +130,13 @@ export type SingleResponseActionFormData = BaseFormData & {
     options: IncidentResponseActionOptions;
 };
 
+export type ResourceFormData = BaseFormData & {
+    type: "resource";
+    entity: Maybe<Resource>;
+    uploadedResourceFile: Maybe<File>;
+    options: ResourceOptions;
+};
+
 export type IncidentManagementTeamRoleOptions = {
     roles: Role[];
     teamMembers: TeamMember[];
@@ -147,4 +160,5 @@ export type ConfigurableForm =
     | ActionPlanFormData
     | ResponseActionFormData
     | SingleResponseActionFormData
-    | IncidentManagementTeamMemberFormData;
+    | IncidentManagementTeamMemberFormData
+    | ResourceFormData;

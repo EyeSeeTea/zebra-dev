@@ -74,6 +74,16 @@ import { UserGroupD2Repository } from "./data/repositories/UserGroupD2Repository
 import { UserGroupRepository } from "./domain/repositories/UserGroupRepository";
 import { UserGroupTestRepository } from "./data/repositories/test/UserGroupTestRepository";
 import { GetAllAlertsPerformanceOverviewMetricsUseCase } from "./domain/usecases/GetAllAlertsPerformanceOverviewMetricsUseCase";
+import { ResourceRepository } from "./domain/repositories/ResourceRepository";
+import { ResourceD2Repository } from "./data/repositories/ResourceD2Repository";
+import { ResourceTestRepository } from "./data/repositories/test/ResourceTestRepository";
+import { GetResourcesUseCase } from "./domain/usecases/GetResourcesUseCase";
+import { DownloadResourceFileUseCase } from "./domain/usecases/DownloadResourceFileUseCase";
+import { DeleteResourceFileUseCase } from "./domain/usecases/DeleteResourceFileUseCase";
+import { ResourceFileTestRepository } from "./data/repositories/test/ResourceFileTestRepository";
+import { ResourceFileRepository } from "./domain/repositories/ResourceFileRepository";
+import { ResourceFileD2Repository } from "./data/repositories/ResourceFileD2Repository";
+import { GetResourceUserPermissionsUseCase } from "./domain/usecases/GetResourceUserPermissionsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -95,6 +105,8 @@ type Repositories = {
     configurationsRepository: ConfigurationsRepository;
     casesFileRepository: CasesFileRepository;
     userGroupRepository: UserGroupRepository;
+    resourceRepository: ResourceRepository;
+    resourceFileRepository: ResourceFileRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -150,6 +162,14 @@ function getCompositionRoot(repositories: Repositories) {
         charts: {
             getCases: new GetChartConfigByTypeUseCase(repositories.chartConfigRepository),
         },
+        resources: {
+            get: new GetResourcesUseCase(repositories.resourceRepository),
+            downloadResourceFile: new DownloadResourceFileUseCase(
+                repositories.resourceFileRepository
+            ),
+            deleteResourceFile: new DeleteResourceFileUseCase(repositories),
+            getPermissions: new GetResourceUserPermissionsUseCase(repositories),
+        },
     };
 }
 
@@ -173,6 +193,8 @@ export function getWebappCompositionRoot(api: D2Api) {
         configurationsRepository: new ConfigurationsD2Repository(api),
         casesFileRepository: new CasesFileD2Repository(api, dataStoreClient),
         userGroupRepository: new UserGroupD2Repository(api),
+        resourceRepository: new ResourceD2Repository(api),
+        resourceFileRepository: new ResourceFileD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -197,6 +219,8 @@ export function getTestCompositionRoot() {
         configurationsRepository: new ConfigurationsTestRepository(),
         casesFileRepository: new CasesFileTestRepository(),
         userGroupRepository: new UserGroupTestRepository(),
+        resourceRepository: new ResourceTestRepository(),
+        resourceFileRepository: new ResourceFileTestRepository(),
     };
 
     return getCompositionRoot(repositories);

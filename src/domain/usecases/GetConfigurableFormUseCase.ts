@@ -13,6 +13,7 @@ import { CasesFileRepository } from "../repositories/CasesFileRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
+import { ResourceRepository } from "../repositories/ResourceRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getDiseaseOutbreakConfigurableForm } from "./utils/disease-outbreak/GetDiseaseOutbreakConfigurableForm";
@@ -22,6 +23,7 @@ import {
     getSingleResponseActionConfigurableForm,
 } from "./utils/incident-action/GetResponseActionConfigurableForm";
 import { getIncidentManagementTeamWithOptions } from "./utils/incident-management-team/GetIncidentManagementTeamWithOptions";
+import { getResourceConfigurableForm } from "./utils/resources/GetResourceConfigurableForm";
 import { getRiskAssessmentGradingConfigurableForm } from "./utils/risk-assessment/GetGradingConfigurableForm";
 import { getRiskAssessmentQuestionnaireConfigurableForm } from "./utils/risk-assessment/GetQuestionnaireConfigurableForm";
 import { getRiskAssessmentSummaryConfigurableForm } from "./utils/risk-assessment/GetSummaryConfigurableForm";
@@ -35,6 +37,7 @@ export class GetConfigurableFormUseCase {
             incidentActionRepository: IncidentActionRepository;
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
             casesFileRepository: CasesFileRepository;
+            resourceRepository: ResourceRepository;
         }
     ) {}
 
@@ -146,6 +149,10 @@ export class GetConfigurableFormUseCase {
                     },
                     configurations
                 );
+            case "resource":
+                return getResourceConfigurableForm({
+                    resourceRepository: this.options.resourceRepository,
+                });
             default:
                 return Future.error(new Error("Form type not supported"));
         }
