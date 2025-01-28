@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { Tab, Tabs } from "@material-ui/core";
 
 import i18n from "../../../utils/i18n";
 import { Layout } from "../../components/layout/Layout";
@@ -13,11 +12,24 @@ import { use717Performance } from "./use717Performance";
 import { Loader } from "../../components/loader/Loader";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 import { useAlertsPerformanceOverview } from "./useAlertsPerformanceOverview";
-import { useTabs } from "./useTabs";
 import { AlertsDashboard } from "./AlertsDashboard";
 import { NationalDashboard } from "./NationalDashboard";
+import { useLocation } from "react-router-dom";
+import { routes } from "../../hooks/useRoutes";
 
 export const DashboardPage: React.FC = React.memo(() => {
+    const location = useLocation();
+
+    const isAlertsDashboard = useMemo(
+        () => location.pathname === routes.ALERTS_DASHBOARD,
+        [location]
+    );
+
+    const isZebraDashboard = useMemo(
+        () => location.pathname === routes.ZEBRA_DASHBOARD,
+        [location]
+    );
+
     const {
         selectorFiltersConfig,
         singleSelectFilters,
@@ -61,8 +73,6 @@ export const DashboardPage: React.FC = React.memo(() => {
     const { resetCurrentEventTracker: resetCurrentEventTrackerId } = useCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
 
-    const { tabIndexSelected, handleTabChange } = useTabs();
-
     useEffect(() => {
         //On navigating to the dashboard page, reset the current event tracker id
         resetCurrentEventTrackerId();
@@ -75,19 +85,15 @@ export const DashboardPage: React.FC = React.memo(() => {
         <Loader />
     ) : (
         <Layout
-            title={i18n.t("Dashboard")}
+            title={
+                isAlertsDashboard
+                    ? i18n.t("eIDSR Alerts Dashboard")
+                    : i18n.t("Zebra Events Dashboard")
+            }
             showCreateEvent
             lastAnalyticsRuntime={lastAnalyticsRuntime}
         >
-            <TabsContainer>
-                <Tabs value={tabIndexSelected} onChange={handleTabChange} indicatorColor="primary">
-                    <Tab label={i18n.t("Alerts")} style={{ color: "black" }} />
-
-                    <Tab label={i18n.t("National")} style={{ color: "black" }} />
-                </Tabs>
-            </TabsContainer>
-
-            {tabIndexSelected === 0 ? (
+            {isAlertsDashboard ? (
                 <AlertsDashboard
                     selectorFiltersConfig={selectorFiltersConfig}
                     singleSelectFilters={singleSelectFilters}
@@ -107,7 +113,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                 />
             ) : null}
 
-            {tabIndexSelected === 1 ? (
+            {isZebraDashboard ? (
                 <NationalDashboard
                     nationalPerformanceMetrics717={nationalPerformanceMetrics717}
                     dataNationalPerformanceOverview={dataNationalPerformanceOverview}
@@ -128,8 +134,4 @@ export const GridWrapper = styled.div`
 
 export const StyledStatsCard = styled(StatsCard)`
     width: 220px;
-`;
-
-const TabsContainer = styled.div`
-    margin-block-end: 30px;
 `;

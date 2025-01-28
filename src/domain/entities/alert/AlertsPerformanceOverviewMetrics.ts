@@ -1,3 +1,4 @@
+import { DataSource } from "../disease-outbreak-event/DiseaseOutbreakEvent";
 import { OrgUnitLevelType } from "../OrgUnit";
 import { Id } from "../Ref";
 
@@ -20,4 +21,5 @@ export type AlertsPerformanceOverviewMetrics = {
     incidentManager: string;
     respond7d: string;
     incidentStatus: string;
+    eventSource: DataSource;
 };

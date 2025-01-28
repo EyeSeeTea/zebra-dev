@@ -156,6 +156,9 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+msgid "Event Source"
+msgstr ""
+
 msgid "Median"
 msgstr ""
 
@@ -204,22 +207,22 @@ msgstr ""
 msgid "Performance overview"
 msgstr ""
 
-msgid "Dashboard"
+msgid "eIDSR Alerts Dashboard"
 msgstr ""
 
-msgid "Alerts"
+msgid "Zebra Events Dashboard"
 msgstr ""
 
-msgid "National"
-msgstr ""
-
-msgid "Disease - Hazard type"
+msgid "Disease/Hazard Type"
 msgstr ""
 
 msgid "Province"
 msgstr ""
 
-msgid "Location"
+msgid "Hazard Type"
+msgstr ""
+
+msgid "Disease"
 msgstr ""
 
 msgid "Organisation unit"
@@ -247,6 +250,12 @@ msgid "Respond 7d"
 msgstr ""
 
 msgid "Incident Status"
+msgstr ""
+
+msgid "EMS Id"
+msgstr ""
+
+msgid "Outbreak Id"
 msgstr ""
 
 msgid "Event"

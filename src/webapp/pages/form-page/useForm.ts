@@ -501,7 +501,7 @@ export function useForm(formType: FormType, id?: Id): State {
                     break;
             }
         } else {
-            goTo(RouteName.DASHBOARD);
+            goTo(RouteName.ZEBRA_DASHBOARD);
         }
     }, [currentEventTracker, formType, goTo]);
 
