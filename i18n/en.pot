@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-01-24T08:32:36.797Z\n"
-"PO-Revision-Date: 2025-01-24T08:32:36.797Z\n"
+"POT-Creation-Date: 2025-01-24T10:58:18.826Z\n"
+"PO-Revision-Date: 2025-01-24T10:58:18.826Z\n"
 
 msgid "Low"
 msgstr ""
@@ -87,7 +87,7 @@ msgstr ""
 msgid "Edit Details"
 msgstr ""
 
-msgid "Edit historical case data"
+msgid "Replace case data"
 msgstr ""
 
 msgid "Complete Event"
@@ -120,7 +120,10 @@ msgstr ""
 msgid "Download empty template"
 msgstr ""
 
-msgid "Download historical data"
+msgid "Clear Case Data"
+msgstr ""
+
+msgid "Download Case Data"
 msgstr ""
 
 msgid "Confirm remove the file"
@@ -163,6 +166,27 @@ msgid "% Target Met"
 msgstr ""
 
 msgid "Status: "
+msgstr ""
+
+msgid "You do not have permission to create/edit events"
+msgstr ""
+
+msgid "You do not have permission to replace case data"
+msgstr ""
+
+msgid "You do not have permission to create/edit IM team member assignments"
+msgstr ""
+
+msgid "You do not have permission to create/edit incident action plans"
+msgstr ""
+
+msgid "You do not have permission to create/edit incident response actions"
+msgstr ""
+
+msgid "You do not have permission to create/edit risk assessments"
+msgstr ""
+
+msgid "You do not have permission to create/edit this form"
 msgstr ""
 
 msgid "Select duration"

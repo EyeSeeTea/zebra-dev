@@ -75,7 +75,7 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
                     onClick={onEditCaseDataClick}
                     startIcon={<BackupIcon />}
                 >
-                    {i18n.t("Edit historical case data")}
+                    {i18n.t("Replace case data")}
                 </Button>
             ) : null}
 

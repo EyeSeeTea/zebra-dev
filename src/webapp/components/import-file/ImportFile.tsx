@@ -140,18 +140,31 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
             </FlexContainer>
             {file && (
                 <RemoveContainer>
-                    <IconButton
-                        className="remove-file"
-                        icon={<CloseIcon />}
-                        ariaLabel="Delete current uploaded file"
-                        onClick={onOpenConfirmationModalRemoveFile}
-                    />
+                    {fileId ? (
+                        <RemoveButton onClick={onOpenConfirmationModalRemoveFile}>
+                            <StyledButtonText>{i18n.t("Clear Case Data")}</StyledButtonText>
+                        </RemoveButton>
+                    ) : (
+                        <IconButton
+                            className="remove-file"
+                            icon={<CloseIcon />}
+                            ariaLabel="Delete current uploaded file"
+                            onClick={onOpenConfirmationModalRemoveFile}
+                        />
+                    )}
+
                     <Link
                         href={URL.createObjectURL(file)}
                         download={fileId && fileNameLabel ? fileNameLabel : file.name}
                         underline="hover"
                     >
-                        {fileId ? i18n.t("Download historical data") : file.name}
+                        {fileId ? (
+                            <StyledButtonText primary>
+                                {i18n.t("Download Case Data")}
+                            </StyledButtonText>
+                        ) : (
+                            file.name
+                        )}
                     </Link>
                     <SimpleModal
                         open={openDeleteModal}
@@ -213,9 +226,21 @@ const RemoveContainer = styled.div`
     display: flex;
     align-items: center;
     margin-block-start: 5px;
-    .remove-file {
-        color: ${props => props.theme.palette.common.red700};
-    }
+    gap: 0 4px;
+`;
+
+const RemoveButton = styled.button`
+    all: unset;
+    cursor: pointer;
+`;
+
+const StyledButtonText = styled.div<{ primary?: boolean }>`
+    border-radius: 4px;
+    background-color: ${props =>
+        props.primary ? props.theme.palette.common.green500 : props.theme.palette.common.grey600};
+    font-size: 12px;
+    color: white;
+    padding: 4px 8px;
 `;
 
 const Text = styled.div`
