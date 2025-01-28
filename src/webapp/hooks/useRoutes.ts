@@ -5,13 +5,14 @@ import { generatePath as generatePathRRD, useHistory } from "react-router-dom";
 import { FormType } from "../pages/form-page/FormPage";
 
 export enum RouteName {
+    ZEBRA_DASHBOARD = "ZEBRA_DASHBOARD",
+    ALERTS_DASHBOARD = "ALERTS_DASHBOARD",
     CREATE_FORM = "CREATE_FORM",
     EDIT_FORM = "EDIT_FORM",
     EVENT_TRACKER = "EVENT_TRACKER",
     IM_TEAM_BUILDER = "IM_TEAM_BUILDER",
     INCIDENT_ACTION_PLAN = "INCIDENT_ACTION_PLAN",
     RESOURCES = "RESOURCES",
-    DASHBOARD = "DASHBOARD",
 }
 
 const formTypes = [
@@ -36,7 +37,8 @@ export const routes: Record<RouteName, string> = {
     [RouteName.IM_TEAM_BUILDER]: "/:id/incident-management-team-builder",
     [RouteName.INCIDENT_ACTION_PLAN]: "/:id/incident-action-plan",
     [RouteName.RESOURCES]: "/resources",
-    [RouteName.DASHBOARD]: "/",
+    [RouteName.ALERTS_DASHBOARD]: "/alerts-dashboard",
+    [RouteName.ZEBRA_DASHBOARD]: "/",
 } as const;
 
 type RouteParams = {
@@ -46,7 +48,8 @@ type RouteParams = {
     [RouteName.IM_TEAM_BUILDER]: { id: string };
     [RouteName.INCIDENT_ACTION_PLAN]: { id: string };
     [RouteName.RESOURCES]: undefined;
-    [RouteName.DASHBOARD]: undefined;
+    [RouteName.ALERTS_DASHBOARD]: undefined;
+    [RouteName.ZEBRA_DASHBOARD]: undefined;
 };
 
 type State = {

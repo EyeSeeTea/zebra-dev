@@ -14,6 +14,8 @@ import { TeamMember } from "../../../domain/entities/incident-management-team/Te
 import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
 import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
+import { Option } from "../../components/utils/option";
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     event: string;
@@ -55,6 +57,10 @@ type State = {
     totalPages: number;
     currentPage: number;
     goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;
+    eventSourceOptions: Option[];
+    eventSourceSelected: string;
+    setEventSourceSelected: (selection: string) => void;
+    hasEventSourceFilter?: boolean;
 };
 
 export type Order = {
@@ -81,7 +87,7 @@ export function useAlertsPerformanceOverview(): State {
 
     const filtersConfig = useMemo<FiltersConfig[]>(
         () => [
-            { value: "event", label: i18n.t("Disease - Hazard type"), type: "multiselector" },
+            { value: "event", label: i18n.t("Disease/Hazard Type"), type: "multiselector" },
             { value: "province", label: i18n.t("Province"), type: "multiselector" },
             { value: "date", label: i18n.t("Duration"), type: "datepicker" },
         ],
@@ -102,12 +108,41 @@ export function useAlertsPerformanceOverview(): State {
         totalPages,
         currentPage,
         goToPage,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
     } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>(filtersConfig, true);
 
-    const columns = useMemo<TableColumn[]>(
+    const filtersConfigDependingEventSource = useMemo<FiltersConfig[]>(
         () => [
-            { label: i18n.t("Disease - Hazard type"), value: "event" },
-            { label: i18n.t("Location"), value: "province" },
+            {
+                value: "event",
+                label:
+                    eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                        ? i18n.t("Hazard Type")
+                        : eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                        ? i18n.t("Disease")
+                        : i18n.t("Disease/Hazard Type"),
+                type: "multiselector",
+            },
+            { value: "province", label: i18n.t("Province"), type: "multiselector" },
+            { value: "date", label: i18n.t("Duration"), type: "datepicker" },
+        ],
+        [eventSourceSelected]
+    );
+
+    const columnsDependingEventSource = useMemo<TableColumn[]>(
+        () => [
+            {
+                label:
+                    eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                        ? i18n.t("Hazard Type")
+                        : eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                        ? i18n.t("Disease")
+                        : i18n.t("Disease/Hazard Type"),
+                value: "event",
+            },
+            { label: i18n.t("Province"), value: "province" },
             { label: i18n.t("Organisation unit"), value: "orgUnit" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType" },
             { label: i18n.t("Cases"), value: "cases" },
@@ -118,8 +153,10 @@ export function useAlertsPerformanceOverview(): State {
             { label: i18n.t("Notify 1d"), dark: true, value: "notify1d" },
             { label: i18n.t("Respond 7d"), dark: true, value: "respond7d" },
             { label: i18n.t("Incident Status"), value: "incidentStatus" },
+            { label: i18n.t("EMS Id"), value: "eventEBSId" },
+            { label: i18n.t("Outbreak Id"), value: "eventIBSId" },
         ],
-        []
+        [eventSourceSelected]
     );
 
     const mapEntityToTableData = useCallback(
@@ -175,7 +212,7 @@ export function useAlertsPerformanceOverview(): State {
     ]);
 
     return {
-        columns,
+        columns: columnsDependingEventSource,
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
         columnRules,
@@ -184,12 +221,16 @@ export function useAlertsPerformanceOverview(): State {
         isLoading,
         searchTerm,
         setSearchTerm,
-        filtersConfig,
+        filtersConfig: filtersConfigDependingEventSource,
         filters,
         setFilters,
         filterOptions,
         currentPage,
         totalPages,
         goToPage,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
+        hasEventSourceFilter: true,
     };
 }

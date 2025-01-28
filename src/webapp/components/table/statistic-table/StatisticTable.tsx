@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import { DateRangePicker } from "../../date-picker/DateRangePicker";
 import { useAppContext } from "../../../contexts/app-context";
+import { Selector } from "../../selector/Selector";
 
 export type TableColumn = {
     value: string;
@@ -66,6 +67,10 @@ export type StatisticTableProps = {
     setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
     filterOptions: (column: string) => { value: string; label: string }[];
     allowGoToEventOnClick?: boolean;
+    eventSourceOptions: Option[];
+    eventSourceSelected: string;
+    setEventSourceSelected: (selection: string) => void;
+    hasEventSourceFilter?: boolean;
 };
 
 const DEFAULT_ARRAY_VALUE: string[] = [];
@@ -85,7 +90,11 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         filters,
         setFilters,
         filterOptions,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
         allowGoToEventOnClick = false,
+        hasEventSourceFilter = false,
     }) => {
         const { generatePath } = useRoutes();
         const { currentUser } = useAppContext();
@@ -107,6 +116,16 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         return (
             <React.Fragment>
                 <Container>
+                    {hasEventSourceFilter && (
+                        <Selector
+                            id={`filters-event-source`}
+                            options={eventSourceOptions}
+                            placeholder={i18n.t("Event Source")}
+                            selected={eventSourceSelected}
+                            onChange={setEventSourceSelected}
+                            allowClear
+                        />
+                    )}
                     {filtersConfig.map(({ value, label, type }) => {
                         switch (type) {
                             case "multiselector":

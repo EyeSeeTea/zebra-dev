@@ -22,7 +22,7 @@ export type SideBarOption = {
 const DEFAULT_SIDEBAR_OPTIONS: SideBarOption[] = [
     {
         text: "Dashboard",
-        value: RouteName.DASHBOARD,
+        value: RouteName.ZEBRA_DASHBOARD,
     },
     {
         text: "Event Tracker",
@@ -42,6 +42,17 @@ const DEFAULT_SIDEBAR_OPTIONS: SideBarOption[] = [
     },
 ];
 
+const DASHBOARD_SIDEBAR_OPTIONS: SideBarOption[] = [
+    {
+        text: "Zebra Events Dashboard",
+        value: RouteName.ZEBRA_DASHBOARD,
+    },
+    {
+        text: "eIDSR Alerts Dashboard",
+        value: RouteName.ALERTS_DASHBOARD,
+    },
+];
+
 export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
     ({ children, hideOptions = false, showCreateEvent = false }) => {
         const { goTo } = useRoutes();
@@ -57,11 +68,23 @@ export const SideBarContent: React.FC<SideBarContentProps> = React.memo(
                 {hideOptions ? null : children ? (
                     children
                 ) : showCreateEvent ? (
-                    <CreateEventContainer>
-                        <Button onClick={goToCreateEvent} startIcon={<AddCircleOutline />}>
-                            {i18n.t("Create Event")}
-                        </Button>
-                    </CreateEventContainer>
+                    <CreateEventAndDashboardContainer>
+                        <CreateEventContainer>
+                            <Button onClick={goToCreateEvent} startIcon={<AddCircleOutline />}>
+                                {i18n.t("Create Event")}
+                            </Button>
+                        </CreateEventContainer>
+                        <DashboardStyledList>
+                            {DASHBOARD_SIDEBAR_OPTIONS.map(({ text, value }) => (
+                                <ListItem button key={text} component={NavLink} to={routes[value]}>
+                                    <StyledText
+                                        primary={i18n.t(text)}
+                                        selected={location?.pathname === routes[value]}
+                                    />
+                                </ListItem>
+                            ))}
+                        </DashboardStyledList>
+                    </CreateEventAndDashboardContainer>
                 ) : (
                     <StyledList>
                         {DEFAULT_SIDEBAR_OPTIONS.map(({ text, value }) => {
@@ -118,8 +141,18 @@ const StyledList = styled(List)`
     width: 245px;
 `;
 
+const DashboardStyledList = styled(List)`
+    width: 235px;
+    a.MuiButtonBase-root {
+        padding-inline-start: 30px;
+    }
+`;
+
 const CreateEventContainer = styled.div`
+    width: 152px;
+    margin-inline-start: 40px;
+`;
+
+const CreateEventAndDashboardContainer = styled.div`
     margin-block-start: 50px;
-    margin-inline-start: 30px;
-    width: 245px;
 `;

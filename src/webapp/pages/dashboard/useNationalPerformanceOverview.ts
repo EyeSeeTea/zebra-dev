@@ -17,7 +17,8 @@ import { useExistingEventTrackerTypes } from "../../contexts/existing-event-trac
 import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
 import i18n from "../../../utils/i18n";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
-import { Id } from "@eyeseetea/d2-api";
+import { Option } from "../../components/utils/option";
+import { Id } from "../../../domain/entities/Ref";
 
 export type PerformanceOverviewMetricsTableData = {
     id: Id;
@@ -62,6 +63,10 @@ type State = {
     currentPage: number;
     goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;
     allowGoToEventOnClick: true;
+    eventSourceOptions: Option[];
+    eventSourceSelected: string;
+    setEventSourceSelected: (selection: string) => void;
+    hasEventSourceFilter?: boolean;
 };
 
 export type Order = { name: keyof PerformanceOverviewMetricsTableData; direction: "asc" | "desc" };
@@ -136,6 +141,9 @@ export function useNationalPerformanceOverview(): State {
         totalPages,
         currentPage,
         goToPage,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
     } = usePerformanceOverviewTable<PerformanceOverviewMetricsTableData>(filtersConfig);
 
     const getNationalIncidentStatusString = useCallback((status: string): string => {
@@ -231,5 +239,8 @@ export function useNationalPerformanceOverview(): State {
         totalPages,
         goToPage,
         allowGoToEventOnClick: true,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
     };
 }
