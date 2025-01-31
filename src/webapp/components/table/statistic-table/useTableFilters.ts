@@ -7,6 +7,7 @@ import {
     StatisticTableProps,
     TableColumn,
 } from "./StatisticTable";
+import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export const useTableFilters = (
     rows: StatisticTableProps["rows"],
@@ -74,12 +75,22 @@ export const useTableFilters = (
     }, [filters, searchTerm, eventSourceSelected, rows, filtersConfig]);
 
     const filterOptions = useCallback(
-        (column: TableColumn["value"]) => {
+        (column: TableColumn["value"], dataSource?: DataSource) => {
             return _(rows)
-                .map(row => ({
-                    value: row[column] || "",
-                    label: row[column] || "",
-                }))
+                .compactMap(row => {
+                    if (dataSource)
+                        return row.eventSource === dataSource
+                            ? {
+                                  value: row[column] || "",
+                                  label: row[column] || "",
+                              }
+                            : undefined;
+
+                    return {
+                        value: row[column] || "",
+                        label: row[column] || "",
+                    };
+                })
                 .uniqBy(filter => filter.value)
                 .value();
         },
