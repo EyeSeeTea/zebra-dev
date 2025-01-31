@@ -38,7 +38,7 @@ export function use717Performance(
 
     const getColor = useCallback(
         (key: string, value: number | "Inc", type: PerformanceMetrics717Key): CardColors => {
-            if (type === "national") {
+            if (type === "national" || type === "alerts") {
                 switch (key) {
                     case "allTargets":
                         return "grey";
