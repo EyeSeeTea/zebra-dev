@@ -36,7 +36,7 @@ type D2TrackedEntityAttribute = {
 
 export function mapTrackedEntityAttributesToDiseaseOutbreak(
     trackedEntity: D2TrackerTrackedEntity
-): DiseaseOutbreakEventBaseAttrs {
+): DiseaseOutbreakEventBaseAttrs | undefined {
     if (!trackedEntity.trackedEntity) throw new Error("Tracked entity not found");
 
     const fromMap = (key: keyof typeof diseaseOutbreakCodes) => getValueFromMap(key, trackedEntity);
@@ -47,7 +47,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         casesDataSourceMap[fromMap("casesDataSource")] ??
         CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR;
 
-    if (!dataSource || !incidentStatus) throw new Error("Data source or incident status not valid");
+    if (!dataSource || !incidentStatus) return;
 
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
