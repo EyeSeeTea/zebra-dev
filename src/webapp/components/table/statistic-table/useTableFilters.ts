@@ -78,18 +78,15 @@ export const useTableFilters = (
         (column: TableColumn["value"], dataSource?: DataSource) => {
             return _(rows)
                 .compactMap(row => {
-                    if (dataSource)
-                        return row.eventSource === dataSource
-                            ? {
-                                  value: row[column] || "",
-                                  label: row[column] || "",
-                              }
-                            : undefined;
-
-                    return {
-                        value: row[column] || "",
-                        label: row[column] || "",
+                    const columnValue = row[column] || "";
+                    const filterOption = {
+                        value: columnValue,
+                        label: columnValue,
                     };
+
+                    if (dataSource)
+                        return row.eventSource === dataSource ? filterOption : undefined;
+                    return filterOption;
                 })
                 .uniqBy(filter => filter.value)
                 .value();
