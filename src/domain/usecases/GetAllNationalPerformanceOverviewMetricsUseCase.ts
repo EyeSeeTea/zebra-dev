@@ -15,8 +15,12 @@ export class GetAllNationalPerformanceOverviewMetricsUseCase {
         return this.options.diseaseOutbreakEventRepository
             .getAll()
             .flatMap(diseaseOutbreakEvents => {
+                //Do not process events without Suspected disease or Hazard Type set as they are mandatory.
+                const filteredEvents = diseaseOutbreakEvents.filter(
+                    event => event.hazardType || event.suspectedDiseaseCode
+                );
                 return this.options.performanceOverviewRepository.getNationalPerformanceOverviewMetrics(
-                    diseaseOutbreakEvents
+                    filteredEvents
                 );
             });
     }

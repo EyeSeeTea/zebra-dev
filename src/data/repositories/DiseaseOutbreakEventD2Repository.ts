@@ -33,6 +33,7 @@ import {
     isStringInCasesDataCodes,
 } from "./consts/CaseDataConstants";
 import { OutbreakData, OutbreakDataType } from "../../domain/entities/alert/OutbreakAlert";
+import _c from "../../domain/entities/generic/Collection";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -48,7 +49,12 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         )
             .flatMap(response => assertOrError(response.instances[0], "Tracked entity"))
             .map(trackedEntity => {
-                return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                if (!outbreak)
+                    throw new Error(
+                        "Error mapping disease outbreak, data source/incident status fields are missing"
+                    );
+                return outbreak;
             });
     }
 
@@ -59,11 +65,14 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
             })
         ).map(trackedEntities => {
-            return trackedEntities
-                .map(trackedEntity => {
-                    return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
-                })
-                .filter(outbreak => outbreak.status === "ACTIVE");
+            const filteredOutbreaks: DiseaseOutbreakEventBaseAttrs[] = _c(
+                trackedEntities.map(trackedEntity =>
+                    mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity)
+                )
+            )
+                .compact()
+                .value();
+            return filteredOutbreaks.filter(outbreak => outbreak.status === "ACTIVE");
         });
     }
 
@@ -81,7 +90,12 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
             })
         ).map(trackedEntities => {
             return trackedEntities.map(trackedEntity => {
-                return mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                if (!outbreak)
+                    throw new Error(
+                        "Error mapping disease outbreak, data source/incident status fields are missing"
+                    );
+                return outbreak;
             });
         });
     }
