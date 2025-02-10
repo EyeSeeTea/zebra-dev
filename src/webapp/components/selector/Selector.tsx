@@ -45,11 +45,13 @@ export function Selector<Value extends string>({
     const [newOption, setNewOption] = useState<string>("");
     const [options, setOptions] = useState<Option<Value>[]>(initialOptions);
 
-    const filteredOptions = React.useMemo(
-        () =>
-            options.filter(option => option.label.toLowerCase().includes(searchTerm.toLowerCase())),
-        [searchTerm, options]
-    );
+    const filteredOptions = React.useMemo(() => {
+        const optionsToFilter = addNewOption ? options : initialOptions;
+
+        return optionsToFilter.filter(option =>
+            option.label.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [addNewOption, options, initialOptions, searchTerm]);
 
     const handleSearchChange = useCallback((text: string) => {
         setSearchTerm(text ?? "");

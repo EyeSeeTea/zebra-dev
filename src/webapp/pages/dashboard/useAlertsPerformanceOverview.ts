@@ -53,7 +53,7 @@ type State = {
     filtersConfig: FiltersConfig[];
     filters: FiltersValuesType;
     setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
-    filterOptions: (column: string) => { value: string; label: string }[];
+    filterOptions: (column: string, dataSource?: DataSource) => { value: string; label: string }[];
     totalPages: number;
     currentPage: number;
     goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;

@@ -38,7 +38,7 @@ export function use717Performance(
 
     const getColor = useCallback(
         (key: string, value: number | "Inc", type: PerformanceMetrics717Key): CardColors => {
-            if (type === "national") {
+            if (type === "national" || type === "alerts") {
                 switch (key) {
                     case "allTargets":
                         return "grey";
@@ -69,30 +69,33 @@ export function use717Performance(
 
     const transformData = useCallback(
         (performanceMetrics: PerformanceMetrics717[]) => {
-            const performanceMetricsByName = _(performanceMetrics).reduce(
-                (acc: Record<string, typeof performanceMetrics>, indicator) => {
-                    const key = indicator.name;
-                    const existingGroup = acc[key] || [];
-                    acc[key] = [...existingGroup, indicator];
-                    return acc;
-                },
-                {} as Record<string, typeof performanceMetrics>
-            );
-            return Object.entries(performanceMetricsByName).map(([key, values]) => {
-                const primaryValue = values.find(item => item.type === "primary")?.value ?? 0;
-                const secondaryValue = values.find(item => item.type === "secondary")?.value ?? 0;
+            const groupedPerformanceMetrics = _(performanceMetrics)
+                .groupBy(performanceMetric => performanceMetric.name)
+                .mapValues(([keyframes, values]) => {
+                    const primaryValue = values.find(item => item.type === "primary")?.value ?? 0;
+                    const secondaryValue =
+                        values.find(item => item.type === "secondary")?.value ?? 0;
 
-                const title = key
-                    .replace(/([A-Z])/g, match => ` ${match}`)
-                    .replace(/^./, match => match.toUpperCase())
-                    .trim();
-                return {
-                    title: title,
-                    primaryValue: primaryValue,
-                    secondaryValue: secondaryValue,
-                    color: getColor(key, primaryValue, type),
-                };
-            });
+                    const title = keyframes
+                        .replace(/([A-Z])/g, match => ` ${match}`)
+                        .replace(/^./, match => match.toUpperCase())
+                        .trim();
+
+                    return {
+                        title: title,
+                        primaryValue: primaryValue,
+                        secondaryValue: secondaryValue,
+                        color: getColor(keyframes, primaryValue, type),
+                    };
+                })
+                .values();
+
+            return _(groupedPerformanceMetrics)
+                .sortBy(metric => {
+                    const order = ["Detection", "Notification", "Response", "All Targets"]; // preferred order of cards
+                    return order.indexOf(metric.title);
+                })
+                .value();
         },
         [getColor, type]
     );

@@ -7,6 +7,7 @@ import {
     StatisticTableProps,
     TableColumn,
 } from "./StatisticTable";
+import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export const useTableFilters = (
     rows: StatisticTableProps["rows"],
@@ -23,20 +24,12 @@ export const useTableFilters = (
         }, {})
     );
 
-    const eventSourceOptions = useMemo(() => {
-        return configurations.selectableOptions.eventTrackerConfigurations.dataSources.map(
-            dataSource => ({
-                value: dataSource.id,
-                label: dataSource.name,
-            })
-        );
-    }, [configurations.selectableOptions.eventTrackerConfigurations.dataSources]);
+    const allFiltersEmpty = useMemo(
+        () => Object.keys(filters).every(key => (filters[key] || []).length === 0),
+        [filters]
+    );
 
     const filteredRows = useMemo(() => {
-        const allFiltersEmpty = Object.keys(filters).every(
-            key => (filters[key] || []).length === 0
-        );
-
         if (searchTerm === "" && allFiltersEmpty && eventSourceSelected === "") {
             return rows;
         } else {
@@ -71,15 +64,51 @@ export const useTableFilters = (
                 })
                 .value();
         }
-    }, [filters, searchTerm, eventSourceSelected, rows, filtersConfig]);
+    }, [allFiltersEmpty, filters, searchTerm, eventSourceSelected, rows, filtersConfig]);
+
+    const eventSourceOptions = useMemo(() => {
+        const eventSources =
+            configurations.selectableOptions.eventTrackerConfigurations.dataSources.map(
+                dataSource => ({
+                    value: dataSource.id,
+                    label: dataSource.name,
+                })
+            );
+
+        if (!eventSourceSelected && !allFiltersEmpty) {
+            return _(filteredRows)
+                .map(row => ({
+                    value: row.eventSource || "",
+                    label:
+                        eventSources.find(eventSource => eventSource.value === row.eventSource)
+                            ?.label ?? "",
+                }))
+                .uniqBy(row => row.value)
+                .value();
+        }
+
+        return eventSources;
+    }, [
+        allFiltersEmpty,
+        configurations.selectableOptions.eventTrackerConfigurations.dataSources,
+        eventSourceSelected,
+        filteredRows,
+    ]);
 
     const filterOptions = useCallback(
-        (column: TableColumn["value"]) => {
+        (column: TableColumn["value"], dataSource?: DataSource) => {
             return _(rows)
-                .map(row => ({
-                    value: row[column] || "",
-                    label: row[column] || "",
-                }))
+                .compactMap(row => {
+                    const columnValue = row[column] || "";
+                    const filterOption = {
+                        value: columnValue,
+                        label: columnValue,
+                    };
+
+                    if (dataSource)
+                        return row.eventSource === dataSource ? filterOption : undefined;
+                    return filterOption;
+                })
                 .uniqBy(filter => filter.value)
                 .value();
         },
