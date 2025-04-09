@@ -85,4 +85,12 @@ export type PerformanceMetrics717 = {
     type: "primary" | "secondary";
     value?: number | "Inc";
     key: PerformanceMetrics717Key;
+    total?: number;
+};
+
+export type TotalPerformanceMetrics717 = {
+    id: string;
+    type: "total";
+    value?: number | "Inc";
+    key: PerformanceMetrics717Key;
 };
