@@ -27,7 +27,7 @@ import {
     PerformanceOverviewMetrics,
     DiseaseNames,
     PerformanceMetrics717,
-    IncidentStatus,
+    IncidentStatusFilter,
     PerformanceMetrics717Key,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../domain/entities/Ref";
@@ -160,7 +160,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         id: activeVerified.id,
                         type: "disease",
                         name: activeVerified.disease as DiseaseNames,
-                        incidentStatus: activeVerified.incidentStatus as IncidentStatus,
+                        incidentStatus: activeVerified.incidentStatus as IncidentStatusFilter,
                     };
                     return eventTrackerCount;
                 } else {
@@ -168,7 +168,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         id: activeVerified.id,
                         type: "hazard",
                         name: activeVerified.hazardType as HazardNames,
-                        incidentStatus: activeVerified.incidentStatus as IncidentStatus,
+                        incidentStatus: activeVerified.incidentStatus as IncidentStatusFilter,
                     };
                     return eventTrackerCount;
                 }
@@ -588,7 +588,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             });
     }
 
-    getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]> {
+    getAlertsPerformanceOverviewMetrics(): FutureData<
+        Omit<AlertsPerformanceOverviewMetrics, "incidentStatus">[]
+    > {
         return this.datastore
             .getObject<AlertsPerformanceOverviewDimensions>(
                 ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
@@ -614,7 +616,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.detect7d,
                                     performanceOverviewDimensions.incidentManager,
                                     performanceOverviewDimensions.respond7d,
-                                    performanceOverviewDimensions.incidentStatus,
                                     performanceOverviewDimensions.emergedDate,
                                 ],
                                 startDate: DEFAULT_START_DATE,
@@ -625,7 +626,10 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             }
                         )
                     ).flatMap(response => {
-                        const mappedIndicators: AlertsPerformanceOverviewMetrics[] = response.rows
+                        const mappedIndicators: Omit<
+                            AlertsPerformanceOverviewMetrics,
+                            "incidentStatus"
+                        >[] = response.rows
                             .map((row: string[]) => {
                                 return Object.keys(performanceOverviewDimensions).reduce(
                                     (acc, dimensionKey) => {

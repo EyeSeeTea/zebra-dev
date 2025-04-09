@@ -1,7 +1,7 @@
 import {
     DiseaseNames,
     HazardNames,
-    IncidentStatus,
+    IncidentStatusFilter,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../../domain/entities/Ref";
 
@@ -30,7 +30,7 @@ type EventTrackerCountIndicatorBase = {
     id: Id;
     type: "disease" | "hazard";
     name: DiseaseNames | HazardNames;
-    incidentStatus: IncidentStatus;
+    incidentStatus: IncidentStatusFilter;
     count?: number;
 };
 

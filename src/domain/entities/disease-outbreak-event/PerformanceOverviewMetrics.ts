@@ -56,12 +56,18 @@ export type PerformanceOverviewMetrics = {
     eventSource: DataSource;
 };
 
-export type IncidentStatus = "Watch" | "Alert" | "Respond" | "ALL";
+const incidentStatuses = ["Watch", "Alert", "Respond"] as const;
+export type IncidentStatus = (typeof incidentStatuses)[number];
+export const isIncidentStatus = (status: string): status is IncidentStatus => {
+    return incidentStatuses.includes(status as IncidentStatus);
+};
+
+export type IncidentStatusFilter = IncidentStatus | "ALL";
 
 type BaseCounts = {
     name: DiseaseNames | HazardNames;
     total: number;
-    incidentStatus: IncidentStatus;
+    incidentStatus: IncidentStatusFilter;
     type: "disease" | "hazard";
 };
 

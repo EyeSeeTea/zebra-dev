@@ -24,12 +24,25 @@ import { DateRangePicker } from "../../date-picker/DateRangePicker";
 import { useAppContext } from "../../../contexts/app-context";
 import { Selector } from "../../selector/Selector";
 import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { Id } from "@eyeseetea/d2-api";
 
-export type TableColumn = {
+export type BaseColumn = {
     value: string;
     label: string;
     dark?: boolean;
+    type: "text" | "selector";
 };
+
+export type TextColumn = BaseColumn & {
+    type: "text";
+};
+
+export type SelectorColumn = BaseColumn & {
+    type: "selector";
+    options: Option<string>[];
+};
+
+export type TableColumn = TextColumn | SelectorColumn;
 
 export type Order<T> = {
     name: keyof T;
@@ -72,6 +85,12 @@ export type StatisticTableProps = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
+    handleColumnEdit?: (
+        columnName: string,
+        rowId: Maybe<Id>,
+        orgUnitName: Maybe<string>,
+        value: string
+    ) => void;
 };
 
 const DEFAULT_ARRAY_VALUE: string[] = [];
@@ -96,6 +115,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         setEventSourceSelected,
         allowGoToEventOnClick = false,
         hasEventSourceFilter = false,
+        handleColumnEdit,
     }) => {
         const { generatePath } = useRoutes();
         const { currentUser } = useAppContext();
@@ -207,6 +227,25 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                                     column.value
                                                 )}
                                             />
+                                        ) : column.type === "selector" &&
+                                          column.options &&
+                                          handleColumnEdit ? (
+                                            <StyledTableCell>
+                                                <Selector
+                                                    id={`selector-${rowIndex}-${column.value}`}
+                                                    options={column.options}
+                                                    selected={row[column.value] ?? ""}
+                                                    onChange={value =>
+                                                        handleColumnEdit(
+                                                            column.value,
+                                                            row.teiId,
+                                                            row.orgUnit,
+                                                            value
+                                                        )
+                                                    }
+                                                    disableSearch
+                                                />
+                                            </StyledTableCell>
                                         ) : (
                                             <StyledTableCell
                                                 key={`${rowIndex}-${column.value}`}

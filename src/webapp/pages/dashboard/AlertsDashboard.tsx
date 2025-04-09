@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useCallback } from "react";
 import styled from "styled-components";
 
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
@@ -18,10 +18,15 @@ import { PerformanceMetric717 } from "./use717Performance";
 import i18n from "../../../utils/i18n";
 import { Pagination } from "../../components/pagination/Pagination";
 import { SelectorFiltersConfig } from "./useAlertsActiveVerifiedFilters";
-import { TotalCardCounts } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    IncidentStatus,
+    isIncidentStatus,
+    TotalCardCounts,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { AlertsPerformanceOverviewMetricsTableData, Order } from "./useAlertsPerformanceOverview";
 import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../components/utils/option";
+import { Id } from "../../../domain/entities/Ref";
 
 export type AlertsDashboardProps = {
     selectorFiltersConfig: SelectorFiltersConfig[];
@@ -33,12 +38,9 @@ export type AlertsDashboardProps = {
         onChange: (value: string[]) => void;
         value: string[];
     };
-
     cardCountsLoading: boolean;
     cardCounts: TotalCardCounts[];
-
     alertsPerformanceMetrics717: PerformanceMetric717[];
-
     columns: TableColumn[];
     dataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
     paginatedDataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
@@ -58,6 +60,7 @@ export type AlertsDashboardProps = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
+    updateAlertIncidentStatus: (alertId: Id, orgUnitName: string, status: IncidentStatus) => void;
 };
 
 export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props => {
@@ -76,8 +79,28 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         totalPages,
         currentPage,
         goToPage,
+        updateAlertIncidentStatus,
         ...restAlertsPerformanceOverview
     } = props;
+
+    const handleColumnEdit = useCallback(
+        (columnName: string, alertId: Maybe<Id>, orgUnitName: Maybe<string>, value: string) => {
+            if (columnName === "incidentStatus") {
+                if (!alertId || !orgUnitName) {
+                    console.debug("Alert id cannot be null, not updating status");
+                    return;
+                }
+                if (!isIncidentStatus(value)) {
+                    console.debug("Invalid incident status, not updating status");
+                    return;
+                }
+                updateAlertIncidentStatus(alertId, orgUnitName, value);
+            } else {
+                console.debug(`Unhandled column edit :  ${columnName}`);
+            }
+        },
+        [updateAlertIncidentStatus]
+    );
 
     return (
         <>
@@ -165,6 +188,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     <StatisticTable
                         rows={dataAlertsPerformanceOverview}
                         paginatedRows={paginatedDataAlertsPerformanceOverview}
+                        handleColumnEdit={handleColumnEdit}
                         {...restAlertsPerformanceOverview}
                     />
                     <Pagination
