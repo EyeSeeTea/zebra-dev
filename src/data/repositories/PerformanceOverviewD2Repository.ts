@@ -67,7 +67,8 @@ const EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "event-tracker-717-performance-program-indicators";
 const ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "alerts-717-performance-program-indicators";
-const TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY = "total-717-performance-indicators";
+const TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
+    "total-717-performance-program-indicators";
 const PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY = "performance-overview-dimensions";
 const ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY =
     "alerts-performance-overview-dimensions";
