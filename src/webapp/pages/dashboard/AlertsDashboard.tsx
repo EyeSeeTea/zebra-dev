@@ -22,6 +22,7 @@ import { TotalCardCounts } from "../../../domain/entities/disease-outbreak-event
 import { AlertsPerformanceOverviewMetricsTableData, Order } from "./useAlertsPerformanceOverview";
 import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../components/utils/option";
+import { formatStatCardPreTitle } from "./NationalDashboard";
 
 export type AlertsDashboardProps = {
     selectorFiltersConfig: SelectorFiltersConfig[];
@@ -151,7 +152,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                                 key={index}
                                 stat={`${perfMetric717.primaryValue}`}
                                 title={perfMetric717.title}
-                                pretitle={`${perfMetric717.secondaryValue} ${i18n.t("events")}`}
+                                pretitle={formatStatCardPreTitle(perfMetric717)}
                                 color={perfMetric717.color}
                                 fillParent
                                 isPercentage

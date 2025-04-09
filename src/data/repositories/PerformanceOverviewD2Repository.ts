@@ -29,6 +29,7 @@ import {
     PerformanceMetrics717,
     IncidentStatus,
     PerformanceMetrics717Key,
+    TotalPerformanceMetrics717,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
@@ -66,6 +67,7 @@ const EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "event-tracker-717-performance-program-indicators";
 const ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "alerts-717-performance-program-indicators";
+const TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY = "total-717-performance-indicators";
 const PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY = "performance-overview-dimensions";
 const ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY =
     "alerts-performance-overview-dimensions";
@@ -719,67 +721,87 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     private mapIndicatorsTo717PerformanceMetrics(
         performanceMetric717Response: string[][],
-        metricIdList: PerformanceMetrics717[]
+        metricIdList: PerformanceMetrics717[],
+        totalPerformance717ProgramIndicator?: TotalPerformanceMetrics717
     ): PerformanceMetrics717[] {
+        const totalIndicatorValue = performanceMetric717Response.find(
+            ([id]) => id === totalPerformance717ProgramIndicator?.id
+        )?.[1];
+
         return _(
-            performanceMetric717Response.map(([id, value]) => {
-                const indicator = metricIdList.find(d => d.id === id);
+            performanceMetric717Response
+                .filter(([id]) => totalPerformance717ProgramIndicator?.id !== id)
+                .map(([id, value]) => {
+                    const indicator = metricIdList.find(d => d.id === id);
 
-                if (!indicator) throw new Error(`Unknown Indicator with id ${id} `);
+                    if (!indicator) throw new Error(`Unknown Indicator with id ${id} `);
 
-                return {
-                    ...indicator,
-                    value: value ? parseFloat(value) : ("Inc" as const),
-                    type: indicator.type,
-                };
-            })
+                    return {
+                        ...indicator,
+                        value: value ? parseFloat(value) : ("Inc" as const),
+                        type: indicator.type,
+                        total: totalIndicatorValue ? parseFloat(totalIndicatorValue) : undefined,
+                    };
+                })
         )
             .compact()
             .value();
     }
 
     getNational717Performance(): FutureData<PerformanceMetrics717[]> {
-        return this.get717PerformanceIndicators("national").flatMap(
-            performance717ProgramIndicators => {
-                return apiToFuture(
-                    this.api.analytics.get({
-                        dimension: [
-                            `dx:${performance717ProgramIndicators.map(({ id }) => id).join(";")}`,
-                        ],
-                        startDate: DEFAULT_START_DATE,
-                        endDate: DEFAULT_END_DATE,
-                        includeMetadataDetails: true,
-                    })
-                ).map(res => {
-                    return this.mapIndicatorsTo717PerformanceMetrics(
-                        res.rows,
-                        performance717ProgramIndicators
-                    );
-                });
-            }
-        );
+        return Future.joinObj({
+            performance717ProgramIndicators: this.get717PerformanceIndicators("national"),
+            totalPerformance717ProgramIndicator:
+                this.getTotalPerformance717ProgramIndicator("national"),
+        }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
+            const performance717ProgramIndicatorIds = [
+                ...performance717ProgramIndicators.map(({ id }) => id),
+                totalPerformance717ProgramIndicator?.id,
+            ];
+
+            return apiToFuture(
+                this.api.analytics.get({
+                    dimension: [`dx:${performance717ProgramIndicatorIds.join(";")}`],
+                    startDate: DEFAULT_START_DATE,
+                    endDate: DEFAULT_END_DATE,
+                    includeMetadataDetails: true,
+                })
+            ).map(res => {
+                return this.mapIndicatorsTo717PerformanceMetrics(
+                    res.rows,
+                    performance717ProgramIndicators,
+                    totalPerformance717ProgramIndicator
+                );
+            });
+        });
     }
 
     getAlerts717Performance(): FutureData<PerformanceMetrics717[]> {
-        return this.get717PerformanceIndicators("alerts").flatMap(
-            performance717ProgramIndicators => {
-                return apiToFuture(
-                    this.api.analytics.get({
-                        dimension: [
-                            `dx:${performance717ProgramIndicators.map(({ id }) => id).join(";")}`,
-                        ],
-                        startDate: DEFAULT_START_DATE,
-                        endDate: DEFAULT_END_DATE,
-                        includeMetadataDetails: true,
-                    })
-                ).map(res => {
-                    return this.mapIndicatorsTo717PerformanceMetrics(
-                        res.rows,
-                        performance717ProgramIndicators
-                    );
-                });
-            }
-        );
+        return Future.joinObj({
+            performance717ProgramIndicators: this.get717PerformanceIndicators("alerts"),
+            totalPerformance717ProgramIndicator:
+                this.getTotalPerformance717ProgramIndicator("alerts"),
+        }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
+            const performance717ProgramIndicatorIds = [
+                ...performance717ProgramIndicators.map(({ id }) => id),
+                totalPerformance717ProgramIndicator?.id,
+            ];
+
+            return apiToFuture(
+                this.api.analytics.get({
+                    dimension: [`dx:${performance717ProgramIndicatorIds.join(";")}`],
+                    startDate: DEFAULT_START_DATE,
+                    endDate: DEFAULT_END_DATE,
+                    includeMetadataDetails: true,
+                })
+            ).map(res => {
+                return this.mapIndicatorsTo717PerformanceMetrics(
+                    res.rows,
+                    performance717ProgramIndicators,
+                    totalPerformance717ProgramIndicator
+                );
+            });
+        });
     }
 
     getEvent717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
@@ -844,6 +866,25 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         return Future.success(performance717ProgramIndicators);
                     }
                 );
+            });
+    }
+
+    private getTotalPerformance717ProgramIndicator(
+        key: PerformanceMetrics717Key
+    ): FutureData<Maybe<TotalPerformanceMetrics717>> {
+        return this.datastore
+            .getObject<TotalPerformanceMetrics717[]>(
+                TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+            )
+            .flatMap(nullable717TotalPerformanceIndicators => {
+                return assertOrError(
+                    nullable717TotalPerformanceIndicators,
+                    TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+                ).flatMap(performance717Indicators => {
+                    return Future.success(
+                        performance717Indicators.find(indicator => indicator.key === key)
+                    );
+                });
             });
     }
 
