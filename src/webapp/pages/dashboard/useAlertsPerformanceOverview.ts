@@ -16,6 +16,9 @@ import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
 import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
+import { useSnackbar } from "@eyeseetea/d2-ui-components";
+import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     event: string;
@@ -61,6 +64,7 @@ type State = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
+    updateAlertIncidentStatus: (alertId: Id, orgUnitName: string, status: IncidentStatus) => void;
 };
 
 export type Order = {
@@ -74,7 +78,10 @@ export function useAlertsPerformanceOverview(): State {
         configurations: { teamMembers },
         currentUser,
     } = useAppContext();
+    const [refreshAlertsPerformanceOverviewMetrics, setRefreshAlertsPerformanceOverviewMetrics] =
+        useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const snackbar = useSnackbar();
 
     const columnRules = useMemo(
         () => ({
@@ -141,20 +148,26 @@ export function useAlertsPerformanceOverview(): State {
                         ? i18n.t("Disease")
                         : i18n.t("Disease/Hazard Type"),
                 value: "event",
+                type: "text",
             },
-            { label: i18n.t("Province"), value: "province" },
-            { label: i18n.t("Organisation unit"), value: "orgUnit" },
-            { label: i18n.t("Organisation unit type"), value: "orgUnitType" },
-            { label: i18n.t("Cases"), value: "cases" },
-            { label: i18n.t("Deaths"), value: "deaths" },
-            { label: i18n.t("Duration"), value: "duration" },
-            { label: i18n.t("Manager"), value: "incidentManager" },
-            { label: i18n.t("Detect 7d"), dark: true, value: "detect7d" },
-            { label: i18n.t("Notify 1d"), dark: true, value: "notify1d" },
-            { label: i18n.t("Respond 7d"), dark: true, value: "respond7d" },
-            { label: i18n.t("Incident Status"), value: "incidentStatus" },
-            { label: i18n.t("EMS Id"), value: "eventEBSId" },
-            { label: i18n.t("Outbreak Id"), value: "eventIBSId" },
+            { label: i18n.t("Province"), value: "province", type: "text" },
+            { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
+            { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
+            { label: i18n.t("Cases"), value: "cases", type: "text" },
+            { label: i18n.t("Deaths"), value: "deaths", type: "text" },
+            { label: i18n.t("Duration"), value: "duration", type: "text" },
+            { label: i18n.t("Manager"), value: "incidentManager", type: "text" },
+            { label: i18n.t("Detect 7d"), dark: true, value: "detect7d", type: "text" },
+            { label: i18n.t("Notify 1d"), dark: true, value: "notify1d", type: "text" },
+            { label: i18n.t("Respond 7d"), dark: true, value: "respond7d", type: "text" },
+            {
+                label: i18n.t("Incident Status"),
+                value: "incidentStatus",
+                type: "selector",
+                options: incidentStatusOptions,
+            },
+            { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
+            { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
         ],
         [eventSourceSelected]
     );
@@ -209,7 +222,28 @@ export function useAlertsPerformanceOverview(): State {
         setAlertsDataPerformanceOverview,
         teamMembers.all,
         currentUser.username,
+        refreshAlertsPerformanceOverviewMetrics,
     ]);
+
+    const updateAlertIncidentStatus = useCallback(
+        (alertId: Id, orgUnitName: string, status: IncidentStatus) => {
+            setIsLoading(true);
+            compositionRoot.performanceOverview.updateAlertIncidentStatus
+                .execute(alertId, orgUnitName, status)
+                .run(
+                    () => {
+                        snackbar.info("Incident status updated successfully!");
+                        setRefreshAlertsPerformanceOverviewMetrics({}); //trigger reload of data
+                        setIsLoading(false);
+                    },
+                    error => {
+                        snackbar.error(`Error updating Incident status : ${error.message}`);
+                        setIsLoading(false);
+                    }
+                );
+        },
+        [compositionRoot, snackbar]
+    );
 
     return {
         columns: columnsDependingEventSource,
@@ -232,5 +266,6 @@ export function useAlertsPerformanceOverview(): State {
         eventSourceSelected,
         setEventSourceSelected,
         hasEventSourceFilter: true,
+        updateAlertIncidentStatus,
     };
 }
