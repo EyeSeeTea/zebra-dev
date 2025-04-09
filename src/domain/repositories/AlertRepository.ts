@@ -9,6 +9,7 @@ import { IncidentStatus } from "../entities/disease-outbreak-event/PerformanceOv
 import { Id } from "../entities/Ref";
 
 export interface AlertRepository {
+    //TO DO : Remove this automatic mapping of alerts to disease as per R3 requirements.
     updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]>;
     updateAlertIncidentStatus(
         alertId: Id,

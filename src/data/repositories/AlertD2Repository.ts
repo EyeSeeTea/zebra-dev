@@ -20,6 +20,13 @@ import { outbreakDataSourceMapping, outbreakTEAMapping } from "./utils/AlertOutb
 import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 const ALERT_TRACKED_ENTITY_TYPE = "QH1LBzGrk5g";
+
+const incidentStatusOptionMap = new Map<IncidentStatus, string>([
+    ["Alert", "PHEOC_STATUS_ALERT"],
+    ["Respond", "PHEOC_STATUS_RESPOND"],
+    ["Watch", "PHEOC_STATUS_WATCH"],
+]);
+
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
 
@@ -102,21 +109,17 @@ export class AlertD2Repository implements AlertRepository {
                     },
                 ],
             };
-
             return apiToFuture(
                 this.api.tracker.post(
                     { importStrategy: "UPDATE" },
                     { trackedEntities: [alertsToPost] }
                 )
             ).flatMap(resp => {
-                //Trigger analytics to update the alert status in the dashboard
-                return apiToFuture(this.api.analytics.run()).flatMap(() => {
-                    if (resp.status === "ERROR")
-                        return Future.error(
-                            new Error(`Error updating alert incident status : ${resp.message}`)
-                        );
-                    else return Future.success(undefined);
-                });
+                if (resp.status === "ERROR")
+                    return Future.error(
+                        new Error(`Error updating alert incident status : ${resp.message}`)
+                    );
+                else return Future.success(undefined);
             });
         });
     }
@@ -139,28 +142,15 @@ export class AlertD2Repository implements AlertRepository {
     }
 
     private mapIncidentStatusToOption(status: IncidentStatus): string {
-        switch (status) {
-            case "Alert":
-                return "PHEOC_STATUS_ALERT";
-            case "Respond":
-                return "PHEOC_STATUS_RESPOND";
-            case "Watch":
-                return "PHEOC_STATUS_WATCH";
-            default:
-                throw new Error(`Unknown incident status: ${status}`);
-        }
+        return incidentStatusOptionMap.get(status) || "";
     }
     private mapOptionToIncidentStatus(status: Maybe<string>): Maybe<IncidentStatus> {
-        switch (status) {
-            case "PHEOC_STATUS_ALERT":
-                return "Alert";
-            case "PHEOC_STATUS_RESPOND":
-                return "Respond";
-            case "PHEOC_STATUS_WATCH":
-                return "Watch";
-            default:
-                return undefined;
-        }
+        if (!status) return undefined;
+
+        const incidentStatus = [...incidentStatusOptionMap.entries()].find(
+            ([, value]) => value === status
+        );
+        return incidentStatus ? incidentStatus[0] : undefined;
     }
 
     private getTrackedEntitiesByTEACode(options: {
