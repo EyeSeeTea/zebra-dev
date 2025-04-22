@@ -2,28 +2,25 @@ import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-    RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
 } from "./consts/DiseaseOutbreakConstants";
 import { AlertOptions, AlertRepository } from "../../domain/repositories/AlertRepository";
 import { Id } from "../../domain/entities/Ref";
-import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
-import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Alert } from "../../domain/entities/alert/Alert";
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
-import { outbreakDataSourceMapping, outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
+import { outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
 
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
 
     updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]> {
-        const { dataSource, eventId, incidentStatus, outbreakValue } = alertOptions;
-        const outbreakData = this.getAlertOutbreakData(dataSource, outbreakValue);
+        const { eventId, outbreakValue } = alertOptions;
+        const outbreakData = this.getAlertOutbreakData(outbreakValue);
 
         return this.getTrackedEntitiesByTEACode({
             program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
@@ -45,10 +42,6 @@ export class AlertD2Repository implements AlertRepository {
                         {
                             attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
                             value: eventId,
-                        },
-                        {
-                            attribute: RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID,
-                            value: incidentStatus,
                         },
                     ],
                 })
@@ -96,12 +89,9 @@ export class AlertD2Repository implements AlertRepository {
         return outbreakTEAMapping[filter.type];
     }
 
-    private getAlertOutbreakData(
-        dataSource: DataSource,
-        outbreakValue: Maybe<string>
-    ): OutbreakData {
+    private getAlertOutbreakData(outbreakValue: Maybe<string>): OutbreakData {
         return {
-            type: outbreakDataSourceMapping[dataSource],
+            type: "disease",
             value: outbreakValue,
         };
     }

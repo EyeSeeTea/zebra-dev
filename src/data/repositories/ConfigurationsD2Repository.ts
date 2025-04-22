@@ -2,8 +2,6 @@ import { D2Api, MetadataPick } from "@eyeseetea/d2-api/2.36";
 import { ConfigurationsRepository as ConfigurationsRepository } from "../../domain/repositories/ConfigurationsRepository";
 import { Option } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
-import _ from "../../domain/entities/generic/Collection";
-import { getHazardTypeByCode } from "./consts/DiseaseOutbreakConstants";
 import { Future } from "../../domain/entities/generic/Future";
 import { SelectableOptions } from "../../domain/entities/AppConfigurations";
 import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
@@ -48,15 +46,6 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                     if (dataSources)
                         selectableOptions.eventTrackerConfigurations.dataSources =
                             this.mapD2OptionSetToOptions(dataSources);
-                } else if (key === "hazardTypes") {
-                    const hazardTypes = optionsResponse.optionSets.find(
-                        optionSet => optionSet.code === value
-                    );
-                    if (hazardTypes) {
-                        const hazardOptions = this.mapD2OptionSetToOptions(hazardTypes);
-                        selectableOptions.eventTrackerConfigurations.hazardTypes =
-                            this.getHazardTypes(hazardOptions);
-                    }
                 } else if (key === "mainSyndromes") {
                     const mainSyndromes = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
@@ -78,13 +67,6 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                     if (notificationSources)
                         selectableOptions.eventTrackerConfigurations.notificationSources =
                             this.mapD2OptionSetToOptions(notificationSources);
-                } else if (key === "incidentStatus") {
-                    const incidentStatus = optionsResponse.optionSets.find(
-                        optionSet => optionSet.code === value
-                    );
-                    if (incidentStatus)
-                        selectableOptions.eventTrackerConfigurations.incidentStatus =
-                            this.mapD2OptionSetToOptions(incidentStatus);
                 } else if (key === "populationAtRisk") {
                     const populationAtRisk = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
@@ -217,11 +199,9 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
                 dataSources: [],
-                hazardTypes: [],
                 mainSyndromes: [],
                 suspectedDiseases: [],
                 notificationSources: [],
-                incidentStatus: [],
                 incidentManagers: [],
                 casesDataSource: [],
             },
@@ -266,20 +246,6 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                 name: option.name,
             })
         );
-    }
-
-    private getHazardTypes(hazardTypesByCode: Option[]): Option[] {
-        return _(hazardTypesByCode)
-            .compactMap(hazardType => {
-                const hazardTypeId = getHazardTypeByCode(hazardType.id);
-                if (hazardTypeId) {
-                    return {
-                        id: hazardTypeId,
-                        name: hazardType.name,
-                    };
-                }
-            })
-            .toArray();
     }
 }
 

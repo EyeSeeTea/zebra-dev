@@ -23,11 +23,9 @@ export function getTestContext() {
             selectableOptions: {
                 eventTrackerConfigurations: {
                     dataSources: [],
-                    hazardTypes: [],
                     mainSyndromes: [],
                     suspectedDiseases: [],
                     notificationSources: [],
-                    incidentStatus: [],
                     incidentManagers: [],
                     casesDataSource: [],
                 },

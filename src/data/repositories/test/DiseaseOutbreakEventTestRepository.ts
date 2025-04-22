@@ -117,9 +117,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             },
         ]);
     }
-    getEventByDiseaseOrHazardType(
-        _filter: OutbreakData
-    ): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
+    getEventByDisease(_filter: OutbreakData): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
         return Future.success([
             {
                 id: "1",

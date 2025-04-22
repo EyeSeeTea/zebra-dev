@@ -16,11 +16,9 @@ import { OrgUnit } from "./OrgUnit";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
-    hazardTypes: Option[];
     mainSyndromes: Option[];
     suspectedDiseases: Option[];
     notificationSources: Option[];
-    incidentStatus: Option[];
     incidentManagers: TeamMember[];
     casesDataSource: Option[];
 };

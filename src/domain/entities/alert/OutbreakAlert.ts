@@ -3,7 +3,7 @@ import { NotificationOptions } from "../../repositories/NotificationRepository";
 import { DataSource } from "../disease-outbreak-event/DiseaseOutbreakEvent";
 import { Alert } from "./Alert";
 
-export type OutbreakDataType = "disease" | "hazard";
+export type OutbreakDataType = "disease";
 
 export type OutbreakData = {
     type: OutbreakDataType;

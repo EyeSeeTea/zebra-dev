@@ -31,7 +31,7 @@ export class MapAndSaveAlertsUseCase {
     ) {}
 
     public async execute(): Promise<void> {
-        const { hazardTypes, suspectedDiseases } = await this.getOptions();
+        const { suspectedDiseases } = await this.getOptions();
         const alertData = await this.options.outbreakAlertRepository.get().toPromise();
 
         logger.info(
@@ -51,29 +51,20 @@ export class MapAndSaveAlertsUseCase {
         await promiseMap(uniqueFiltersWithAlerts, async uniqueFilterWithAlerts => {
             const { outbreakData, alerts } = uniqueFilterWithAlerts;
 
-            return this.mapDiseaseOutbreakToAlertsAndSave(
-                alerts,
-                outbreakData,
-                hazardTypes,
-                suspectedDiseases
-            );
+            return this.mapDiseaseOutbreakToAlertsAndSave(alerts, outbreakData, suspectedDiseases);
         });
     }
 
     private async mapDiseaseOutbreakToAlertsAndSave(
         alertData: OutbreakAlert[],
         outbreakData: OutbreakData,
-        hazardTypes: Option[],
         suspectedDiseases: Option[]
     ): Promise<void> {
         const diseaseOutbreakEvents = await this.getDiseaseOutbreakEvents(outbreakData);
-        const dataSource = this.getDataSource(outbreakData);
 
         if (diseaseOutbreakEvents.length > 1) {
             const outbreakKey = getOutbreakKey({
-                dataSource: dataSource,
                 outbreakValue: outbreakData.value,
-                hazardTypes: hazardTypes,
                 suspectedDiseases: suspectedDiseases,
             });
 
@@ -85,38 +76,27 @@ export class MapAndSaveAlertsUseCase {
         );
 
         await promiseMap(outbreakAlerts, alertData => {
-            return this.mapAndSaveAlertData(
-                alertData,
-                diseaseOutbreakEvents,
-                hazardTypes,
-                suspectedDiseases
-            );
+            return this.mapAndSaveAlertData(alertData, diseaseOutbreakEvents, suspectedDiseases);
         });
-    }
-
-    private getDataSource(outbreakData: OutbreakData): DataSource {
-        return mapping[outbreakData.type];
     }
 
     private getDiseaseOutbreakEvents(
         outbreakData: OutbreakData
     ): Promise<DiseaseOutbreakEventBaseAttrs[]> {
         return this.options.diseaseOutbreakEventRepository
-            .getEventByDiseaseOrHazardType(outbreakData)
+            .getEventByDisease(outbreakData)
             .toPromise();
     }
 
-    private getOptions(): Promise<{ hazardTypes: Option[]; suspectedDiseases: Option[] }> {
+    private getOptions(): Promise<{ suspectedDiseases: Option[] }> {
         const { configurationsRepository } = this.options;
 
         return configurationsRepository
             .getSelectableOptions()
             .flatMap(selectableOptions => {
-                const { hazardTypes, suspectedDiseases } =
-                    selectableOptions.eventTrackerConfigurations;
+                const { suspectedDiseases } = selectableOptions.eventTrackerConfigurations;
 
                 return Future.success({
-                    hazardTypes: hazardTypes,
                     suspectedDiseases: suspectedDiseases,
                 });
             })
@@ -126,16 +106,13 @@ export class MapAndSaveAlertsUseCase {
     private mapAndSaveAlertData(
         alertData: OutbreakAlert,
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[],
-        hazardTypes: Option[],
         suspectedDiseases: Option[]
     ): Promise<void> {
-        const { dataSource, outbreakData } = alertData;
+        const { outbreakData } = alertData;
 
         const outbreakType = outbreakData.type;
         const outbreakName = getOutbreakKey({
-            dataSource: dataSource,
             outbreakValue: outbreakData.value,
-            hazardTypes: hazardTypes,
             suspectedDiseases: suspectedDiseases,
         });
 
@@ -152,7 +129,6 @@ export class MapAndSaveAlertsUseCase {
         return this.updateAlertData({
             alertData: alertData,
             diseaseOutbreakEvent: diseaseOutbreakEvent,
-            hazardTypes: hazardTypes,
             suspectedDiseases: suspectedDiseases,
         });
     }
@@ -178,16 +154,13 @@ export class MapAndSaveAlertsUseCase {
     private async updateAlertData(options: {
         alertData: OutbreakAlert;
         diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs;
-        hazardTypes: Option[];
         suspectedDiseases: Option[];
     }): Promise<void> {
-        const { alertData, diseaseOutbreakEvent, hazardTypes, suspectedDiseases } = options;
+        const { alertData, diseaseOutbreakEvent, suspectedDiseases } = options;
 
         const alertOptions: AlertOptions = {
             eventId: diseaseOutbreakEvent.id,
-            dataSource: diseaseOutbreakEvent.dataSource,
             outbreakValue: alertData.outbreakData.value,
-            incidentStatus: diseaseOutbreakEvent.incidentStatus,
         };
 
         await this.options.alertRepository
@@ -198,10 +171,8 @@ export class MapAndSaveAlertsUseCase {
         return this.options.alertSyncRepository
             .saveAlertSyncData({
                 alert: alertData.alert,
-                dataSource: alertOptions.dataSource,
                 outbreakValue: alertOptions.outbreakValue,
                 nationalDiseaseOutbreakEventId: alertOptions.eventId,
-                hazardTypes: hazardTypes,
                 suspectedDiseases: suspectedDiseases,
             })
             .toPromise()
@@ -218,7 +189,6 @@ function getUniqueFilters(alerts: OutbreakAlert[]): OutbreakData[] {
 
 const mapping: Record<OutbreakDataType, DataSource> = {
     disease: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
-    hazard: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
 };
 
 const RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE = "RTSL_ZEBRA_NATONAL_WATCH_STAFF";

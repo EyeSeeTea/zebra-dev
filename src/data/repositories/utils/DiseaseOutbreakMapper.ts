@@ -6,18 +6,14 @@ import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/tracker
 import {
     DiseaseOutbreakCode,
     diseaseOutbreakCodes,
-    getHazardTypeByCode,
     getValueFromDiseaseOutbreak,
     isStringInDiseaseOutbreakCodes,
     DiseaseOutbreakKeyCode,
-    dataSourceMap,
-    incidentStatusMap,
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
     casesDataSourceMap,
 } from "../consts/DiseaseOutbreakConstants";
-import _ from "../../../domain/entities/generic/Collection";
 import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2TrackedEntityAttributeSchema } from "../../../types/d2-api";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
@@ -41,19 +37,14 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
 
     const fromMap = (key: keyof typeof diseaseOutbreakCodes) => getValueFromMap(key, trackedEntity);
 
-    const dataSource = dataSourceMap[fromMap("dataSource")];
-    const incidentStatus = incidentStatusMap[fromMap("incidentStatus")];
     const casesDataSource =
         casesDataSourceMap[fromMap("casesDataSource")] ??
         CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR;
-
-    if (!dataSource || !incidentStatus) return;
 
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
         status: trackedEntity.enrollments?.[0]?.status ?? "ACTIVE", //Zebra Outbreak has only one enrollment
         name: fromMap("name"),
-        dataSource: dataSource,
         created: trackedEntity.createdAt
             ? getISODateAsLocaleDateString(trackedEntity.createdAt)
             : undefined,
@@ -61,46 +52,10 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
             ? getISODateAsLocaleDateString(trackedEntity.updatedAt)
             : undefined,
         createdByName: undefined,
-        hazardType: getHazardTypeByCode(fromMap("hazardType")),
         mainSyndromeCode: fromMap("mainSyndrome"),
         suspectedDiseaseCode: fromMap("suspectedDisease"),
         notificationSourceCode: fromMap("notificationSource"),
-        incidentStatus: incidentStatus,
-        emerged: {
-            date: new Date(fromMap("emergedDate")),
-            narrative: fromMap("emergedNarrative"),
-        },
-        detected: {
-            date: new Date(fromMap("detectedDate")),
-            narrative: fromMap("detectedNarrative"),
-        },
-        notified: {
-            date: new Date(fromMap("notifiedDate")),
-            narrative: fromMap("notifiedNarrative"),
-        },
         incidentManagerName: fromMap("incidentManager"),
-        earlyResponseActions: {
-            initiateInvestigation: new Date(fromMap("initiateInvestigation")),
-            conductEpidemiologicalAnalysis: new Date(fromMap("conductEpidemiologicalAnalysis")),
-            laboratoryConfirmation: new Date(fromMap("laboratoryConfirmation")),
-            appropriateCaseManagement: {
-                date: new Date(fromMap("appropriateCaseManagementDate")),
-                na: fromMap("appropriateCaseManagementNA") === "true",
-            },
-            initiatePublicHealthCounterMeasures: {
-                date: new Date(fromMap("initiatePublicHealthCounterMeasuresDate")),
-                na: fromMap("initiatePublicHealthCounterMeasuresNA") === "true",
-            },
-            initiateRiskCommunication: {
-                date: new Date(fromMap("initiateRiskCommunicationDate")),
-                na: fromMap("initiateRiskCommunicationNA") === "true",
-            },
-            establishCoordination: {
-                date: new Date(fromMap("establishCoordinationDate")),
-                na: fromMap("establishCoordinationNA") === "true",
-            },
-            responseNarrative: fromMap("responseNarrative"),
-        },
         notes: fromMap("notes"),
         casesDataSource: casesDataSource,
     };

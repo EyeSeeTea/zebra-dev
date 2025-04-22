@@ -6,19 +6,7 @@ import { Code, Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
-import _ from "../generic/Collection";
 import { Username } from "../User";
-
-export const hazardTypes = [
-    "Biological:Human",
-    "Biological:Animal",
-    "Biological:HumanAndAnimal",
-    "Chemical",
-    "Environmental",
-    "Unknown",
-] as const;
-
-export type HazardType = (typeof hazardTypes)[number];
 
 export enum NationalIncidentStatus {
     RTSL_ZEB_OS_INCIDENT_STATUS_WATCH = "RTSL_ZEB_OS_INCIDENT_STATUS_WATCH",
@@ -38,27 +26,6 @@ export enum CasesDataSource {
     RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF = "RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF",
 }
 
-type DateWithNarrative = {
-    date: Date;
-    narrative: string;
-};
-
-type DateWithNA = {
-    date: Maybe<Date>;
-    na: Maybe<boolean>;
-};
-
-type EarlyResponseActions = {
-    initiateInvestigation: Date;
-    conductEpidemiologicalAnalysis: Date;
-    laboratoryConfirmation: Date;
-    appropriateCaseManagement: DateWithNA;
-    initiatePublicHealthCounterMeasures: DateWithNA;
-    initiateRiskCommunication: DateWithNA;
-    establishCoordination: DateWithNA;
-    responseNarrative: string;
-};
-
 export type CaseData = {
     updatedBy: Username;
     orgUnit: Id;
@@ -74,16 +41,9 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     created?: Date;
     lastUpdated?: Date;
     createdByName: Maybe<string>;
-    dataSource: DataSource;
-    hazardType: Maybe<HazardType>;
     mainSyndromeCode: Maybe<Code>;
     suspectedDiseaseCode: Maybe<Code>;
     notificationSourceCode: Code;
-    incidentStatus: NationalIncidentStatus;
-    emerged: DateWithNarrative;
-    detected: DateWithNarrative;
-    notified: DateWithNarrative;
-    earlyResponseActions: EarlyResponseActions;
     incidentManagerName: string;
     notes: Maybe<string>;
     casesDataSource: CasesDataSource;

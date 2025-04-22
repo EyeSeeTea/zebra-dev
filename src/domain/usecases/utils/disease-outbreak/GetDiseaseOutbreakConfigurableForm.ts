@@ -55,11 +55,7 @@ export function getDiseaseOutbreakConfigurableForm(
             });
 
             const outbreakKey = getOutbreakKey({
-                dataSource: diseaseOutbreakEvent.dataSource,
-                outbreakValue:
-                    diseaseOutbreakEvent.suspectedDiseaseCode || diseaseOutbreakEvent.hazardType,
-                hazardTypes:
-                    configurations.selectableOptions.eventTrackerConfigurations.hazardTypes,
+                outbreakValue: diseaseOutbreakEvent.suspectedDiseaseCode,
                 suspectedDiseases:
                     configurations.selectableOptions.eventTrackerConfigurations.suspectedDiseases,
             });
