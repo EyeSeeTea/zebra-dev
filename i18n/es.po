@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-01-24T10:58:18.826Z\n"
+"POT-Creation-Date: 2025-04-22T13:33:11.102Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -281,21 +281,6 @@ msgstr ""
 msgid "ERA7"
 msgstr ""
 
-msgid "Alert"
-msgstr ""
-
-msgid "Closed"
-msgstr ""
-
-msgid "Discarded"
-msgstr ""
-
-msgid "Respond"
-msgstr ""
-
-msgid "Watch"
-msgstr ""
-
 msgid "Event Tracker"
 msgstr ""
 
@@ -345,9 +330,6 @@ msgid "Overall Confidence"
 msgstr ""
 
 msgid "Risk Assessment Date: "
-msgstr ""
-
-msgid "N/A"
 msgstr ""
 
 msgid ""

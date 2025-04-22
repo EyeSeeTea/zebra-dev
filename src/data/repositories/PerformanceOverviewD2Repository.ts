@@ -804,7 +804,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                 ? NATIONAL_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
                 : key === "alerts"
                 ? ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
-                : "EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY";
+                : EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY;
 
         return this.datastore
             .getObject<PerformanceMetrics717[]>(datastoreKey)
