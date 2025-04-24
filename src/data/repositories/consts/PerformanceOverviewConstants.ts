@@ -21,7 +21,7 @@ export type PerformanceOverviewDimensions = {
 
 type EventTrackerCountIndicatorBase = {
     id: Id;
-    type: "disease" | "hazard";
+    type: "disease";
     name: DiseaseNames;
     incidentStatus: IncidentStatus;
     count?: number;

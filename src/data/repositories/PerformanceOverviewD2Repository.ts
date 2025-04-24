@@ -497,7 +497,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             if (!key)
                                                 return Future.error(
                                                     new Error(
-                                                        `No hazard type or suspected disease found for event : ${event.id}`
+                                                        `No suspected disease found for event : ${event.id}`
                                                     )
                                                 );
                                             const currentEventTrackerOverview =
@@ -576,7 +576,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.eventEBSId,
                                     performanceOverviewDimensions.eventIBSId,
                                     performanceOverviewDimensions.nationalDiseaseOutbreakEventId,
-                                    performanceOverviewDimensions.hazardType,
                                     performanceOverviewDimensions.suspectedDisease,
                                     performanceOverviewDimensions.cases,
                                     performanceOverviewDimensions.deaths,

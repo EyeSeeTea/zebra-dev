@@ -5,7 +5,6 @@ export type MapProgramIndicator = {
     id: string;
     name: string;
     disease: string | null;
-    hazardType: string | null;
     incidentStatus: string | null;
 };
 
