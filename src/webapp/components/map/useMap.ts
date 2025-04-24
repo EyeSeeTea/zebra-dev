@@ -201,11 +201,7 @@ export function useMap(params: {
                 const mapProgramIndicator =
                     mapKey === "dashboard"
                         ? getMainActiveVerifiedMapProgramIndicator(config.programIndicators)
-                        : getCasesMapProgramIndicator(
-                              config.programIndicators,
-                              eventDiseaseCode,
-                              eventHazardCode
-                          );
+                        : getCasesMapProgramIndicator(config.programIndicators, eventDiseaseCode);
 
                 if (!mapProgramIndicator || allOrgUnitsIds.length === 0) {
                     setMapConfigState({
@@ -259,21 +255,15 @@ function getMainActiveVerifiedMapProgramIndicator(
     programIndicators: MapProgramIndicator[]
 ): Maybe<MapProgramIndicator> {
     return programIndicators.find(
-        indicator =>
-            indicator.disease === "ALL" &&
-            indicator.hazardType === "ALL" &&
-            indicator.incidentStatus === "ALL"
+        indicator => indicator.disease === "ALL" && indicator.incidentStatus === "ALL"
     );
 }
 
 function getCasesMapProgramIndicator(
     programIndicators: MapProgramIndicator[],
-    disease: Maybe<string>,
-    hazardType: Maybe<string>
+    disease: Maybe<string>
 ): Maybe<MapProgramIndicator> {
-    return programIndicators.find(
-        indicator => indicator.disease === disease || indicator.hazardType === hazardType
-    );
+    return programIndicators.find(indicator => indicator.disease === disease);
 }
 
 function getFilteredActiveVerifiedMapProgramIndicator(
@@ -292,21 +282,13 @@ function getFilteredActiveVerifiedMapProgramIndicator(
         return programIndicators.find(indicator => {
             const isIndicatorDisease =
                 diseaseFilterValue && indicator.disease === diseaseFilterValue;
-            const isIndicatorHazardType =
-                hazardFilterValue && indicator.hazardType === hazardFilterValue;
             const isIndicatorIncidentStatus =
                 incidentStatusFilterValue && indicator.incidentStatus === incidentStatusFilterValue;
 
             const isAllIncidentStatusIndicator = indicator.incidentStatus === "ALL";
             const isAllDiseaseIndicator = indicator.disease === "ALL";
-            const isAllHazardTypeIndicator = indicator.hazardType === "ALL";
 
             if (isIndicatorDisease) {
-                return (
-                    isIndicatorIncidentStatus ||
-                    (!incidentStatusFilterValue && isAllIncidentStatusIndicator)
-                );
-            } else if (isIndicatorHazardType) {
                 return (
                     isIndicatorIncidentStatus ||
                     (!incidentStatusFilterValue && isAllIncidentStatusIndicator)
@@ -314,9 +296,8 @@ function getFilteredActiveVerifiedMapProgramIndicator(
             } else if (isIndicatorIncidentStatus) {
                 return (
                     (!hazardFilterValue && !diseaseFilterValue && isAllDiseaseIndicator) ||
-                    (!hazardFilterValue && !diseaseFilterValue && isAllHazardTypeIndicator) ||
-                    isIndicatorDisease ||
-                    isIndicatorHazardType
+                    (!hazardFilterValue && !diseaseFilterValue) ||
+                    isIndicatorDisease
                 );
             }
 

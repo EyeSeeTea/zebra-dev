@@ -29,7 +29,6 @@ export function useAlertsActiveVerifiedFilters(): State {
 
     const [singleSelectFilters, setSingleSelectsFilters] = useState<Record<string, string>>({
         disease: "",
-        hazard: "",
         incidentStatus: "",
     });
     const [multiSelectFilters, setMultiSelectFilters] = useState<Record<string, string[]>>({
