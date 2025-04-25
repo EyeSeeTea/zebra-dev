@@ -49,7 +49,6 @@ export function useMap(params: {
     mapKey: MapKey;
     allOrgUnitsIds: string[];
     eventDiseaseCode?: string;
-    eventHazardCode?: string;
     casesDataSource?: CasesDataSource;
     dateRangeFilter?: string[];
     singleSelectFilters?: Record<string, string>;
@@ -59,7 +58,6 @@ export function useMap(params: {
         mapKey,
         allOrgUnitsIds,
         eventDiseaseCode,
-        eventHazardCode,
         casesDataSource,
         dateRangeFilter,
         singleSelectFilters,
@@ -151,7 +149,7 @@ export function useMap(params: {
 
         if (
             mapKey === "event_tracker" &&
-            (eventDiseaseCode || eventHazardCode) &&
+            eventDiseaseCode &&
             (newStartDate !== mapConfigState.data.startDate ||
                 newEndDate !== mapConfigState.data.endDate)
         ) {
@@ -173,7 +171,6 @@ export function useMap(params: {
     }, [
         allOrgUnitsIds,
         eventDiseaseCode,
-        eventHazardCode,
         mapConfigState,
         mapKey,
         mapProgramIndicators,
@@ -184,12 +181,7 @@ export function useMap(params: {
     ]);
 
     useEffect(() => {
-        if (
-            mapKey === "event_tracker" &&
-            !eventDiseaseCode &&
-            !eventHazardCode &&
-            !casesDataSource
-        ) {
+        if (mapKey === "event_tracker" && !eventDiseaseCode && !casesDataSource) {
             return;
         }
 
@@ -237,14 +229,7 @@ export function useMap(params: {
                 });
             }
         );
-    }, [
-        compositionRoot.maps.getConfig,
-        mapKey,
-        allOrgUnitsIds,
-        eventDiseaseCode,
-        eventHazardCode,
-        casesDataSource,
-    ]);
+    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds, eventDiseaseCode, casesDataSource]);
 
     return {
         mapConfigState,
@@ -273,11 +258,8 @@ function getFilteredActiveVerifiedMapProgramIndicator(
     if (!singleSelectFilters || Object.values(singleSelectFilters).every(value => !value)) {
         return getMainActiveVerifiedMapProgramIndicator(programIndicators);
     } else {
-        const {
-            disease: diseaseFilterValue,
-            hazard: hazardFilterValue,
-            incidentStatus: incidentStatusFilterValue,
-        } = singleSelectFilters;
+        const { disease: diseaseFilterValue, incidentStatus: incidentStatusFilterValue } =
+            singleSelectFilters;
 
         return programIndicators.find(indicator => {
             const isIndicatorDisease =
@@ -295,8 +277,8 @@ function getFilteredActiveVerifiedMapProgramIndicator(
                 );
             } else if (isIndicatorIncidentStatus) {
                 return (
-                    (!hazardFilterValue && !diseaseFilterValue && isAllDiseaseIndicator) ||
-                    (!hazardFilterValue && !diseaseFilterValue) ||
+                    (!diseaseFilterValue && isAllDiseaseIndicator) ||
+                    !diseaseFilterValue ||
                     isIndicatorDisease
                 );
             }

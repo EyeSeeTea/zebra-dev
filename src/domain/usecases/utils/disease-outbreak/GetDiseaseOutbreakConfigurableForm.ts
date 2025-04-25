@@ -111,18 +111,6 @@ function getEventTrackerLabelsRules(): { rules: Rule[]; labels: FormLables } {
         rules: [
             {
                 type: "toggleSectionsVisibilityByFieldValue",
-                fieldId: "dataSource",
-                fieldValue: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
-                sectionIds: ["hazardType_section"],
-            },
-            {
-                type: "toggleSectionsVisibilityByFieldValue",
-                fieldId: "dataSource",
-                fieldValue: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
-                sectionIds: ["mainSyndrome_section", "suspectedDisease_section"],
-            },
-            {
-                type: "toggleSectionsVisibilityByFieldValue",
                 fieldId: "casesDataSource",
                 fieldValue: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF,
                 sectionIds: ["casesDataFile_section"],

@@ -1,6 +1,5 @@
 export const MAP_CURRENT_APP = "ZEBRA";
 
-//TODO: 8698prv94 - remove hazard type
 export type MapProgramIndicator = {
     id: string;
     name: string;

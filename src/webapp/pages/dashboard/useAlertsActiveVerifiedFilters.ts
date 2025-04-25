@@ -54,13 +54,7 @@ export function useAlertsActiveVerifiedFilters(): State {
 
     const handleSetSingleSelectFilters = useCallback((id: string, value: string) => {
         setSingleSelectsFilters(prevSingleSelectFilters => {
-            const newFilters = { ...prevSingleSelectFilters, [id]: value };
-
-            return id === "disease" && !!value
-                ? { ...newFilters, hazard: "" }
-                : id === "hazard" && !!value
-                ? { ...newFilters, disease: "" }
-                : newFilters;
+            return { ...prevSingleSelectFilters, [id]: value };
         });
     }, []);
 
