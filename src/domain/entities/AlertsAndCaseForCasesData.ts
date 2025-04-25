@@ -19,7 +19,7 @@ export type AlertsAndCaseForCasesData = {
         fileName: string;
         fileType: string;
     };
-    disease: string;
+    disease?: string;
 };
 
 export function getOutbreakKey(options: {
