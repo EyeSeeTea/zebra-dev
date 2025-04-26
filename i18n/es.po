@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-04-23T11:00:22.301Z\n"
+"POT-Creation-Date: 2025-04-26T09:47:41.530Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -279,6 +279,12 @@ msgid "Event Tracker"
 msgstr ""
 
 msgid "Districts Affected"
+msgstr ""
+
+msgid "Select data source"
+msgstr ""
+
+msgid "Data Source"
 msgstr ""
 
 msgid "Create Risk Assessment"

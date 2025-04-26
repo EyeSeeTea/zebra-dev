@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-04-23T11:19:38.356Z\n"
-"PO-Revision-Date: 2025-04-23T11:19:38.356Z\n"
+"POT-Creation-Date: 2025-04-26T09:47:41.530Z\n"
+"PO-Revision-Date: 2025-04-26T09:47:41.530Z\n"
 
 msgid "Low"
 msgstr ""
@@ -280,6 +280,12 @@ msgid "Event Tracker"
 msgstr ""
 
 msgid "Districts Affected"
+msgstr ""
+
+msgid "Select data source"
+msgstr ""
+
+msgid "Data Source"
 msgstr ""
 
 msgid "Create Risk Assessment"

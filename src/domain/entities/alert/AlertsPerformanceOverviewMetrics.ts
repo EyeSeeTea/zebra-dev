@@ -1,4 +1,4 @@
-import { AlertDataSource } from "../alert/Alert";
+import { AlertDataSource } from "./Alert";
 import { OrgUnitLevelType } from "../OrgUnit";
 import { Id } from "../Ref";
 
