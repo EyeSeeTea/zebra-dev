@@ -15,7 +15,7 @@ import { Resource } from "./resources/Resource";
 import { OrgUnit } from "./OrgUnit";
 
 export type DiseaseOutbreakEventOptions = {
-    dataSources: Option[];
+    alertDataSources: Option[];
     mainSyndromes: Option[];
     suspectedDiseases: Option[];
     notificationSources: Option[];

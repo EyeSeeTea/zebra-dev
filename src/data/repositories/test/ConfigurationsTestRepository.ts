@@ -7,7 +7,7 @@ export class ConfigurationsTestRepository implements ConfigurationsRepository {
     getSelectableOptions(): FutureData<SelectableOptions> {
         return Future.success({
             eventTrackerConfigurations: {
-                dataSources: [],
+                alertDataSources: [],
                 suspectedDiseases: [],
                 mainSyndromes: [],
                 notificationSources: [],

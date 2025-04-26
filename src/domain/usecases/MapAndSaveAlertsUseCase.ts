@@ -3,14 +3,11 @@ import { Option } from "../entities/Ref";
 import { AlertOptions, AlertRepository } from "../repositories/AlertRepository";
 import { AlertSyncRepository } from "../repositories/AlertSyncRepository";
 import _ from "../entities/generic/Collection";
-import {
-    DataSource,
-    DiseaseOutbreakEventBaseAttrs,
-} from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { logger } from "../../utils/logger";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 import { UserGroupRepository } from "../repositories/UserGroupRepository";
-import { OutbreakAlert, OutbreakData, OutbreakDataType } from "../entities/alert/OutbreakAlert";
+import { OutbreakAlert, OutbreakData } from "../entities/alert/OutbreakAlert";
 import { OutbreakAlertRepository } from "../repositories/OutbreakAlertRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { getOutbreakKey } from "../entities/alert/AlertSynchronizationData";
@@ -186,9 +183,5 @@ function getUniqueFilters(alerts: OutbreakAlert[]): OutbreakData[] {
         .map(alertData => alertData.outbreakData)
         .value();
 }
-
-const mapping: Record<OutbreakDataType, DataSource> = {
-    disease: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
-};
 
 const RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE = "RTSL_ZEBRA_NATONAL_WATCH_STAFF";

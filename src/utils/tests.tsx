@@ -22,7 +22,7 @@ export function getTestContext() {
             incidentManagerUserGroup: { id: "incidentManagerUserGroup" },
             selectableOptions: {
                 eventTrackerConfigurations: {
-                    dataSources: [],
+                    alertDataSources: [],
                     mainSyndromes: [],
                     suspectedDiseases: [],
                     notificationSources: [],

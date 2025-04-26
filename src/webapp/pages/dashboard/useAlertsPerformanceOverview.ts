@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAppContext } from "../../contexts/app-context";
-import _ from "../../../domain/entities/generic/Collection";
 import {
     FiltersConfig,
     FiltersValuesType,
@@ -15,7 +14,7 @@ import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
 import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
-import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     event: string;
@@ -52,7 +51,10 @@ type State = {
     filtersConfig: FiltersConfig[];
     filters: FiltersValuesType;
     setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
-    filterOptions: (column: string, dataSource?: DataSource) => { value: string; label: string }[];
+    filterOptions: (
+        column: string,
+        dataSource?: AlertDataSource
+    ) => { value: string; label: string }[];
     totalPages: number;
     currentPage: number;
     goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;

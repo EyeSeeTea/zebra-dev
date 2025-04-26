@@ -7,7 +7,7 @@ import { SelectableOptions } from "../../domain/entities/AppConfigurations";
 import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
 
 const optionSetCode: Record<string, string> = {
-    dataSources: "RTSL_ZEB_OS_DATA_SOURCE",
+    alertDataSources: "RTSL_ZEB_OS_DATA_SOURCE",
     mainSyndromes: "AGENTS",
     suspectedDiseases: "RTSL_ZEB_OS_DISEASE",
     notificationSources: "RTSL_ZEB_OS_SOURCE",
@@ -37,13 +37,13 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         ).flatMap(optionsResponse => {
             const selectableOptions = this.createEmptySelectableOptions();
             Object.entries(optionSetCode).map(([key, value]) => {
-                if (key === "dataSources") {
-                    const dataSources = optionsResponse.optionSets.find(
+                if (key === "alertDataSources") {
+                    const alertDataSources = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
                     );
-                    if (dataSources)
-                        selectableOptions.eventTrackerConfigurations.dataSources =
-                            this.mapD2OptionSetToOptions(dataSources);
+                    if (alertDataSources)
+                        selectableOptions.eventTrackerConfigurations.alertDataSources =
+                            this.mapD2OptionSetToOptions(alertDataSources);
                 } else if (key === "mainSyndromes") {
                     const mainSyndromes = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
@@ -196,7 +196,7 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
     private createEmptySelectableOptions(): SelectableOptions {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
-                dataSources: [],
+                alertDataSources: [],
                 mainSyndromes: [],
                 suspectedDiseases: [],
                 notificationSources: [],

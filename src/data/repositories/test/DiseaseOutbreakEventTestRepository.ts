@@ -1,7 +1,6 @@
 import { OutbreakData } from "../../../domain/entities/alert/OutbreakAlert";
 import {
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
     NationalIncidentStatus,
@@ -20,7 +19,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             id: id,
             status: "ACTIVE",
             name: "Disease Outbreak 1",
-            dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
             created: new Date(),
             lastUpdated: new Date(),
             createdByName: "createdByName",
@@ -54,7 +52,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 id: "1",
                 status: "ACTIVE",
                 name: "Disease Outbreak 1",
-                dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName",
@@ -85,7 +82,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 id: "2",
                 status: "ACTIVE",
                 name: "Disease Outbreak 2",
-                dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName2",
@@ -119,7 +115,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             {
                 id: "1",
                 name: "Disease Outbreak 1",
-                dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName",
@@ -150,7 +145,6 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             {
                 id: "2",
                 name: "Disease Outbreak 2",
-                dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
                 created: new Date(),
                 lastUpdated: new Date(),
                 createdByName: "createdByName2",

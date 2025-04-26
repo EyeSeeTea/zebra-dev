@@ -16,7 +16,6 @@ import {
 import moment from "moment";
 import {
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DataStoreClient } from "../DataStoreClient";
@@ -42,6 +41,7 @@ import {
     AlertsPerformanceOverviewDimensionsKey,
     AlertsPerformanceOverviewDimensionsValue,
 } from "./consts/AlertsPerformanceOverviewConstants";
+import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 
 const formatDate = (date: Date): string => {
@@ -656,8 +656,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             .map(metrics => ({
                                 ...metrics,
                                 eventSource: metrics.eventEBSId
-                                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                                    ? AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                                    : AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                             }));
 
                         return Future.success(mappedIndicators);
