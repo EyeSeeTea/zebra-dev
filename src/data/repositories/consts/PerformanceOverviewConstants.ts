@@ -31,5 +31,3 @@ export type EventTrackerCountDiseaseIndicator = EventTrackerCountIndicatorBase &
     type: "disease";
     name: DiseaseNames;
 };
-
-export type EventTrackerCountIndicator = EventTrackerCountDiseaseIndicator;
