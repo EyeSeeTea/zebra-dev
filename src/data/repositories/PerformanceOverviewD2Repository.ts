@@ -10,7 +10,7 @@ import {
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
-    EventTrackerCountIndicator,
+    EventTrackerCountDiseaseIndicator,
     PerformanceOverviewDimensions,
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
@@ -147,14 +147,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     mapActiveVerfiedAlertsToEventTrackerCountIndicator(
         activeVerifiedAlerts: Maybe<ProgramIndicatorsDatastore[]>
-    ): EventTrackerCountIndicator[] {
+    ): EventTrackerCountDiseaseIndicator[] {
         if (!activeVerifiedAlerts) return [];
         return _(
             activeVerifiedAlerts.map(activeVerified => {
                 if (activeVerified.disease === "ALL") return;
 
                 if (activeVerified.disease) {
-                    const eventTrackerCount: EventTrackerCountIndicator = {
+                    const eventTrackerCount: EventTrackerCountDiseaseIndicator = {
                         id: activeVerified.id,
                         type: "disease",
                         name: activeVerified.disease as DiseaseNames,
@@ -169,7 +169,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     mapAnalyticsRowsToTotalCardCounts = (
-        eventTrackerCountsIndicatorMap: EventTrackerCountIndicator[],
+        eventTrackerCountsIndicatorMap: EventTrackerCountDiseaseIndicator[],
         rowData: string[][],
         filters?: Record<string, string>
     ): TotalCardCounts[] => {
