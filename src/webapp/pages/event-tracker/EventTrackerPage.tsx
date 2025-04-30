@@ -61,8 +61,12 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
     const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
-    const { dateRangeFilter, dataSourceFilter, multipleSelectFilters } = useMapFilters();
     const theme = useTheme();
+
+    const isCasesDataUserDefined =
+        currentEventTracker?.casesDataSource ===
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+    const { dateRangeFilter, dataSourceFilter } = useMapFilters(isCasesDataUserDefined);
 
     const goToRiskSummaryForm = useCallback(() => {
         goTo(RouteName.CREATE_FORM, {
@@ -92,10 +96,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 formSummary={formSummary}
                 onCompleteClick={onOpenCompleteModal}
                 globalMessage={globalMessage}
-                isCasesDataUserDefined={
-                    currentEventTracker?.casesDataSource ===
-                    CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
-                }
+                isCasesDataUserDefined={isCasesDataUserDefined}
             />
             <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
                 <MapFiltersSection>
@@ -107,17 +108,18 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             label={i18n.t("Duration")}
                         />
                     </FilterContainer>
-                    <FilterContainer>
-                        <Selector
-                            id={"filters-data-source"}
-                            options={dataSourceFilter.options}
-                            placeholder={i18n.t("Select data source")}
-                            label={i18n.t("Data Source")}
-                            selected={dataSourceFilter.value}
-                            onChange={dataSourceFilter.onChange}
-                            allowClear
-                        />
-                    </FilterContainer>
+                    {!isCasesDataUserDefined && dataSourceFilter.value && (
+                        <FilterContainer>
+                            <Selector
+                                id={"filters-data-source"}
+                                options={dataSourceFilter.options}
+                                placeholder={i18n.t("Select data source")}
+                                label={i18n.t("Data Source")}
+                                selected={dataSourceFilter.value}
+                                onChange={dataSourceFilter.onChange}
+                            />
+                        </FilterContainer>
+                    )}
                 </MapFiltersSection>
                 <LoaderContainer
                     loading={!currentEventTracker?.suspectedDiseaseCode && areOverviewCardsLoading}
@@ -126,8 +128,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         mapKey="event_tracker"
                         eventDiseaseCode={currentEventTracker?.suspectedDiseaseCode}
                         dateRangeFilter={dateRangeFilter.value || []}
-                        casesDataSource={currentEventTracker?.casesDataSource}
-                        multiSelectFilters={multipleSelectFilters}
+                        dataSource={dataSourceFilter.value}
                     />
                 </LoaderContainer>
             </Section>

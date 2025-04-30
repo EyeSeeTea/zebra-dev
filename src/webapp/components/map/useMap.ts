@@ -7,7 +7,6 @@ import {
 } from "../../../domain/entities/MapConfig";
 import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../utils/ts-utils";
-import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type LoadingState = {
     kind: "loading";
@@ -23,15 +22,19 @@ export type FilteredMapConfig = {
     endDate?: string;
     timeField: string;
     zebraNamespace: "zebra";
-    dashboardDatastoreKey: MapProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts;
+    mapProgramIndicatorDatastoreKey: MapProgramIndicatorsDatastoreKey;
     programIndicatorId: string;
     programIndicatorName: string;
     orgUnits: string[];
 };
 
+export type EventTrackerFilteredMapConfig = FilteredMapConfig & {
+    diseaseCode: string;
+};
+
 type LoadedState = {
     kind: "loaded";
-    data: FilteredMapConfig;
+    data: FilteredMapConfig | EventTrackerFilteredMapConfig;
 };
 
 type ErrorState = {
@@ -49,7 +52,7 @@ export function useMap(params: {
     mapKey: MapKey;
     allOrgUnitsIds: string[];
     eventDiseaseCode?: string;
-    casesDataSource?: CasesDataSource;
+    dataSource?: string;
     dateRangeFilter?: string[];
     singleSelectFilters?: Record<string, string>;
     multiSelectFilters?: Record<string, string[]>;
@@ -58,7 +61,7 @@ export function useMap(params: {
         mapKey,
         allOrgUnitsIds,
         eventDiseaseCode,
-        casesDataSource,
+        dataSource,
         dateRangeFilter,
         singleSelectFilters,
         multiSelectFilters,
@@ -85,24 +88,6 @@ export function useMap(params: {
             (!!singleSelectFilters || !!multiSelectFilters);
 
         if (isDashboardMapAndThereAreFilters) {
-            const mapProgramIndicator = getFilteredActiveVerifiedMapProgramIndicator(
-                mapProgramIndicators,
-                singleSelectFilters
-            );
-
-            if (!mapProgramIndicator) {
-                setMapConfigState({
-                    kind: "error",
-                    message: i18n.t("The map with these filters could not be found."),
-                });
-                return;
-            }
-
-            const newMapIndicator =
-                mapProgramIndicator?.id !== mapConfigState.data.programIndicatorId
-                    ? mapProgramIndicator
-                    : null;
-
             const newOrgUnits =
                 multiSelectFilters &&
                 multiSelectFilters?.province?.length &&
@@ -114,7 +99,6 @@ export function useMap(params: {
                     : null;
 
             if (
-                !newMapIndicator &&
                 !newOrgUnits &&
                 newStartDate === mapConfigState.data.startDate &&
                 newEndDate === mapConfigState.data.endDate
@@ -127,12 +111,6 @@ export function useMap(params: {
                             kind: "loaded",
                             data: {
                                 ...prevMapConfigState.data,
-                                programIndicatorId: newMapIndicator
-                                    ? newMapIndicator.id
-                                    : prevMapConfigState.data.programIndicatorId,
-                                programIndicatorName: newMapIndicator
-                                    ? newMapIndicator.name
-                                    : prevMapConfigState.data.programIndicatorName,
                                 orgUnits: newOrgUnits
                                     ? newOrgUnits
                                     : prevMapConfigState.data.orgUnits,
@@ -161,6 +139,7 @@ export function useMap(params: {
                             ...prevMapConfigState.data,
                             startDate: newStartDate,
                             endDate: newEndDate,
+                            diseaseCode: eventDiseaseCode,
                         },
                     };
                 } else {
@@ -181,27 +160,67 @@ export function useMap(params: {
     ]);
 
     useEffect(() => {
-        if (mapKey === "event_tracker" && !eventDiseaseCode && !casesDataSource) {
+        if (mapConfigState.kind !== "loaded") return;
+
+        const mapProgramIndicator =
+            mapKey === "dashboard"
+                ? getFilteredActiveVerifiedMapProgramIndicator(
+                      mapProgramIndicators,
+                      singleSelectFilters
+                  )
+                : getCasesMapProgramIndicator(mapProgramIndicators, eventDiseaseCode, dataSource);
+
+        if (!mapProgramIndicator) {
+            setMapConfigState({
+                kind: "error",
+                message: i18n.t("The map with these filters could not be found."),
+            });
             return;
         }
 
-        compositionRoot.maps.getConfig.execute(mapKey, casesDataSource).run(
+        const newMapIndicator =
+            mapProgramIndicator?.id !== mapConfigState.data.programIndicatorId
+                ? mapProgramIndicator
+                : null;
+
+        if (newMapIndicator) {
+            setMapConfigState(prevMapConfigState => {
+                if (prevMapConfigState.kind === "loaded") {
+                    return {
+                        kind: "loaded",
+                        data: {
+                            ...prevMapConfigState.data,
+                            programIndicatorId:
+                                newMapIndicator?.id || prevMapConfigState.data.programIndicatorId,
+                            programIndicatorName:
+                                newMapIndicator?.name ||
+                                prevMapConfigState.data.programIndicatorName,
+                            diseaseCode: eventDiseaseCode,
+                        },
+                    };
+                } else {
+                    return prevMapConfigState;
+                }
+            });
+        }
+    }, [
+        mapConfigState,
+        dataSource,
+        mapProgramIndicators,
+        singleSelectFilters,
+        eventDiseaseCode,
+        mapKey,
+    ]);
+
+    useEffect(() => {
+        if (mapKey === "event_tracker" && !eventDiseaseCode) {
+            return;
+        }
+
+        compositionRoot.maps.getConfig.execute(mapKey).run(
             config => {
                 setMapProgramIndicators(config.programIndicators);
                 setDefaultStartDate(config.startDate);
-
-                const mapProgramIndicator =
-                    mapKey === "dashboard"
-                        ? getMainActiveVerifiedMapProgramIndicator(config.programIndicators)
-                        : getCasesMapProgramIndicator(config.programIndicators, eventDiseaseCode);
-
-                if (!mapProgramIndicator || allOrgUnitsIds.length === 0) {
-                    setMapConfigState({
-                        kind: "error",
-                        message: i18n.t("Map not found."),
-                    });
-                    return;
-                }
 
                 setMapConfigState({
                     kind: "loaded",
@@ -214,9 +233,9 @@ export function useMap(params: {
                         startDate: config.startDate,
                         timeField: config.timeField,
                         zebraNamespace: config.zebraNamespace,
-                        dashboardDatastoreKey: config.dashboardDatastoreKey,
-                        programIndicatorId: mapProgramIndicator.id,
-                        programIndicatorName: mapProgramIndicator.name,
+                        mapProgramIndicatorDatastoreKey: config.mapProgramIndicatorDatastoreKey,
+                        programIndicatorId: "",
+                        programIndicatorName: "",
                         orgUnits: allOrgUnitsIds,
                     },
                 });
@@ -229,7 +248,7 @@ export function useMap(params: {
                 });
             }
         );
-    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds, eventDiseaseCode, casesDataSource]);
+    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds, eventDiseaseCode]);
 
     return {
         mapConfigState,
@@ -246,9 +265,12 @@ function getMainActiveVerifiedMapProgramIndicator(
 
 function getCasesMapProgramIndicator(
     programIndicators: MapProgramIndicator[],
-    disease: Maybe<string>
+    disease: Maybe<string>,
+    dataSource: Maybe<string>
 ): Maybe<MapProgramIndicator> {
-    return programIndicators.find(indicator => indicator.disease === disease);
+    return programIndicators.find(
+        indicator => indicator.disease === disease && indicator.dataSource === (dataSource || null)
+    );
 }
 
 function getFilteredActiveVerifiedMapProgramIndicator(

@@ -3,11 +3,10 @@ import styled from "styled-components";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
 import { Visualisation } from "../visualisation/Visualisation";
-import { useMap } from "./useMap";
+import { EventTrackerFilteredMapConfig, useMap } from "./useMap";
 import { MapKey } from "../../../domain/entities/MapConfig";
 import LoaderContainer from "../loader/LoaderContainer";
 import { useAppContext } from "../../contexts/app-context";
-import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type MapSectionProps = {
     mapKey: MapKey;
@@ -15,7 +14,7 @@ type MapSectionProps = {
     multiSelectFilters?: Record<string, string[]>;
     dateRangeFilter?: string[];
     eventDiseaseCode?: string;
-    casesDataSource?: CasesDataSource;
+    dataSource?: string;
 };
 
 export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
@@ -26,7 +25,7 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         multiSelectFilters,
         dateRangeFilter,
         eventDiseaseCode,
-        casesDataSource,
+        dataSource,
     } = props;
     const { configurations } = useAppContext();
     const snackbar = useSnackbar();
@@ -46,7 +45,7 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         multiSelectFilters: multiSelectFilters,
         dateRangeFilter: dateRangeFilter,
         eventDiseaseCode: eventDiseaseCode,
-        casesDataSource: casesDataSource,
+        dataSource: dataSource,
     });
 
     const baseUrl = `${api.baseUrl}/api/apps/zebra-custom-maps-app/index.html`;
@@ -56,12 +55,12 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         if (mapConfigState.kind === "error") {
             snackbar.error(mapConfigState.message);
         } else if (mapConfigState.kind === "loaded") {
-            const config = mapConfigState.data;
+            const config = mapConfigState.data as EventTrackerFilteredMapConfig;
             const params = {
                 currentApp: config.currentApp,
                 currentPage: config.currentPage,
                 zebraNamespace: config.zebraNamespace,
-                dashboardDatastoreKey: config.dashboardDatastoreKey,
+                mapProgramIndicatorDatastoreKey: config.mapProgramIndicatorDatastoreKey,
                 id: config.mapId,
                 orgUnits: config.orgUnits.join(","),
                 programIndicatorId: config.programIndicatorId,
@@ -71,6 +70,7 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
                 startDate: config.startDate,
                 endDate: config.endDate,
                 timeField: config.timeField,
+                diseaseCode: config?.diseaseCode,
             };
             const srcUrl =
                 baseUrl + "?" + new URLSearchParams(removeUndefinedProperties(params)).toString();
