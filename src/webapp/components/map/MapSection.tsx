@@ -100,7 +100,7 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
                         type="map"
                         key={`${JSON.stringify(dateRangeFilter)}_${JSON.stringify(
                             singleSelectFilters
-                        )}_${JSON.stringify(multiSelectFilters)}`}
+                        )}_${JSON.stringify(multiSelectFilters)}_${dataSource || ""}`}
                         srcUrl={mapUrl}
                     />
                 ) : null}

@@ -127,8 +127,9 @@ export function useMap(params: {
 
         if (
             mapKey === "event_tracker" &&
-            eventDiseaseCode &&
-            (newStartDate !== mapConfigState.data.startDate ||
+            (eventDiseaseCode !==
+                (mapConfigState.data as EventTrackerFilteredMapConfig).diseaseCode ||
+                newStartDate !== mapConfigState.data.startDate ||
                 newEndDate !== mapConfigState.data.endDate)
         ) {
             setMapConfigState(prevMapConfigState => {
