@@ -51,7 +51,7 @@ export class MapDiseaseOutbreakToAlertsUseCase {
                                 alert: alert,
                                 nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
                                 dataSource: dataSource,
-                                outbreakValue: outbreakValue,
+                                outbreakValue: hazardType ?? suspectedDiseaseCode,
                                 hazardTypes: hazardTypes,
                                 suspectedDiseases: suspectedDiseases,
                             })
