@@ -10,10 +10,18 @@ import { Id } from "../../domain/entities/Ref";
 import { Future } from "../../domain/entities/generic/Future";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
-import { Alert } from "../../domain/entities/alert/Alert";
+import {
+    DataSource,
+    NationalIncidentStatus,
+} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { Alert, VerificationStatus } from "../../domain/entities/alert/Alert";
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
-import { outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
+import {
+    getAlertValueFromMap,
+    outbreakDataSourceMapping,
+    outbreakTEAMapping,
+} from "./utils/AlertOutbreakMapper";
 
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
@@ -28,10 +36,7 @@ export class AlertD2Repository implements AlertRepository {
             ouMode: "DESCENDANTS",
             filter: outbreakData,
         }).flatMap(alertTrackedEntities => {
-            const alertsToMap: Alert[] = alertTrackedEntities.map(trackedEntity => ({
-                id: trackedEntity.trackedEntity || "",
-                district: trackedEntity.orgUnit || "",
-            }));
+            const activeVerifiedAlerts = this.getActiveVerifiedAlerts(alertTrackedEntities);
 
             const alertsToPost: D2TrackerTrackedEntity[] = alertTrackedEntities.map(
                 trackedEntity => ({
@@ -47,7 +52,7 @@ export class AlertD2Repository implements AlertRepository {
                 })
             );
 
-            if (alertsToMap.length === 0) return Future.success([]);
+            if (activeVerifiedAlerts.length === 0) return Future.success([]);
 
             return apiToFuture(
                 this.api.tracker.post(
@@ -59,9 +64,34 @@ export class AlertD2Repository implements AlertRepository {
                     return Future.error(
                         new Error("Error mapping disease outbreak event id to alert")
                     );
-                else return Future.success(alertsToMap);
+                else return Future.success(activeVerifiedAlerts);
             });
         });
+    }
+
+    private getActiveVerifiedAlerts(trackedEntities: D2TrackerTrackedEntity[]): Alert[] {
+        return _(trackedEntities)
+            .compactMap<Alert>(trackedEntity => {
+                const isActive = trackedEntity.inactive === false;
+                const verificationStatus = getAlertValueFromMap(
+                    "verificationStatus",
+                    trackedEntity
+                );
+                const isVerified =
+                    verificationStatus === VerificationStatus.RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED;
+                const incidentStatus = getAlertValueFromMap("incidentStatus", trackedEntity);
+
+                const isRespondIncidentStatus =
+                    incidentStatus === NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND;
+
+                if (!isActive || !isVerified || !isRespondIncidentStatus) return undefined;
+
+                return {
+                    id: trackedEntity.trackedEntity || "",
+                    district: trackedEntity.orgUnit || "",
+                };
+            })
+            .value();
     }
 
     private getTrackedEntitiesByTEACode(options: {
