@@ -160,6 +160,7 @@ export function useMap(params: {
         defaultStartDate,
     ]);
 
+    //update indicator based on filter updates
     useEffect(() => {
         if (mapConfigState.kind !== "loaded") return;
 
@@ -196,7 +197,6 @@ export function useMap(params: {
                             programIndicatorName:
                                 newMapIndicator?.name ||
                                 prevMapConfigState.data.programIndicatorName,
-                            diseaseCode: eventDiseaseCode,
                         },
                     };
                 } else {

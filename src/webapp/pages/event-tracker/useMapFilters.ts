@@ -27,11 +27,16 @@ export function useMapFilters(isCasesDataUserDefined: boolean): MapFiltersState 
         [isCasesDataUserDefined, dataSourceFilter]
     );
 
-    const dataSouceOptions =
-        configurations.selectableOptions.eventTrackerConfigurations.dataSources.map(dataSource => ({
-            value: dataSource.id,
-            label: dataSource.name,
-        }));
+    const dataSouceOptions = useMemo(
+        () =>
+            configurations.selectableOptions.eventTrackerConfigurations.dataSources.map(
+                dataSource => ({
+                    value: dataSource.id,
+                    label: dataSource.name,
+                })
+            ),
+        [configurations]
+    );
 
     return {
         dateRangeFilter: {
