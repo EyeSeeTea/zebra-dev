@@ -7,7 +7,6 @@ export class ConfigurationsTestRepository implements ConfigurationsRepository {
     getSelectableOptions(): FutureData<SelectableOptions> {
         return Future.success({
             eventTrackerConfigurations: {
-                alertDataSources: [],
                 dataSources: [],
                 suspectedDiseases: [],
                 mainSyndromes: [],
@@ -15,6 +14,9 @@ export class ConfigurationsTestRepository implements ConfigurationsRepository {
                 incidentManagers: [],
                 incidentStatus: [],
                 casesDataSource: [],
+            },
+            alertOptions: {
+                alertDataSources: [],
             },
             riskAssessmentGradingConfigurations: {
                 geographicalSpread: [],

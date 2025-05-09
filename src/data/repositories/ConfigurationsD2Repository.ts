@@ -43,7 +43,7 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                         optionSet => optionSet.code === value
                     );
                     if (alertDataSources)
-                        selectableOptions.eventTrackerConfigurations.alertDataSources =
+                        selectableOptions.alertOptions.alertDataSources =
                             this.mapD2OptionSetToOptions(alertDataSources);
                 } else if (key === "dataSources") {
                     const dataSources = optionsResponse.optionSets.find(
@@ -204,13 +204,15 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
     private createEmptySelectableOptions(): SelectableOptions {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
-                alertDataSources: [],
                 dataSources: [],
                 mainSyndromes: [],
                 suspectedDiseases: [],
                 notificationSources: [],
                 incidentManagers: [],
                 casesDataSource: [],
+            },
+            alertOptions: {
+                alertDataSources: [],
             },
             riskAssessmentGradingConfigurations: {
                 populationAtRisk: [],

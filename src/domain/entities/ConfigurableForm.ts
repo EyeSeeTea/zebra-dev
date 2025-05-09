@@ -15,13 +15,19 @@ import { Resource } from "./resources/Resource";
 import { OrgUnit } from "./OrgUnit";
 
 export type DiseaseOutbreakEventOptions = {
-    alertDataSources: Option[];
-    dataSources: Option[];
     mainSyndromes: Option[];
     suspectedDiseases: Option[];
     notificationSources: Option[];
     incidentManagers: TeamMember[];
     casesDataSource: Option[];
+};
+
+export type AlertOptions = {
+    alertDataSources: Option[];
+};
+
+export type DiseaseOutbreakCaseDataOptions = {
+    dataSources: Option[];
 };
 
 export type RiskAssessmentGradingOptions = {

@@ -67,13 +67,12 @@ export const useTableFilters = (
     }, [allFiltersEmpty, filters, searchTerm, eventSourceSelected, rows, filtersConfig]);
 
     const eventSourceOptions = useMemo(() => {
-        const eventSources =
-            configurations.selectableOptions.eventTrackerConfigurations.alertDataSources.map(
-                dataSource => ({
-                    value: dataSource.id,
-                    label: dataSource.name,
-                })
-            );
+        const eventSources = configurations.selectableOptions.alertOptions.alertDataSources.map(
+            dataSource => ({
+                value: dataSource.id,
+                label: dataSource.name,
+            })
+        );
 
         if (!eventSourceSelected && !allFiltersEmpty) {
             return _(filteredRows)
@@ -90,7 +89,7 @@ export const useTableFilters = (
         return eventSources;
     }, [
         allFiltersEmpty,
-        configurations.selectableOptions.eventTrackerConfigurations.alertDataSources,
+        configurations.selectableOptions.alertOptions.alertDataSources,
         eventSourceSelected,
         filteredRows,
     ]);
