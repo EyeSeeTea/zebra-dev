@@ -128,7 +128,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         mapKey="event_tracker"
                         eventDiseaseCode={currentEventTracker?.suspectedDiseaseCode}
                         dateRangeFilter={dateRangeFilter.value || []}
-                        dataSource={dataSourceFilter.value}
+                        dataSource={dataSourceFilter.dataSource}
                     />
                 </LoaderContainer>
             </Section>

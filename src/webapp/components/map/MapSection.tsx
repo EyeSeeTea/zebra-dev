@@ -7,6 +7,7 @@ import { EventTrackerFilteredMapConfig, useMap } from "./useMap";
 import { MapKey } from "../../../domain/entities/MapConfig";
 import LoaderContainer from "../loader/LoaderContainer";
 import { useAppContext } from "../../contexts/app-context";
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type MapSectionProps = {
     mapKey: MapKey;
@@ -14,7 +15,7 @@ type MapSectionProps = {
     multiSelectFilters?: Record<string, string[]>;
     dateRangeFilter?: string[];
     eventDiseaseCode?: string;
-    dataSource?: string;
+    dataSource?: DataSource;
 };
 
 export const MapSection: React.FC<MapSectionProps> = React.memo(props => {

@@ -7,6 +7,7 @@ import {
 } from "../../../domain/entities/MapConfig";
 import i18n from "../../../utils/i18n";
 import { Maybe } from "../../../utils/ts-utils";
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 type LoadingState = {
     kind: "loading";
@@ -52,7 +53,7 @@ export function useMap(params: {
     mapKey: MapKey;
     allOrgUnitsIds: string[];
     eventDiseaseCode?: string;
-    dataSource?: string;
+    dataSource?: DataSource;
     dateRangeFilter?: string[];
     singleSelectFilters?: Record<string, string>;
     multiSelectFilters?: Record<string, string[]>;

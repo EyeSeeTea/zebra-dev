@@ -14,6 +14,7 @@ export type MapFiltersState = {
         onChange: (value: string) => void;
         value: Maybe<string>;
         options: Option[];
+        dataSource: Maybe<DataSource>;
     };
 };
 
@@ -23,7 +24,15 @@ export function useMapFilters(isCasesDataUserDefined: boolean): MapFiltersState 
     const [dataSourceFilter, setDataSourceFilter] = useState(DataSource.ND1 as string);
 
     const dataSourceValue = useMemo(
-        () => (isCasesDataUserDefined ? undefined : dataSourceFilter),
+        () =>
+            isCasesDataUserDefined
+                ? {}
+                : {
+                      value: dataSourceFilter,
+                      dataSource:
+                          Object.values(DataSource).find(v => v === dataSourceFilter) ||
+                          DataSource.ND1,
+                  },
         [isCasesDataUserDefined, dataSourceFilter]
     );
 
@@ -45,8 +54,9 @@ export function useMapFilters(isCasesDataUserDefined: boolean): MapFiltersState 
         },
         dataSourceFilter: {
             onChange: setDataSourceFilter,
-            value: dataSourceValue,
+            value: dataSourceValue.value,
             options: dataSouceOptions,
+            dataSource: dataSourceValue.dataSource,
         },
     };
 }
