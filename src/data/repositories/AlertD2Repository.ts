@@ -7,21 +7,15 @@ import {
 } from "./consts/DiseaseOutbreakConstants";
 import { AlertOptions, AlertRepository } from "../../domain/repositories/AlertRepository";
 import { Id } from "../../domain/entities/Ref";
+import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
-import {
-    DataSource,
-    NationalIncidentStatus,
-} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { NationalIncidentStatus } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Alert, VerificationStatus } from "../../domain/entities/alert/Alert";
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
-import {
-    getAlertValueFromMap,
-    outbreakDataSourceMapping,
-    outbreakTEAMapping,
-} from "./utils/AlertOutbreakMapper";
+import { getAlertValueFromMap, outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
 
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
