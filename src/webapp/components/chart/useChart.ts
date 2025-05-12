@@ -1,28 +1,30 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import { Maybe } from "../../../utils/ts-utils";
-import { ChartType } from "../../../domain/usecases/GetChartConfigByTypeUseCase";
+import { ChartConfig, ChartType } from "../../../domain/usecases/GetChartConfigByTypeUseCase";
 import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
-export function useChart(
-    chartType: ChartType,
-    chartKey: Maybe<string>,
-    casesDataSource?: CasesDataSource
-) {
+type useChartProps = {
+    chartType: ChartType;
+    chartKey: Maybe<string>;
+    casesDataSource?: CasesDataSource;
+    chartProp?: string;
+};
+
+export function useChart(prop: useChartProps) {
+    const { chartType, chartKey, casesDataSource, chartProp } = prop;
     const { compositionRoot } = useAppContext();
-    const [id, setId] = useState<string>();
+    const [charts, setCharts] = useState<ChartConfig>();
+
+    const id = (chartProp && charts?.[chartProp]) || (chartKey && charts?.[chartKey]);
 
     useEffect(() => {
         if (!chartKey) {
             return;
         }
         compositionRoot.charts.getCases.execute(chartType, chartKey, casesDataSource).run(
-            chartId => {
-                setId(chartId);
-            },
-            error => {
-                console.error(error);
-            }
+            charts => setCharts(charts),
+            error => console.error(error)
         );
     }, [casesDataSource, chartKey, chartType, compositionRoot.charts.getCases]);
 

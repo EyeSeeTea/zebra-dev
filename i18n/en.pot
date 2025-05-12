@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-05-01T06:54:26.304Z\n"
-"PO-Revision-Date: 2025-05-01T06:54:26.305Z\n"
+"POT-Creation-Date: 2025-05-12T11:56:12.976Z\n"
+"PO-Revision-Date: 2025-05-12T11:56:12.976Z\n"
 
 msgid "Low"
 msgstr ""
@@ -285,6 +285,12 @@ msgstr ""
 msgid "Data Source"
 msgstr ""
 
+msgid "Risk Assessment"
+msgstr ""
+
+msgid "Risk Assessment Summary"
+msgstr ""
+
 msgid "Create Risk Assessment"
 msgstr ""
 
@@ -297,7 +303,19 @@ msgstr ""
 msgid "Risks associated with this event have not yet been assessed."
 msgstr ""
 
+msgid "Risk Assessment Grade"
+msgstr ""
+
 msgid "Add new Grade"
+msgstr ""
+
+msgid "Risk Assessment History"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Cases and Deaths"
 msgstr ""
 
 msgid "Complete event"
