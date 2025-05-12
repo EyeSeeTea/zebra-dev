@@ -11,8 +11,7 @@ import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
-import { NationalIncidentStatus } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { Alert, VerificationStatus } from "../../domain/entities/alert/Alert";
+import { Alert, PHEOCStatus, VerificationStatus } from "../../domain/entities/alert/Alert";
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
 import { getAlertValueFromMap, outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
@@ -30,21 +29,11 @@ export class AlertD2Repository implements AlertRepository {
             ouMode: "DESCENDANTS",
             filter: outbreakData,
         }).flatMap(alertTrackedEntities => {
-            const activeVerifiedAlerts = this.getActiveVerifiedAlerts(alertTrackedEntities);
-
-            const alertsToPost: D2TrackerTrackedEntity[] = alertTrackedEntities.map(
-                trackedEntity => ({
-                    trackedEntity: trackedEntity.trackedEntity,
-                    trackedEntityType: trackedEntity.trackedEntityType,
-                    orgUnit: trackedEntity.orgUnit,
-                    attributes: [
-                        {
-                            attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                            value: eventId,
-                        },
-                    ],
-                })
-            );
+            const alertsToPost = this.getAlertsToPost(alertTrackedEntities, eventId);
+            const activeVerifiedAlerts = alertsToPost.map<Alert>(trackedEntity => ({
+                id: trackedEntity.trackedEntity || "",
+                district: trackedEntity.orgUnit || "",
+            }));
 
             if (activeVerifiedAlerts.length === 0) return Future.success([]);
 
@@ -63,26 +52,36 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    private getActiveVerifiedAlerts(trackedEntities: D2TrackerTrackedEntity[]): Alert[] {
+    private getAlertsToPost(
+        trackedEntities: D2TrackerTrackedEntity[],
+        eventId: string
+    ): D2TrackerTrackedEntity[] {
         return _(trackedEntities)
-            .compactMap<Alert>(trackedEntity => {
+            .compactMap<D2TrackerTrackedEntity>(trackedEntity => {
                 const isActive = trackedEntity.inactive === false;
+
                 const verificationStatus = getAlertValueFromMap(
                     "verificationStatus",
                     trackedEntity
                 );
                 const isVerified =
                     verificationStatus === VerificationStatus.RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED;
-                const incidentStatus = getAlertValueFromMap("incidentStatus", trackedEntity);
 
-                const isRespondIncidentStatus =
-                    incidentStatus === NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND;
+                const pheocStatus = getAlertValueFromMap("pheocStatus", trackedEntity);
+                const isRespondPheocStatus = pheocStatus === PHEOCStatus.Respond;
 
-                if (!isActive || !isVerified || !isRespondIncidentStatus) return undefined;
+                if (!isActive || !isVerified || !isRespondPheocStatus) return undefined;
 
                 return {
-                    id: trackedEntity.trackedEntity || "",
-                    district: trackedEntity.orgUnit || "",
+                    trackedEntity: trackedEntity.trackedEntity,
+                    trackedEntityType: trackedEntity.trackedEntityType,
+                    orgUnit: trackedEntity.orgUnit,
+                    attributes: [
+                        {
+                            attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                            value: eventId,
+                        },
+                    ],
                 };
             })
             .value();

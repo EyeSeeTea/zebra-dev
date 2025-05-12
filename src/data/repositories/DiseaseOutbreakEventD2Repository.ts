@@ -168,7 +168,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
 
     complete(id: Id): FutureData<void> {
         return Future.joinObj({
-            alerts: this.updateAlertsByDiseaseOutbreakId(id),
+            alerts: this.updateAlertsWithPHEOCStatus(id),
             enrollmentResponse: apiToFuture(
                 this.api.tracker.enrollments.get({
                     fields: {
@@ -213,7 +213,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         });
     }
 
-    private updateAlertsByDiseaseOutbreakId(
+    private updateAlertsWithPHEOCStatus(
         diseaseOutbreakId: Id
     ): FutureData<D2TrackerTrackedEntity[]> {
         return Future.fromPromise(
