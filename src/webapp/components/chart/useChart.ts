@@ -16,7 +16,10 @@ export function useChart(prop: useChartProps) {
     const { compositionRoot } = useAppContext();
     const [charts, setCharts] = useState<ChartConfig>();
 
-    const id = (chartProp && charts?.[chartProp]) || (chartKey && charts?.[chartKey]);
+    const id =
+        (chartProp && charts?.[chartProp]) ||
+        (chartKey && charts?.[chartKey]) ||
+        (charts && Object.values(charts)[0]);
 
     useEffect(() => {
         if (!chartKey) {
