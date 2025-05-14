@@ -94,14 +94,18 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 },
             })
         ).map(trackedEntities => {
-            return trackedEntities.map(trackedEntity => {
-                const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
-                if (!outbreak)
-                    throw new Error(
-                        "Error mapping disease outbreak, data source/incident status fields are missing"
-                    );
-                return outbreak;
-            });
+            return _c(trackedEntities)
+                .compactMap(trackedEntity => {
+                    if (trackedEntity.inactive) return undefined;
+
+                    const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                    if (!outbreak)
+                        throw new Error(
+                            "Error mapping disease outbreak, data source/incident status fields are missing"
+                        );
+                    return outbreak;
+                })
+                .value();
         });
     }
 

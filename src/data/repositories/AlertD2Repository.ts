@@ -70,7 +70,9 @@ export class AlertD2Repository implements AlertRepository {
                 const pheocStatus = getAlertValueFromMap("pheocStatus", trackedEntity);
                 const isRespondPheocStatus = pheocStatus === PHEOCStatus.Respond;
 
-                if (!isActive || !isVerified || !isRespondPheocStatus) return undefined;
+                const nationalEventId = getAlertValueFromMap("nationalEventId", trackedEntity);
+                if (nationalEventId || !isActive || !isVerified || !isRespondPheocStatus)
+                    return undefined;
 
                 return {
                     trackedEntity: trackedEntity.trackedEntity,

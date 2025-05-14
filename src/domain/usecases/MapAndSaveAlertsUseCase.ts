@@ -10,7 +10,7 @@ import { UserGroupRepository } from "../repositories/UserGroupRepository";
 import { OutbreakAlert, OutbreakData } from "../entities/alert/OutbreakAlert";
 import { OutbreakAlertRepository } from "../repositories/OutbreakAlertRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
-import { getOutbreakKey } from "../entities/alert/AlertSynchronizationData";
+import { getOutbreakKey } from "../entities/AlertsAndCaseForCasesData";
 import { FutureData } from "../../data/api-futures";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 
@@ -30,7 +30,8 @@ export class MapAndSaveAlertsUseCase {
     public execute(): FutureData<void> {
         return Future.joinObj({
             alertData: this.options.outbreakAlertRepository.get(),
-        }).flatMap(({ alertData }) => {
+            selectableOptions: this.getOptions(),
+        }).flatMap(({ alertData, selectableOptions }) => {
             handleAsyncLogging(
                 logger.info(
                     `${alertData.length} event(s) found in the Zebra Alerts program with no national event id.`
@@ -41,7 +42,11 @@ export class MapAndSaveAlertsUseCase {
             return Future.sequential(
                 alertsByDisease.map(diseaseAlerts => {
                     const { outbreakData, alerts } = diseaseAlerts;
-                    return this.mapDiseaseOutbreakToAlertsAndSave(alerts, outbreakData);
+                    return this.mapDiseaseOutbreakToAlertsAndSave(
+                        alerts,
+                        outbreakData,
+                        selectableOptions.suspectedDiseases
+                    );
                 })
             ).flatMap(() => Future.success(undefined));
         });
@@ -49,13 +54,10 @@ export class MapAndSaveAlertsUseCase {
 
     private mapDiseaseOutbreakToAlertsAndSave(
         alertData: OutbreakAlert[],
-        outbreakData: OutbreakData
+        outbreakData: OutbreakData,
+        suspectedDiseases: Option[]
     ): FutureData<void> {
-        return Future.joinObj({
-            diseaseOutbreakEvents: this.getDiseaseOutbreakEvents(outbreakData),
-            selectableOptions: this.getOptions(),
-        }).flatMap(({ diseaseOutbreakEvents, selectableOptions }) => {
-            const { suspectedDiseases } = selectableOptions;
+        return this.getDiseaseOutbreakEvents(outbreakData).flatMap(diseaseOutbreakEvents => {
             const outbreakKey = getOutbreakKey({
                 outbreakValue: outbreakData.value,
                 suspectedDiseases: suspectedDiseases,
@@ -67,20 +69,11 @@ export class MapAndSaveAlertsUseCase {
                 );
             }
 
-            const outbreakAlerts = alertData.filter(
-                alertData => alertData.outbreakData.value === outbreakData.value
-            );
-
-            return Future.sequential(
-                outbreakAlerts.map(alertData =>
-                    this.mapAndSaveAlertData({
-                        alertData: alertData,
-                        diseaseOutbreakEvents: diseaseOutbreakEvents,
-                        outbreakName: outbreakKey,
-                        suspectedDiseases: suspectedDiseases,
-                    })
-                )
-            ).flatMap(() => Future.success(undefined));
+            return this.mapAndSaveAlertData({
+                alertData: alertData,
+                diseaseOutbreakEvents: diseaseOutbreakEvents,
+                outbreakKey: outbreakKey,
+            });
         });
     }
 
@@ -103,84 +96,79 @@ export class MapAndSaveAlertsUseCase {
     }
 
     private mapAndSaveAlertData(options: {
-        alertData: OutbreakAlert;
+        alertData: OutbreakAlert[];
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[];
-        outbreakName: string;
-        suspectedDiseases: Option[];
+        outbreakKey: string;
     }): FutureData<void> {
-        const { alertData, diseaseOutbreakEvents, outbreakName, suspectedDiseases } = options;
+        const { alertData, diseaseOutbreakEvents, outbreakKey } = options;
 
         if (diseaseOutbreakEvents.length === 0) {
-            // 3.1. Loop by each alert: first notifyNationalWatchStaff if there is no Zebra national event for that disease.
-            return this.notifyNationalWatchStaff(alertData, outbreakName);
+            return Future.sequential(
+                alertData.map(outbreakAlert => {
+                    return this.notifyNationalWatchStaff(outbreakAlert, outbreakKey);
+                })
+            ).flatMap(() => Future.success(undefined));
         }
 
         const diseaseOutbreakEvent = diseaseOutbreakEvents[0];
         if (!diseaseOutbreakEvent)
             return handleAsyncLogging(
-                logger.error(
-                    `No disease outbreak event found for ${outbreakName} type ${outbreakName}.`
-                )
+                logger.error(`No disease outbreak event found for ${outbreakKey} disease type.`)
             );
 
         return this.updateAlertData({
             diseaseOutbreakEvent: diseaseOutbreakEvent,
-            outbreakData: alertData.outbreakData,
-            suspectedDiseases: suspectedDiseases,
+            outbreakKey: outbreakKey,
         });
     }
 
     private notifyNationalWatchStaff(
         alertData: OutbreakAlert,
-        outbreakName: string
+        outbreakKey: string
     ): FutureData<void> {
         return Future.joinObj({
             logMissingNationalDisease: handleAsyncLogging(
-                logger.debug(`There is no national event with ${outbreakName} disease type.`)
+                logger.debug(`There is no national event with ${outbreakKey} disease type.`)
             ),
             nationalWatchStaffUserGroup: this.options.userGroupRepository.getUserGroupByCode(
                 RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE
             ),
         }).flatMap(({ nationalWatchStaffUserGroup }) =>
-            this.options.notificationRepository
-                .notifyNationalWatchStaff(alertData, outbreakName, [nationalWatchStaffUserGroup])
-                .flatMap(() => Future.success(undefined))
+            this.options.notificationRepository.notifyNationalWatchStaff(alertData, outbreakKey, [
+                nationalWatchStaffUserGroup,
+            ])
         );
     }
 
     private updateAlertData(options: {
         diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs;
-        outbreakData: OutbreakData;
-        suspectedDiseases: Option[];
+        outbreakKey: string;
     }): FutureData<void> {
-        const { diseaseOutbreakEvent, outbreakData, suspectedDiseases } = options;
+        const { diseaseOutbreakEvent, outbreakKey } = options;
 
         return this.options.alertRepository
             .updateAlerts({
                 eventId: diseaseOutbreakEvent.id,
-                outbreakValue: outbreakData.value,
+                outbreakValue: diseaseOutbreakEvent.suspectedDiseaseCode,
             })
             .flatMap(alerts => {
-                return handleAsyncLogging(logger.success("Successfully updated alert."))
-                    .flatMap(() => {
-                        return Future.sequential(
-                            alerts.map(alert =>
-                                this.options.alertSyncRepository.saveAlertSyncData({
-                                    alert: alert,
-                                    nationalDiseaseOutbreakEventId: diseaseOutbreakEvent.id,
-                                    outbreakValue: outbreakData.value,
-                                    suspectedDiseases: suspectedDiseases,
-                                })
-                            )
-                        ).flatMap(() =>
-                            handleAsyncLogging(
-                                logger.success("Successfully saved alert sync data.")
-                            )
-                        );
-                    })
-                    .flatMap(() => Future.success(undefined));
-            })
-            .flatMap(() => Future.success(undefined));
+                if (alerts.length === 0) return Future.success(undefined);
+                return handleAsyncLogging(
+                    logger.success(`Successfully updated ${alerts.length} active verified alerts.`)
+                ).flatMap(() => {
+                    return Future.sequential(
+                        alerts.map(alert => {
+                            return this.options.alertSyncRepository.saveAlertSyncData({
+                                alert: alert,
+                                nationalDiseaseOutbreakEventId: diseaseOutbreakEvent.id,
+                                outbreakKey: outbreakKey,
+                            });
+                        })
+                    ).flatMap(() =>
+                        handleAsyncLogging(logger.success("Successfully saved alert sync data."))
+                    );
+                });
+            });
     }
 }
 
@@ -195,7 +183,10 @@ function getAlertsByDisease(alerts: OutbreakAlert[]) {
         .flatMap(alertsByDisease => {
             return _(alertsByDisease)
                 .uniqBy(alertData => alertData.outbreakData.value)
-                .map(alertData => ({ outbreakData: alertData.outbreakData, alerts: alerts }))
+                .map(alertData => ({
+                    outbreakData: alertData.outbreakData,
+                    alerts: alertsByDisease,
+                }))
                 .value();
         });
 }
