@@ -16,6 +16,27 @@ export enum NationalIncidentStatus {
     RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED = "RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED",
 }
 
+type DateWithNarrative = {
+    date: Date;
+    narrative: string;
+};
+
+type DateWithNA = {
+    date: Maybe<Date>;
+    na: Maybe<boolean>;
+};
+
+type EarlyResponseActions = {
+    initiateInvestigation: Date;
+    conductEpidemiologicalAnalysis: Date;
+    laboratoryConfirmation: Date;
+    appropriateCaseManagement: DateWithNA;
+    initiatePublicHealthCounterMeasures: DateWithNA;
+    initiateRiskCommunication: DateWithNA;
+    establishCoordination: DateWithNA;
+    responseNarrative: string;
+};
+
 export enum DataSource {
     RTSL_ZEB_OS_DATA_SOURCE_IBS = "RTSL_ZEB_OS_DATA_SOURCE_IBS",
     RTSL_ZEB_OS_DATA_SOURCE_EBS = "RTSL_ZEB_OS_DATA_SOURCE_EBS",
@@ -44,6 +65,10 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     mainSyndromeCode: Maybe<Code>;
     suspectedDiseaseCode: Maybe<Code>;
     notificationSourceCode: Code;
+    emerged: DateWithNarrative;
+    detected: DateWithNarrative;
+    notified: DateWithNarrative;
+    earlyResponseActions: EarlyResponseActions;
     incidentManagerName: string;
     notes: Maybe<string>;
     casesDataSource: CasesDataSource;

@@ -10,6 +10,8 @@ import {
     getAllFieldsFromSections,
     getStringFieldValue,
     getMultipleOptionsFieldValue,
+    getDateFieldValue,
+    getBooleanFieldValue,
     getFieldFileDataById,
 } from "../../../components/form/FormFieldsState";
 import { FormState } from "../../../components/form/FormState";
@@ -64,6 +66,85 @@ function getDiseaseOutbreakEventFromDiseaseOutbreakForm(
             diseaseOutbreakEventFieldIds.areasAffectedDistrictIds,
             allFields
         ),
+        emerged: {
+            date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.emergedNarrative,
+                allFields
+            ),
+        },
+        detected: {
+            date: getDateFieldValue(diseaseOutbreakEventFieldIds.detectedDate, allFields) as Date,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.detectedNarrative,
+                allFields
+            ),
+        },
+        notified: {
+            date: getDateFieldValue(diseaseOutbreakEventFieldIds.notifiedDate, allFields) as Date,
+            narrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.notifiedNarrative,
+                allFields
+            ),
+        },
+        earlyResponseActions: {
+            initiateInvestigation: getDateFieldValue(
+                diseaseOutbreakEventFieldIds.initiateInvestigation,
+                allFields
+            ) as Date,
+            conductEpidemiologicalAnalysis: getDateFieldValue(
+                diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
+                allFields
+            ) as Date,
+            laboratoryConfirmation: getDateFieldValue(
+                diseaseOutbreakEventFieldIds.laboratoryConfirmation,
+                allFields
+            ) as Date,
+            appropriateCaseManagement: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.appropriateCaseManagementNA,
+                    allFields
+                ),
+            },
+            initiatePublicHealthCounterMeasures: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresNA,
+                    allFields
+                ),
+            },
+            initiateRiskCommunication: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationNA,
+                    allFields
+                ),
+            },
+            establishCoordination: {
+                date: getDateFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationDate,
+                    allFields
+                ) as Date,
+                na: getBooleanFieldValue(
+                    diseaseOutbreakEventFieldIds.establishCoordinationNa,
+                    allFields
+                ),
+            },
+            responseNarrative: getStringFieldValue(
+                diseaseOutbreakEventFieldIds.responseNarrative,
+                allFields
+            ),
+        },
         incidentManagerName: getStringFieldValue(
             diseaseOutbreakEventFieldIds.incidentManagerName,
             allFields

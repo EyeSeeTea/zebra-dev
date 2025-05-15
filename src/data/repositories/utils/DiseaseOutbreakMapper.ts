@@ -55,7 +55,41 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         mainSyndromeCode: fromMap("mainSyndrome"),
         suspectedDiseaseCode: fromMap("suspectedDisease"),
         notificationSourceCode: fromMap("notificationSource"),
+        emerged: {
+            date: new Date(fromMap("emergedDate")),
+            narrative: fromMap("emergedNarrative"),
+        },
+        detected: {
+            date: new Date(fromMap("detectedDate")),
+            narrative: fromMap("detectedNarrative"),
+        },
+        notified: {
+            date: new Date(fromMap("notifiedDate")),
+            narrative: fromMap("notifiedNarrative"),
+        },
         incidentManagerName: fromMap("incidentManager"),
+        earlyResponseActions: {
+            initiateInvestigation: new Date(fromMap("initiateInvestigation")),
+            conductEpidemiologicalAnalysis: new Date(fromMap("conductEpidemiologicalAnalysis")),
+            laboratoryConfirmation: new Date(fromMap("laboratoryConfirmation")),
+            appropriateCaseManagement: {
+                date: new Date(fromMap("appropriateCaseManagementDate")),
+                na: fromMap("appropriateCaseManagementNA") === "true",
+            },
+            initiatePublicHealthCounterMeasures: {
+                date: new Date(fromMap("initiatePublicHealthCounterMeasuresDate")),
+                na: fromMap("initiatePublicHealthCounterMeasuresNA") === "true",
+            },
+            initiateRiskCommunication: {
+                date: new Date(fromMap("initiateRiskCommunicationDate")),
+                na: fromMap("initiateRiskCommunicationNA") === "true",
+            },
+            establishCoordination: {
+                date: new Date(fromMap("establishCoordinationDate")),
+                na: fromMap("establishCoordinationNA") === "true",
+            },
+            responseNarrative: fromMap("responseNarrative"),
+        },
         notes: fromMap("notes"),
         casesDataSource: casesDataSource,
     };
