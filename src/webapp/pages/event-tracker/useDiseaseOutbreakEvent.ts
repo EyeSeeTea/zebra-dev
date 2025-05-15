@@ -3,7 +3,10 @@ import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
 import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { getISODateAsLocaleDateString } from "../../../data/repositories/utils/DateTimeHelper";
+import {
+    getDateAsMonthYearString,
+    getISODateAsLocaleDateString,
+} from "../../../data/repositories/utils/DateTimeHelper";
 
 import { User } from "../../components/user-selector/UserSelector";
 import { TableRowType } from "../../components/table/BasicTable";
@@ -73,6 +76,18 @@ export function useDiseaseOutbreakEvent(id: Id) {
                 {
                     label: "Event ID",
                     value: diseaseOutbreakEvent.id,
+                },
+                {
+                    label: "Emergence date",
+                    value: getDateAsMonthYearString(diseaseOutbreakEvent.emerged.date),
+                },
+                {
+                    label: "Detection date",
+                    value: getDateAsMonthYearString(diseaseOutbreakEvent.detected.date),
+                },
+                {
+                    label: "Notification date",
+                    value: getDateAsMonthYearString(diseaseOutbreakEvent.notified.date),
                 },
             ],
             incidentManager: diseaseOutbreakEvent.incidentManager

@@ -2,7 +2,9 @@ import {
     CasesDataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { GetValue } from "../../../utils/ts-utils";
+import _c from "../../../domain/entities/generic/Collection";
+import { GetValue, Maybe } from "../../../utils/ts-utils";
+import { getDateAsIsoString } from "../utils/DateTimeHelper";
 
 export const RTSL_ZEBRA_PROGRAM_ID = "qkOTdxkte8V";
 export const RTSL_ZEBRA_ORG_UNIT_ID = "PS5JpkoHHio";
@@ -32,6 +34,25 @@ export const diseaseOutbreakCodes = {
     notificationSource: "RTSL_ZEB_TEA_NOTIFICATION_SOURCE",
     areasAffectedProvinces: "RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES",
     areasAffectedDistricts: "RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS",
+    emergedDate: "RTSL_ZEB_TEA_DATE_EMERGED",
+    emergedNarrative: "RTSL_ZEB_TEA_DATE_EMERGED_NARRATIVE",
+    detectedDate: "RTSL_ZEB_TEA_DATE_DETECTED",
+    detectedNarrative: "RTSL_ZEB_TEA_DATE_DETECTED_NARRATIVE",
+    notifiedDate: "RTSL_ZEB_TEA_DATE_NOTIFIED",
+    notifiedNarrative: "RTSL_ZEB_TEA_DATE_NOTIFIED_NARRATIVE",
+    initiateInvestigation: "RTSL_ZEB_TEA_INITIATE_INVESTIGATION",
+    conductEpidemiologicalAnalysis: "RTSL_ZEB_TEA_CONDUCT_EPIDEMIOLOGICAL_ANALYSIS",
+    laboratoryConfirmation: "RTSL_ZEB_TEA_LABORATORY_CONFIRMATION_NA",
+    appropriateCaseManagementNA: "RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT_NA",
+    appropriateCaseManagementDate: "RTSL_ZEB_TEA_SPECIFY_DATE2",
+    initiatePublicHealthCounterMeasuresNA: "RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH_NA",
+    initiatePublicHealthCounterMeasuresDate: "RTSL_ZEB_TEA_SPECIFY_DATE3",
+    initiateRiskCommunicationNA: "RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION_NA",
+    initiateRiskCommunicationDate: "RTSL_ZEB_TEA_SPECIFY_DATE4",
+    earliestRespondDate: "RTSL_ZEB_TEA_EARLIEST_RESPOND_DATE",
+    establishCoordinationNA: "RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM",
+    establishCoordinationDate: "RTSL_ZEB_TEA_SPECIFY_DATE5",
+    responseNarrative: "RTSL_ZEB_TEA_RESPONSE_NARRATIVE",
     incidentManager: "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER",
     notes: "RTSL_ZEB_TEA_NOTES",
     casesDataSource: "RTSL_ZEB_TEA_CASE_DATA_SOURCE",
@@ -49,6 +70,20 @@ export function isStringInDiseaseOutbreakCodes(code: string): code is DiseaseOut
 export function getValueFromDiseaseOutbreak(
     diseaseOutbreak: DiseaseOutbreakEventBaseAttrs
 ): Record<DiseaseOutbreakCode, string> {
+    //Set Earliest Respond Date as the earliest of all early response action dates.
+    const responseActionDates: number[] = _c([
+        diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.getTime(),
+        diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis.getTime(),
+        diseaseOutbreak.earlyResponseActions.initiateInvestigation.getTime(),
+        diseaseOutbreak.earlyResponseActions.establishCoordination.date?.getTime(),
+        diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.getTime(),
+        diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.getTime(),
+        diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.getTime(),
+    ])
+        .compact()
+        .value();
+
+    const earliestRespondDate: Date = new Date(Math.min(...responseActionDates));
     return {
         RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
         RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode ?? "",
@@ -56,8 +91,55 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_NOTIFICATION_SOURCE: diseaseOutbreak.notificationSourceCode,
         RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES: "",
         RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS: "",
+        RTSL_ZEB_TEA_DATE_EMERGED: getDateAsIsoString(diseaseOutbreak.emerged.date),
+        RTSL_ZEB_TEA_DATE_EMERGED_NARRATIVE: diseaseOutbreak.emerged.narrative,
+        RTSL_ZEB_TEA_DATE_DETECTED: getDateAsIsoString(diseaseOutbreak.detected.date),
+        RTSL_ZEB_TEA_DATE_DETECTED_NARRATIVE: diseaseOutbreak.detected.narrative,
+        RTSL_ZEB_TEA_DATE_NOTIFIED: getDateAsIsoString(diseaseOutbreak.notified.date),
+        RTSL_ZEB_TEA_DATE_NOTIFIED_NARRATIVE: diseaseOutbreak.notified.narrative,
+        RTSL_ZEB_TEA_INITIATE_INVESTIGATION: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.initiateInvestigation
+        ),
+        RTSL_ZEB_TEA_CONDUCT_EPIDEMIOLOGICAL_ANALYSIS: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis
+        ),
+        RTSL_ZEB_TEA_LABORATORY_CONFIRMATION_NA: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.laboratoryConfirmation
+        ),
+        RTSL_ZEB_TEA_APPROPRIATE_CASE_MANAGEMENT_NA: getNaValue(
+            diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.na
+        ),
+
+        RTSL_ZEB_TEA_SPECIFY_DATE2: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date
+        ),
+        RTSL_ZEB_TEA_APPROPRIATE_PUBLIC_HEALTH_NA: getNaValue(
+            diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.na
+        ),
+
+        RTSL_ZEB_TEA_SPECIFY_DATE3: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date
+        ),
+        RTSL_ZEB_TEA_APPROPRIATE_RISK_COMMUNICATION_NA: getNaValue(
+            diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.na
+        ),
+        RTSL_ZEB_TEA_SPECIFY_DATE4: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date
+        ),
+        RTSL_ZEB_TEA_ESTABLISH_COORDINATION_MECHANISM: getNaValue(
+            diseaseOutbreak.earlyResponseActions.establishCoordination.na
+        ),
+        RTSL_ZEB_TEA_SPECIFY_DATE5: getDateAsIsoString(
+            diseaseOutbreak.earlyResponseActions.establishCoordination.date
+        ),
+        RTSL_ZEB_TEA_EARLIEST_RESPOND_DATE: getDateAsIsoString(earliestRespondDate),
+        RTSL_ZEB_TEA_RESPONSE_NARRATIVE: diseaseOutbreak.earlyResponseActions.responseNarrative,
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
         RTSL_ZEB_TEA_CASE_DATA_SOURCE: diseaseOutbreak.casesDataSource,
     };
+}
+
+function getNaValue(naValue: Maybe<boolean>): string {
+    return naValue ? "true" : "";
 }
