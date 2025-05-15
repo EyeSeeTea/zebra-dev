@@ -38,8 +38,8 @@ type EarlyResponseActions = {
 };
 
 export enum DataSource {
-    RTSL_ZEB_OS_DATA_SOURCE_IBS = "RTSL_ZEB_OS_DATA_SOURCE_IBS",
-    RTSL_ZEB_OS_DATA_SOURCE_EBS = "RTSL_ZEB_OS_DATA_SOURCE_EBS",
+    ND1 = "ND1",
+    ND2 = "ND2",
 }
 
 export enum CasesDataSource {

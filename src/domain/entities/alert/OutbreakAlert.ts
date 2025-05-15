@@ -1,7 +1,6 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { NotificationOptions } from "../../repositories/NotificationRepository";
-import { DataSource } from "../disease-outbreak-event/DiseaseOutbreakEvent";
-import { Alert } from "./Alert";
+import { Alert, AlertDataSource } from "./Alert";
 
 export type OutbreakDataType = "disease";
 
@@ -12,7 +11,7 @@ export type OutbreakData = {
 
 export type OutbreakAlert = {
     alert: Alert;
-    dataSource: DataSource;
+    dataSource: AlertDataSource;
     outbreakData: OutbreakData;
     notificationOptions: NotificationOptions;
 };

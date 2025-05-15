@@ -13,7 +13,7 @@ import { FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
 import _ from "../../domain/entities/generic/Collection";
 import { getTEAttributeById } from "./utils/MetadataHelper";
-import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { mapTrackedEntityAttributesToNotificationOptions } from "./utils/AlertOutbreakMapper";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
@@ -56,15 +56,15 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
         return alertsWithNoEventId;
     }
 
-    private getAlertDataSource(diseaseType: Maybe<Attribute>): Maybe<DataSource> {
-        if (diseaseType) return DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS;
+    private getAlertDataSource(diseaseType: Maybe<Attribute>): Maybe<AlertDataSource> {
+        if (diseaseType) return AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS;
         else return undefined;
     }
 
     private buildAlertData(
         trackedEntity: D2TrackerTrackedEntity,
         outbreakData: OutbreakData,
-        dataSource: DataSource,
+        dataSource: AlertDataSource,
         notificationOptions: NotificationOptions
     ): OutbreakAlert {
         if (!trackedEntity.trackedEntity || !trackedEntity.orgUnit)

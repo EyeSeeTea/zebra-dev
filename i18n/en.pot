@@ -144,9 +144,6 @@ msgstr ""
 msgid "The map with these filters could not be found."
 msgstr ""
 
-msgid "Map not found."
-msgstr ""
-
 msgid "Search"
 msgstr ""
 
@@ -280,6 +277,12 @@ msgid "Event Tracker"
 msgstr ""
 
 msgid "Districts Affected"
+msgstr ""
+
+msgid "Select data source"
+msgstr ""
+
+msgid "Data Source"
 msgstr ""
 
 msgid "Create Risk Assessment"

@@ -1,4 +1,3 @@
-import { CasesDataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../domain/entities/generic/Future";
 import {
     MapKey,
@@ -25,13 +24,11 @@ export class MapConfigD2Repository implements MapConfigRepository {
         this.dataStoreClient = new DataStoreClient(api);
     }
 
-    public get(mapKey: MapKey, casesDataSource?: CasesDataSource): FutureData<MapConfig> {
+    public get(mapKey: MapKey): FutureData<MapConfig> {
         const programIndicatorsDatastoreKey =
             mapKey === "dashboard"
                 ? ProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts
-                : casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
-                ? ProgramIndicatorsDatastoreKey.SuspectedCasesCasesProgram
-                : ProgramIndicatorsDatastoreKey.SuspectedCasesAlertsProgram;
+                : ProgramIndicatorsDatastoreKey.SuspectedCasesCasesProgram;
 
         return this.dataStoreClient
             .getObject<MapsConfigDatastore>(MAPS_CONFIG_KEY)
@@ -43,12 +40,10 @@ export class MapConfigD2Repository implements MapConfigRepository {
                         )
                     );
 
-                const mapConfigDataStore =
+                const mapConfigDatastore =
                     mapKey === "dashboard"
                         ? mapsConfigDatastore?.dashboard
-                        : casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
-                        ? mapsConfigDatastore?.event_tracker_cases
-                        : mapsConfigDatastore?.event_tracker_alerts;
+                        : mapsConfigDatastore?.event_tracker_cases;
 
                 return getProgramIndicatorsFromDatastore(
                     this.dataStoreClient,
@@ -62,7 +57,7 @@ export class MapConfigD2Repository implements MapConfigRepository {
                         );
 
                     return Future.success(
-                        this.buildMapConfig(mapConfigDataStore, programIndicatorsDatastore)
+                        this.buildMapConfig(mapConfigDatastore, programIndicatorsDatastore)
                     );
                 });
             });
@@ -82,7 +77,10 @@ export class MapConfigD2Repository implements MapConfigRepository {
             timeField: mapConfigDatastore.timeField,
             programIndicators: programIndicatorsDatastore,
             zebraNamespace: dataStoreNamespace,
-            dashboardDatastoreKey: MapProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts,
+            mapProgramIndicatorDatastoreKey:
+                Object.values(MapProgramIndicatorsDatastoreKey).find(
+                    v => v === mapConfigDatastore.programIndicatorDatastoreKey
+                ) || MapProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts,
         };
     }
 }
@@ -100,4 +98,5 @@ type MapConfigDatastore = {
     programName: string;
     startDate: string;
     timeField: string;
+    programIndicatorDatastoreKey: string;
 };
