@@ -7,7 +7,6 @@ export type AlertsPerformanceOverviewMetrics = {
     eventEBSId: Id;
     eventIBSId: Id;
     nationalDiseaseOutbreakEventId: Id;
-    hazardType: string;
     suspectedDisease: string;
     province: string;
     orgUnit: string;

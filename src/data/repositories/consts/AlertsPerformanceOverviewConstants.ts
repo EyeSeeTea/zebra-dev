@@ -5,7 +5,6 @@ export type AlertsPerformanceOverviewDimensions = {
     eventEBSId: Id;
     eventIBSId: Id;
     nationalDiseaseOutbreakEventId: Id;
-    hazardType: Id;
     suspectedDisease: Id;
     orgUnit: "ouname";
     orgUnitHierarchy: "ounamehierarchy";

@@ -212,16 +212,10 @@ msgstr ""
 msgid "Zebra Events Dashboard"
 msgstr ""
 
-msgid "Disease/Hazard Type"
+msgid "Disease"
 msgstr ""
 
 msgid "Province"
-msgstr ""
-
-msgid "Hazard Type"
-msgstr ""
-
-msgid "Disease"
 msgstr ""
 
 msgid "Organisation unit"

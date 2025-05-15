@@ -8,8 +8,6 @@ export class ConfigurationsTestRepository implements ConfigurationsRepository {
         return Future.success({
             eventTrackerConfigurations: {
                 dataSources: [],
-                hazardTypes: [],
-                hazardTypesByCode: [],
                 suspectedDiseases: [],
                 mainSyndromes: [],
                 notificationSources: [],

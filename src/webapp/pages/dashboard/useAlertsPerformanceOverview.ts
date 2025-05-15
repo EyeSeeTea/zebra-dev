@@ -23,7 +23,6 @@ export type AlertsPerformanceOverviewMetricsTableData = {
     eventEBSId: Id;
     eventIBSId: Id;
     nationalDiseaseOutbreakEventId: Id;
-    hazardType: string;
     suspectedDisease: string;
     province: string;
     orgUnit: string;
@@ -87,7 +86,7 @@ export function useAlertsPerformanceOverview(): State {
 
     const filtersConfig = useMemo<FiltersConfig[]>(
         () => [
-            { value: "event", label: i18n.t("Disease/Hazard Type"), type: "multiselector" },
+            { value: "event", label: i18n.t("Disease"), type: "multiselector" },
             { value: "province", label: i18n.t("Province"), type: "multiselector" },
             { value: "date", label: i18n.t("Duration"), type: "datepicker" },
         ],
@@ -113,35 +112,9 @@ export function useAlertsPerformanceOverview(): State {
         setEventSourceSelected,
     } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>(filtersConfig, true);
 
-    const filtersConfigDependingEventSource = useMemo<FiltersConfig[]>(
+    const columns = useMemo<TableColumn[]>(
         () => [
-            {
-                value: "event",
-                label:
-                    eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                        ? i18n.t("Hazard Type")
-                        : eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
-                        ? i18n.t("Disease")
-                        : i18n.t("Disease/Hazard Type"),
-                type: "multiselector",
-            },
-            { value: "province", label: i18n.t("Province"), type: "multiselector" },
-            { value: "date", label: i18n.t("Duration"), type: "datepicker" },
-        ],
-        [eventSourceSelected]
-    );
-
-    const columnsDependingEventSource = useMemo<TableColumn[]>(
-        () => [
-            {
-                label:
-                    eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                        ? i18n.t("Hazard Type")
-                        : eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
-                        ? i18n.t("Disease")
-                        : i18n.t("Disease/Hazard Type"),
-                value: "event",
-            },
+            { label: i18n.t("Disease"), value: "event" },
             { label: i18n.t("Province"), value: "province" },
             { label: i18n.t("Organisation unit"), value: "orgUnit" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType" },
@@ -156,7 +129,7 @@ export function useAlertsPerformanceOverview(): State {
             { label: i18n.t("EMS Id"), value: "eventEBSId" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId" },
         ],
-        [eventSourceSelected]
+        []
     );
 
     const mapEntityToTableData = useCallback(
@@ -168,7 +141,7 @@ export function useAlertsPerformanceOverview(): State {
 
             return {
                 ...data,
-                event: data.hazardType || data.suspectedDisease,
+                event: data.suspectedDisease,
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
             };
@@ -212,7 +185,7 @@ export function useAlertsPerformanceOverview(): State {
     ]);
 
     return {
-        columns: columnsDependingEventSource,
+        columns,
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
         columnRules,
@@ -221,7 +194,7 @@ export function useAlertsPerformanceOverview(): State {
         isLoading,
         searchTerm,
         setSearchTerm,
-        filtersConfig: filtersConfigDependingEventSource,
+        filtersConfig,
         filters,
         setFilters,
         filterOptions,

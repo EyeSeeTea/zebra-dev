@@ -49,7 +49,6 @@ export function useMap(params: {
     mapKey: MapKey;
     allOrgUnitsIds: string[];
     eventDiseaseCode?: string;
-    eventHazardCode?: string;
     casesDataSource?: CasesDataSource;
     dateRangeFilter?: string[];
     singleSelectFilters?: Record<string, string>;
@@ -59,7 +58,6 @@ export function useMap(params: {
         mapKey,
         allOrgUnitsIds,
         eventDiseaseCode,
-        eventHazardCode,
         casesDataSource,
         dateRangeFilter,
         singleSelectFilters,
@@ -151,7 +149,7 @@ export function useMap(params: {
 
         if (
             mapKey === "event_tracker" &&
-            (eventDiseaseCode || eventHazardCode) &&
+            eventDiseaseCode &&
             (newStartDate !== mapConfigState.data.startDate ||
                 newEndDate !== mapConfigState.data.endDate)
         ) {
@@ -173,7 +171,6 @@ export function useMap(params: {
     }, [
         allOrgUnitsIds,
         eventDiseaseCode,
-        eventHazardCode,
         mapConfigState,
         mapKey,
         mapProgramIndicators,
@@ -184,12 +181,7 @@ export function useMap(params: {
     ]);
 
     useEffect(() => {
-        if (
-            mapKey === "event_tracker" &&
-            !eventDiseaseCode &&
-            !eventHazardCode &&
-            !casesDataSource
-        ) {
+        if (mapKey === "event_tracker" && !eventDiseaseCode && !casesDataSource) {
             return;
         }
 
@@ -201,11 +193,7 @@ export function useMap(params: {
                 const mapProgramIndicator =
                     mapKey === "dashboard"
                         ? getMainActiveVerifiedMapProgramIndicator(config.programIndicators)
-                        : getCasesMapProgramIndicator(
-                              config.programIndicators,
-                              eventDiseaseCode,
-                              eventHazardCode
-                          );
+                        : getCasesMapProgramIndicator(config.programIndicators, eventDiseaseCode);
 
                 if (!mapProgramIndicator || allOrgUnitsIds.length === 0) {
                     setMapConfigState({
@@ -241,14 +229,7 @@ export function useMap(params: {
                 });
             }
         );
-    }, [
-        compositionRoot.maps.getConfig,
-        mapKey,
-        allOrgUnitsIds,
-        eventDiseaseCode,
-        eventHazardCode,
-        casesDataSource,
-    ]);
+    }, [compositionRoot.maps.getConfig, mapKey, allOrgUnitsIds, eventDiseaseCode, casesDataSource]);
 
     return {
         mapConfigState,
@@ -259,21 +240,15 @@ function getMainActiveVerifiedMapProgramIndicator(
     programIndicators: MapProgramIndicator[]
 ): Maybe<MapProgramIndicator> {
     return programIndicators.find(
-        indicator =>
-            indicator.disease === "ALL" &&
-            indicator.hazardType === "ALL" &&
-            indicator.incidentStatus === "ALL"
+        indicator => indicator.disease === "ALL" && indicator.incidentStatus === "ALL"
     );
 }
 
 function getCasesMapProgramIndicator(
     programIndicators: MapProgramIndicator[],
-    disease: Maybe<string>,
-    hazardType: Maybe<string>
+    disease: Maybe<string>
 ): Maybe<MapProgramIndicator> {
-    return programIndicators.find(
-        indicator => indicator.disease === disease || indicator.hazardType === hazardType
-    );
+    return programIndicators.find(indicator => indicator.disease === disease);
 }
 
 function getFilteredActiveVerifiedMapProgramIndicator(
@@ -283,40 +258,28 @@ function getFilteredActiveVerifiedMapProgramIndicator(
     if (!singleSelectFilters || Object.values(singleSelectFilters).every(value => !value)) {
         return getMainActiveVerifiedMapProgramIndicator(programIndicators);
     } else {
-        const {
-            disease: diseaseFilterValue,
-            hazard: hazardFilterValue,
-            incidentStatus: incidentStatusFilterValue,
-        } = singleSelectFilters;
+        const { disease: diseaseFilterValue, incidentStatus: incidentStatusFilterValue } =
+            singleSelectFilters;
 
         return programIndicators.find(indicator => {
             const isIndicatorDisease =
                 diseaseFilterValue && indicator.disease === diseaseFilterValue;
-            const isIndicatorHazardType =
-                hazardFilterValue && indicator.hazardType === hazardFilterValue;
             const isIndicatorIncidentStatus =
                 incidentStatusFilterValue && indicator.incidentStatus === incidentStatusFilterValue;
 
             const isAllIncidentStatusIndicator = indicator.incidentStatus === "ALL";
             const isAllDiseaseIndicator = indicator.disease === "ALL";
-            const isAllHazardTypeIndicator = indicator.hazardType === "ALL";
 
             if (isIndicatorDisease) {
                 return (
                     isIndicatorIncidentStatus ||
                     (!incidentStatusFilterValue && isAllIncidentStatusIndicator)
                 );
-            } else if (isIndicatorHazardType) {
-                return (
-                    isIndicatorIncidentStatus ||
-                    (!incidentStatusFilterValue && isAllIncidentStatusIndicator)
-                );
             } else if (isIndicatorIncidentStatus) {
                 return (
-                    (!hazardFilterValue && !diseaseFilterValue && isAllDiseaseIndicator) ||
-                    (!hazardFilterValue && !diseaseFilterValue && isAllHazardTypeIndicator) ||
-                    isIndicatorDisease ||
-                    isIndicatorHazardType
+                    (!diseaseFilterValue && isAllDiseaseIndicator) ||
+                    !diseaseFilterValue ||
+                    isIndicatorDisease
                 );
             }
 

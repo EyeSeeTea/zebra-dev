@@ -15,7 +15,6 @@ type MapSectionProps = {
     multiSelectFilters?: Record<string, string[]>;
     dateRangeFilter?: string[];
     eventDiseaseCode?: string;
-    eventHazardCode?: string;
     casesDataSource?: CasesDataSource;
 };
 
@@ -27,7 +26,6 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         multiSelectFilters,
         dateRangeFilter,
         eventDiseaseCode,
-        eventHazardCode,
         casesDataSource,
     } = props;
     const { configurations } = useAppContext();
@@ -48,7 +46,6 @@ export const MapSection: React.FC<MapSectionProps> = React.memo(props => {
         multiSelectFilters: multiSelectFilters,
         dateRangeFilter: dateRangeFilter,
         eventDiseaseCode: eventDiseaseCode,
-        eventHazardCode: eventHazardCode,
         casesDataSource: casesDataSource,
     });
 

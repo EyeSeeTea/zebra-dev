@@ -41,8 +41,6 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 era5: "",
                 era6: "",
                 era7: "",
-                detect7d: "",
-                notify1d: "",
             },
             {
                 id: "oHSPSlkb7J5",
@@ -58,8 +56,6 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 era5: "",
                 era6: "",
                 era7: "",
-                detect7d: "",
-                notify1d: "",
             },
             {
                 id: "g5C6Veut61t",
@@ -75,8 +71,6 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 era5: "",
                 era6: "",
                 era7: "",
-                detect7d: "",
-                notify1d: "",
             },
         ]);
     }
@@ -96,7 +90,6 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 respond7d: "-2",
                 eventEBSId: "",
                 eventIBSId: "OUTBREAK_000005",
-                hazardType: "",
                 incidentStatus: "Watch",
                 incidentManager: "etst",
                 suspectedDisease: "COVID19",
@@ -117,7 +110,6 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 respond7d: "-1",
                 eventEBSId: "",
                 eventIBSId: "OUTBREAK_000011",
-                hazardType: "",
                 incidentStatus: "Watch",
                 incidentManager: "Zebra Test 1",
                 suspectedDisease: "COVID19",
@@ -138,7 +130,6 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 respond7d: "-1",
                 eventEBSId: "12345",
                 eventIBSId: "",
-                hazardType: "Biological: Animal",
                 incidentStatus: "Alert",
                 incidentManager: "Zebra Test 2",
                 suspectedDisease: "Acute VHF",
