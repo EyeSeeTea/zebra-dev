@@ -1,10 +1,6 @@
 import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
 import { Alert } from "../entities/alert/Alert";
-import {
-    DataSource,
-    NationalIncidentStatus,
-} from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Id } from "../entities/Ref";
 
 export interface AlertRepository {
@@ -14,8 +10,6 @@ export interface AlertRepository {
 export type OutbreakValueCode = string;
 
 export type AlertOptions = {
-    dataSource: DataSource;
     eventId: Id;
     outbreakValue: Maybe<OutbreakValueCode>;
-    incidentStatus: NationalIncidentStatus;
 };

@@ -17,7 +17,7 @@ export class GetAllNationalPerformanceOverviewMetricsUseCase {
             .flatMap(diseaseOutbreakEvents => {
                 //Do not process events without Suspected disease or Hazard Type set as they are mandatory.
                 const filteredEvents = diseaseOutbreakEvents.filter(
-                    event => event.hazardType || event.suspectedDiseaseCode
+                    event => event.suspectedDiseaseCode
                 );
                 return this.options.performanceOverviewRepository.getNationalPerformanceOverviewMetrics(
                     filteredEvents

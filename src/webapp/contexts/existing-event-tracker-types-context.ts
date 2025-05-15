@@ -1,14 +1,9 @@
 import { createContext, useContext } from "react";
-import {
-    DiseaseNames,
-    HazardNames,
-} from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { DiseaseNames } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export interface ExistingEventTrackerTypesProps {
-    existingEventTrackerTypes: (DiseaseNames | HazardNames)[];
-    changeExistingEventTrackerTypes: (
-        existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
-    ) => void;
+    existingEventTrackerTypes: DiseaseNames[];
+    changeExistingEventTrackerTypes: (existingEventTrackerTypes: DiseaseNames[]) => void;
 }
 
 export const ExistingEventTrackerTypesContext = createContext<ExistingEventTrackerTypesProps>({

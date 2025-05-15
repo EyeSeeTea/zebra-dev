@@ -4,7 +4,6 @@ import { OutbreakAlertRepository } from "../../domain/repositories/OutbreakAlert
 import { Attribute, D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID,
-    RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID,
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
@@ -33,15 +32,14 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
         // these are alerts that have no national event id
         const alertsWithNoEventId = _(alertTrackedEntities)
             .compactMap(trackedEntity => {
-                const { diseaseType, hazardType, nationalEventId } =
-                    this.getAlertTEAttributes(trackedEntity);
+                const { diseaseType, nationalEventId } = this.getAlertTEAttributes(trackedEntity);
                 const notificationOptions =
                     mapTrackedEntityAttributesToNotificationOptions(trackedEntity);
-                const outbreakData = this.getOutbreakData(diseaseType, hazardType);
+                const outbreakData = this.getOutbreakData(diseaseType);
 
                 if (!outbreakData) return undefined;
 
-                const dataSource = this.getAlertDataSource(diseaseType, hazardType);
+                const dataSource = this.getAlertDataSource(diseaseType);
                 if (!dataSource) return undefined;
 
                 const alertData: OutbreakAlert = this.buildAlertData(
@@ -51,19 +49,15 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
                     notificationOptions
                 );
 
-                return !nationalEventId && (hazardType || diseaseType) ? alertData : undefined;
+                return !nationalEventId && diseaseType ? alertData : undefined;
             })
             .value();
 
         return alertsWithNoEventId;
     }
 
-    private getAlertDataSource(
-        diseaseType: Maybe<Attribute>,
-        hazardType: Maybe<Attribute>
-    ): Maybe<DataSource> {
+    private getAlertDataSource(diseaseType: Maybe<Attribute>): Maybe<DataSource> {
         if (diseaseType) return DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS;
-        else if (hazardType) return DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
         else return undefined;
     }
 
@@ -87,18 +81,8 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
         };
     }
 
-    private getOutbreakData(
-        diseaseType: Maybe<Attribute>,
-        hazardType: Maybe<Attribute>
-    ): Maybe<OutbreakData> {
-        switch (true) {
-            case !!diseaseType:
-                return { value: diseaseType.value, type: "disease" };
-            case !!hazardType:
-                return { value: hazardType.value, type: "hazard" };
-            default:
-                return undefined;
-        }
+    private getOutbreakData(diseaseType: Maybe<Attribute>): Maybe<OutbreakData> {
+        return diseaseType ? { value: diseaseType.value, type: "disease" } : undefined;
     }
 
     private getAlertTEAttributes(trackedEntity: D2TrackerTrackedEntity) {
@@ -106,10 +90,9 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
             trackedEntity,
             RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID
         );
-        const hazardType = getTEAttributeById(trackedEntity, RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID);
         const diseaseType = getTEAttributeById(trackedEntity, RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID);
 
-        return { diseaseType, hazardType, nationalEventId };
+        return { diseaseType, nationalEventId };
     }
 
     private getTrackedEntitiesByTEACode(options: {

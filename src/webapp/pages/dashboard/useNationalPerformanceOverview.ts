@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
-import _ from "../../../domain/entities/generic/Collection";
 import {
     FiltersConfig,
     FiltersValuesType,
@@ -9,10 +8,8 @@ import {
 import { Maybe } from "../../../utils/ts-utils";
 import {
     DiseaseNames,
-    HazardNames,
     PerformanceOverviewMetrics,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
-import { NationalIncidentStatus } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
 import i18n from "../../../utils/i18n";
@@ -35,12 +32,7 @@ export type PerformanceOverviewMetricsTableData = {
     era5: string;
     era6: string;
     era7: string;
-    detect7d: string;
-    notify1d: string;
-    respond7d: string;
     suspectedDisease: DiseaseNames;
-    hazardType: HazardNames;
-    nationalIncidentStatus: string;
     date: string;
     incidentManagerUsername: string;
 };
@@ -146,21 +138,6 @@ export function useNationalPerformanceOverview(): State {
         setEventSourceSelected,
     } = usePerformanceOverviewTable<PerformanceOverviewMetricsTableData>(filtersConfig);
 
-    const getNationalIncidentStatusString = useCallback((status: string): string => {
-        switch (status as NationalIncidentStatus) {
-            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT:
-                return i18n.t("Alert");
-            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED:
-                return i18n.t("Closed");
-            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED:
-                return i18n.t("Discarded");
-            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND:
-                return i18n.t("Respond");
-            case NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH:
-                return i18n.t("Watch");
-        }
-    }, []);
-
     const mapEntityToTableData = useCallback(
         (
             programIndicator: PerformanceOverviewMetrics,
@@ -172,14 +149,11 @@ export function useNationalPerformanceOverview(): State {
 
             return {
                 ...programIndicator,
-                nationalIncidentStatus: getNationalIncidentStatusString(
-                    programIndicator.nationalIncidentStatus
-                ),
                 event: programIndicator.event,
                 incidentManager: incidentManagerName || programIndicator.incidentManagerUsername,
             };
         },
-        [getNationalIncidentStatusString]
+        []
     );
 
     useEffect(() => {
@@ -187,7 +161,7 @@ export function useNationalPerformanceOverview(): State {
         compositionRoot.performanceOverview.getNationalPerformanceOverviewMetrics.execute().run(
             performanceOverviewMetrics => {
                 const existingEventTrackerTypes = performanceOverviewMetrics.map(
-                    metric => metric.suspectedDisease || metric.hazardType
+                    metric => metric.suspectedDisease
                 );
                 changeExistingEventTrackerTypes(existingEventTrackerTypes);
                 const mappedData = performanceOverviewMetrics.map(

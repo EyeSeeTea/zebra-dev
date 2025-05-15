@@ -36,7 +36,6 @@ export function useDiseaseOutbreakEventForm(params: {
                 .execute(
                     diseaseOutbreakEventId,
                     entity,
-                    eventTrackerConfigurations.hazardTypes,
                     eventTrackerConfigurations.suspectedDiseases
                 )
                 .run(

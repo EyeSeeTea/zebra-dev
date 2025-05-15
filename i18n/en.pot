@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-01-24T10:58:18.826Z\n"
-"PO-Revision-Date: 2025-01-24T10:58:18.826Z\n"
+"POT-Creation-Date: 2025-05-15T10:20:26.206Z\n"
+"PO-Revision-Date: 2025-05-15T10:20:26.206Z\n"
 
 msgid "Low"
 msgstr ""
@@ -280,21 +280,6 @@ msgid "ERA6"
 msgstr ""
 
 msgid "ERA7"
-msgstr ""
-
-msgid "Alert"
-msgstr ""
-
-msgid "Closed"
-msgstr ""
-
-msgid "Discarded"
-msgstr ""
-
-msgid "Respond"
-msgstr ""
-
-msgid "Watch"
 msgstr ""
 
 msgid "Event Tracker"

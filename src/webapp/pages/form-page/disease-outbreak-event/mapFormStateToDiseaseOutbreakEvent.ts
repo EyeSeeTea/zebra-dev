@@ -1,9 +1,6 @@
 import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
 import {
     DiseaseOutbreakEvent,
-    DataSource,
-    HazardType,
-    NationalIncidentStatus,
     CasesDataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -49,14 +46,6 @@ function getDiseaseOutbreakEventFromDiseaseOutbreakForm(
 ): DiseaseOutbreakEvent {
     const diseaseOutbreakEventEditableData = {
         name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
-        dataSource: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.dataSource,
-            allFields
-        ) as DataSource,
-        hazardType: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.hazardType,
-            allFields
-        ) as HazardType,
         mainSyndromeCode: getStringFieldValue(
             diseaseOutbreakEventFieldIds.mainSyndromeCode,
             allFields
@@ -77,10 +66,6 @@ function getDiseaseOutbreakEventFromDiseaseOutbreakForm(
             diseaseOutbreakEventFieldIds.areasAffectedDistrictIds,
             allFields
         ),
-        incidentStatus: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentStatus,
-            allFields
-        ) as NationalIncidentStatus,
         emerged: {
             date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
             narrative: getStringFieldValue(

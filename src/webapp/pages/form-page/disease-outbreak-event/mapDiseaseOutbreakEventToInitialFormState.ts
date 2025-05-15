@@ -1,9 +1,6 @@
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
-import {
-    CasesDataSource,
-    DataSource,
-} from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { CasesDataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { TeamMember } from "../../../../domain/entities/incident-management-team/TeamMember";
 import { getFieldIdFromIdsDictionary } from "../../../components/form/FormFieldsState";
 import { FormSectionState } from "../../../components/form/FormSectionsState";
@@ -11,23 +8,17 @@ import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
-import {
-    DiseaseNames,
-    HazardNames,
-} from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { DiseaseNames } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
     casesDataSource: "casesDataSource",
     casesDataFile: "casesDataFile",
-    dataSource: "dataSource",
-    hazardType: "hazardType",
     mainSyndromeCode: "mainSyndromeCode",
     suspectedDiseaseCode: "suspectedDiseaseCode",
     notificationSourceCode: "notificationSourceCode",
     areasAffectedProvinceIds: "areasAffectedProvinceIds",
     areasAffectedDistrictIds: "areasAffectedDistrictIds",
-    incidentStatus: "incidentStatus",
     emergedDate: "emergedDate",
     emergedNarrative: "emergedNarrative",
     detectedDate: "detectedDate",
@@ -68,12 +59,9 @@ type MainSectionKeys =
     | "name"
     | "casesDataSource"
     | "casesDataFile"
-    | "dataSource"
-    | "hazardType"
     | "mainSyndrome"
     | "suspectedDisease"
     | "notificationSource"
-    | "incidentStatus"
     | "dateEmerged"
     | "dateDetected"
     | "dateNotified"
@@ -95,7 +83,7 @@ type ResponseActionsSubsectionKeys =
 export function mapDiseaseOutbreakEventToInitialFormState(
     diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
     editMode: boolean,
-    existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
+    existingEventTrackerTypes: DiseaseNames[]
 ): FormState {
     return diseaseOutbreakEventWithOptions.type === "disease-outbreak-event"
         ? getInitialFormStateForDiseaseOutbreakEvent(
@@ -109,7 +97,7 @@ export function mapDiseaseOutbreakEventToInitialFormState(
 function getInitialFormStateForDiseaseOutbreakEvent(
     diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
     editMode: boolean,
-    existingEventTrackerTypes: (DiseaseNames | HazardNames)[]
+    existingEventTrackerTypes: DiseaseNames[]
 ): FormState {
     const {
         entity: diseaseOutbreakEvent,
@@ -120,40 +108,27 @@ function getInitialFormStateForDiseaseOutbreakEvent(
     } = diseaseOutbreakEventWithOptions;
 
     const {
-        dataSources,
         incidentManagers,
-        hazardTypes,
         mainSyndromes,
         suspectedDiseases,
         notificationSources,
-        incidentStatus,
         casesDataSource,
     } = options;
 
     //If An Event Tracker has already been created for a given suspected disease or harzd type,
     //then do not allow to create another one. Remove it from dropwdown options
-    const filteredHazardTypes = hazardTypes.filter(hazardType => {
-        return !existingEventTrackerTypes.includes(hazardType.name as HazardNames);
-    });
     const filteredSuspectedDiseases = suspectedDiseases.filter(suspectedDisease => {
         return !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames);
     });
 
     const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
-    const dataSourcesOptions: PresentationOption[] = mapToPresentationOptions(dataSources);
     const casesDataSourceOptions: PresentationOption[] = mapToPresentationOptions(casesDataSource);
-    const hazardTypesOptions: PresentationOption[] = mapToPresentationOptions(filteredHazardTypes);
     const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
     const suspectedDiseasesOptions: PresentationOption[] =
         mapToPresentationOptions(filteredSuspectedDiseases);
     const notificationSourcesOptions: PresentationOption[] =
         mapToPresentationOptions(notificationSources);
-    const incidentStatusOptions: PresentationOption[] = mapToPresentationOptions(incidentStatus);
 
-    const isEBSDataSource =
-        diseaseOutbreakEvent?.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS;
-    const isIBSDataSource =
-        diseaseOutbreakEvent?.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS;
     const isCasesDataUserDefined =
         diseaseOutbreakEvent?.casesDataSource ===
         CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
@@ -166,7 +141,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             title: "1. Initiate investigation or deploy an investigation/response.",
             id: "1. Initiate investigation or deploy an investigation/response.",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("initiateInvestigation"),
@@ -176,8 +150,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     type: "date",
                     value: diseaseOutbreakEvent?.earlyResponseActions.initiateInvestigation || null,
                     width: "200px",
-                    required: true,
-                    showIsRequired: false,
                 },
             ],
         },
@@ -185,7 +157,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             title: "2. Conduct epidemiological analysis of burden, severity, and risk factors, and perform initial risk assessment.",
             id: "2. Conduct epidemiological analysis of burden, severity, and risk factors, and perform initial risk assessment.",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("conductEpidemiologicalAnalysis"),
@@ -197,8 +168,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                         diseaseOutbreakEvent?.earlyResponseActions.conductEpidemiologicalAnalysis ||
                         null,
                     width: "200px",
-                    required: true,
-                    showIsRequired: false,
                 },
             ],
         },
@@ -206,7 +175,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             id: "3. Obtain laboratory confirmation of the outbreak etiology.",
             title: "3. Obtain laboratory confirmation of the outbreak etiology.",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("laboratoryConfirmation"),
@@ -217,8 +185,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     value:
                         diseaseOutbreakEvent?.earlyResponseActions.laboratoryConfirmation || null,
                     width: "200px",
-                    required: true,
-                    showIsRequired: false,
                 },
             ],
         },
@@ -226,7 +192,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             id: "4. Initiate appropriate case management and infection prevention and control (IPC) measures in health facilities.",
             title: "4. Initiate appropriate case management and infection prevention and control (IPC) measures in health facilities.",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("appropriateCaseManagementDate"),
@@ -239,8 +204,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                         null,
                     width: "200px",
                     hasNotApplicable: true,
-                    required: true,
-                    showIsRequired: false,
                     disabled:
                         diseaseOutbreakEvent?.earlyResponseActions.appropriateCaseManagement.na,
                 },
@@ -262,7 +225,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             id: "5. Initiate appropriate public health countermeasures in affected communities.",
             title: "5. Initiate appropriate public health countermeasures in affected communities.",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("initiatePublicHealthCounterMeasuresDate"),
@@ -275,8 +237,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                             .initiatePublicHealthCounterMeasures.date || null,
                     width: "200px",
                     hasNotApplicable: true,
-                    required: true,
-                    showIsRequired: false,
                     disabled:
                         diseaseOutbreakEvent?.earlyResponseActions
                             .initiatePublicHealthCounterMeasures.na,
@@ -301,7 +261,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             id: "6. Initiate appropriate risk communication and community engagement activities.",
             title: "6. Initiate appropriate risk communication and community engagement activities.",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("initiateRiskCommunicationDate"),
@@ -314,8 +273,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                         null,
                     width: "200px",
                     hasNotApplicable: true,
-                    required: true,
-                    showIsRequired: false,
                     disabled:
                         diseaseOutbreakEvent?.earlyResponseActions.initiateRiskCommunication.na,
                 },
@@ -337,7 +294,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             title: "7. Establish a coordination mechanism.",
             id: "7. Establish a coordination mechanism.",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("establishCoordinationDate"),
@@ -350,8 +306,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                         null,
                     width: "200px",
                     hasNotApplicable: true,
-                    required: true,
-                    showIsRequired: false,
                     disabled: diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.na,
                 },
                 {
@@ -380,7 +334,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     type: "text",
                     value: diseaseOutbreakEvent?.earlyResponseActions.responseNarrative || "",
                     multiline: true,
-                    showIsRequired: false,
                 },
             ],
         },
@@ -458,63 +411,21 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                 },
             ],
         },
-        dataSource: {
-            title: "Event Source",
-            id: "dataSource_section",
-            isVisible: true,
-            required: true,
-            fields: [
-                {
-                    id: fromIdsDictionary("dataSource"),
-                    placeholder: "Select an event source",
-                    isVisible: true,
-                    errors: [],
-                    type: "select",
-                    multiple: false,
-                    options: dataSourcesOptions,
-                    value: diseaseOutbreakEvent?.dataSource || "",
-                    width: "300px",
-                    required: true,
-                    showIsRequired: false,
-                    disabled: editMode,
-                },
-            ],
-        },
-        hazardType: {
-            title: "Hazard Type",
-            id: "hazardType_section",
-            isVisible: isEBSDataSource,
-            required: true,
-            fields: [
-                {
-                    id: fromIdsDictionary("hazardType"),
-                    isVisible: isEBSDataSource,
-                    errors: [],
-                    type: "radio",
-                    multiple: false,
-                    options: hazardTypesOptions,
-                    value: isEBSDataSource ? diseaseOutbreakEvent?.hazardType || "" : "",
-                    required: true,
-                    showIsRequired: false,
-                    disabled: editMode,
-                },
-            ],
-        },
         mainSyndrome: {
             title: "Main Syndrome",
             id: "mainSyndrome_section",
-            isVisible: isIBSDataSource,
+            isVisible: true,
             required: true,
             fields: [
                 {
                     id: fromIdsDictionary("mainSyndromeCode"),
                     placeholder: "Select a syndrome",
-                    isVisible: isIBSDataSource,
+                    isVisible: true,
                     errors: [],
                     type: "select",
                     multiple: false,
                     options: mainSyndromesOptions,
-                    value: isIBSDataSource ? diseaseOutbreakEvent?.mainSyndromeCode || "" : "",
+                    value: diseaseOutbreakEvent?.mainSyndromeCode || "",
                     width: "300px",
                     required: true,
                     showIsRequired: false,
@@ -524,18 +435,18 @@ function getInitialFormStateForDiseaseOutbreakEvent(
         suspectedDisease: {
             title: "Suspected Disease",
             id: "suspectedDisease_section",
-            isVisible: isIBSDataSource,
+            isVisible: true,
             required: true,
             fields: [
                 {
                     id: fromIdsDictionary("suspectedDiseaseCode"),
                     placeholder: "Select a disease",
-                    isVisible: isIBSDataSource,
+                    isVisible: true,
                     errors: [],
                     type: "select",
                     multiple: false,
                     options: suspectedDiseasesOptions,
-                    value: isIBSDataSource ? diseaseOutbreakEvent?.suspectedDiseaseCode || "" : "",
+                    value: diseaseOutbreakEvent?.suspectedDiseaseCode || "",
                     width: "300px",
                     required: true,
                     showIsRequired: false,
@@ -564,30 +475,10 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                 },
             ],
         },
-        incidentStatus: {
-            title: "Incident Status",
-            id: "incidentStatus_section",
-            isVisible: true,
-            required: true,
-            fields: [
-                {
-                    id: fromIdsDictionary("incidentStatus"),
-                    isVisible: true,
-                    errors: [],
-                    type: "radio",
-                    multiple: false,
-                    options: incidentStatusOptions,
-                    value: diseaseOutbreakEvent?.incidentStatus || "",
-                    required: true,
-                    showIsRequired: false,
-                },
-            ],
-        },
         dateEmerged: {
             title: "Date Emerged",
             id: "emerged_section",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("emergedDate"),
@@ -596,7 +487,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     type: "date",
                     value: diseaseOutbreakEvent?.emerged.date || null,
                     width: "200px",
-                    required: true,
                     showIsRequired: false,
                 },
                 {
@@ -617,7 +507,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             title: "Date Detected",
             id: "detected_section",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("detectedDate"),
@@ -626,8 +515,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     type: "date",
                     value: diseaseOutbreakEvent?.detected.date || null,
                     width: "200px",
-                    required: true,
-                    showIsRequired: false,
                 },
                 {
                     id: fromIdsDictionary("detectedNarrative"),
@@ -639,7 +526,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     value: diseaseOutbreakEvent?.detected.narrative || "",
                     multiline: false,
                     maxWidth: "600px",
-                    showIsRequired: false,
                 },
             ],
         },
@@ -647,7 +533,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             title: "Date Notified",
             id: "notified",
             isVisible: true,
-            required: true,
             fields: [
                 {
                     id: fromIdsDictionary("notifiedDate"),
@@ -656,8 +541,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     type: "date",
                     value: diseaseOutbreakEvent?.notified.date || null,
                     width: "200px",
-                    required: true,
-                    showIsRequired: false,
                 },
                 {
                     id: fromIdsDictionary("notifiedNarrative"),
@@ -669,7 +552,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                     value: diseaseOutbreakEvent?.notified.narrative || "",
                     multiline: false,
                     maxWidth: "600px",
-                    showIsRequired: false,
                 },
             ],
         },
@@ -677,7 +559,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             title: "What early response actions have been completed?",
             id: "response_actions_completed_section",
             isVisible: true,
-            required: true,
             direction: "column",
             fields: [],
             subsections: [
@@ -736,12 +617,9 @@ function getInitialFormStateForDiseaseOutbreakEvent(
             mainSections.name,
             mainSections.casesDataSource,
             mainSections.casesDataFile,
-            mainSections.dataSource,
-            mainSections.hazardType,
             mainSections.suspectedDisease,
             mainSections.mainSyndrome,
             mainSections.notificationSource,
-            mainSections.incidentStatus,
             mainSections.dateEmerged,
             mainSections.dateDetected,
             mainSections.dateNotified,

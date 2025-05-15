@@ -1,20 +1,6 @@
 import { createContext, useContext } from "react";
 import { Maybe } from "../../utils/ts-utils";
-import { Id, NamedRef } from "../../domain/entities/Ref";
-import {
-    DataSource,
-    DiseaseOutbreakEvent,
-    HazardType,
-} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-
-export interface EventTrackerDetails {
-    id: Id;
-    name: string;
-    dataSource: DataSource;
-    hazardType: Maybe<HazardType>;
-    suspectedDisease: Maybe<NamedRef>;
-    lastUpdated: string;
-}
+import { DiseaseOutbreakEvent } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export interface CurrentEventTrackerContextProps {
     getCurrentEventTracker: () => Maybe<DiseaseOutbreakEvent>;

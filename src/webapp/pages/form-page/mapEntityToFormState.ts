@@ -1,8 +1,5 @@
 import { ConfigurableForm } from "../../../domain/entities/ConfigurableForm";
-import {
-    DiseaseNames,
-    HazardNames,
-} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { DiseaseNames } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../../domain/entities/Ref";
 import { ResourcePermissions } from "../../../domain/entities/resources/ResourcePermissions";
@@ -26,7 +23,7 @@ import {
 export function mapEntityToFormState(options: {
     configurableForm: ConfigurableForm;
     editMode?: boolean;
-    existingEventTrackerTypes?: (DiseaseNames | HazardNames)[];
+    existingEventTrackerTypes?: DiseaseNames[];
     isIncidentManager?: boolean;
     resourcePermissions: ResourcePermissions;
 }): FormState {

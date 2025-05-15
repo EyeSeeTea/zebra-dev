@@ -2,10 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { useAppContext } from "../../contexts/app-context";
-import {
-    DataSource,
-    DiseaseOutbreakEvent,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
     getDateAsMonthYearString,
     getISODateAsLocaleDateString,
@@ -18,7 +15,6 @@ import { mapTeamMemberToUser } from "../form-page/mapEntityToFormState";
 import { useExistingEventTrackerTypes } from "../../contexts/existing-event-tracker-types-context";
 import { GlobalMessage } from "../form-page/useForm";
 
-const EventTypeLabel = "Event type";
 const DiseaseLabel = "Disease";
 type LabelWithValue = {
     label: string;
@@ -63,16 +59,10 @@ export function useDiseaseOutbreakEvent(id: Id) {
     const mapDiseaseOutbreakEventToFormSummary = (
         diseaseOutbreakEvent: DiseaseOutbreakEvent
     ): FormSummaryData => {
-        const dataSourceLabelValue: LabelWithValue =
-            diseaseOutbreakEvent.dataSource === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                ? {
-                      label: EventTypeLabel,
-                      value: diseaseOutbreakEvent.hazardType ?? "",
-                  }
-                : {
-                      label: DiseaseLabel,
-                      value: diseaseOutbreakEvent.suspectedDisease?.name ?? "",
-                  };
+        const dataSourceLabelValue: LabelWithValue = {
+            label: DiseaseLabel,
+            value: diseaseOutbreakEvent.suspectedDisease?.name ?? "",
+        };
         return {
             subTitle: diseaseOutbreakEvent.name,
             summary: [
@@ -185,9 +175,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
                 .execute(eventTrackerDetails, configurations)
                 .run(
                     () => {
-                        const eventTrackerName =
-                            eventTrackerDetails?.hazardType ??
-                            eventTrackerDetails?.suspectedDisease?.name;
+                        const eventTrackerName = eventTrackerDetails?.suspectedDisease?.name;
 
                         const updatedEventTrackerTypes = existingEventTrackerTypes.filter(
                             eventTrackerType => eventTrackerType !== eventTrackerName

@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import _c from "../../../domain/entities/generic/Collection";
 import { useAppContext } from "../../contexts/app-context";
 import { OrgUnit } from "../../../domain/entities/OrgUnit";
 import { Option } from "../../components/utils/option";
-import {
-    diseaseNames,
-    hazardNames,
-} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { diseaseNames } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type SelectorFiltersConfig = {
     id: string;
@@ -79,22 +75,10 @@ export function useAlertsActiveVerifiedFilters(): State {
     // Initialize filter options based on eventTrackerCountsIndicatorMap
     useEffect(() => {
         const buildSelectorFiltersConfig = (): SelectorFiltersConfig[] => {
-            const createOptions = (key: "disease" | "hazard") => {
-                if (key === "disease") {
-                    return diseaseNames.map(diseaseName => ({
-                        value: diseaseName,
-                        label: diseaseName,
-                    }));
-                } else {
-                    return hazardNames.map(hazardName => ({
-                        value: hazardName,
-                        label: hazardName,
-                    }));
-                }
-            };
-
-            const diseaseOptions = createOptions("disease");
-            const hazardOptions = createOptions("hazard");
+            const diseaseOptions = diseaseNames.map(diseaseName => ({
+                value: diseaseName,
+                label: diseaseName,
+            }));
 
             return [
                 {
@@ -114,13 +98,6 @@ export function useAlertsActiveVerifiedFilters(): State {
                     placeholder: "Select Disease",
                     type: "singleselector",
                     options: diseaseOptions,
-                },
-                {
-                    id: "hazard",
-                    label: "Hazard Type",
-                    placeholder: "Select Hazard Type",
-                    type: "singleselector",
-                    options: hazardOptions,
                 },
                 {
                     id: "province",

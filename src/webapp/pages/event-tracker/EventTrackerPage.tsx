@@ -75,7 +75,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
-    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance("event", id);
+    const { performanceMetrics717 } = use717Performance("event", id);
 
     useEffect(() => {
         if (eventTrackerDetails) {
@@ -106,16 +106,11 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     />
                 </DurationFilterContainer>
                 <LoaderContainer
-                    loading={
-                        !currentEventTracker?.suspectedDiseaseCode &&
-                        !currentEventTracker?.hazardType &&
-                        areOverviewCardsLoading
-                    }
+                    loading={!currentEventTracker?.suspectedDiseaseCode && areOverviewCardsLoading}
                 >
                     <MapSection
                         mapKey="event_tracker"
                         eventDiseaseCode={currentEventTracker?.suspectedDiseaseCode}
-                        eventHazardCode={currentEventTracker?.hazardType}
                         dateRangeFilter={dateRangeFilter.value || []}
                         casesDataSource={currentEventTracker?.casesDataSource}
                     />
@@ -193,10 +188,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         <Chart
                             title="Risk Assessment History"
                             chartType="risk-assessment-history"
-                            chartKey={
-                                currentEventTracker?.suspectedDisease?.name ||
-                                currentEventTracker?.hazardType
-                            }
+                            chartKey={currentEventTracker?.suspectedDisease?.name}
                         />
                     )}
                 </Section>
@@ -219,19 +211,13 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 <Chart
                     title="Cases"
                     chartType="cases"
-                    chartKey={
-                        currentEventTracker?.suspectedDisease?.name ||
-                        currentEventTracker?.hazardType
-                    }
+                    chartKey={currentEventTracker?.suspectedDisease?.name}
                     casesDataSource={currentEventTracker?.casesDataSource}
                 />
                 <Chart
                     title="Deaths"
                     chartType="deaths"
-                    chartKey={
-                        currentEventTracker?.suspectedDisease?.name ||
-                        currentEventTracker?.hazardType
-                    }
+                    chartKey={currentEventTracker?.suspectedDisease?.name}
                     casesDataSource={currentEventTracker?.casesDataSource}
                 />
             </Section>
