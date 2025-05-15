@@ -27,9 +27,9 @@ type DateWithNA = {
 };
 
 type EarlyResponseActions = {
-    initiateInvestigation: Date;
-    conductEpidemiologicalAnalysis: Date;
-    laboratoryConfirmation: Date;
+    initiateInvestigation: Maybe<Date>;
+    conductEpidemiologicalAnalysis: Maybe<Date>;
+    laboratoryConfirmation: Maybe<Date>;
     appropriateCaseManagement: DateWithNA;
     initiatePublicHealthCounterMeasures: DateWithNA;
     initiateRiskCommunication: DateWithNA;

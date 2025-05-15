@@ -73,12 +73,12 @@ export function getValueFromDiseaseOutbreak(
     //Set Earliest Respond Date as the earliest of all early response action dates.
     const responseActionDates: number[] = _c([
         diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.getTime(),
-        diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis.getTime(),
-        diseaseOutbreak.earlyResponseActions.initiateInvestigation.getTime(),
+        diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis?.getTime(),
+        diseaseOutbreak.earlyResponseActions.initiateInvestigation?.getTime(),
         diseaseOutbreak.earlyResponseActions.establishCoordination.date?.getTime(),
         diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.getTime(),
         diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.getTime(),
-        diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.getTime(),
+        diseaseOutbreak.earlyResponseActions.laboratoryConfirmation?.getTime(),
     ])
         .compact()
         .value();
