@@ -1,4 +1,7 @@
-import { DiseaseOutbreakEventBaseAttrs } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    CasesDataSource,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     DiseaseOutbreakCode,
@@ -12,6 +15,7 @@ import {
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
+    casesDataSourceMap,
 } from "../consts/DiseaseOutbreakConstants";
 import _ from "../../../domain/entities/generic/Collection";
 import { SelectedPick } from "@eyeseetea/d2-api/api";
@@ -32,15 +36,18 @@ type D2TrackedEntityAttribute = {
 
 export function mapTrackedEntityAttributesToDiseaseOutbreak(
     trackedEntity: D2TrackerTrackedEntity
-): DiseaseOutbreakEventBaseAttrs {
+): DiseaseOutbreakEventBaseAttrs | undefined {
     if (!trackedEntity.trackedEntity) throw new Error("Tracked entity not found");
 
     const fromMap = (key: keyof typeof diseaseOutbreakCodes) => getValueFromMap(key, trackedEntity);
 
     const dataSource = dataSourceMap[fromMap("dataSource")];
     const incidentStatus = incidentStatusMap[fromMap("incidentStatus")];
+    const casesDataSource =
+        casesDataSourceMap[fromMap("casesDataSource")] ??
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR;
 
-    if (!dataSource || !incidentStatus) throw new Error("Data source or incident status not valid");
+    if (!dataSource || !incidentStatus) return;
 
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
@@ -95,6 +102,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
             responseNarrative: fromMap("responseNarrative"),
         },
         notes: fromMap("notes"),
+        casesDataSource: casesDataSource,
     };
 
     return diseaseOutbreak;

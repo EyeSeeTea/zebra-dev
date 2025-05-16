@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { Select, InputLabel, MenuItem, FormHelperText } from "@material-ui/core";
 import { IconChevronDown24, IconCross16 } from "@dhis2/ui";
@@ -6,6 +6,7 @@ import { getLabelFromValue } from "./utils/selectorHelper";
 import { Option } from "../utils/option";
 import { SearchInput } from "../search-input/SearchInput";
 import { IconButton } from "../icon-button/IconButton";
+import { AddNewOption } from "./AddNewOption";
 
 type SelectorProps<Value extends string = string> = {
     id: string;
@@ -21,6 +22,7 @@ type SelectorProps<Value extends string = string> = {
     required?: boolean;
     disableSearch?: boolean;
     allowClear?: boolean;
+    addNewOption?: boolean;
 };
 
 export function Selector<Value extends string>({
@@ -29,7 +31,7 @@ export function Selector<Value extends string>({
     placeholder = "",
     selected,
     onChange,
-    options,
+    options: initialOptions,
     disabled = false,
     helperText = "",
     errorText = "",
@@ -37,14 +39,19 @@ export function Selector<Value extends string>({
     required = false,
     disableSearch = false,
     allowClear = false,
+    addNewOption = false,
 }: SelectorProps<Value>): JSX.Element {
     const [searchTerm, setSearchTerm] = React.useState<string>("");
+    const [newOption, setNewOption] = useState<string>("");
+    const [options, setOptions] = useState<Option<Value>[]>(initialOptions);
 
-    const filteredOptions = React.useMemo(
-        () =>
-            options.filter(option => option.label.toLowerCase().includes(searchTerm.toLowerCase())),
-        [searchTerm, options]
-    );
+    const filteredOptions = React.useMemo(() => {
+        const optionsToFilter = addNewOption ? options : initialOptions;
+
+        return optionsToFilter.filter(option =>
+            option.label.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [addNewOption, options, initialOptions, searchTerm]);
 
     const handleSearchChange = useCallback((text: string) => {
         setSearchTerm(text ?? "");
@@ -74,6 +81,17 @@ export function Selector<Value extends string>({
         },
         [allowClear, onChange]
     );
+
+    const handleAddNewOption = useCallback(() => {
+        const newSelectorOption = {
+            value: newOption as Value,
+            label: newOption,
+        };
+
+        setOptions(prevState => [...prevState, newSelectorOption]);
+        setNewOption("");
+        onChange(newOption as Value);
+    }, [newOption, onChange]);
 
     return (
         <Container>
@@ -126,6 +144,17 @@ export function Selector<Value extends string>({
                         <SearchInput value={searchTerm} onChange={handleSearchChange} />
                     </SearchContainer>
                 )}
+
+                {addNewOption && (
+                    <AddNewOptionContainer>
+                        <AddNewOption
+                            value={newOption}
+                            onAddNewOption={handleAddNewOption}
+                            onChangeValue={setNewOption}
+                        />
+                    </AddNewOptionContainer>
+                )}
+
                 {filteredOptions.map(option => (
                     <MenuItem key={option.value} value={option.value} disabled={option.disabled}>
                         {option.label}
@@ -196,4 +225,15 @@ const StyledIconButton = styled(IconButton)`
     padding: 3px;
     margin-inline-start: 4px;
     background-color: ${props => props.theme.palette.common.grey200};
+`;
+
+const AddNewOptionContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: auto;
+    padding-inline: 16px;
+    padding-block-end: 12px;
+    > div {
+        width: calc(50% - 10px);
+    }
 `;

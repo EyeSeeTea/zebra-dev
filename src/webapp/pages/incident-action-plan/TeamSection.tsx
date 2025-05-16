@@ -35,7 +35,7 @@ export const TeamSection: React.FC<TeamSectionProps> = React.memo(props => {
         <Section
             title={i18n.t("Team")}
             hasSeparator={true}
-            headerButton={
+            headerButtons={
                 <Button
                     variant="outlined"
                     color="secondary"

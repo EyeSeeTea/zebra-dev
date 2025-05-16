@@ -1,5 +1,5 @@
 import { D2Api, MetadataPick } from "../../types/d2-api";
-import { OrgUnit } from "../../domain/entities/OrgUnit";
+import { OrgUnit, orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { Id } from "../../domain/entities/Ref";
 import { OrgUnitRepository } from "../../domain/repositories/OrgUnitRepository";
 import { apiToFuture, FutureData } from "../api-futures";
@@ -12,7 +12,7 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
             this.api.metadata.get({
                 organisationUnits: {
                     fields: d2OrgUnitFields,
-                    filter: { level: { in: ["2", "3"] } },
+                    filter: { level: { in: ["1", "2", "3"] } },
                 },
             })
         ).map(response => {
@@ -46,14 +46,18 @@ export class OrgUnitD2Repository implements OrgUnitRepository {
     }
 
     private mapD2OrgUnitsToOrgUnits(d2OrgUnit: D2OrgUnit[]): OrgUnit[] {
-        return d2OrgUnit.map(
-            (ou): OrgUnit => ({
-                id: ou.id,
-                name: ou.name,
-                code: ou.code,
-                level: ou.level === 2 ? "Province" : "District",
+        return d2OrgUnit
+            .map(ou => {
+                if (orgUnitLevelTypeByLevelNumber[ou.level]) {
+                    return {
+                        id: ou.id,
+                        name: ou.name,
+                        code: ou.code,
+                        level: orgUnitLevelTypeByLevelNumber[ou.level],
+                    };
+                }
             })
-        );
+            .filter((orgUnit): orgUnit is OrgUnit => orgUnit !== undefined);
     }
 }
 

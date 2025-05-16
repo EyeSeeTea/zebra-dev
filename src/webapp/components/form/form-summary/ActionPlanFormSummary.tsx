@@ -9,8 +9,12 @@ import { Loader } from "../../loader/Loader";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { Id } from "../../../../domain/entities/Ref";
 import { FormType } from "../../../pages/form-page/FormPage";
-import { IncidentActionFormSummaryData } from "../../../pages/incident-action-plan/useIncidentActionPlan";
+import {
+    IncidentActionFormSummaryData,
+    IncidentActionSummary,
+} from "../../../pages/incident-action-plan/useIncidentActionPlan";
 import { Maybe } from "../../../../utils/ts-utils";
+import { TextPreview } from "../../text-editor/TextEditor";
 
 type ActionPlanFormSummaryProps = {
     id: Id;
@@ -28,7 +32,7 @@ export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React
         if (!summaryError) return;
 
         snackbar.error(summaryError);
-        goTo(RouteName.DASHBOARD);
+        goTo(RouteName.ZEBRA_DASHBOARD);
     }, [summaryError, snackbar, goTo]);
 
     const goToActionPlan = useCallback(() => {
@@ -46,12 +50,30 @@ export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React
         </Button>
     );
 
-    const getSummaryColumn = useCallback((index: number, label: string, value: string) => {
-        return (
-            <Typography key={index}>
-                <Box fontWeight="bold">{i18n.t(label)}:</Box> {i18n.t(value)}
-            </Typography>
-        );
+    const getSummaryColumn = useCallback((incidentActionSummary: IncidentActionSummary) => {
+        const { field, label, value } = incidentActionSummary;
+
+        switch (field) {
+            case "criticalInfoRequirements":
+            case "expectedResults":
+            case "planningAssumptions":
+            case "responseObjectives":
+            case "responseStrategies":
+            case "responseActivitiesNarrative":
+                return (
+                    <Typography key={field}>
+                        <Box fontWeight="bold">{i18n.t(label)}:</Box>
+                        <TextPreview value={value} />
+                    </Typography>
+                );
+            default:
+                return (
+                    <Typography key={field}>
+                        <Box fontWeight="bold">{i18n.t(label)}:</Box>
+                        {i18n.t(value)}
+                    </Typography>
+                );
+        }
     }, []);
 
     return formSummary ? (
@@ -59,13 +81,11 @@ export const ActionPlanFormSummary: React.FC<ActionPlanFormSummaryProps> = React
             <Section
                 title={formSummary.subTitle}
                 hasSeparator={true}
-                headerButton={editButton}
+                headerButtons={editButton}
                 titleVariant="secondary"
             >
                 <SummaryContainer>
-                    {formSummary.summary.map((labelWithValue, index) =>
-                        getSummaryColumn(index, labelWithValue.label, labelWithValue.value)
-                    )}
+                    {formSummary.summary.map(summaryItem => getSummaryColumn(summaryItem))}
                 </SummaryContainer>
             </Section>
         </>

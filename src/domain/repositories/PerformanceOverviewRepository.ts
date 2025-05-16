@@ -1,5 +1,9 @@
 import { FutureData } from "../../data/api-futures";
-import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertsPerformanceOverviewMetrics } from "../entities/alert/AlertsPerformanceOverviewMetrics";
+import {
+    CasesDataSource,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
     TotalCardCounts,
     PerformanceOverviewMetrics,
@@ -9,16 +13,21 @@ import { OverviewCard } from "../entities/PerformanceOverview";
 import { Id } from "../entities/Ref";
 
 export interface PerformanceOverviewRepository {
-    getPerformanceOverviewMetrics(
+    getNationalPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]>;
+    getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]>;
     getTotalCardCounts(
         allProvincesIds: string[],
         singleSelectFilters?: Record<string, string>,
         multiSelectFilters?: Record<string, string[]>,
         dateRangeFilter?: string[]
     ): FutureData<TotalCardCounts[]>;
-    getDashboard717Performance(): FutureData<PerformanceMetrics717[]>;
-    getEventTracker717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]>;
-    getEventTrackerOverviewMetrics(type: string): FutureData<OverviewCard[]>;
+    getNational717Performance(): FutureData<PerformanceMetrics717[]>;
+    getEvent717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]>;
+    getAlerts717Performance(): FutureData<PerformanceMetrics717[]>;
+    getEventTrackerOverviewMetrics(
+        type: string,
+        casesDataSource: CasesDataSource
+    ): FutureData<OverviewCard[]>;
 }

@@ -1,7 +1,10 @@
 import { FutureData } from "../../data/api-futures";
 import { INCIDENT_MANAGER_ROLE } from "../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { ConfigurableForm } from "../entities/ConfigurableForm";
-import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    DiseaseOutbreakEvent,
+    DiseaseOutbreakEventBaseAttrs,
+} from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
@@ -13,6 +16,9 @@ import { saveDiseaseOutbreak } from "./utils/disease-outbreak/SaveDiseaseOutbrea
 import { RoleRepository } from "../repositories/RoleRepository";
 import { Configurations } from "../entities/AppConfigurations";
 import moment from "moment";
+import { CasesFileRepository } from "../repositories/CasesFileRepository";
+import { ResourceRepository } from "../repositories/ResourceRepository";
+import { ResourceFileRepository } from "../repositories/ResourceFileRepository";
 
 export class SaveEntityUseCase {
     constructor(
@@ -23,40 +29,63 @@ export class SaveEntityUseCase {
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
             teamMemberRepository: TeamMemberRepository;
             roleRepository: RoleRepository;
+            casesFileRepository: CasesFileRepository;
+            resourceRepository: ResourceRepository;
+            resourceFileRepository: ResourceFileRepository;
         }
     ) {}
 
     public execute(
         formData: ConfigurableForm,
-        configurations: Configurations
+        configurations: Configurations,
+        editMode: boolean,
+        formOptionsToDelete?: Id[]
     ): FutureData<void | Id> {
         if (!formData || !formData.entity) return Future.error(new Error("No form data found"));
         switch (formData.type) {
             case "disease-outbreak-event":
+            case "disease-outbreak-event-case-data": {
+                const diseaseOutbreakEvent: DiseaseOutbreakEvent = new DiseaseOutbreakEvent({
+                    ...formData.entity,
+
+                    // NOTICE: Not needed for saving
+                    createdBy: undefined,
+                    mainSyndrome: undefined,
+                    suspectedDisease: undefined,
+                    notificationSource: undefined,
+                    incidentManager: undefined,
+                    riskAssessment: undefined,
+                    incidentActionPlan: undefined,
+                    incidentManagementTeam: undefined,
+                });
+
                 return saveDiseaseOutbreak(
+                    this.options,
+                    diseaseOutbreakEvent,
+                    configurations,
+                    editMode,
                     {
-                        diseaseOutbreakEventRepository: this.options.diseaseOutbreakEventRepository,
-                        incidentManagementTeamRepository:
-                            this.options.incidentManagementTeamRepository,
-                        teamMemberRepository: this.options.teamMemberRepository,
-                        roleRepository: this.options.roleRepository,
-                    },
-                    formData.entity,
-                    configurations
+                        uploadedCasesDataFile: formData.uploadedCasesDataFile,
+                        uploadedCasesDataFileId: formData.uploadedCasesDataFileId,
+                        hasInitiallyCasesDataFile: formData.hasInitiallyCasesDataFile,
+                    }
                 );
+            }
             case "risk-assessment-grading":
             case "risk-assessment-summary":
             case "risk-assessment-questionnaire":
                 return this.options.riskAssessmentRepository.saveRiskAssessment(
                     formData,
-                    formData.eventTrackerDetails.id
+                    formData.eventTrackerDetails.id,
+                    formOptionsToDelete
                 );
             case "incident-action-plan":
             case "incident-response-actions":
             case "incident-response-action":
                 return this.options.incidentActionRepository.saveIncidentAction(
                     formData,
-                    formData.eventTrackerDetails.id
+                    formData.eventTrackerDetails.id,
+                    formOptionsToDelete
                 );
             case "incident-management-team-member-assignment": {
                 const isIncidentManager = formData.entity.teamRoles?.find(
@@ -81,17 +110,26 @@ export class SaveEntityUseCase {
                                     incidentManagerName: updatedIncidentManager,
                                 };
 
+                                const diseaseOutbreakEvent: DiseaseOutbreakEvent =
+                                    new DiseaseOutbreakEvent({
+                                        ...updatedDiseaseOutbreakEvent,
+
+                                        // NOTICE: Not needed for saving
+                                        createdBy: undefined,
+                                        mainSyndrome: undefined,
+                                        suspectedDisease: undefined,
+                                        notificationSource: undefined,
+                                        incidentManager: undefined,
+                                        riskAssessment: undefined,
+                                        incidentActionPlan: undefined,
+                                        incidentManagementTeam: undefined,
+                                        uploadedCasesData: undefined,
+                                    });
                                 return saveDiseaseOutbreak(
-                                    {
-                                        diseaseOutbreakEventRepository:
-                                            this.options.diseaseOutbreakEventRepository,
-                                        incidentManagementTeamRepository:
-                                            this.options.incidentManagementTeamRepository,
-                                        teamMemberRepository: this.options.teamMemberRepository,
-                                        roleRepository: this.options.roleRepository,
-                                    },
-                                    updatedDiseaseOutbreakEvent,
-                                    configurations
+                                    this.options,
+                                    diseaseOutbreakEvent,
+                                    configurations,
+                                    editMode
                                 );
                             } else {
                                 return Future.success(undefined);
@@ -113,6 +151,25 @@ export class SaveEntityUseCase {
                         formData.options.roles
                     );
                 }
+            }
+            case "resource": {
+                const { uploadedResourceFile } = formData;
+                if (!uploadedResourceFile) return Future.error(new Error("No file uploaded"));
+
+                return this.options.resourceFileRepository
+                    .uploadFile(uploadedResourceFile)
+                    .flatMap(resourceFileId => {
+                        const { entity } = formData;
+
+                        if (!entity) return Future.error(new Error("No resource found"));
+
+                        const resource = {
+                            ...entity,
+                            resourceFileId: resourceFileId,
+                        };
+
+                        return this.options.resourceRepository.saveResource(resource);
+                    });
             }
             default:
                 return Future.error(new Error("Form type not supported"));

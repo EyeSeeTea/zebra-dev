@@ -18,7 +18,8 @@ export interface IncidentActionRepository {
     ): FutureData<Maybe<IncidentResponseActionDataValues[]>>;
     saveIncidentAction(
         formData: ActionPlanFormData | ResponseActionFormData | SingleResponseActionFormData,
-        diseaseOutbreakId: Id
+        diseaseOutbreakId: Id,
+        formOptionsToDelete?: Id[]
     ): FutureData<void>;
     updateIncidentResponseAction(options: UpdateIncidentResponseActionOptions): FutureData<void>;
 }

@@ -22,6 +22,7 @@ export type FormSectionState = {
     subsections?: FormSectionState[];
     onClickInfo?: (id: string) => void;
     addNewField?: AddNewFieldState;
+    removeOption?: boolean;
 };
 
 // HELPERS:

@@ -1,10 +1,11 @@
+import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../domain/entities/generic/Future";
 import { MapConfig, MapKey } from "../../../domain/entities/MapConfig";
 import { MapConfigRepository } from "../../../domain/repositories/MapConfigRepository";
 import { FutureData } from "../../api-futures";
 
 export class MapConfigTestRepository implements MapConfigRepository {
-    public get(_mapKey: MapKey): FutureData<MapConfig> {
+    public get(_mapKey: MapKey, _casesDataSource?: CasesDataSource): FutureData<MapConfig> {
         return Future.success({
             currentApp: "ZEBRA",
             currentPage: "DASHBOARD",

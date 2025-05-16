@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import i18n from "../../utils/i18n";
 import { useAppContext } from "../contexts/app-context";
 import { FormType } from "../pages/form-page/FormPage";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
@@ -13,31 +14,40 @@ export function useCheckWritePermission(formType: FormType) {
         if (!currentUser.hasCaptureAccess) {
             switch (formType) {
                 case "disease-outbreak-event":
-                    snackbar.error("You do not have permission to create/edit events");
+                    snackbar.error(i18n.t("You do not have permission to create/edit events"));
+                    break;
+                case "disease-outbreak-event-case-data":
+                    snackbar.error(i18n.t("You do not have permission to replace case data"));
                     break;
                 case "incident-management-team-member-assignment":
                     snackbar.error(
-                        "You do not have permission to create/edit IM team member assignments"
+                        i18n.t(
+                            "You do not have permission to create/edit IM team member assignments"
+                        )
                     );
                     break;
                 case "incident-action-plan":
                     snackbar.error(
-                        "You do not have permission to create/edit incident action plans"
+                        i18n.t("You do not have permission to create/edit incident action plans")
                     );
                     break;
                 case "incident-response-actions":
                 case "incident-response-action":
                     snackbar.error(
-                        "You do not have permission to create/edit incident response actions"
+                        i18n.t(
+                            "You do not have permission to create/edit incident response actions"
+                        )
                     );
                     break;
                 case "risk-assessment-grading":
                 case "risk-assessment-questionnaire":
                 case "risk-assessment-summary":
-                    snackbar.error("You do not have permission to create/edit risk assessments");
+                    snackbar.error(
+                        i18n.t("You do not have permission to create/edit risk assessments")
+                    );
                     break;
                 default:
-                    snackbar.error("You do not have permission to create/edit this form");
+                    snackbar.error(i18n.t("You do not have permission to create/edit this form"));
                     break;
             }
             history.goBack();

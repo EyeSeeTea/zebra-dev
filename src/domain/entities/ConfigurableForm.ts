@@ -2,10 +2,7 @@ import { Maybe } from "../../utils/ts-utils";
 import { TeamMember } from "./incident-management-team/TeamMember";
 import { Id, Option } from "./Ref";
 import { Rule } from "./Rule";
-import {
-    DiseaseOutbreakEvent,
-    DiseaseOutbreakEventBaseAttrs,
-} from "./disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEvent } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { RiskAssessmentGrading } from "./risk-assessment/RiskAssessmentGrading";
 import { RiskAssessmentSummary } from "./risk-assessment/RiskAssessmentSummary";
@@ -14,6 +11,8 @@ import { ActionPlanAttrs } from "./incident-action-plan/ActionPlan";
 import { ResponseAction } from "./incident-action-plan/ResponseAction";
 import { IncidentManagementTeam } from "./incident-management-team/IncidentManagementTeam";
 import { Role } from "./incident-management-team/Role";
+import { Resource } from "./resources/Resource";
+import { OrgUnit } from "./OrgUnit";
 
 export type DiseaseOutbreakEventOptions = {
     dataSources: Option[];
@@ -23,6 +22,7 @@ export type DiseaseOutbreakEventOptions = {
     notificationSources: Option[];
     incidentStatus: Option[];
     incidentManagers: TeamMember[];
+    casesDataSource: Option[];
 };
 
 export type RiskAssessmentGradingOptions = {
@@ -63,6 +63,11 @@ export type IncidentResponseActionOptions = {
     verification: Option[];
 };
 
+export type ResourceOptions = {
+    resourceType: Option[];
+    resourceFolder: Option[];
+};
+
 export type FormLables = {
     errors: Record<string, string>;
 };
@@ -73,9 +78,14 @@ type BaseFormData = {
     type: FormType;
 };
 export type DiseaseOutbreakEventFormData = BaseFormData & {
-    type: "disease-outbreak-event";
-    entity: Maybe<DiseaseOutbreakEventBaseAttrs>;
+    type: "disease-outbreak-event" | "disease-outbreak-event-case-data";
+    entity: Maybe<DiseaseOutbreakEvent>;
     options: DiseaseOutbreakEventOptions;
+    orgUnits: OrgUnit[];
+    caseDataFileTemplete: Maybe<File>;
+    uploadedCasesDataFile: Maybe<File>;
+    uploadedCasesDataFileId: Maybe<Id>;
+    hasInitiallyCasesDataFile: boolean;
 };
 
 export type RiskAssessmentGradingFormData = BaseFormData & {
@@ -120,6 +130,13 @@ export type SingleResponseActionFormData = BaseFormData & {
     options: IncidentResponseActionOptions;
 };
 
+export type ResourceFormData = BaseFormData & {
+    type: "resource";
+    entity: Maybe<Resource>;
+    uploadedResourceFile: Maybe<File>;
+    options: ResourceOptions;
+};
+
 export type IncidentManagementTeamRoleOptions = {
     roles: Role[];
     teamMembers: TeamMember[];
@@ -143,4 +160,5 @@ export type ConfigurableForm =
     | ActionPlanFormData
     | ResponseActionFormData
     | SingleResponseActionFormData
-    | IncidentManagementTeamMemberFormData;
+    | IncidentManagementTeamMemberFormData
+    | ResourceFormData;

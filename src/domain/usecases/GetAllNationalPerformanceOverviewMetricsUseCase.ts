@@ -3,7 +3,7 @@ import { PerformanceOverviewMetrics } from "../entities/disease-outbreak-event/P
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { PerformanceOverviewRepository } from "../repositories/PerformanceOverviewRepository";
 
-export class GetAllPerformanceOverviewMetricsUseCase {
+export class GetAllNationalPerformanceOverviewMetricsUseCase {
     constructor(
         private options: {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
@@ -15,8 +15,12 @@ export class GetAllPerformanceOverviewMetricsUseCase {
         return this.options.diseaseOutbreakEventRepository
             .getAll()
             .flatMap(diseaseOutbreakEvents => {
-                return this.options.performanceOverviewRepository.getPerformanceOverviewMetrics(
-                    diseaseOutbreakEvents
+                //Do not process events without Suspected disease or Hazard Type set as they are mandatory.
+                const filteredEvents = diseaseOutbreakEvents.filter(
+                    event => event.hazardType || event.suspectedDiseaseCode
+                );
+                return this.options.performanceOverviewRepository.getNationalPerformanceOverviewMetrics(
+                    filteredEvents
                 );
             });
     }

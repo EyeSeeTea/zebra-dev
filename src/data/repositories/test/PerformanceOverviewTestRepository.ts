@@ -1,3 +1,5 @@
+import { AlertsPerformanceOverviewMetrics } from "../../../domain/entities/alert/AlertsPerformanceOverviewMetrics";
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { PerformanceMetrics717 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Future } from "../../../domain/entities/generic/Future";
 import { OverviewCard } from "../../../domain/entities/PerformanceOverview";
@@ -6,9 +8,7 @@ import { PerformanceOverviewRepository } from "../../../domain/repositories/Perf
 import { FutureData } from "../../api-futures";
 
 export class PerformanceOverviewTestRepository implements PerformanceOverviewRepository {
-    getEventTracker717Performance(
-        _diseaseOutbreakEventId: Id
-    ): FutureData<PerformanceMetrics717[]> {
+    getEvent717Performance(_diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
         return Future.success([]);
     }
     getEventTrackerOverviewMetrics(): FutureData<OverviewCard[]> {
@@ -17,15 +17,19 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
     getTotalCardCounts(): FutureData<any> {
         return Future.success(0);
     }
-    getDashboard717Performance(): FutureData<any> {
+    getNational717Performance(): FutureData<any> {
         return Future.success(0);
     }
 
-    getPerformanceOverviewMetrics(): FutureData<any[]> {
+    getAlerts717Performance(): FutureData<any> {
+        return Future.success(0);
+    }
+
+    getNationalPerformanceOverviewMetrics(): FutureData<any[]> {
         return Future.success([
             {
                 id: "JPenxAnjdhY",
-                manager: "user, dev (dev.user)",
+                incidentManagerUsername: "dev.user",
                 creationDate: "2024-08-27 11:07:48.68",
                 province: "zm Zambia Ministry of Health",
                 suspectedDisease: "Cholera",
@@ -42,7 +46,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
             },
             {
                 id: "oHSPSlkb7J5",
-                manager: "user, dev (dev.user)",
+                incidentManagerUsername: "dev.user",
                 creationDate: "2024-08-26 17:03:17.532",
                 province: "zm Zambia Ministry of Health",
                 suspectedDisease: "Acute respiratory",
@@ -59,7 +63,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
             },
             {
                 id: "g5C6Veut61t",
-                manager: "user, dev (dev.user)",
+                incidentManagerUsername: "dev.user",
                 creationDate: "2024-08-27 11:06:36.869",
                 province: "zm Zambia Ministry of Health",
                 suspectedDisease: "Acute VHF",
@@ -74,56 +78,73 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 detect7d: "",
                 notify1d: "",
             },
+        ]);
+    }
+
+    getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return Future.success([
             {
-                id: "EtoUrZCn8mP",
-                manager: "user, dev (dev.user)",
-                creationDate: "2024-08-22 15:12:06.016",
-                province: "zm Zambia Ministry of Health",
+                cases: "1",
+                teiId: "n3zdthapNzC",
+                deaths: "3",
+                province: " ce Central Province ",
+                orgUnit: "Central Province",
+                orgUnitType: "Province",
+                detect7d: "",
+                duration: "158d",
+                notify1d: "3",
+                respond7d: "-2",
+                eventEBSId: "",
+                eventIBSId: "OUTBREAK_000005",
+                hazardType: "",
+                incidentStatus: "Watch",
+                incidentManager: "etst",
                 suspectedDisease: "COVID19",
-                event: "Cholera Aug 2024",
-                era1: "15",
-                era2: "14",
-                era3: "",
-                era4: "14",
-                era5: "",
-                era6: "",
-                era7: "14",
-                detect7d: "2",
+                nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
+                date: "2024-08-27",
+                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+            },
+            {
+                cases: "22",
+                teiId: "ZJylQsTku6z",
+                deaths: "1",
+                province: " ce Central Province ",
+                orgUnit: "Central Province",
+                orgUnitType: "Province",
+                detect7d: "",
+                duration: "139d",
                 notify1d: "1",
+                respond7d: "-1",
+                eventEBSId: "",
+                eventIBSId: "OUTBREAK_000011",
+                hazardType: "",
+                incidentStatus: "Watch",
+                incidentManager: "Zebra Test 1",
+                suspectedDisease: "COVID19",
+                nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
+                date: "2024-08-27",
+                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
-                id: "HNiwOkH3vdJ",
-                manager: "user, dev (dev.user)",
-                creationDate: "2024-08-22 13:29:27.734",
-                province: "zm Zambia Ministry of Health",
-                suspectedDisease: "Anthrax",
-                event: "Anthrax July 2024",
-                era1: "29",
-                era2: "28",
-                era3: "",
-                era4: "",
-                era5: "",
-                era6: "",
-                era7: "17",
-                detect7d: "10",
-                notify1d: "21",
-            },
-            {
-                id: "qrezSaY5G0U",
-                manager: "user, dev (dev.user)",
-                creationDate: "2024-08-22 13:25:24.505",
-                province: "zm Zambia Ministry of Health",
-                suspectedDisease: "Measles",
-                event: "Measles June 2024",
-                era1: "63",
-                era2: "55",
-                era3: "",
-                era4: "",
-                era5: "",
-                era6: "",
-                era7: "53",
-                detect7d: "3",
-                notify1d: "2",
+                cases: "5",
+                teiId: "cOWooRCVHqa",
+                deaths: "5",
+                province: " ce Central Province ",
+                orgUnit: "Central Province",
+                orgUnitType: "Province",
+                detect7d: "2",
+                duration: "111d",
+                notify1d: "1",
+                respond7d: "-1",
+                eventEBSId: "12345",
+                eventIBSId: "",
+                hazardType: "Biological: Animal",
+                incidentStatus: "Alert",
+                incidentManager: "Zebra Test 2",
+                suspectedDisease: "Acute VHF",
+                nationalDiseaseOutbreakEventId: "LALS50e9Zea",
+                date: "2024-08-27",
+                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
             },
         ]);
     }

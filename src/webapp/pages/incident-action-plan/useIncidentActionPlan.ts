@@ -8,6 +8,7 @@ import {
 } from "../../../data/repositories/utils/DateTimeHelper";
 import { TableColumn, TableRowType } from "../../components/table/BasicTable";
 import {
+    actionPlanConstants,
     getIAPTypeByCode,
     getPhoecLevelByCode,
     getStatusTypeByCode,
@@ -22,9 +23,11 @@ import { useCurrentEventTracker } from "../../contexts/current-event-tracker-con
 import { DiseaseOutbreakEvent } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import _c from "../../../domain/entities/generic/Collection";
 
+export type IncidentActionSummary = Option & { field: keyof typeof actionPlanConstants };
+
 export type IncidentActionFormSummaryData = {
     subTitle: string;
-    summary: Option[];
+    summary: IncidentActionSummary[];
 };
 
 export type UIIncidentActionOptions = {
@@ -222,22 +225,27 @@ const mapIncidentActionPlanToFormSummary = (
             {
                 label: "Response mode critical information requirements (CIRs)",
                 value: actionPlan.criticalInfoRequirements ?? "",
+                field: "criticalInfoRequirements",
             },
             {
                 label: "Planning assumptions",
                 value: actionPlan.planningAssumptions ?? "",
+                field: "planningAssumptions",
             },
             {
                 label: "Response objectives (SMART)",
                 value: actionPlan.responseObjectives ?? "",
+                field: "responseObjectives",
             },
             {
                 label: "Sections, functional area operational objectives, expected results",
                 value: actionPlan.expectedResults ?? "",
+                field: "expectedResults",
             },
             {
                 label: "Response activities narrative",
                 value: actionPlan.responseActivitiesNarrative ?? "",
+                field: "responseActivitiesNarrative",
             },
         ],
     };

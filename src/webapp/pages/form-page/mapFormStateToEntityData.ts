@@ -1,17 +1,10 @@
-import {
-    DataSource,
-    DiseaseOutbreakEventBaseAttrs,
-    HazardType,
-    NationalIncidentStatus,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormState } from "../../components/form/FormState";
 import { diseaseOutbreakEventFieldIds } from "./disease-outbreak-event/mapDiseaseOutbreakEventToInitialFormState";
 import {
     FormFieldState,
     getAllFieldsFromSections,
-    getBooleanFieldValue,
-    getDateFieldValue,
-    getMultipleOptionsFieldValue,
+    getFieldFileIdById,
+    getFileFieldValue,
     getStringFieldValue,
 } from "../../components/form/FormFieldsState";
 import {
@@ -25,8 +18,8 @@ import {
     RiskAssessmentSummaryFormData,
     ResponseActionFormData,
     SingleResponseActionFormData,
+    ResourceFormData,
 } from "../../../domain/entities/ConfigurableForm";
-import { Maybe } from "../../../utils/ts-utils";
 import { RiskAssessmentGrading } from "../../../domain/entities/risk-assessment/RiskAssessmentGrading";
 import {
     riskAssessmentGradingCodes,
@@ -53,6 +46,8 @@ import {
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
+import { mapFormStateToDiseaseOutbreakEvent } from "./disease-outbreak-event/mapFormStateToDiseaseOutbreakEvent";
+import { Resource, ResourceType } from "../../../domain/entities/resources/Resource";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -60,15 +55,29 @@ export function mapFormStateToEntityData(
     formData: ConfigurableForm
 ): ConfigurableForm {
     switch (formData.type) {
-        case "disease-outbreak-event": {
+        case "disease-outbreak-event":
+        case "disease-outbreak-event-case-data": {
             const dieaseEntity = mapFormStateToDiseaseOutbreakEvent(
                 formState,
                 currentUserName,
-                formData.entity
+                formData
             );
+
+            const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+            const uploadedCasesDataFileValue = getFileFieldValue(
+                diseaseOutbreakEventFieldIds.casesDataFile,
+                allFields
+            );
+            const uploadedCasesDataFileId = getFieldFileIdById(
+                diseaseOutbreakEventFieldIds.casesDataFile,
+                allFields
+            );
+
             const diseaseForm: DiseaseOutbreakEventFormData = {
                 ...formData,
                 entity: dieaseEntity,
+                uploadedCasesDataFile: uploadedCasesDataFileValue,
+                uploadedCasesDataFileId: uploadedCasesDataFileId,
             };
             return diseaseForm;
         }
@@ -136,149 +145,24 @@ export function mapFormStateToEntityData(
             };
             return incidentManagementTeamMemberForm;
         }
+        case "resource": {
+            const resource = mapFormStateToResource(formState);
+
+            const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+            const uploadedResourceFileValue = getFileFieldValue("resourceFile", allFields);
+
+            const resourceForm: ResourceFormData = {
+                ...formData,
+                entity: resource,
+                uploadedResourceFile: uploadedResourceFileValue,
+            };
+
+            return resourceForm;
+        }
 
         default:
             return formData;
     }
-}
-
-function mapFormStateToDiseaseOutbreakEvent(
-    formState: FormState,
-    currentUserName: string,
-    diseaseOutbreakEvent: Maybe<DiseaseOutbreakEventBaseAttrs>
-): DiseaseOutbreakEventBaseAttrs {
-    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
-
-    const diseaseOutbreakEventEditableData = {
-        name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
-        dataSource: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.dataSource,
-            allFields
-        ) as DataSource,
-        hazardType: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.hazardType,
-            allFields
-        ) as HazardType,
-        mainSyndromeCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.mainSyndromeCode,
-            allFields
-        ),
-        suspectedDiseaseCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.suspectedDiseaseCode,
-            allFields
-        ),
-        notificationSourceCode: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.notificationSourceCode,
-            allFields
-        ),
-        areasAffectedProvinceIds: getMultipleOptionsFieldValue(
-            diseaseOutbreakEventFieldIds.areasAffectedProvinceIds,
-            allFields
-        ),
-        areasAffectedDistrictIds: getMultipleOptionsFieldValue(
-            diseaseOutbreakEventFieldIds.areasAffectedDistrictIds,
-            allFields
-        ),
-        incidentStatus: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentStatus,
-            allFields
-        ) as NationalIncidentStatus,
-        emerged: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.emergedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.emergedNarrative,
-                allFields
-            ),
-        },
-        detected: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.detectedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.detectedNarrative,
-                allFields
-            ),
-        },
-        notified: {
-            date: getDateFieldValue(diseaseOutbreakEventFieldIds.notifiedDate, allFields) as Date,
-            narrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.notifiedNarrative,
-                allFields
-            ),
-        },
-        earlyResponseActions: {
-            initiateInvestigation: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.initiateInvestigation,
-                allFields
-            ) as Date,
-            conductEpidemiologicalAnalysis: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.conductEpidemiologicalAnalysis,
-                allFields
-            ) as Date,
-            laboratoryConfirmation: getDateFieldValue(
-                diseaseOutbreakEventFieldIds.laboratoryConfirmation,
-                allFields
-            ) as Date,
-            appropriateCaseManagement: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.appropriateCaseManagementDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.appropriateCaseManagementNA,
-                    allFields
-                ),
-            },
-            initiatePublicHealthCounterMeasures: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.initiatePublicHealthCounterMeasuresNA,
-                    allFields
-                ),
-            },
-            initiateRiskCommunication: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.initiateRiskCommunicationNA,
-                    allFields
-                ),
-            },
-            establishCoordination: {
-                date: getDateFieldValue(
-                    diseaseOutbreakEventFieldIds.establishCoordinationDate,
-                    allFields
-                ) as Date,
-                na: getBooleanFieldValue(
-                    diseaseOutbreakEventFieldIds.establishCoordinationNa,
-                    allFields
-                ),
-            },
-            responseNarrative: getStringFieldValue(
-                diseaseOutbreakEventFieldIds.responseNarrative,
-                allFields
-            ),
-        },
-        incidentManagerName: getStringFieldValue(
-            diseaseOutbreakEventFieldIds.incidentManagerName,
-            allFields
-        ),
-        notes: getStringFieldValue(diseaseOutbreakEventFieldIds.notes, allFields),
-    };
-
-    const diseaseOutbreakEventBase: DiseaseOutbreakEventBaseAttrs = {
-        id: diseaseOutbreakEvent?.id || "",
-        status: diseaseOutbreakEvent?.status || "ACTIVE",
-        created: diseaseOutbreakEvent?.created,
-        lastUpdated: diseaseOutbreakEvent?.lastUpdated,
-        createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
-        ...diseaseOutbreakEventEditableData,
-    };
-
-    return diseaseOutbreakEventBase;
 }
 
 function mapFormStateToRiskAssessmentGrading(formState: FormState): RiskAssessmentGrading {
@@ -557,22 +441,24 @@ function mapFormStateToIncidentResponseActions(
 
     const incidentResponseActions: ResponseAction[] = formState.sections
         .filter(section => !section.id.includes("addNewResponseActionSection"))
-        .map((_, index): ResponseAction => {
+        .map((section): ResponseAction => {
+            const sectionIndex = extractIndex(section.id);
+
             const mainTask = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.mainTask}_${index}`)
+                field.id.includes(`${responseActionConstants.mainTask}_${sectionIndex}`)
             )?.value as string;
             const subActivities = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.subActivities}_${index}`)
+                field.id.includes(`${responseActionConstants.subActivities}_${sectionIndex}`)
             )?.value as string;
             const subPillar = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.subPillar}_${index}`)
+                field.id.includes(`${responseActionConstants.subPillar}_${sectionIndex}`)
             )?.value as string;
             const dueDate = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.dueDate}_${index}`)
+                field.id.includes(`${responseActionConstants.dueDate}_${sectionIndex}`)
             )?.value as Date;
 
             const searchAssignROValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.searchAssignRO}_${index}`)
+                field.id.includes(`${responseActionConstants.searchAssignRO}_${sectionIndex}`)
             )?.value as string;
             const searchAssignRO = formData.options.searchAssignRO.find(
                 option => option.id === searchAssignROValue
@@ -580,13 +466,13 @@ function mapFormStateToIncidentResponseActions(
             if (!searchAssignRO) throw new Error("Responsible officer not found");
 
             const statusValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.status}_${index}`)
+                field.id.includes(`${responseActionConstants.status}_${sectionIndex}`)
             )?.value as string;
             const status = formData.options.status.find(option => option.id === statusValue);
             if (!status) throw new Error("Status not found");
 
             const verificationValue = allFields.find(field =>
-                field.id.includes(`${responseActionConstants.verification}_${index}`)
+                field.id.includes(`${responseActionConstants.verification}_${sectionIndex}`)
             )?.value as string;
             const verification = formData.options.verification.find(
                 option => option.id === verificationValue
@@ -596,8 +482,13 @@ function mapFormStateToIncidentResponseActions(
             };
             if (!verification) throw new Error("Verification not found");
 
+            const selectedEntityData =
+                sectionIndex !== undefined ? formData.entity[sectionIndex] : undefined;
+            const isResponseActionValid = selectedEntityData !== undefined;
+            const responseActionId = isResponseActionValid ? selectedEntityData.id : "";
+
             const responseAction = new ResponseAction({
-                id: formData.entity?.[index]?.id ?? "",
+                id: responseActionId,
                 mainTask: mainTask,
                 subActivities: subActivities,
                 subPillar: subPillar,
@@ -747,4 +638,30 @@ function mapFormStateToIncidentManagementTeamMember(
         workPosition: teamMemberAssigned?.workPosition,
         status: teamMemberAssigned?.status,
     });
+}
+
+function mapFormStateToResource(formState: FormState): Resource {
+    const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
+
+    const resourceType = getStringFieldValue("resourceType", allFields) as ResourceType;
+    const resourceLabel = getStringFieldValue("resourceLabel", allFields);
+    const resourceFolder = getStringFieldValue("resourceFolder", allFields);
+    const uploadedResourceFileId = getFieldFileIdById("resourceFile", allFields);
+
+    const resource: Resource = {
+        resourceType: resourceType,
+        resourceLabel: resourceLabel,
+        resourceFolder: resourceFolder,
+        resourceFileId: uploadedResourceFileId,
+    };
+
+    return resource;
+}
+
+function extractIndex(input: string): number | undefined {
+    const parts = input.split("_");
+    const lastPart = parts[parts.length - 1];
+    const index = Number(lastPart);
+
+    return isNaN(index) ? undefined : index;
 }

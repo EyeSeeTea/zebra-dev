@@ -25,6 +25,8 @@ export function Router() {
                     render={() => <IncidentActionPlanPage />}
                 />
                 <Route path={routes[RouteName.RESOURCES]} render={() => <ResourcesPage />} />
+
+                <Route path={routes[RouteName.ALERTS_DASHBOARD]} render={() => <DashboardPage />} />
                 {/* Default route */}
                 <Route render={() => <DashboardPage />} />
             </Switch>

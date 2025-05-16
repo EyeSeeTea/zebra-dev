@@ -9,6 +9,7 @@ const colors = {
     greyBlack: "#494949",
     grey: "#9E9E9E",
     greyLight: "#E0E0E0",
+    greyLight2: "#F0F0F0",
     greyDisabled: "#8E8E8E",
     blueGrey: "#ECEFF1",
     snow: "#F4F6F8",

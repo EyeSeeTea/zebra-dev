@@ -4,6 +4,12 @@ import { UserGroupRepository } from "../../../domain/repositories/UserGroupRepos
 import { FutureData } from "../../api-futures";
 
 export class UserGroupTestRepository implements UserGroupRepository {
+    getUserGroupByCode(_code: string): FutureData<UserGroup> {
+        return Future.success({
+            id: "1",
+        });
+    }
+
     getIncidentManagerUserGroupByCode(): FutureData<UserGroup> {
         return Future.success({
             id: "1",

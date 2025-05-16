@@ -3,12 +3,17 @@ import { Maybe } from "../../utils/ts-utils";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
 import { Configurations } from "../entities/AppConfigurations";
 import { ConfigurableForm } from "../entities/ConfigurableForm";
-import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    CasesDataSource,
+    DiseaseOutbreakEvent,
+} from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
+import { CasesFileRepository } from "../repositories/CasesFileRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { IncidentActionRepository } from "../repositories/IncidentActionRepository";
 import { IncidentManagementTeamRepository } from "../repositories/IncidentManagementTeamRepository";
+import { ResourceRepository } from "../repositories/ResourceRepository";
 import { RoleRepository } from "../repositories/RoleRepository";
 import { TeamMemberRepository } from "../repositories/TeamMemberRepository";
 import { getDiseaseOutbreakConfigurableForm } from "./utils/disease-outbreak/GetDiseaseOutbreakConfigurableForm";
@@ -18,6 +23,7 @@ import {
     getSingleResponseActionConfigurableForm,
 } from "./utils/incident-action/GetResponseActionConfigurableForm";
 import { getIncidentManagementTeamWithOptions } from "./utils/incident-management-team/GetIncidentManagementTeamWithOptions";
+import { getResourceConfigurableForm } from "./utils/resources/GetResourceConfigurableForm";
 import { getRiskAssessmentGradingConfigurableForm } from "./utils/risk-assessment/GetGradingConfigurableForm";
 import { getRiskAssessmentQuestionnaireConfigurableForm } from "./utils/risk-assessment/GetQuestionnaireConfigurableForm";
 import { getRiskAssessmentSummaryConfigurableForm } from "./utils/risk-assessment/GetSummaryConfigurableForm";
@@ -30,6 +36,8 @@ export class GetConfigurableFormUseCase {
             teamMemberRepository: TeamMemberRepository;
             incidentActionRepository: IncidentActionRepository;
             incidentManagementTeamRepository: IncidentManagementTeamRepository;
+            casesFileRepository: CasesFileRepository;
+            resourceRepository: ResourceRepository;
         }
     ) {}
 
@@ -43,8 +51,25 @@ export class GetConfigurableFormUseCase {
         const { formType, eventTrackerDetails, configurations, id, responseActionId } = options;
 
         switch (formType) {
-            case "disease-outbreak-event": {
-                return getDiseaseOutbreakConfigurableForm(this.options, configurations, id);
+            case "disease-outbreak-event":
+            case "disease-outbreak-event-case-data": {
+                if (
+                    formType === "disease-outbreak-event-case-data" &&
+                    (id !== eventTrackerDetails?.id ||
+                        eventTrackerDetails?.casesDataSource !==
+                            CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF)
+                ) {
+                    return Future.error(
+                        new Error("Cases data source in disease outbreak is not user defined.")
+                    );
+                }
+
+                return getDiseaseOutbreakConfigurableForm(
+                    this.options,
+                    configurations,
+                    formType,
+                    id
+                );
             }
             case "risk-assessment-grading":
                 if (!eventTrackerDetails)
@@ -124,6 +149,10 @@ export class GetConfigurableFormUseCase {
                     },
                     configurations
                 );
+            case "resource":
+                return getResourceConfigurableForm({
+                    resourceRepository: this.options.resourceRepository,
+                });
             default:
                 return Future.error(new Error("Form type not supported"));
         }

@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 import { StatsCardProps } from "../../components/stats-card/StatsCard";
-import { PerformanceMetrics717 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    PerformanceMetrics717,
+    PerformanceMetrics717Key,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../../domain/entities/Ref";
 
 type CardColors = StatsCardProps["color"];
@@ -25,7 +28,7 @@ export type PerformanceMetric717State = {
 export type Order = { name: string; direction: "asc" | "desc" };
 
 export function use717Performance(
-    type: "dashboard" | "event_tracker",
+    type: PerformanceMetrics717Key,
     diseaseOutbreakEventId?: Id
 ): PerformanceMetric717State {
     const { compositionRoot } = useAppContext();
@@ -34,8 +37,8 @@ export function use717Performance(
     const [isLoading, setIsLoading] = useState(false);
 
     const getColor = useCallback(
-        (key: string, value: number | "Inc", type: "dashboard" | "event_tracker"): CardColors => {
-            if (type === "dashboard") {
+        (key: string, value: number | "Inc", type: PerformanceMetrics717Key): CardColors => {
+            if (type === "national" || type === "alerts") {
                 switch (key) {
                     case "allTargets":
                         return "grey";
@@ -66,30 +69,33 @@ export function use717Performance(
 
     const transformData = useCallback(
         (performanceMetrics: PerformanceMetrics717[]) => {
-            const performanceMetricsByName = _(performanceMetrics).reduce(
-                (acc: Record<string, typeof performanceMetrics>, indicator) => {
-                    const key = indicator.name;
-                    const existingGroup = acc[key] || [];
-                    acc[key] = [...existingGroup, indicator];
-                    return acc;
-                },
-                {} as Record<string, typeof performanceMetrics>
-            );
-            return Object.entries(performanceMetricsByName).map(([key, values]) => {
-                const primaryValue = values.find(item => item.type === "primary")?.value ?? 0;
-                const secondaryValue = values.find(item => item.type === "secondary")?.value ?? 0;
+            const groupedPerformanceMetrics = _(performanceMetrics)
+                .groupBy(performanceMetric => performanceMetric.name)
+                .mapValues(([keyframes, values]) => {
+                    const primaryValue = values.find(item => item.type === "primary")?.value ?? 0;
+                    const secondaryValue =
+                        values.find(item => item.type === "secondary")?.value ?? 0;
 
-                const title = key
-                    .replace(/([A-Z])/g, match => ` ${match}`)
-                    .replace(/^./, match => match.toUpperCase())
-                    .trim();
-                return {
-                    title: title,
-                    primaryValue: primaryValue,
-                    secondaryValue: secondaryValue,
-                    color: getColor(key, primaryValue, type),
-                };
-            });
+                    const title = keyframes
+                        .replace(/([A-Z])/g, match => ` ${match}`)
+                        .replace(/^./, match => match.toUpperCase())
+                        .trim();
+
+                    return {
+                        title: title,
+                        primaryValue: primaryValue,
+                        secondaryValue: secondaryValue,
+                        color: getColor(keyframes, primaryValue, type),
+                    };
+                })
+                .values();
+
+            return _(groupedPerformanceMetrics)
+                .sortBy(metric => {
+                    const order = ["Detection", "Notification", "Response", "All Targets"]; // preferred order of cards
+                    return order.indexOf(metric.title);
+                })
+                .value();
         },
         [getColor, type]
     );

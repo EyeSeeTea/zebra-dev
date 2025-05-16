@@ -101,9 +101,8 @@ export function mapIncidentActionPlanToInitialFormState(
                     id: `${actionPlanConstants.criticalInfoRequirements}-section`,
                     isVisible: true,
                     errors: [],
-                    type: "text",
+                    type: "text-editor",
                     value: incidentActionPlan?.criticalInfoRequirements || "",
-                    multiline: true,
                     required: true,
                 },
             ],
@@ -119,9 +118,8 @@ export function mapIncidentActionPlanToInitialFormState(
                     id: `${actionPlanConstants.planningAssumptions}-section`,
                     isVisible: true,
                     errors: [],
-                    type: "text",
+                    type: "text-editor",
                     value: incidentActionPlan?.planningAssumptions || "",
-                    multiline: true,
                     required: true,
                     helperText:
                         "Evidence based facts and assumptions in the context of developing the plan.",
@@ -139,9 +137,8 @@ export function mapIncidentActionPlanToInitialFormState(
                     id: `${actionPlanConstants.responseObjectives}-section`,
                     isVisible: true,
                     errors: [],
-                    type: "text",
+                    type: "text-editor",
                     value: incidentActionPlan?.responseObjectives || "",
-                    multiline: true,
                     required: true,
                     helperText: "SMART: Specific, measurable, achievable, relevant, time-bound",
                 },
@@ -158,9 +155,8 @@ export function mapIncidentActionPlanToInitialFormState(
                     id: `${actionPlanConstants.responseStrategies}-section`,
                     isVisible: true,
                     errors: [],
-                    type: "text",
+                    type: "text-editor",
                     value: incidentActionPlan?.responseStrategies || "",
-                    multiline: true,
                     required: true,
                 },
             ],
@@ -175,9 +171,8 @@ export function mapIncidentActionPlanToInitialFormState(
                     id: `${actionPlanConstants.expectedResults}-section`,
                     isVisible: true,
                     errors: [],
-                    type: "text",
+                    type: "text-editor",
                     value: incidentActionPlan?.expectedResults || "",
-                    multiline: true,
                     helperText: "Clear objectives for functional area",
                 },
             ],
@@ -192,9 +187,8 @@ export function mapIncidentActionPlanToInitialFormState(
                     id: `${actionPlanConstants.responseActivitiesNarrative}-section`,
                     isVisible: true,
                     errors: [],
-                    type: "text",
+                    type: "text-editor",
                     value: incidentActionPlan?.responseActivitiesNarrative || "",
-                    multiline: true,
                 },
             ],
         },
@@ -300,6 +294,7 @@ export function mapSingleIncidentResponseActionToInitialFormState(
             verificationOptions: verificationOptions,
         },
         isIncidentManager: isIncidentManager,
+        isSingleIncidentResponseAction: true,
         index: 0,
     });
 
@@ -307,9 +302,8 @@ export function mapSingleIncidentResponseActionToInitialFormState(
         id: eventTrackerDetails.id ?? "",
         title: "Incident Action Plan",
         subtitle: eventTrackerDetails.name,
-        titleDescripton: "Step 2:",
-        subtitleDescripton: "Edit response action",
-        saveButtonLabel: "Save plan",
+        titleDescripton: "Edit response action",
+        saveButtonLabel: "Save response action",
         isValid: incidentResponseAction ? true : false,
         sections: [responseActionSection],
     };
@@ -324,8 +318,15 @@ function getResponseActionSection(options: {
     };
     isIncidentManager: boolean;
     index: number;
+    isSingleIncidentResponseAction?: boolean;
 }) {
-    const { incidentResponseAction, options: formOptions, index, isIncidentManager } = options;
+    const {
+        incidentResponseAction,
+        options: formOptions,
+        index,
+        isIncidentManager,
+        isSingleIncidentResponseAction,
+    } = options;
     const { searchAssignROOptions, statusOptions, verificationOptions } = formOptions;
 
     const responseActionSection: FormSectionState = {
@@ -421,6 +422,7 @@ function getResponseActionSection(options: {
                 disabled: false,
             },
         ],
+        removeOption: isSingleIncidentResponseAction ? false : true,
     };
 
     return responseActionSection;

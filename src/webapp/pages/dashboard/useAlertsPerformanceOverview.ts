@@ -1,0 +1,236 @@
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
+
+import { useAppContext } from "../../contexts/app-context";
+import _ from "../../../domain/entities/generic/Collection";
+import {
+    FiltersConfig,
+    FiltersValuesType,
+    TableColumn,
+} from "../../components/table/statistic-table/StatisticTable";
+import { Maybe } from "../../../utils/ts-utils";
+import { AlertsPerformanceOverviewMetrics } from "../../../domain/entities/alert/AlertsPerformanceOverviewMetrics";
+import { Id } from "../../../domain/entities/Ref";
+import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
+import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
+import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
+import i18n from "../../../utils/i18n";
+import { Option } from "../../components/utils/option";
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+
+export type AlertsPerformanceOverviewMetricsTableData = {
+    event: string;
+    teiId: Id;
+    eventEBSId: Id;
+    eventIBSId: Id;
+    nationalDiseaseOutbreakEventId: Id;
+    hazardType: string;
+    suspectedDisease: string;
+    province: string;
+    orgUnit: string;
+    orgUnitType: OrgUnitLevelType;
+    cases: string;
+    deaths: string;
+    duration: string;
+    date: string;
+    notify1d: string;
+    detect7d: string;
+    incidentManager: string;
+    incidentManagerUsername: string;
+    respond7d: string;
+    incidentStatus: string;
+};
+
+type State = {
+    columns: TableColumn[];
+    dataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
+    paginatedDataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
+    columnRules: { [key: string]: number };
+    order: Maybe<Order>;
+    onOrderBy: (columnValue: string) => void;
+    isLoading: boolean;
+    searchTerm: string;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    filtersConfig: FiltersConfig[];
+    filters: FiltersValuesType;
+    setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
+    filterOptions: (column: string, dataSource?: DataSource) => { value: string; label: string }[];
+    totalPages: number;
+    currentPage: number;
+    goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;
+    eventSourceOptions: Option[];
+    eventSourceSelected: string;
+    setEventSourceSelected: (selection: string) => void;
+    hasEventSourceFilter?: boolean;
+};
+
+export type Order = {
+    name: keyof AlertsPerformanceOverviewMetricsTableData;
+    direction: "asc" | "desc";
+};
+
+export function useAlertsPerformanceOverview(): State {
+    const {
+        compositionRoot,
+        configurations: { teamMembers },
+        currentUser,
+    } = useAppContext();
+    const [isLoading, setIsLoading] = useState(true);
+
+    const columnRules = useMemo(
+        () => ({
+            detect7d: 7,
+            notify1d: 1,
+            respond7d: 7,
+        }),
+        []
+    );
+
+    const filtersConfig = useMemo<FiltersConfig[]>(
+        () => [
+            { value: "event", label: i18n.t("Disease/Hazard Type"), type: "multiselector" },
+            { value: "province", label: i18n.t("Province"), type: "multiselector" },
+            { value: "date", label: i18n.t("Duration"), type: "datepicker" },
+        ],
+        []
+    );
+
+    const {
+        filteredData: dataAlertsPerformanceOverview,
+        setData: setAlertsDataPerformanceOverview,
+        order,
+        onOrderBy,
+        searchTerm,
+        setSearchTerm,
+        filters,
+        setFilters,
+        filterOptions,
+        paginatedData: paginatedDataAlertsPerformanceOverview,
+        totalPages,
+        currentPage,
+        goToPage,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
+    } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>(filtersConfig, true);
+
+    const filtersConfigDependingEventSource = useMemo<FiltersConfig[]>(
+        () => [
+            {
+                value: "event",
+                label:
+                    eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                        ? i18n.t("Hazard Type")
+                        : eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                        ? i18n.t("Disease")
+                        : i18n.t("Disease/Hazard Type"),
+                type: "multiselector",
+            },
+            { value: "province", label: i18n.t("Province"), type: "multiselector" },
+            { value: "date", label: i18n.t("Duration"), type: "datepicker" },
+        ],
+        [eventSourceSelected]
+    );
+
+    const columnsDependingEventSource = useMemo<TableColumn[]>(
+        () => [
+            {
+                label:
+                    eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                        ? i18n.t("Hazard Type")
+                        : eventSourceSelected === DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS
+                        ? i18n.t("Disease")
+                        : i18n.t("Disease/Hazard Type"),
+                value: "event",
+            },
+            { label: i18n.t("Province"), value: "province" },
+            { label: i18n.t("Organisation unit"), value: "orgUnit" },
+            { label: i18n.t("Organisation unit type"), value: "orgUnitType" },
+            { label: i18n.t("Cases"), value: "cases" },
+            { label: i18n.t("Deaths"), value: "deaths" },
+            { label: i18n.t("Duration"), value: "duration" },
+            { label: i18n.t("Manager"), value: "incidentManager" },
+            { label: i18n.t("Detect 7d"), dark: true, value: "detect7d" },
+            { label: i18n.t("Notify 1d"), dark: true, value: "notify1d" },
+            { label: i18n.t("Respond 7d"), dark: true, value: "respond7d" },
+            { label: i18n.t("Incident Status"), value: "incidentStatus" },
+            { label: i18n.t("EMS Id"), value: "eventEBSId" },
+            { label: i18n.t("Outbreak Id"), value: "eventIBSId" },
+        ],
+        [eventSourceSelected]
+    );
+
+    const mapEntityToTableData = useCallback(
+        (
+            data: AlertsPerformanceOverviewMetrics,
+            allTeamMembers: TeamMember[]
+        ): AlertsPerformanceOverviewMetricsTableData => {
+            const incidentManager = allTeamMembers.find(tm => tm.name === data.incidentManager);
+
+            return {
+                ...data,
+                event: data.hazardType || data.suspectedDisease,
+                incidentManager: incidentManager?.name || data.incidentManager,
+                incidentManagerUsername: incidentManager?.username || "",
+            };
+        },
+        []
+    );
+
+    useEffect(() => {
+        setIsLoading(true);
+        compositionRoot.performanceOverview.getAlertsPerformanceOverviewMetrics.execute().run(
+            performanceOverviewMetrics => {
+                const tableData = performanceOverviewMetrics.map(data =>
+                    mapEntityToTableData(data, teamMembers.all)
+                );
+
+                const dataSortedByCurrentUser = tableData.sort((a, b) => {
+                    const isCurrentUserA = a.incidentManagerUsername === currentUser.username;
+                    const isCurrentUserB = b.incidentManagerUsername === currentUser.username;
+
+                    if (isCurrentUserA === isCurrentUserB) {
+                        return 0;
+                    }
+
+                    return isCurrentUserA ? -1 : 1;
+                });
+
+                setAlertsDataPerformanceOverview(dataSortedByCurrentUser);
+                setIsLoading(false);
+            },
+            error => {
+                console.error({ error });
+                setIsLoading(false);
+            }
+        );
+    }, [
+        compositionRoot.performanceOverview.getAlertsPerformanceOverviewMetrics,
+        mapEntityToTableData,
+        setAlertsDataPerformanceOverview,
+        teamMembers.all,
+        currentUser.username,
+    ]);
+
+    return {
+        columns: columnsDependingEventSource,
+        dataAlertsPerformanceOverview,
+        paginatedDataAlertsPerformanceOverview,
+        columnRules,
+        order,
+        onOrderBy,
+        isLoading,
+        searchTerm,
+        setSearchTerm,
+        filtersConfig: filtersConfigDependingEventSource,
+        filters,
+        setFilters,
+        filterOptions,
+        currentPage,
+        totalPages,
+        goToPage,
+        eventSourceOptions,
+        eventSourceSelected,
+        setEventSourceSelected,
+        hasEventSourceFilter: true,
+    };
+}

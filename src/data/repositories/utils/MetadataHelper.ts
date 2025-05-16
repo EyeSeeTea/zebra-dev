@@ -1,8 +1,7 @@
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
-import { Id, Ref } from "../../../domain/entities/Ref";
-import { D2Api } from "../../../types/d2-api";
-import { apiToFuture, FutureData } from "../../api-futures";
-import { assertOrError } from "./AssertOrError";
+import { Id } from "../../../domain/entities/Ref";
+import { D2Api, MetadataPick } from "../../../types/d2-api";
+import { apiToFuture } from "../../api-futures";
 import { Attribute } from "@eyeseetea/d2-api/api/trackedEntityInstances";
 import { Maybe } from "../../../utils/ts-utils";
 
@@ -24,23 +23,6 @@ export function getProgramTEAsMetadata(api: D2Api, programId: Id) {
             },
         })
     );
-}
-
-export function getUserGroupByCode(api: D2Api, code: string): FutureData<Ref> {
-    return apiToFuture(
-        api.metadata.get({
-            userGroups: {
-                fields: {
-                    id: true,
-                },
-                filter: {
-                    code: { eq: code },
-                },
-            },
-        })
-    )
-        .flatMap(response => assertOrError(response.userGroups[0], `User group ${code}`))
-        .map(userGroup => userGroup);
 }
 
 export function getTEAttributeById(
@@ -73,3 +55,37 @@ export function getProgramStage(api: D2Api, stageId: Id) {
         })
     );
 }
+
+export function getProgramDataElementsMetadata(api: D2Api, programId: Id) {
+    return apiToFuture(
+        api.models.programs.get({
+            fields: programDataElementsFields,
+            filter: {
+                id: { eq: programId },
+            },
+        })
+    );
+}
+
+const programDataElementsFields = {
+    id: true,
+    programStages: {
+        id: true,
+        name: true,
+        programStageDataElements: {
+            dataElement: {
+                id: true,
+                code: true,
+                valueType: true,
+                optionSetValue: true,
+                optionSet: { options: { name: true, code: true } },
+            },
+        },
+    },
+} as const;
+
+export type D2ProgramStageDataElement = MetadataPick<{
+    programStageDataElements: {
+        fields: typeof programDataElementsFields.programStages.programStageDataElements;
+    };
+}>["programStageDataElements"][number];
