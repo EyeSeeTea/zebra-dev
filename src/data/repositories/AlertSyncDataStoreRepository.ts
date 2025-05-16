@@ -1,22 +1,17 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { DataStoreClient } from "../DataStoreClient";
-import { Future } from "../../domain/entities/generic/Future";
 import {
     AlertSyncOptions,
     AlertSyncRepository,
 } from "../../domain/repositories/AlertSyncRepository";
 import { apiToFuture, FutureData } from "../api-futures";
-import { getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
 import { Maybe } from "../../utils/ts-utils";
 import { DataValue } from "@eyeseetea/d2-api/api/trackerEvents";
-import {
-    AlertsAndCaseForCasesData,
-    getOutbreakKey,
-} from "../../domain/entities/AlertsAndCaseForCasesData";
+import { AlertsAndCaseForCasesData } from "../../domain/entities/AlertsAndCaseForCasesData";
 import { RTSL_ZEBRA_ALERTS_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
 import { assertOrError } from "./utils/AssertOrError";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
-import { Alert, VerificationStatus } from "../../domain/entities/alert/Alert";
+import { Alert } from "../../domain/entities/alert/Alert";
 
 export class AlertSyncDataStoreRepository implements AlertSyncRepository {
     private dataStoreClient: DataStoreClient;
@@ -26,46 +21,30 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
     }
 
     saveAlertSyncData(options: AlertSyncOptions): FutureData<void> {
-        const { alert, outbreakValue, suspectedDiseases } = options;
+        const { alert, outbreakKey } = options;
 
         return this.getAlertTrackedEntity(alert).flatMap(alertTrackedEntity => {
-            const verificationStatus = getAlertValueFromMap(
-                "verificationStatus",
-                alertTrackedEntity
+            const synchronizationData = this.buildSynchronizationData(
+                options,
+                alertTrackedEntity,
+                outbreakKey
             );
 
-            if (verificationStatus === VerificationStatus.RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED) {
-                const outbreakKey = getOutbreakKey({
-                    outbreakValue: outbreakValue,
-                    suspectedDiseases: suspectedDiseases,
-                });
+            return this.getAlertObject(outbreakKey).flatMap(outbreakData => {
+                const syncData: AlertsAndCaseForCasesData = !outbreakData
+                    ? synchronizationData
+                    : {
+                          ...outbreakData,
+                          lastSyncTime: new Date().toISOString(),
+                          lastUpdated: new Date().toISOString(),
+                          alerts: [
+                              ...(outbreakData.alerts || []),
+                              ...(synchronizationData.alerts || []),
+                          ],
+                      };
 
-                if (!outbreakKey) return Future.error(new Error(`No outbreak key found`));
-
-                const synchronizationData = this.buildSynchronizationData(
-                    options,
-                    alertTrackedEntity,
-                    outbreakKey
-                );
-
-                return this.getAlertObject(outbreakKey).flatMap(outbreakData => {
-                    const syncData: AlertsAndCaseForCasesData = !outbreakData
-                        ? synchronizationData
-                        : {
-                              ...outbreakData,
-                              lastSyncTime: new Date().toISOString(),
-                              lastUpdated: new Date().toISOString(),
-                              alerts: [
-                                  ...(outbreakData.alerts || []),
-                                  ...(synchronizationData.alerts || []),
-                              ],
-                          };
-
-                    return this.saveAlertObject(outbreakKey, syncData);
-                });
-            }
-
-            return Future.success(undefined);
+                return this.saveAlertObject(outbreakKey, syncData);
+            });
         });
     }
 

@@ -11,6 +11,7 @@ import { MapAndSaveAlertsUseCase } from "../domain/usecases/MapAndSaveAlertsUseC
 import { OutbreakAlertD2Repository } from "../data/repositories/OutbreakAlertD2Repository";
 import { DiseaseOutbreakEventD2Repository } from "../data/repositories/DiseaseOutbreakEventD2Repository";
 import { ConfigurationsD2Repository } from "../data/repositories/ConfigurationsD2Repository";
+import { Future } from "../domain/entities/generic/Future";
 
 function main() {
     const cmd = command({
@@ -27,7 +28,6 @@ function main() {
         },
         handler: async args => {
             const { api, instance } = getApiInstanceFromEnvVariables();
-            await setupLogger(instance, { isDebug: args.debug });
 
             const alertRepository = new AlertD2Repository(api);
             const alertSyncRepository = new AlertSyncDataStoreRepository(api);
@@ -47,7 +47,12 @@ function main() {
                 configurationsRepository: configurationsRepository,
             });
 
-            return await mapAndSaveAlertsUseCase.execute();
+            return Future.fromPromise(setupLogger(instance, { isDebug: args.debug }))
+                .flatMap(() => mapAndSaveAlertsUseCase.execute())
+                .run(
+                    () => {},
+                    () => {}
+                );
         },
     });
 

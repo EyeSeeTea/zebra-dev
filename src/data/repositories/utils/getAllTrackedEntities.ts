@@ -52,6 +52,7 @@ const fields = {
     orgUnit: true,
     trackedEntity: true,
     trackedEntityType: true,
+    inactive: true,
     enrollments: {
         status: true,
         events: {

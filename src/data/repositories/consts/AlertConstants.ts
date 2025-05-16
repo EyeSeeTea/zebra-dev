@@ -6,9 +6,12 @@ export const alertOutbreakCodes = {
     incidentManager: "RTSL_ZEB_TEA_ ALERT_IM_NAME",
     outbreakId: "RTSL_ZEB_TEA_ OutBreak_ID",
     emsId: "RTSL_ZEB_TEA_EMS_ID",
+    nationalIncidentStatus: "RTSL_ZEB_TEA_ZEBRA_NATIONAL_INCIDENT_STATUS",
+    pheocStatus: "RTSL_ZEB_TEA_NATIONAL_INCIDENT_STATUS",
     emergedDate: "RTSL_ZEB_TEA_DATE_EMERGED",
     detectedDate: "RTSL_ZEB_TEA_DATE_DETECTED",
     notifiedDate: "RTSL_ZEB_TEA_DATE_NOTIFIED",
+    nationalEventId: "RTSL_ZEB_TEA_EVENT_id",
 } as const;
 
 export const verificationStatusCodeMap: Record<string, AlertVerificationStatus> = {

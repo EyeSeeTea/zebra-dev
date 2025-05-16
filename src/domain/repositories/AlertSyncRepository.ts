@@ -1,6 +1,5 @@
 import { FutureData } from "../../data/api-futures";
-import { Maybe } from "../../utils/ts-utils";
-import { Id, Option } from "../entities/Ref";
+import { Id } from "../entities/Ref";
 import { Alert } from "../entities/alert/Alert";
 
 export interface AlertSyncRepository {
@@ -9,7 +8,6 @@ export interface AlertSyncRepository {
 
 export type AlertSyncOptions = {
     alert: Alert;
-    outbreakValue: Maybe<string>;
+    outbreakKey: string;
     nationalDiseaseOutbreakEventId: Id;
-    suspectedDiseases: Option[];
 };
