@@ -1,73 +1,18 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
-
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
-import {
-    FiltersConfig,
-    FiltersValuesType,
-    TableColumn,
-} from "../../components/table/statistic-table/StatisticTable";
-import { Maybe } from "../../../utils/ts-utils";
+import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
 import { AlertsPerformanceOverviewMetrics } from "../../../domain/entities/alert/AlertsPerformanceOverviewMetrics";
-import { Id } from "../../../domain/entities/Ref";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
-import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
-import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
-import { Option } from "../../components/utils/option";
-import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    AlertsPerformanceOverviewMetricsTableData,
+    State,
+} from "../dashboard/useAlertsPerformanceOverview";
+import { usePerformanceOverviewTable } from "../dashboard/usePerformanceOverviewTable";
+import { Id } from "../../../domain/entities/Ref";
 
-export type AlertsPerformanceOverviewMetricsTableData = {
-    event: string;
-    teiId: Id;
-    eventEBSId: Id;
-    eventIBSId: Id;
-    nationalDiseaseOutbreakEventId: Id;
-    suspectedDisease: string;
-    province: string;
-    orgUnit: string;
-    orgUnitType: OrgUnitLevelType;
-    cases: string;
-    deaths: string;
-    duration: string;
-    date: string;
-    notify1d: string;
-    detect7d: string;
-    incidentManager: string;
-    incidentManagerUsername: string;
-    respond7d: string;
-    incidentStatus: string;
-};
-
-export type State = {
-    columns: TableColumn[];
-    dataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
-    paginatedDataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
-    columnRules: { [key: string]: number };
-    order: Maybe<Order>;
-    onOrderBy: (columnValue: string) => void;
-    isLoading: boolean;
-    searchTerm: string;
-    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-    filtersConfig: FiltersConfig[];
-    filters: FiltersValuesType;
-    setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
-    filterOptions: (column: string, dataSource?: DataSource) => { value: string; label: string }[];
-    totalPages: number;
-    currentPage: number;
-    goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;
-    eventSourceOptions: Option[];
-    eventSourceSelected: string;
-    setEventSourceSelected: (selection: string) => void;
-    hasEventSourceFilter?: boolean;
-};
-
-export type Order = {
-    name: keyof AlertsPerformanceOverviewMetricsTableData;
-    direction: "asc" | "desc";
-};
-
-export function useAlertsPerformanceOverview(): State {
+export function useMappedAlerts(diseaseOutbreakId: Id): State {
     const {
         compositionRoot,
         configurations: { teamMembers },
@@ -84,14 +29,12 @@ export function useAlertsPerformanceOverview(): State {
         []
     );
 
-    const filtersConfig = useMemo<FiltersConfig[]>(
-        () => [
-            { value: "event", label: i18n.t("Disease"), type: "multiselector" },
+    const filtersConfig = useMemo<FiltersConfig[]>(() => {
+        return [
             { value: "province", label: i18n.t("Province"), type: "multiselector" },
             { value: "date", label: i18n.t("Duration"), type: "datepicker" },
-        ],
-        []
-    );
+        ];
+    }, []);
 
     const {
         filteredData: dataAlertsPerformanceOverview,
@@ -151,7 +94,7 @@ export function useAlertsPerformanceOverview(): State {
 
     useEffect(() => {
         setIsLoading(true);
-        compositionRoot.performanceOverview.getAlertsPerformanceOverviewMetrics.execute().run(
+        compositionRoot.performanceOverview.getMappedAlerts.execute(diseaseOutbreakId).run(
             performanceOverviewMetrics => {
                 const tableData = performanceOverviewMetrics.map(data =>
                     mapEntityToTableData(data, teamMembers.all)
@@ -177,11 +120,12 @@ export function useAlertsPerformanceOverview(): State {
             }
         );
     }, [
-        compositionRoot.performanceOverview.getAlertsPerformanceOverviewMetrics,
+        compositionRoot,
         mapEntityToTableData,
         setAlertsDataPerformanceOverview,
         teamMembers.all,
         currentUser.username,
+        diseaseOutbreakId,
     ]);
 
     return {
@@ -204,6 +148,6 @@ export function useAlertsPerformanceOverview(): State {
         eventSourceOptions,
         eventSourceSelected,
         setEventSourceSelected,
-        hasEventSourceFilter: true,
+        hasEventSourceFilter: false,
     };
 }

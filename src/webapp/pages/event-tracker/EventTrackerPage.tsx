@@ -25,6 +25,9 @@ import { useOverviewCards } from "./useOverviewCards";
 import { SimpleModal } from "../../components/simple-modal/SimpleModal";
 import { RiskAssessmentSummaryInfo } from "./RiskAssessmentSummaryInfo";
 import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
+import { Pagination } from "../../components/pagination/Pagination";
+import { useMappedAlerts } from "./useMappedAlerts";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -75,13 +78,23 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
-    const { performanceMetrics717 } = use717Performance("event", id);
+    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance("event", id);
+    const {
+        dataAlertsPerformanceOverview,
+        paginatedDataAlertsPerformanceOverview,
+        isLoading: alertsPerformanceOverviewLoading,
+        totalPages,
+        currentPage,
+        goToPage,
+        ...restAlertsPerformanceOverview
+    } = useMappedAlerts(id);
 
     useEffect(() => {
         if (eventTrackerDetails) {
             changeCurrentEventTracker(eventTrackerDetails);
         }
     }, [changeCurrentEventTracker, eventTrackerDetails]);
+
     return (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
             <EventTrackerFormSummary
@@ -240,6 +253,22 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     )}
                 </GridWrapper>
             </Section>
+            <LoaderContainer loading={alertsPerformanceOverviewLoading}>
+                <Section title={i18n.t("Alerts")} hasSeparator={true} titleVariant="secondary">
+                    <StatisticTableWrapper>
+                        <StatisticTable
+                            rows={dataAlertsPerformanceOverview}
+                            paginatedRows={paginatedDataAlertsPerformanceOverview}
+                            {...restAlertsPerformanceOverview}
+                        />
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={currentPage}
+                            onChange={goToPage}
+                        />
+                    </StatisticTableWrapper>
+                </Section>
+            </LoaderContainer>
 
             <SimpleModal
                 open={openCompleteModal}
@@ -269,4 +298,9 @@ export const EventTrackerPage: React.FC = React.memo(() => {
 
 const DurationFilterContainer = styled.div`
     max-width: 250px;
+`;
+
+const StatisticTableWrapper = styled.div`
+    display: grid;
+    row-gap: 16px;
 `;
