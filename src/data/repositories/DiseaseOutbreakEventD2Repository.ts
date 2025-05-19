@@ -99,10 +99,8 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                     if (trackedEntity.inactive) return undefined;
 
                     const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
-                    if (!outbreak)
-                        throw new Error(
-                            "Error mapping disease outbreak, data source/incident status fields are missing"
-                        );
+                    if (!outbreak) return undefined;
+
                     return outbreak;
                 })
                 .value();
