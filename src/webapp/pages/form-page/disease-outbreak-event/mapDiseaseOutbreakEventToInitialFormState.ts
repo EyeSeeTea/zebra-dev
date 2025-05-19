@@ -204,8 +204,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                         null,
                     width: "200px",
                     hasNotApplicable: true,
-                    required: true,
-                    showIsRequired: false,
                     disabled:
                         diseaseOutbreakEvent?.earlyResponseActions.appropriateCaseManagement.na,
                 },
@@ -239,8 +237,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                             .initiatePublicHealthCounterMeasures.date || null,
                     width: "200px",
                     hasNotApplicable: true,
-                    required: true,
-                    showIsRequired: false,
                     disabled:
                         diseaseOutbreakEvent?.earlyResponseActions
                             .initiatePublicHealthCounterMeasures.na,
@@ -277,8 +273,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                         null,
                     width: "200px",
                     hasNotApplicable: true,
-                    required: true,
-                    showIsRequired: false,
                     disabled:
                         diseaseOutbreakEvent?.earlyResponseActions.initiateRiskCommunication.na,
                 },
@@ -312,8 +306,6 @@ function getInitialFormStateForDiseaseOutbreakEvent(
                         null,
                     width: "200px",
                     hasNotApplicable: true,
-                    required: true,
-                    showIsRequired: false,
                     disabled: diseaseOutbreakEvent?.earlyResponseActions.establishCoordination.na,
                 },
                 {
