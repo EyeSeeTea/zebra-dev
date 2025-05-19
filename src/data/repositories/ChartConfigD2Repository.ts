@@ -7,6 +7,7 @@ import {
     DataSource,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Maybe } from "../../utils/ts-utils";
+import { Future } from "../../domain/entities/generic/Future";
 
 type ChartConfig = {
     key: string;
@@ -23,9 +24,9 @@ export class ChartConfigD2Repository implements ChartConfigRepository {
     constructor(private dataStoreClient: DataStoreClient) {}
 
     public getRiskAssessmentHistory(chartKey: string): FutureData<string> {
-        return this.getChartsConfig(chartKey).map(currentChart => {
-            if (currentChart) return currentChart.riskAssessmentHistoryId;
-            else throw new Error(`Chart id not found for ${chartKey}`);
+        return this.getChartsConfig(chartKey).flatMap(currentChart => {
+            if (currentChart) return Future.success(currentChart.riskAssessmentHistoryId);
+            else return Future.error(new Error(`Chart id not found for ${chartKey}`));
         });
     }
 
@@ -33,10 +34,12 @@ export class ChartConfigD2Repository implements ChartConfigRepository {
         chartKey: string,
         casesDataSource: CasesDataSource
     ): FutureData<Record<string, string>> {
-        return this.getChartsConfig(chartKey, casesDataSource).map(currentChart => {
+        return this.getChartsConfig(chartKey, casesDataSource).flatMap(currentChart => {
             if (currentChart)
-                return currentChart.casesAndDeathsByDataSource as Record<string, string>;
-            else throw new Error(`Chart id not found for ${chartKey}`);
+                return Future.success(
+                    currentChart.casesAndDeathsByDataSource as Record<string, string>
+                );
+            else return Future.error(new Error(`Chart id not found for ${chartKey}`));
         });
     }
 
