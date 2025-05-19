@@ -2,7 +2,6 @@ import { FutureData } from "../../../../data/api-futures";
 import { DiseaseOutbreakEventFormData, FormLables } from "../../../entities/ConfigurableForm";
 import {
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEvent,
 } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
