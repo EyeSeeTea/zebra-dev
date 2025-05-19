@@ -29,7 +29,7 @@ export class AlertD2Repository implements AlertRepository {
             ouMode: "DESCENDANTS",
             filter: outbreakData,
         }).flatMap(alertTrackedEntities => {
-            const alertsToPost = this.getAlertsToPost(alertTrackedEntities, eventId);
+            const alertsToPost = this.getRespondAlertsToPost(alertTrackedEntities, eventId);
             const activeVerifiedAlerts = alertsToPost.map<Alert>(trackedEntity => ({
                 id: trackedEntity.trackedEntity || "",
                 district: trackedEntity.orgUnit || "",
@@ -52,7 +52,7 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    private getAlertsToPost(
+    private getRespondAlertsToPost(
         trackedEntities: D2TrackerTrackedEntity[],
         eventId: string
     ): D2TrackerTrackedEntity[] {
