@@ -3,6 +3,7 @@ import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { PerformanceOverviewRepository } from "../../domain/repositories/PerformanceOverviewRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
+    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID,
     RTSL_ZEBRA_PROGRAM_ID,
@@ -43,6 +44,7 @@ import {
 } from "./consts/AlertsPerformanceOverviewConstants";
 import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
+import { VerificationStatus } from "../../domain/entities/alert/Alert";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -559,6 +561,20 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.getAlertsPerformanceData({
+            filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:${VerificationStatus.RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED}`,
+        });
+    }
+
+    getMappedAlerts(diseaseOutbreakId: Id): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.getAlertsPerformanceData({
+            filter: `${RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID}:eq:${diseaseOutbreakId}`,
+        });
+    }
+
+    private getAlertsPerformanceData(options: {
+        filter: string;
+    }): FutureData<AlertsPerformanceOverviewMetrics[]> {
         return this.datastore
             .getObject<AlertsPerformanceOverviewDimensions>(
                 ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
@@ -590,7 +606,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 endDate: DEFAULT_END_DATE,
                                 paging: false,
                                 programStatus: "ACTIVE",
-                                filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED`,
+                                filter: options.filter,
                             }
                         )
                     ).flatMap(response => {

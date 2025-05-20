@@ -21,3 +21,9 @@ export const alertVerificationStates = [
 ] as const;
 
 export type AlertVerificationStatus = (typeof alertVerificationStates)[number];
+
+export enum PHEOCStatus {
+    Alert = "PHEOC_STATUS_ALERT",
+    Respond = "PHEOC_STATUS_RESPOND",
+    Watch = "PHEOC_STATUS_WATCH",
+}

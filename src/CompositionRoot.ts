@@ -84,6 +84,7 @@ import { ResourceFileTestRepository } from "./data/repositories/test/ResourceFil
 import { ResourceFileRepository } from "./domain/repositories/ResourceFileRepository";
 import { ResourceFileD2Repository } from "./data/repositories/ResourceFileD2Repository";
 import { GetResourceUserPermissionsUseCase } from "./domain/usecases/GetResourceUserPermissionsUseCase";
+import { GetMappedAlertsUseCase } from "./domain/usecases/GetMappedAlertsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -146,6 +147,7 @@ function getCompositionRoot(repositories: Repositories) {
             getAlertsPerformanceOverviewMetrics: new GetAllAlertsPerformanceOverviewMetricsUseCase(
                 repositories
             ),
+            getMappedAlerts: new GetMappedAlertsUseCase(repositories),
             getTotalCardCounts: new GetTotalCardCountsUseCase(repositories),
             get717Performance: new Get717PerformanceUseCase(repositories),
             getAnalyticsRuntime: new GetAnalyticsRuntimeUseCase(repositories),

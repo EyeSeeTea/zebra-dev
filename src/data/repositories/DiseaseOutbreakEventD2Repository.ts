@@ -11,7 +11,13 @@ import {
     mapDiseaseOutbreakEventToTrackedEntityAttributes,
     mapTrackedEntityAttributesToDiseaseOutbreak,
 } from "./utils/DiseaseOutbreakMapper";
-import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
+import {
+    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+    RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
+    RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+    RTSL_ZEBRA_ORG_UNIT_ID,
+    RTSL_ZEBRA_PROGRAM_ID,
+} from "./consts/DiseaseOutbreakConstants";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     D2ProgramStageDataElement,
@@ -34,6 +40,7 @@ import {
 } from "./consts/CaseDataConstants";
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import _c from "../../domain/entities/generic/Collection";
+import { PHEOCStatus } from "../../domain/entities/alert/Alert";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -87,14 +94,16 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 },
             })
         ).map(trackedEntities => {
-            return trackedEntities.map(trackedEntity => {
-                const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
-                if (!outbreak)
-                    throw new Error(
-                        "Error mapping disease outbreak, data source/incident status fields are missing"
-                    );
-                return outbreak;
-            });
+            return _c(trackedEntities)
+                .compactMap(trackedEntity => {
+                    if (trackedEntity.inactive) return undefined;
+
+                    const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                    if (!outbreak) return undefined;
+
+                    return outbreak;
+                })
+                .value();
         });
     }
 
@@ -160,19 +169,22 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     }
 
     complete(id: Id): FutureData<void> {
-        return apiToFuture(
-            this.api.tracker.enrollments.get({
-                fields: {
-                    enrollment: true,
-                    enrolledAt: true,
-                    occurredAt: true,
-                },
-                trackedEntity: id,
-                enrolledBefore: new Date().toISOString(),
-                program: RTSL_ZEBRA_PROGRAM_ID,
-                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-            })
-        ).flatMap(enrollmentResponse => {
+        return Future.joinObj({
+            alerts: this.updateAlertsWithPHEOCStatus(id),
+            enrollmentResponse: apiToFuture(
+                this.api.tracker.enrollments.get({
+                    fields: {
+                        enrollment: true,
+                        enrolledAt: true,
+                        occurredAt: true,
+                    },
+                    trackedEntity: id,
+                    enrolledBefore: new Date().toISOString(),
+                    program: RTSL_ZEBRA_PROGRAM_ID,
+                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                })
+            ),
+        }).flatMap(({ enrollmentResponse }) => {
             const currentEnrollment = enrollmentResponse.instances[0];
             const currentEnrollmentId = currentEnrollment?.enrollment;
             if (!currentEnrollment || !currentEnrollmentId) {
@@ -199,6 +211,47 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                         Future.success(undefined)
                     );
                 }
+            });
+        });
+    }
+
+    private updateAlertsWithPHEOCStatus(
+        diseaseOutbreakId: Id
+    ): FutureData<D2TrackerTrackedEntity[]> {
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                ouMode: "DESCENDANTS",
+                filter: {
+                    id: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                    value: diseaseOutbreakId,
+                },
+            })
+        ).flatMap(trackedEntities => {
+            const trackedEntitiesToPost = trackedEntities.map(trackedEntity => ({
+                trackedEntity: trackedEntity.trackedEntity,
+                trackedEntityType: trackedEntity.trackedEntityType,
+                orgUnit: trackedEntity.orgUnit,
+                attributes: [
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
+                        value: PHEOCStatus.Alert,
+                    },
+                ],
+            }));
+
+            if (trackedEntitiesToPost.length === 0) return Future.success([]);
+
+            return apiToFuture(
+                this.api.tracker.post(
+                    { importStrategy: "UPDATE" },
+                    { trackedEntities: trackedEntitiesToPost }
+                )
+            ).flatMap(saveResponse => {
+                if (saveResponse.status === "ERROR")
+                    return Future.error(new Error("Error updating alerts."));
+                else return Future.success(trackedEntitiesToPost);
             });
         });
     }
