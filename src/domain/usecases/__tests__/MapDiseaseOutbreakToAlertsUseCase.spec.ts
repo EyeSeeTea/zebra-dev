@@ -10,7 +10,7 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
                 {
                     suspectedDiseaseCode: "",
                 },
-                [{ id: "Biological:Human", name: "Biological:Human" }]
+                suspectedDiseases
             )
             .run(
                 () => fail("Should not reach here"),
@@ -25,9 +25,9 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
             .execute(
                 "123",
                 {
-                    suspectedDiseaseCode: "",
+                    suspectedDiseaseCode: "RTSL_ZEB_OS_DISEASE_CHOLERA",
                 },
-                [{ id: "Biological:Human", name: "Biological:Human" }]
+                suspectedDiseases
             )
             .run(
                 data => expect(data).toBeUndefined(),
@@ -35,3 +35,8 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
             );
     });
 });
+
+const suspectedDiseases = [
+    { id: "RTSL_ZEB_OS_DISEASE_ANTHRAX", name: "Anthrax" },
+    { id: "RTSL_ZEB_OS_DISEASE_CHOLERA", name: "Cholera" },
+];

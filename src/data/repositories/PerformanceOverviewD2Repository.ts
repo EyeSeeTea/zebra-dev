@@ -3,6 +3,7 @@ import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { PerformanceOverviewRepository } from "../../domain/repositories/PerformanceOverviewRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
+    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID,
     RTSL_ZEBRA_PROGRAM_ID,
@@ -16,7 +17,6 @@ import {
 import moment from "moment";
 import {
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DataStoreClient } from "../DataStoreClient";
@@ -42,7 +42,9 @@ import {
     AlertsPerformanceOverviewDimensionsKey,
     AlertsPerformanceOverviewDimensionsValue,
 } from "./consts/AlertsPerformanceOverviewConstants";
+import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
+import { VerificationStatus } from "../../domain/entities/alert/Alert";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -497,7 +499,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             if (!key)
                                                 return Future.error(
                                                     new Error(
-                                                        `No hazard type or suspected disease found for event : ${event.id}`
+                                                        `No suspected disease found for event : ${event.id}`
                                                     )
                                                 );
                                             const currentEventTrackerOverview =
@@ -559,6 +561,20 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.getAlertsPerformanceData({
+            filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:${VerificationStatus.RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED}`,
+        });
+    }
+
+    getMappedAlerts(diseaseOutbreakId: Id): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.getAlertsPerformanceData({
+            filter: `${RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID}:eq:${diseaseOutbreakId}`,
+        });
+    }
+
+    private getAlertsPerformanceData(options: {
+        filter: string;
+    }): FutureData<AlertsPerformanceOverviewMetrics[]> {
         return this.datastore
             .getObject<AlertsPerformanceOverviewDimensions>(
                 ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
@@ -576,7 +592,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.eventEBSId,
                                     performanceOverviewDimensions.eventIBSId,
                                     performanceOverviewDimensions.nationalDiseaseOutbreakEventId,
-                                    performanceOverviewDimensions.hazardType,
                                     performanceOverviewDimensions.suspectedDisease,
                                     performanceOverviewDimensions.cases,
                                     performanceOverviewDimensions.deaths,
@@ -591,7 +606,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 endDate: DEFAULT_END_DATE,
                                 paging: false,
                                 programStatus: "ACTIVE",
-                                filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED`,
+                                filter: options.filter,
                             }
                         )
                     ).flatMap(response => {
@@ -657,8 +672,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             .map(metrics => ({
                                 ...metrics,
                                 eventSource: metrics.eventEBSId
-                                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                                    ? AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                                    : AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                             }));
 
                         return Future.success(mappedIndicators);

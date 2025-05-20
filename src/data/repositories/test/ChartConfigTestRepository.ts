@@ -7,10 +7,10 @@ export class ChartConfigTestRepository implements ChartConfigRepository {
     getRiskAssessmentHistory(_chartKey: string): FutureData<string> {
         return Future.success("1");
     }
-    getCases(_chartkey: string, _casesDataSource: CasesDataSource): FutureData<string> {
-        return Future.success("1");
-    }
-    getDeaths(_chartKey: string, _casesDataSource: CasesDataSource): FutureData<string> {
-        return Future.success("1");
+    getCasesAndDeathsByDataSource(
+        _chartKey: string,
+        _casesDataSource: CasesDataSource
+    ): FutureData<Record<string, string>> {
+        return Future.success({ all: "1" });
     }
 }

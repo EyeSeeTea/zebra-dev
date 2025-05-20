@@ -23,7 +23,7 @@ import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import { DateRangePicker } from "../../date-picker/DateRangePicker";
 import { useAppContext } from "../../../contexts/app-context";
 import { Selector } from "../../selector/Selector";
-import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertDataSource } from "../../../../domain/entities/alert/Alert";
 
 export type TableColumn = {
     value: string;
@@ -66,7 +66,10 @@ export type StatisticTableProps = {
     setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
     filters: FiltersValuesType;
     setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
-    filterOptions: (column: string, dataSource?: DataSource) => { value: string; label: string }[];
+    filterOptions: (
+        column: string,
+        dataSource?: AlertDataSource
+    ) => { value: string; label: string }[];
     allowGoToEventOnClick?: boolean;
     eventSourceOptions: Option[];
     eventSourceSelected: string;
@@ -138,7 +141,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                         placeholder={i18n.t(label)}
                                         options={filterOptions(
                                             value,
-                                            eventSourceSelected as DataSource
+                                            eventSourceSelected as AlertDataSource
                                         )}
                                         onChange={(values: string[]) => {
                                             setFilters({ ...filters, [value]: values });

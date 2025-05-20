@@ -29,6 +29,9 @@ export function getTestContext() {
                     incidentManagers: [],
                     casesDataSource: [],
                 },
+                alertOptions: {
+                    alertDataSources: [],
+                },
                 riskAssessmentGradingConfigurations: {
                     populationAtRisk: [],
                     geographicalSpread: [],

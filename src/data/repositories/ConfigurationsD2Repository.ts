@@ -7,9 +7,8 @@ import { SelectableOptions } from "../../domain/entities/AppConfigurations";
 import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
 
 const optionSetCode: Record<string, string> = {
-    dataSources: "RTSL_ZEB_OS_DATA_SOURCE",
-    hazardTypes: "RTSL_ZEB_OS_HAZARD_TYPE",
-    hazardTypesByCode: "RTSL_ZEB_OS_HAZARD_TYPE",
+    alertDataSources: "RTSL_ZEB_OS_DATA_SOURCE",
+    dataSources: "RTSL_ZEB_OS_DEFAULT_DATA_SOURCE",
     mainSyndromes: "AGENTS",
     suspectedDiseases: "RTSL_ZEB_OS_DISEASE",
     notificationSources: "RTSL_ZEB_OS_SOURCE",
@@ -39,7 +38,14 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         ).flatMap(optionsResponse => {
             const selectableOptions = this.createEmptySelectableOptions();
             Object.entries(optionSetCode).map(([key, value]) => {
-                if (key === "dataSources") {
+                if (key === "alertDataSources") {
+                    const alertDataSources = optionsResponse.optionSets.find(
+                        optionSet => optionSet.code === value
+                    );
+                    if (alertDataSources)
+                        selectableOptions.alertOptions.alertDataSources =
+                            this.mapD2OptionSetToOptions(alertDataSources);
+                } else if (key === "dataSources") {
                     const dataSources = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
                     );
@@ -204,6 +210,9 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                 notificationSources: [],
                 incidentManagers: [],
                 casesDataSource: [],
+            },
+            alertOptions: {
+                alertDataSources: [],
             },
             riskAssessmentGradingConfigurations: {
                 populationAtRisk: [],

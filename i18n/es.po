@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-05-15T07:30:06.665Z\n"
+"POT-Creation-Date: 2025-05-19T09:22:55.355Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -143,9 +143,6 @@ msgstr ""
 msgid "The map with these filters could not be found."
 msgstr ""
 
-msgid "Map not found."
-msgstr ""
-
 msgid "Search"
 msgstr ""
 
@@ -212,16 +209,10 @@ msgstr ""
 msgid "Zebra Events Dashboard"
 msgstr ""
 
-msgid "Disease/Hazard Type"
+msgid "Disease"
 msgstr ""
 
 msgid "Province"
-msgstr ""
-
-msgid "Hazard Type"
-msgstr ""
-
-msgid "Disease"
 msgstr ""
 
 msgid "Organisation unit"
@@ -287,6 +278,18 @@ msgstr ""
 msgid "Districts Affected"
 msgstr ""
 
+msgid "Select data source"
+msgstr ""
+
+msgid "Data Source"
+msgstr ""
+
+msgid "Risk Assessment"
+msgstr ""
+
+msgid "Risk Assessment Summary"
+msgstr ""
+
 msgid "Create Risk Assessment"
 msgstr ""
 
@@ -299,7 +302,22 @@ msgstr ""
 msgid "Risks associated with this event have not yet been assessed."
 msgstr ""
 
+msgid "Risk Assessment Grade"
+msgstr ""
+
 msgid "Add new Grade"
+msgstr ""
+
+msgid "Risk Assessment History"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Cases and Deaths"
+msgstr ""
+
+msgid "Alerts"
 msgstr ""
 
 msgid "Complete event"
