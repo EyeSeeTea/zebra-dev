@@ -58,7 +58,7 @@ export const NationalDashboard: React.FC<NationalDashboardProps> = React.memo(pr
                                 key={index}
                                 stat={`${perfMetric717.primaryValue}`}
                                 title={perfMetric717.title}
-                                pretitle={`${perfMetric717.secondaryValue} ${i18n.t("events")}`}
+                                pretitle={formatStatCardPreTitle(perfMetric717)}
                                 color={perfMetric717.color}
                                 fillParent
                                 isPercentage
@@ -91,3 +91,9 @@ const StatisticTableWrapper = styled.div`
     display: grid;
     row-gap: 16px;
 `;
+
+export function formatStatCardPreTitle(perfMetric717: PerformanceMetric717): string {
+    return `${perfMetric717.secondaryValue} ${
+        perfMetric717.totalValue ? `of ${perfMetric717.totalValue}` : ""
+    } ${i18n.t("events")}`;
+}

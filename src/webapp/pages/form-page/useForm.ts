@@ -108,7 +108,7 @@ export function useForm(formType: FormType, id?: Id): State {
     const { userPermissions: resourcePermissions } = useResources();
 
     const allDataPerformanceEvents = dataNationalPerformanceOverview?.map(
-        event => event.hazardType || event.suspectedDisease
+        event => event.suspectedDisease
     );
 
     const existingEventTrackers =

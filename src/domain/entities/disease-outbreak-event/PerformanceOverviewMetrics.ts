@@ -1,5 +1,4 @@
 import { Id } from "../Ref";
-import { DataSource } from "./DiseaseOutbreakEvent";
 
 export const diseaseNames = [
     "AFP",
@@ -20,17 +19,6 @@ export const diseaseNames = [
 ] as const;
 export type DiseaseNames = (typeof diseaseNames)[number];
 
-export const hazardNames = [
-    "Biological: Animal",
-    "Biological: Human",
-    "Biological: Human and Animal",
-    "Environmental",
-    // "Chemical",
-    // "Unknown",
-] as const;
-
-export type HazardNames = (typeof hazardNames)[number];
-
 export type PerformanceOverviewMetrics = {
     id: Id;
     event: string;
@@ -45,15 +33,9 @@ export type PerformanceOverviewMetrics = {
     era5: string;
     era6: string;
     era7: string;
-    detect7d: string;
-    notify1d: string;
-    respond7d: string;
     suspectedDisease: DiseaseNames;
-    hazardType: HazardNames;
-    nationalIncidentStatus: string;
     date: string;
     incidentManagerUsername: string;
-    eventSource: DataSource;
 };
 
 const incidentStatuses = ["Watch", "Alert", "Respond"] as const;
@@ -65,10 +47,10 @@ export const isIncidentStatus = (status: string): status is IncidentStatus => {
 export type IncidentStatusFilter = IncidentStatus | "ALL";
 
 type BaseCounts = {
-    name: DiseaseNames | HazardNames;
+    name: DiseaseNames;
     total: number;
     incidentStatus: IncidentStatusFilter;
-    type: "disease" | "hazard";
+    type: "disease";
 };
 
 type DiseaseCounts = BaseCounts & {
@@ -76,12 +58,7 @@ type DiseaseCounts = BaseCounts & {
     type: "disease";
 };
 
-type HazardCounts = BaseCounts & {
-    name: HazardNames;
-    type: "hazard";
-};
-
-export type TotalCardCounts = DiseaseCounts | HazardCounts;
+export type TotalCardCounts = DiseaseCounts;
 
 export type PerformanceMetrics717Key = "national" | "event" | "alerts";
 
@@ -89,6 +66,14 @@ export type PerformanceMetrics717 = {
     id: string;
     name: string;
     type: "primary" | "secondary";
+    value?: number | "Inc";
+    key: PerformanceMetrics717Key;
+    total?: number;
+};
+
+export type TotalPerformanceMetrics717 = {
+    id: string;
+    type: "total";
     value?: number | "Inc";
     key: PerformanceMetrics717Key;
 };

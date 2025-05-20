@@ -16,9 +16,8 @@ export interface PerformanceOverviewRepository {
     getNationalPerformanceOverviewMetrics(
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]>;
-    getAlertsPerformanceOverviewMetrics(): FutureData<
-        Omit<AlertsPerformanceOverviewMetrics, "incidentStatus">[]
-    >;
+    getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]>;
+    getMappedAlerts(diseaseOutbreakId: Id): FutureData<AlertsPerformanceOverviewMetrics[]>;
     getTotalCardCounts(
         allProvincesIds: string[],
         singleSelectFilters?: Record<string, string>,

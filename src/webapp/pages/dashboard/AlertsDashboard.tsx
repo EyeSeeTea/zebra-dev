@@ -27,6 +27,7 @@ import { AlertsPerformanceOverviewMetricsTableData, Order } from "./useAlertsPer
 import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../components/utils/option";
 import { Id } from "../../../domain/entities/Ref";
+import { formatStatCardPreTitle } from "./NationalDashboard";
 
 export type AlertsDashboardProps = {
     selectorFiltersConfig: SelectorFiltersConfig[];
@@ -174,7 +175,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                                 key={index}
                                 stat={`${perfMetric717.primaryValue}`}
                                 title={perfMetric717.title}
-                                pretitle={`${perfMetric717.secondaryValue} ${i18n.t("events")}`}
+                                pretitle={formatStatCardPreTitle(perfMetric717)}
                                 color={perfMetric717.color}
                                 fillParent
                                 isPercentage

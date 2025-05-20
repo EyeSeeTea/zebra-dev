@@ -251,7 +251,7 @@ export function validateField(
         ...(field.required && !field.hasNotApplicable
             ? validateFieldRequired(field.value, field.type)
             : []),
-        ...(field.hasNotApplicable
+        ...(field.required && field.hasNotApplicable
             ? validateFieldRequiredWithNotApplicable(
                   field.value,
                   field.type,
