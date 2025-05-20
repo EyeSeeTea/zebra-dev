@@ -25,6 +25,7 @@ import { useOverviewCards } from "./useOverviewCards";
 import { SimpleModal } from "../../components/simple-modal/SimpleModal";
 import { RiskAssessmentSummaryInfo } from "./RiskAssessmentSummaryInfo";
 import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { Selector } from "../../components/selector/Selector";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
 import { Pagination } from "../../components/pagination/Pagination";
 import { useMappedAlerts } from "./useMappedAlerts";
@@ -63,8 +64,15 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
     const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
-    const { dateRangeFilter } = useMapFilters();
     const theme = useTheme();
+
+    const isCasesDataUserDefined =
+        currentEventTracker?.casesDataSource ===
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+
+    const { dateRangeFilter, dataSourceFilter: mapDataSourceFilter } =
+        useMapFilters(isCasesDataUserDefined);
+    const { dataSourceFilter: chartsDataSourceFilter } = useMapFilters(isCasesDataUserDefined);
 
     const goToRiskSummaryForm = useCallback(() => {
         goTo(RouteName.CREATE_FORM, {
@@ -104,20 +112,31 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 formSummary={formSummary}
                 onCompleteClick={onOpenCompleteModal}
                 globalMessage={globalMessage}
-                isCasesDataUserDefined={
-                    currentEventTracker?.casesDataSource ===
-                    CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
-                }
+                isCasesDataUserDefined={isCasesDataUserDefined}
             />
             <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
-                <DurationFilterContainer>
-                    <DateRangePicker
-                        value={dateRangeFilter.value || []}
-                        onChange={dateRangeFilter.onChange}
-                        placeholder={i18n.t("Select duration")}
-                        label={i18n.t("Duration")}
-                    />
-                </DurationFilterContainer>
+                <FiltersSection>
+                    <FilterContainer>
+                        <DateRangePicker
+                            value={dateRangeFilter.value || []}
+                            onChange={dateRangeFilter.onChange}
+                            placeholder={i18n.t("Select duration")}
+                            label={i18n.t("Duration")}
+                        />
+                    </FilterContainer>
+                    {!isCasesDataUserDefined && mapDataSourceFilter.value && (
+                        <FilterContainer>
+                            <Selector
+                                id={"filters-data-source"}
+                                options={mapDataSourceFilter.options}
+                                placeholder={i18n.t("Select data source")}
+                                label={i18n.t("Data Source")}
+                                selected={mapDataSourceFilter.value}
+                                onChange={mapDataSourceFilter.onChange}
+                            />
+                        </FilterContainer>
+                    )}
+                </FiltersSection>
                 <LoaderContainer
                     loading={!currentEventTracker?.suspectedDiseaseCode && areOverviewCardsLoading}
                 >
@@ -125,13 +144,15 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                         mapKey="event_tracker"
                         eventDiseaseCode={currentEventTracker?.suspectedDiseaseCode}
                         dateRangeFilter={dateRangeFilter.value || []}
-                        casesDataSource={currentEventTracker?.casesDataSource}
+                        dataSource={mapDataSourceFilter.dataSource}
                     />
                 </LoaderContainer>
             </Section>
             <Section
                 title={
-                    riskAssessmentRows.length === 0 ? "Risk Assessment" : "Risk Assessment Summary"
+                    riskAssessmentRows.length === 0
+                        ? i18n.t("Risk Assessment")
+                        : i18n.t("Risk Assessment Summary")
                 }
                 hasSeparator={true}
                 headerButtons={
@@ -175,7 +196,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             </Section>
             {riskAssessmentRows.length > 0 ? (
                 <Section
-                    title="Risk Assessment Grade"
+                    title={i18n.t("Risk Assessment Grade")}
                     hasSeparator={true}
                     titleVariant="secondary"
                     headerButtons={
@@ -198,16 +219,17 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     />
                     <Box sx={{ m: 5 }} />
                     {!!currentEventTracker?.riskAssessment?.grading?.length && (
-                        <Chart
-                            title="Risk Assessment History"
-                            chartType="risk-assessment-history"
-                            chartKey={currentEventTracker?.suspectedDisease?.name}
-                        />
+                        <Section title={i18n.t("Risk Assessment History")} titleVariant="secondary">
+                            <Chart
+                                chartType="risk-assessment-history"
+                                chartKey={currentEventTracker?.suspectedDisease?.name}
+                            />
+                        </Section>
                     )}
                 </Section>
             ) : null}
 
-            <Section title="Overview" hasSeparator={true} titleVariant="secondary">
+            <Section title={i18n.t("Overview")} hasSeparator={true} titleVariant="secondary">
                 <GridWrapper>
                     {overviewCards?.map((card, index) => (
                         <StyledStatsCard
@@ -220,18 +242,30 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 </GridWrapper>
             </Section>
 
-            <Section hasSeparator={true}>
+            <Section
+                title={i18n.t("Cases and Deaths")}
+                titleVariant="secondary"
+                hasSeparator={true}
+            >
+                {!isCasesDataUserDefined && chartsDataSourceFilter.value && (
+                    <FiltersSection>
+                        <FilterContainer>
+                            <Selector
+                                id={"filters-data-source"}
+                                options={chartsDataSourceFilter.options}
+                                placeholder={i18n.t("Select data source")}
+                                label={i18n.t("Data Source")}
+                                selected={chartsDataSourceFilter.value}
+                                onChange={chartsDataSourceFilter.onChange}
+                            />
+                        </FilterContainer>
+                    </FiltersSection>
+                )}
                 <Chart
-                    title="Cases"
-                    chartType="cases"
+                    chartType="cases-and-deaths-by-data-source"
                     chartKey={currentEventTracker?.suspectedDisease?.name}
                     casesDataSource={currentEventTracker?.casesDataSource}
-                />
-                <Chart
-                    title="Deaths"
-                    chartType="deaths"
-                    chartKey={currentEventTracker?.suspectedDisease?.name}
-                    casesDataSource={currentEventTracker?.casesDataSource}
+                    chartProp={chartsDataSourceFilter.value || "all"}
                 />
             </Section>
             <Section
@@ -296,8 +330,24 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     );
 });
 
-const DurationFilterContainer = styled.div`
+const FilterContainer = styled.div`
+    display: flex;
+    width: 250px;
     max-width: 250px;
+    justify-content: flex-end;
+    @media (max-width: 700px) {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        width: 100%;
+    }
+`;
+
+const FiltersSection = styled.div`
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    gap: 1rem;
 `;
 
 const StatisticTableWrapper = styled.div`

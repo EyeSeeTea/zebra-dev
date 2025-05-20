@@ -144,9 +144,6 @@ msgstr ""
 msgid "The map with these filters could not be found."
 msgstr ""
 
-msgid "Map not found."
-msgstr ""
-
 msgid "Search"
 msgstr ""
 
@@ -282,6 +279,18 @@ msgstr ""
 msgid "Districts Affected"
 msgstr ""
 
+msgid "Select data source"
+msgstr ""
+
+msgid "Data Source"
+msgstr ""
+
+msgid "Risk Assessment"
+msgstr ""
+
+msgid "Risk Assessment Summary"
+msgstr ""
+
 msgid "Create Risk Assessment"
 msgstr ""
 
@@ -294,7 +303,19 @@ msgstr ""
 msgid "Risks associated with this event have not yet been assessed."
 msgstr ""
 
+msgid "Risk Assessment Grade"
+msgstr ""
+
 msgid "Add new Grade"
+msgstr ""
+
+msgid "Risk Assessment History"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Cases and Deaths"
 msgstr ""
 
 msgid "Alerts"

@@ -1,4 +1,6 @@
 import {
+    AlertOptions,
+    DiseaseOutbreakCaseDataOptions,
     DiseaseOutbreakEventOptions,
     IncidentActionPlanOptions,
     IncidentResponseActionOptions,
@@ -27,7 +29,8 @@ import {
 import { UserGroup } from "./UserGroup";
 
 export type SelectableOptions = {
-    eventTrackerConfigurations: DiseaseOutbreakEventOptions;
+    eventTrackerConfigurations: DiseaseOutbreakEventOptions & DiseaseOutbreakCaseDataOptions;
+    alertOptions: AlertOptions;
     riskAssessmentGradingConfigurations: {
         populationAtRisk: Array<
             LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk
