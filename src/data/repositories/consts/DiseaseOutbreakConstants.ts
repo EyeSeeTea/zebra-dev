@@ -1,9 +1,6 @@
 import {
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEventBaseAttrs,
-    HazardType,
-    NationalIncidentStatus,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import _c from "../../../domain/entities/generic/Collection";
 import { GetValue, Maybe } from "../../../utils/ts-utils";
@@ -23,32 +20,8 @@ export const RTSL_ZEBRA_INCIDENT_MANAGEMENT_TEAM_BUILDER_PROGRAM_STAGE_ID = "DwE
 export const RTSL_ZEBRA_ALERTS_PROGRAM_ID = "MQtbs8UkBxy";
 export const RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID = "Pq1drzz2HJk";
 export const RTSL_ZEBRA_ALERTS_DISEASE_TEA_ID = "agsVaIpit4S";
-export const RTSL_ZEBRA_ALERTS_EVENT_TYPE_TEA_ID = "ydsfY6zyvt7";
-export const RTSL_ZEBRA_ALERTS_NATIONAL_INCIDENT_STATUS_TEA_ID = "DzGqKzjhIsz";
 export const RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID = "HvgldgBK8Th";
-
-export const hazardTypeCodeMap: Record<HazardType, string> = {
-    "Biological:Human": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_HUMAN",
-    "Biological:Animal": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_ANIMAL",
-    "Biological:HumanAndAnimal": "RTSL_ZEB_OS_HAZARD_TYPE_BIOLOGICAL_HUM_ANM",
-    Chemical: "RTSL_ZEB_OS_HAZARD_TYPE_CHEMICAL",
-    Environmental: "RTSL_ZEB_OS_HAZARD_TYPE_ENVIRONMENTAL",
-    Unknown: "RTSL_ZEB_OS_HAZARD_TYPE_UNKNOWN",
-};
-
-export const incidentStatusMap: Record<string, NationalIncidentStatus> = {
-    RTSL_ZEB_OS_INCIDENT_STATUS_WATCH: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
-    RTSL_ZEB_OS_INCIDENT_STATUS_ALERT: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_ALERT,
-    RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND,
-    RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED,
-    RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED:
-        NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED,
-};
-
-export const dataSourceMap: Record<string, DataSource> = {
-    RTSL_ZEB_OS_DATA_SOURCE_IBS: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
-    RTSL_ZEB_OS_DATA_SOURCE_EBS: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
-};
+export const RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID = "KeUbzfFQYCX";
 
 export const casesDataSourceMap: Record<string, CasesDataSource> = {
     RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
@@ -57,14 +30,11 @@ export const casesDataSourceMap: Record<string, CasesDataSource> = {
 
 export const diseaseOutbreakCodes = {
     name: "RTSL_ZEB_TEA_EVENT_NAME",
-    dataSource: "RTSL_ZEB_TEA_DATA_SOURCE",
-    hazardType: "RTSL_ZEB_TEA_HAZARD_TYPE",
     mainSyndrome: "RTSL_ZEB_TEA_MAIN_SYNDROME",
     suspectedDisease: "RTSL_ZEB_TEA_SUSPECTED_DISEASE",
     notificationSource: "RTSL_ZEB_TEA_NOTIFICATION_SOURCE",
     areasAffectedProvinces: "RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES",
     areasAffectedDistricts: "RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS",
-    incidentStatus: "RTSL_ZEB_TEA_INCIDENT_STATUS",
     emergedDate: "RTSL_ZEB_TEA_DATE_EMERGED",
     emergedNarrative: "RTSL_ZEB_TEA_DATE_EMERGED_NARRATIVE",
     detectedDate: "RTSL_ZEB_TEA_DATE_DETECTED",
@@ -104,12 +74,12 @@ export function getValueFromDiseaseOutbreak(
     //Set Earliest Respond Date as the earliest of all early response action dates.
     const responseActionDates: number[] = _c([
         diseaseOutbreak.earlyResponseActions.appropriateCaseManagement.date?.getTime(),
-        diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis.getTime(),
-        diseaseOutbreak.earlyResponseActions.initiateInvestigation.getTime(),
+        diseaseOutbreak.earlyResponseActions.conductEpidemiologicalAnalysis?.getTime(),
+        diseaseOutbreak.earlyResponseActions.initiateInvestigation?.getTime(),
         diseaseOutbreak.earlyResponseActions.establishCoordination.date?.getTime(),
         diseaseOutbreak.earlyResponseActions.initiateRiskCommunication.date?.getTime(),
         diseaseOutbreak.earlyResponseActions.initiatePublicHealthCounterMeasures.date?.getTime(),
-        diseaseOutbreak.earlyResponseActions.laboratoryConfirmation.getTime(),
+        diseaseOutbreak.earlyResponseActions.laboratoryConfirmation?.getTime(),
     ])
         .compact()
         .value();
@@ -117,16 +87,11 @@ export function getValueFromDiseaseOutbreak(
     const earliestRespondDate: Date = new Date(Math.min(...responseActionDates));
     return {
         RTSL_ZEB_TEA_EVENT_NAME: diseaseOutbreak.name,
-        RTSL_ZEB_TEA_DATA_SOURCE: diseaseOutbreak.dataSource,
-        RTSL_ZEB_TEA_HAZARD_TYPE: diseaseOutbreak.hazardType
-            ? hazardTypeCodeMap[diseaseOutbreak.hazardType]
-            : "",
         RTSL_ZEB_TEA_MAIN_SYNDROME: diseaseOutbreak.mainSyndromeCode ?? "",
         RTSL_ZEB_TEA_SUSPECTED_DISEASE: diseaseOutbreak.suspectedDiseaseCode ?? "",
         RTSL_ZEB_TEA_NOTIFICATION_SOURCE: diseaseOutbreak.notificationSourceCode,
         RTSL_ZEB_TEA_AREAS_AFFECTED_PROVINCES: "",
         RTSL_ZEB_TEA_AREAS_AFFECTED_DISTRICTS: "",
-        RTSL_ZEB_TEA_INCIDENT_STATUS: diseaseOutbreak.incidentStatus,
         RTSL_ZEB_TEA_DATE_EMERGED: getDateAsIsoString(diseaseOutbreak.emerged.date),
         RTSL_ZEB_TEA_DATE_EMERGED_NARRATIVE: diseaseOutbreak.emerged.narrative,
         RTSL_ZEB_TEA_DATE_DETECTED: getDateAsIsoString(diseaseOutbreak.detected.date),
@@ -174,18 +139,6 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
         RTSL_ZEB_TEA_CASE_DATA_SOURCE: diseaseOutbreak.casesDataSource,
     };
-}
-
-export function getHazardTypeByCode(hazardTypeCode: string): HazardType | undefined {
-    return (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
-        key => hazardTypeCodeMap[key] === hazardTypeCode
-    );
-}
-
-export function getHazardTypeFromString(hazardTypeString: string): HazardType | undefined {
-    return (Object.keys(hazardTypeCodeMap) as HazardType[]).find(
-        hazardType => hazardType === hazardTypeString
-    );
 }
 
 function getNaValue(naValue: Maybe<boolean>): string {

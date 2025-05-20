@@ -3,14 +3,12 @@ import {
     CaseData,
     DiseaseOutbreakEvent,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { hazardTypeCodeMap } from "./DiseaseOutbreakConstants";
 
 export const RTSL_ZEBRA_CASE_PROGRAM_ID = "A0fHWmkFPzX";
 export const RTSL_ZEBRA_CASE_PROGRAM_STAGE_ID = "aEUOfKt3cNP";
 export const RTSL_ZEB_DET_NATIONAL_EVENT_ID_ID = "ylPUzBomYdb";
 
 export const casesDataCodes = {
-    hazardType: "RTSL_ZEB_DET_HAZARD_TYPE",
     suspectedDisease: "RTSL_ZEB_DET_SUSPECTED_DISEASE",
     lastUpdatedBy: "RTSL_ZEB_ALERTS_EVT_LAST_UPDATED_BY",
     lastUpdatedAt: "RTSL_ZEB_ALERTS_EVT_LAST_UPDATED",
@@ -34,17 +32,13 @@ export function getCasesDataValuesFromDiseaseOutbreak(
     diseaseOutbreak: DiseaseOutbreakEvent
 ): Record<CasesDataCode, string> {
     const nationalEventId = diseaseOutbreak.id;
-    const hazardTypeCode = diseaseOutbreak.hazardType
-        ? hazardTypeCodeMap[diseaseOutbreak.hazardType]
-        : "";
     const suspectedDiseaseCode = diseaseOutbreak.suspectedDiseaseCode ?? "";
 
-    if (!nationalEventId || (!hazardTypeCode && !suspectedDiseaseCode)) {
+    if (!nationalEventId || !suspectedDiseaseCode) {
         throw new Error("Missing required data for cases data");
     }
 
     return {
-        RTSL_ZEB_DET_HAZARD_TYPE: hazardTypeCode,
         RTSL_ZEB_DET_SUSPECTED_DISEASE: suspectedDiseaseCode,
         RTSL_ZEB_ALERTS_EVT_LAST_UPDATED_BY: caseData.updatedBy,
         RTSL_ZEB_ALERTS_EVT_LAST_UPDATED: new Date().toISOString(),

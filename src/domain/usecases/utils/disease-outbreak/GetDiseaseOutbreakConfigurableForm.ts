@@ -2,7 +2,6 @@ import { FutureData } from "../../../../data/api-futures";
 import { DiseaseOutbreakEventFormData, FormLables } from "../../../entities/ConfigurableForm";
 import {
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEvent,
 } from "../../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../entities/generic/Future";
@@ -55,11 +54,7 @@ export function getDiseaseOutbreakConfigurableForm(
             });
 
             const outbreakKey = getOutbreakKey({
-                dataSource: diseaseOutbreakEvent.dataSource,
-                outbreakValue:
-                    diseaseOutbreakEvent.suspectedDiseaseCode || diseaseOutbreakEvent.hazardType,
-                hazardTypes:
-                    configurations.selectableOptions.eventTrackerConfigurations.hazardTypes,
+                outbreakValue: diseaseOutbreakEvent.suspectedDiseaseCode,
                 suspectedDiseases:
                     configurations.selectableOptions.eventTrackerConfigurations.suspectedDiseases,
             });
@@ -113,18 +108,6 @@ function getEventTrackerLabelsRules(): { rules: Rule[]; labels: FormLables } {
         },
         // TODO: Get rules from Datastore used in applyRulesInFormState
         rules: [
-            {
-                type: "toggleSectionsVisibilityByFieldValue",
-                fieldId: "dataSource",
-                fieldValue: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
-                sectionIds: ["hazardType_section"],
-            },
-            {
-                type: "toggleSectionsVisibilityByFieldValue",
-                fieldId: "dataSource",
-                fieldValue: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
-                sectionIds: ["mainSyndrome_section", "suspectedDisease_section"],
-            },
             {
                 type: "toggleSectionsVisibilityByFieldValue",
                 fieldId: "casesDataSource",

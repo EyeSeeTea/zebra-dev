@@ -3,7 +3,10 @@ import { CasesDataSource } from "../entities/disease-outbreak-event/DiseaseOutbr
 import { Future } from "../entities/generic/Future";
 import { ChartConfigRepository } from "../repositories/ChartConfigRepository";
 
-export type ChartType = "deaths" | "cases" | "risk-assessment-history";
+export type ChartType = "cases-and-deaths-by-data-source" | "risk-assessment-history";
+
+export type ChartConfig = Record<string, string>;
+
 export class GetChartConfigByTypeUseCase {
     constructor(private chartConfigRepository: ChartConfigRepository) {}
 
@@ -11,13 +14,16 @@ export class GetChartConfigByTypeUseCase {
         chartType: ChartType,
         chartKey: string,
         casesDataSource?: CasesDataSource
-    ): FutureData<string> {
-        if (chartType === "deaths" && casesDataSource) {
-            return this.chartConfigRepository.getDeaths(chartKey, casesDataSource);
-        } else if (chartType === "cases" && casesDataSource) {
-            return this.chartConfigRepository.getCases(chartKey, casesDataSource);
-        } else if (chartType === "risk-assessment-history") {
-            return this.chartConfigRepository.getRiskAssessmentHistory(chartKey);
+    ): FutureData<ChartConfig> {
+        if (chartType === "risk-assessment-history") {
+            return this.chartConfigRepository
+                .getRiskAssessmentHistory(chartKey)
+                .map(chartId => ({ [chartKey]: chartId }));
+        } else if (chartType === "cases-and-deaths-by-data-source" && casesDataSource) {
+            return this.chartConfigRepository.getCasesAndDeathsByDataSource(
+                chartKey,
+                casesDataSource
+            );
         } else {
             return Future.error(
                 new Error(`Invalid chart type: ${chartType} or cases data source is missing`)

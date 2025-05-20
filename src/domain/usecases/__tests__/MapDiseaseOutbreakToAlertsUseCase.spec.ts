@@ -1,8 +1,4 @@
 import { getTestCompositionRoot } from "../../../CompositionRoot";
-import {
-    DataSource,
-    NationalIncidentStatus,
-} from "../../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 describe("MapDiseaseOutbreakToAlertsUseCase", () => {
     it("does not map disease outbreak to alerts if there is no event id", async () => {
@@ -12,13 +8,9 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
             .execute(
                 "",
                 {
-                    dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
-                    hazardType: "Biological:Human",
                     suspectedDiseaseCode: "",
-                    incidentStatus: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
                 },
-                [{ id: "Biological:Human", name: "Biological:Human" }],
-                [{ id: "123", name: "Disease" }]
+                suspectedDiseases
             )
             .run(
                 () => fail("Should not reach here"),
@@ -33,13 +25,9 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
             .execute(
                 "123",
                 {
-                    dataSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
-                    hazardType: "Biological:Human",
-                    suspectedDiseaseCode: "",
-                    incidentStatus: NationalIncidentStatus.RTSL_ZEB_OS_INCIDENT_STATUS_WATCH,
+                    suspectedDiseaseCode: "RTSL_ZEB_OS_DISEASE_CHOLERA",
                 },
-                [{ id: "Biological:Human", name: "Biological:Human" }],
-                [{ id: "123", name: "Disease" }]
+                suspectedDiseases
             )
             .run(
                 data => expect(data).toBeUndefined(),
@@ -47,3 +35,8 @@ describe("MapDiseaseOutbreakToAlertsUseCase", () => {
             );
     });
 });
+
+const suspectedDiseases = [
+    { id: "RTSL_ZEB_OS_DISEASE_ANTHRAX", name: "Anthrax" },
+    { id: "RTSL_ZEB_OS_DISEASE_CHOLERA", name: "Cholera" },
+];

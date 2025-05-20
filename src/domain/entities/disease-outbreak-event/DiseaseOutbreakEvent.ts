@@ -6,19 +6,7 @@ import { Code, Id, NamedRef } from "../Ref";
 import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
-import _ from "../generic/Collection";
 import { Username } from "../User";
-
-export const hazardTypes = [
-    "Biological:Human",
-    "Biological:Animal",
-    "Biological:HumanAndAnimal",
-    "Chemical",
-    "Environmental",
-    "Unknown",
-] as const;
-
-export type HazardType = (typeof hazardTypes)[number];
 
 export enum NationalIncidentStatus {
     RTSL_ZEB_OS_INCIDENT_STATUS_WATCH = "RTSL_ZEB_OS_INCIDENT_STATUS_WATCH",
@@ -26,16 +14,6 @@ export enum NationalIncidentStatus {
     RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND = "RTSL_ZEB_OS_INCIDENT_STATUS_RESPOND",
     RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED = "RTSL_ZEB_OS_INCIDENT_STATUS_CLOSED",
     RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED = "RTSL_ZEB_OS_INCIDENT_STATUS_DISCARDED",
-}
-
-export enum DataSource {
-    RTSL_ZEB_OS_DATA_SOURCE_IBS = "RTSL_ZEB_OS_DATA_SOURCE_IBS",
-    RTSL_ZEB_OS_DATA_SOURCE_EBS = "RTSL_ZEB_OS_DATA_SOURCE_EBS",
-}
-
-export enum CasesDataSource {
-    RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR = "RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR",
-    RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF = "RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF",
 }
 
 type DateWithNarrative = {
@@ -49,15 +27,25 @@ type DateWithNA = {
 };
 
 type EarlyResponseActions = {
-    initiateInvestigation: Date;
-    conductEpidemiologicalAnalysis: Date;
-    laboratoryConfirmation: Date;
+    initiateInvestigation: Maybe<Date>;
+    conductEpidemiologicalAnalysis: Maybe<Date>;
+    laboratoryConfirmation: Maybe<Date>;
     appropriateCaseManagement: DateWithNA;
     initiatePublicHealthCounterMeasures: DateWithNA;
     initiateRiskCommunication: DateWithNA;
     establishCoordination: DateWithNA;
     responseNarrative: string;
 };
+
+export enum DataSource {
+    ND1 = "ND1",
+    ND2 = "ND2",
+}
+
+export enum CasesDataSource {
+    RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR = "RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR",
+    RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF = "RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF",
+}
 
 export type CaseData = {
     updatedBy: Username;
@@ -74,12 +62,9 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     created?: Date;
     lastUpdated?: Date;
     createdByName: Maybe<string>;
-    dataSource: DataSource;
-    hazardType: Maybe<HazardType>;
     mainSyndromeCode: Maybe<Code>;
     suspectedDiseaseCode: Maybe<Code>;
     notificationSourceCode: Code;
-    incidentStatus: NationalIncidentStatus;
     emerged: DateWithNarrative;
     detected: DateWithNarrative;
     notified: DateWithNarrative;

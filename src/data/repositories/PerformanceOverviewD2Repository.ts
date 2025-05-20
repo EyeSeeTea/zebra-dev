@@ -3,6 +3,7 @@ import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { PerformanceOverviewRepository } from "../../domain/repositories/PerformanceOverviewRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
+    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID,
     RTSL_ZEBRA_PROGRAM_ID,
@@ -10,20 +11,17 @@ import {
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import {
-    EventTrackerCountIndicator,
+    EventTrackerCountDiseaseIndicator,
     PerformanceOverviewDimensions,
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
 import {
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEventBaseAttrs,
-    NationalIncidentStatus,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DataStoreClient } from "../DataStoreClient";
 import {
     TotalCardCounts,
-    HazardNames,
     PerformanceOverviewMetrics,
     DiseaseNames,
     PerformanceMetrics717,
@@ -44,7 +42,9 @@ import {
     AlertsPerformanceOverviewDimensionsKey,
     AlertsPerformanceOverviewDimensionsValue,
 } from "./consts/AlertsPerformanceOverviewConstants";
+import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
+import { VerificationStatus } from "../../domain/entities/alert/Alert";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -149,25 +149,17 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     mapActiveVerfiedAlertsToEventTrackerCountIndicator(
         activeVerifiedAlerts: Maybe<ProgramIndicatorsDatastore[]>
-    ): EventTrackerCountIndicator[] {
+    ): EventTrackerCountDiseaseIndicator[] {
         if (!activeVerifiedAlerts) return [];
         return _(
             activeVerifiedAlerts.map(activeVerified => {
                 if (activeVerified.disease === "ALL") return;
 
                 if (activeVerified.disease) {
-                    const eventTrackerCount: EventTrackerCountIndicator = {
+                    const eventTrackerCount: EventTrackerCountDiseaseIndicator = {
                         id: activeVerified.id,
                         type: "disease",
                         name: activeVerified.disease as DiseaseNames,
-                        incidentStatus: activeVerified.incidentStatus as IncidentStatus,
-                    };
-                    return eventTrackerCount;
-                } else {
-                    const eventTrackerCount: EventTrackerCountIndicator = {
-                        id: activeVerified.id,
-                        type: "hazard",
-                        name: activeVerified.hazardType as HazardNames,
                         incidentStatus: activeVerified.incidentStatus as IncidentStatus,
                     };
                     return eventTrackerCount;
@@ -179,7 +171,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     mapAnalyticsRowsToTotalCardCounts = (
-        eventTrackerCountsIndicatorMap: EventTrackerCountIndicator[],
+        eventTrackerCountsIndicatorMap: EventTrackerCountDiseaseIndicator[],
         rowData: string[][],
         filters?: Record<string, string>
     ): TotalCardCounts[] => {
@@ -190,16 +182,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     return null;
                 }
 
-                if (indicator.type === "hazard") {
-                    const hazardCount = {
-                        id: id,
-                        name: indicator.name,
-                        type: indicator.type,
-                        incidentStatus: indicator.incidentStatus,
-                        total: parseFloat(total),
-                    };
-                    return hazardCount;
-                } else {
+                if (indicator.type === "disease") {
                     const diseaseCount = {
                         id: id,
                         name: indicator.name,
@@ -218,13 +201,11 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             if (filters && Object.entries(filters).length) {
                 const matchesDisease =
                     !filters.disease || (item.type === "disease" && item.name === filters.disease);
-                const matchesHazard =
-                    !filters.hazard || (item.type === "hazard" && item.name === filters.hazard);
                 const matchesIncidentStatus = !filters.incidentStatus
                     ? item.incidentStatus === "ALL"
                     : item.incidentStatus === filters.incidentStatus;
 
-                return matchesDisease && matchesHazard && matchesIncidentStatus;
+                return matchesDisease && matchesIncidentStatus;
             }
             return true;
         });
@@ -458,7 +439,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             programId: RTSL_ZEBRA_PROGRAM_ID,
                             dimension: [
                                 performanceOverviewDimensions.suspectedDisease,
-                                performanceOverviewDimensions.hazardType,
                                 performanceOverviewDimensions.event,
                                 performanceOverviewDimensions.era1ProgramIndicator,
                                 performanceOverviewDimensions.era2ProgramIndicator,
@@ -467,10 +447,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 performanceOverviewDimensions.era5ProgramIndicator,
                                 performanceOverviewDimensions.era6ProgramIndicator,
                                 performanceOverviewDimensions.era7ProgramIndicator,
-                                performanceOverviewDimensions.detect7dProgramIndicator,
-                                performanceOverviewDimensions.notify1dProgramIndicator,
-                                performanceOverviewDimensions.respond7dProgramIndicator,
-                                performanceOverviewDimensions.eventSource,
                             ],
                             startDate: DEFAULT_START_DATE,
                             endDate: DEFAULT_END_DATE,
@@ -490,9 +466,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
                                 const keys = _(
                                     diseaseOutbreakEvents.map(
-                                        diseaseOutbreak =>
-                                            diseaseOutbreak.suspectedDiseaseCode ||
-                                            diseaseOutbreak.hazardType
+                                        diseaseOutbreak => diseaseOutbreak.suspectedDiseaseCode
                                     )
                                 )
                                     .compact()
@@ -521,12 +495,11 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 indicator => indicator.id === event.id
                                             );
 
-                                            const key =
-                                                event.hazardType || event.suspectedDiseaseCode;
+                                            const key = event.suspectedDiseaseCode;
                                             if (!key)
                                                 return Future.error(
                                                     new Error(
-                                                        `No hazard type or suspected disease found for event : ${event.id}`
+                                                        `No suspected disease found for event : ${event.id}`
                                                     )
                                                 );
                                             const currentEventTrackerOverview =
@@ -549,8 +522,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                     currentEventTrackerOverview?.deathsId
                                             );
 
+                                            //TODO: 8698prv94 - replace with correct
                                             const duration = `${moment()
-                                                .diff(moment(event.emerged.date), "days")
+                                                .diff(moment(event.created), "days")
                                                 .toString()}d`;
 
                                             if (!baseIndicator) {
@@ -560,7 +534,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                     incidentManagerUsername:
                                                         event.incidentManagerName,
                                                     duration: duration,
-                                                    nationalIncidentStatus: event.incidentStatus,
                                                     cases: currentCases?.value || "",
                                                     deaths: currentDeaths?.value || "",
                                                 } as PerformanceOverviewMetrics;
@@ -568,7 +541,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             } else {
                                                 const metrics = {
                                                     ...baseIndicator,
-                                                    nationalIncidentStatus: event.incidentStatus,
                                                     incidentManagerUsername:
                                                         event.incidentManagerName,
                                                     duration: duration,
@@ -589,6 +561,20 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.getAlertsPerformanceData({
+            filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:${VerificationStatus.RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED}`,
+        });
+    }
+
+    getMappedAlerts(diseaseOutbreakId: Id): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.getAlertsPerformanceData({
+            filter: `${RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID}:eq:${diseaseOutbreakId}`,
+        });
+    }
+
+    private getAlertsPerformanceData(options: {
+        filter: string;
+    }): FutureData<AlertsPerformanceOverviewMetrics[]> {
         return this.datastore
             .getObject<AlertsPerformanceOverviewDimensions>(
                 ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
@@ -606,7 +592,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.eventEBSId,
                                     performanceOverviewDimensions.eventIBSId,
                                     performanceOverviewDimensions.nationalDiseaseOutbreakEventId,
-                                    performanceOverviewDimensions.hazardType,
                                     performanceOverviewDimensions.suspectedDisease,
                                     performanceOverviewDimensions.cases,
                                     performanceOverviewDimensions.deaths,
@@ -621,7 +606,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 endDate: DEFAULT_END_DATE,
                                 paging: false,
                                 programStatus: "ACTIVE",
-                                filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED`,
+                                filter: options.filter,
                             }
                         )
                     ).flatMap(response => {
@@ -687,8 +672,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             .map(metrics => ({
                                 ...metrics,
                                 eventSource: metrics.eventEBSId
-                                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                                    ? AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                                    : AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                             }));
 
                         return Future.success(mappedIndicators);
@@ -872,19 +857,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         )?.name as DiseaseNames) || "";
                     break;
 
-                case "hazardType":
-                    acc.hazardType =
-                        ((
-                            Object.values(metaData.items).find(
-                                item => (item as any).code === row[index]
-                            ) as any
-                        )?.name as HazardNames) || "";
-                    break;
-
-                case "nationalIncidentStatus":
-                    acc.nationalIncidentStatus = row[index] as NationalIncidentStatus;
-                    break;
-
                 case "teiId":
                     acc.id = row[index];
                     break;
@@ -917,28 +889,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     acc.era7 = row[index];
                     break;
 
-                case "detect7dProgramIndicator":
-                    acc.detect7d = row[index];
-                    break;
-
-                case "notify1dProgramIndicator":
-                    acc.notify1d = row[index];
-                    break;
-
-                case "respond7dProgramIndicator":
-                    acc.respond7d = row[index];
-                    break;
-
                 case "date": {
                     const inputDate = row[index];
                     const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
                     acc.date = formattedDate;
                     break;
                 }
-
-                case "eventSource":
-                    acc.eventSource = row[index] as DataSource;
-                    break;
 
                 default:
                     acc[key] = row[index];

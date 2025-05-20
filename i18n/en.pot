@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-01-24T10:58:18.826Z\n"
-"PO-Revision-Date: 2025-01-24T10:58:18.826Z\n"
+"POT-Creation-Date: 2025-05-19T09:22:55.355Z\n"
+"PO-Revision-Date: 2025-05-19T09:22:55.355Z\n"
 
 msgid "Low"
 msgstr ""
@@ -144,9 +144,6 @@ msgstr ""
 msgid "The map with these filters could not be found."
 msgstr ""
 
-msgid "Map not found."
-msgstr ""
-
 msgid "Search"
 msgstr ""
 
@@ -213,16 +210,10 @@ msgstr ""
 msgid "Zebra Events Dashboard"
 msgstr ""
 
-msgid "Disease/Hazard Type"
+msgid "Disease"
 msgstr ""
 
 msgid "Province"
-msgstr ""
-
-msgid "Hazard Type"
-msgstr ""
-
-msgid "Disease"
 msgstr ""
 
 msgid "Organisation unit"
@@ -282,25 +273,22 @@ msgstr ""
 msgid "ERA7"
 msgstr ""
 
-msgid "Alert"
-msgstr ""
-
-msgid "Closed"
-msgstr ""
-
-msgid "Discarded"
-msgstr ""
-
-msgid "Respond"
-msgstr ""
-
-msgid "Watch"
-msgstr ""
-
 msgid "Event Tracker"
 msgstr ""
 
 msgid "Districts Affected"
+msgstr ""
+
+msgid "Select data source"
+msgstr ""
+
+msgid "Data Source"
+msgstr ""
+
+msgid "Risk Assessment"
+msgstr ""
+
+msgid "Risk Assessment Summary"
 msgstr ""
 
 msgid "Create Risk Assessment"
@@ -315,7 +303,22 @@ msgstr ""
 msgid "Risks associated with this event have not yet been assessed."
 msgstr ""
 
+msgid "Risk Assessment Grade"
+msgstr ""
+
 msgid "Add new Grade"
+msgstr ""
+
+msgid "Risk Assessment History"
+msgstr ""
+
+msgid "Overview"
+msgstr ""
+
+msgid "Cases and Deaths"
+msgstr ""
+
+msgid "Alerts"
 msgstr ""
 
 msgid "Complete event"

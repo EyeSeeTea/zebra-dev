@@ -11,7 +11,7 @@ export function useOverviewCards() {
     const currentEventTracker = getCurrentEventTracker();
 
     useEffect(() => {
-        const type = currentEventTracker?.suspectedDiseaseCode || currentEventTracker?.hazardType;
+        const type = currentEventTracker?.suspectedDiseaseCode;
         const casesDataSource = currentEventTracker?.casesDataSource;
 
         if (type && casesDataSource) {

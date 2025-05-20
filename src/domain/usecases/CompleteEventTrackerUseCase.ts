@@ -29,12 +29,7 @@ export class CompleteEventTrackerUseCase {
                     CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
                 ) {
                     const outbreakKey = getOutbreakKey({
-                        dataSource: diseaseOutbreakEvent.dataSource,
-                        outbreakValue:
-                            diseaseOutbreakEvent.suspectedDiseaseCode ||
-                            diseaseOutbreakEvent.hazardType,
-                        hazardTypes:
-                            configurations.selectableOptions.eventTrackerConfigurations.hazardTypes,
+                        outbreakValue: diseaseOutbreakEvent.suspectedDiseaseCode,
                         suspectedDiseases:
                             configurations.selectableOptions.eventTrackerConfigurations
                                 .suspectedDiseases,
