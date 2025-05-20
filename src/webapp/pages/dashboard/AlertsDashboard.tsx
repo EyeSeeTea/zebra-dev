@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useCallback } from "react";
 import styled from "styled-components";
 
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
@@ -64,9 +64,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
     const {
         selectorFiltersConfig,
         singleSelectFilters,
-        setSingleSelectFilters,
         multiSelectFilters,
-        setMultiSelectFilters,
         dateRangeFilter,
         cardCountsLoading,
         cardCounts,
@@ -75,9 +73,17 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         paginatedDataAlertsPerformanceOverview,
         totalPages,
         currentPage,
+        setFilters,
         goToPage,
         ...restAlertsPerformanceOverview
     } = props;
+
+    const {
+        onChangeDateRangeFilter,
+        onChangeMultiSelectFilter,
+        onChangeSingleSelectFilter,
+        onClickStatCard,
+    } = useAlertDashboardActions(props);
 
     return (
         <>
@@ -94,7 +100,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                                         placeholder={i18n.t(placeholder)}
                                         options={options || []}
                                         onChange={(values: string[]) =>
-                                            setMultiSelectFilters(id, values)
+                                            onChangeMultiSelectFilter(id, options, values)
                                         }
                                     />
                                 ) : (
@@ -105,7 +111,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                                         placeholder={i18n.t(placeholder)}
                                         selected={singleSelectFilters[id] || ""}
                                         onChange={(value: string) =>
-                                            setSingleSelectFilters(id, value)
+                                            onChangeSingleSelectFilter(id, value)
                                         }
                                         allowClear
                                     />
@@ -116,7 +122,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     <FilterContainer>
                         <DateRangePicker
                             value={dateRangeFilter.value || []}
-                            onChange={dateRangeFilter.onChange}
+                            onChange={onChangeDateRangeFilter}
                             placeholder={i18n.t("Select duration")}
                             label={i18n.t("Duration")}
                         />
@@ -129,6 +135,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                                 key={index}
                                 stat={cardCount.total.toString()}
                                 title={i18n.t(cardCount.name)}
+                                onClick={() => onClickStatCard(cardCount)}
                                 fillParent
                             />
                         ))}
@@ -165,6 +172,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     <StatisticTable
                         rows={dataAlertsPerformanceOverview}
                         paginatedRows={paginatedDataAlertsPerformanceOverview}
+                        setFilters={setFilters}
                         {...restAlertsPerformanceOverview}
                     />
                     <Pagination
@@ -177,6 +185,92 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         </>
     );
 });
+
+type AlertDashboardActionsState = {
+    onChangeDateRangeFilter: (value: string[]) => void;
+    onChangeMultiSelectFilter: (
+        id: SelectorFiltersConfig["id"],
+        options: SelectorFiltersConfig["options"],
+        values: string[]
+    ) => void;
+    onChangeSingleSelectFilter: (id: SelectorFiltersConfig["id"], value: string) => void;
+    onClickStatCard: (cardCount: TotalCardCounts) => void;
+};
+
+function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardActionsState {
+    const { dateRangeFilter, setFilters, setMultiSelectFilters, setSingleSelectFilters } = props;
+
+    const onClickStatCard = useCallback(
+        (cardCount: TotalCardCounts) => {
+            setSingleSelectFilters("disease", cardCount.name);
+            setFilters(prev => ({
+                ...prev,
+                event: [cardCount.name],
+            }));
+        },
+        [setFilters, setSingleSelectFilters]
+    );
+
+    const onChangeMultiSelectFilter = useCallback(
+        (
+            id: SelectorFiltersConfig["id"],
+            options: SelectorFiltersConfig["options"],
+            values: string[]
+        ) => {
+            setMultiSelectFilters(id, values);
+
+            switch (id) {
+                case "province":
+                    setFilters(prev => ({
+                        ...prev,
+                        province: values.map(
+                            value => options.find(option => option.value === value)?.label || ""
+                        ),
+                    }));
+                    break;
+                default:
+                    break;
+            }
+        },
+        [setFilters, setMultiSelectFilters]
+    );
+
+    const onChangeSingleSelectFilter = useCallback(
+        (id: SelectorFiltersConfig["id"], value: string) => {
+            setSingleSelectFilters(id, value);
+
+            switch (id) {
+                case "disease":
+                    setFilters(prev => ({
+                        ...prev,
+                        event: [value],
+                    }));
+                    break;
+                default:
+                    break;
+            }
+        },
+        [setFilters, setSingleSelectFilters]
+    );
+
+    const onChangeDateRangeFilter = useCallback(
+        (value: string[]) => {
+            dateRangeFilter.onChange(value);
+            setFilters(prev => ({
+                ...prev,
+                date: value,
+            }));
+        },
+        [dateRangeFilter, setFilters]
+    );
+
+    return {
+        onChangeDateRangeFilter: onChangeDateRangeFilter,
+        onChangeMultiSelectFilter: onChangeMultiSelectFilter,
+        onChangeSingleSelectFilter: onChangeSingleSelectFilter,
+        onClickStatCard: onClickStatCard,
+    };
+}
 
 const GridWrapper = styled.div`
     width: 100%;
