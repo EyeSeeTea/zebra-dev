@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-05-19T09:22:55.355Z\n"
-"PO-Revision-Date: 2025-05-19T09:22:55.355Z\n"
+"POT-Creation-Date: 2025-05-20T12:27:07.822Z\n"
+"PO-Revision-Date: 2025-05-20T12:27:07.822Z\n"
 
 msgid "Low"
 msgstr ""
@@ -198,9 +198,6 @@ msgstr ""
 msgid "7-1-7 performance"
 msgstr ""
 
-msgid "events"
-msgstr ""
-
 msgid "Performance overview"
 msgstr ""
 
@@ -208,6 +205,9 @@ msgid "eIDSR Alerts Dashboard"
 msgstr ""
 
 msgid "Zebra Events Dashboard"
+msgstr ""
+
+msgid "events"
 msgstr ""
 
 msgid "Disease"
@@ -276,6 +276,9 @@ msgstr ""
 msgid "Event Tracker"
 msgstr ""
 
+msgid "Alerts"
+msgstr ""
+
 msgid "Districts Affected"
 msgstr ""
 
@@ -316,9 +319,6 @@ msgid "Overview"
 msgstr ""
 
 msgid "Cases and Deaths"
-msgstr ""
-
-msgid "Alerts"
 msgstr ""
 
 msgid "Complete event"
