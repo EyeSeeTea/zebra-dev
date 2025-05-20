@@ -61,8 +61,6 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
             { label: i18n.t("Province"), value: "province" },
             { label: i18n.t("Organisation unit"), value: "orgUnit" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType" },
-            { label: i18n.t("Cases"), value: "cases" },
-            { label: i18n.t("Deaths"), value: "deaths" },
             { label: i18n.t("Duration"), value: "duration" },
             { label: i18n.t("Manager"), value: "incidentManager" },
             { label: i18n.t("Detect 7d"), dark: true, value: "detect7d" },

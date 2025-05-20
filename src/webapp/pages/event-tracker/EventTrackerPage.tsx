@@ -114,6 +114,23 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 globalMessage={globalMessage}
                 isCasesDataUserDefined={isCasesDataUserDefined}
             />
+            <LoaderContainer loading={alertsPerformanceOverviewLoading}>
+                <Section title={i18n.t("Alerts")} hasSeparator={true} titleVariant="secondary">
+                    <StatisticTableWrapper>
+                        <StatisticTable
+                            rows={dataAlertsPerformanceOverview}
+                            paginatedRows={paginatedDataAlertsPerformanceOverview}
+                            {...restAlertsPerformanceOverview}
+                        />
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={currentPage}
+                            onChange={goToPage}
+                        />
+                    </StatisticTableWrapper>
+                </Section>
+            </LoaderContainer>
+
             <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
                 <FiltersSection>
                     <FilterContainer>
@@ -287,23 +304,6 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     )}
                 </GridWrapper>
             </Section>
-            <LoaderContainer loading={alertsPerformanceOverviewLoading}>
-                <Section title={i18n.t("Alerts")} hasSeparator={true} titleVariant="secondary">
-                    <StatisticTableWrapper>
-                        <StatisticTable
-                            rows={dataAlertsPerformanceOverview}
-                            paginatedRows={paginatedDataAlertsPerformanceOverview}
-                            {...restAlertsPerformanceOverview}
-                        />
-                        <Pagination
-                            totalPages={totalPages}
-                            currentPage={currentPage}
-                            onChange={goToPage}
-                        />
-                    </StatisticTableWrapper>
-                </Section>
-            </LoaderContainer>
-
             <SimpleModal
                 open={openCompleteModal}
                 onClose={onCloseCompleteModal}
