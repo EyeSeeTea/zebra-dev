@@ -160,7 +160,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "COVID19",
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
-                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
                 cases: "22",
@@ -180,7 +180,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "COVID19",
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
-                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
                 cases: "5",
@@ -200,7 +200,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "Acute VHF",
                 nationalDiseaseOutbreakEventId: "LALS50e9Zea",
                 date: "2024-08-27",
-                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
             },
         ]);
     }
