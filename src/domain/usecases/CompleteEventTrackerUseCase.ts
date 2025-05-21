@@ -6,6 +6,7 @@ import {
     DiseaseOutbreakEvent,
 } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../entities/generic/Future";
+import { AlertRepository } from "../repositories/AlertRepository";
 import { CasesFileRepository } from "../repositories/CasesFileRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 
@@ -14,6 +15,7 @@ export class CompleteEventTrackerUseCase {
         private options: {
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
             casesFileRepository: CasesFileRepository;
+            alertRepository: AlertRepository;
         }
     ) {}
 
@@ -24,20 +26,24 @@ export class CompleteEventTrackerUseCase {
         return this.options.diseaseOutbreakEventRepository
             .complete(diseaseOutbreakEvent.id)
             .flatMap(() => {
-                if (
-                    diseaseOutbreakEvent.casesDataSource ===
-                    CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
-                ) {
-                    const outbreakKey = getOutbreakKey({
-                        outbreakValue: diseaseOutbreakEvent.suspectedDiseaseCode,
-                        suspectedDiseases:
-                            configurations.selectableOptions.eventTrackerConfigurations
-                                .suspectedDiseases,
+                return this.options.alertRepository
+                    .updateAlertsPHEOCStatusByDiseaseOutbreakId(diseaseOutbreakEvent.id, "Alert")
+                    .flatMap(() => {
+                        if (
+                            diseaseOutbreakEvent.casesDataSource ===
+                            CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
+                        ) {
+                            const outbreakKey = getOutbreakKey({
+                                outbreakValue: diseaseOutbreakEvent.suspectedDiseaseCode,
+                                suspectedDiseases:
+                                    configurations.selectableOptions.eventTrackerConfigurations
+                                        .suspectedDiseases,
+                            });
+                            return this.options.casesFileRepository.delete(outbreakKey);
+                        } else {
+                            return Future.success(undefined);
+                        }
                     });
-                    return this.options.casesFileRepository.delete(outbreakKey);
-                } else {
-                    return Future.success(undefined);
-                }
             });
     }
 }

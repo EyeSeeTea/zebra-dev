@@ -34,4 +34,11 @@ export class AlertTestRepository implements AlertRepository {
             disease: "Disease",
         });
     }
+
+    updateAlertsPHEOCStatusByDiseaseOutbreakId(
+        _diseaseOutbreakId: Id,
+        _pheocStatus: IncidentStatus
+    ): FutureData<void> {
+        return Future.success(undefined);
+    }
 }

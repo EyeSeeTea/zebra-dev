@@ -213,6 +213,50 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
+    updateAlertsPHEOCStatusByDiseaseOutbreakId(
+        diseaseOutbreakId: Id,
+        pheocStatus: IncidentStatus
+    ): FutureData<void> {
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                ouMode: "DESCENDANTS",
+                filter: {
+                    id: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                    value: diseaseOutbreakId,
+                },
+            })
+        ).flatMap(trackedEntities => {
+            const trackedEntitiesToPost = trackedEntities.map(trackedEntity => ({
+                trackedEntity: trackedEntity.trackedEntity,
+                trackedEntityType: trackedEntity.trackedEntityType,
+                orgUnit: trackedEntity.orgUnit,
+                attributes: [
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
+                        value: PHEOCStatus[pheocStatus],
+                    },
+                ],
+            }));
+
+            if (trackedEntitiesToPost.length === 0) return Future.success(undefined);
+
+            return apiToFuture(
+                this.api.tracker.post(
+                    { importStrategy: "UPDATE" },
+                    { trackedEntities: trackedEntitiesToPost }
+                )
+            ).flatMap(saveResponse => {
+                if (saveResponse.status === "ERROR") {
+                    return Future.error(new Error("Error updating alerts PHEOC status."));
+                }
+
+                return Future.success(undefined);
+            });
+        });
+    }
+
     private mapIncidentStatusToOption(status: IncidentStatus): string {
         return incidentStatusOptionMap.get(status) || "";
     }

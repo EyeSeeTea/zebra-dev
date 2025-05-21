@@ -19,6 +19,10 @@ export interface AlertRepository {
     ): FutureData<void>;
     getIncidentStatusByAlert(alertId: Id): FutureData<Maybe<IncidentStatus>>;
     getAlertById(alertId: Id): FutureData<Alert>;
+    updateAlertsPHEOCStatusByDiseaseOutbreakId(
+        diseaseOutbreakId: Id,
+        pheocStatus: IncidentStatus
+    ): FutureData<void>;
 }
 
 export type OutbreakValueCode = string;

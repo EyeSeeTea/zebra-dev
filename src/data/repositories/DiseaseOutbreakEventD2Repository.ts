@@ -13,9 +13,6 @@ import {
 } from "./utils/DiseaseOutbreakMapper";
 import {
     RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID,
-    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-    RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
-    RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
 } from "./consts/DiseaseOutbreakConstants";
@@ -41,7 +38,6 @@ import {
 } from "./consts/CaseDataConstants";
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import _c from "../../domain/entities/generic/Collection";
-import { PHEOCStatus } from "../../domain/entities/alert/Alert";
 import { Maybe } from "../../utils/ts-utils";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
@@ -171,22 +167,19 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     }
 
     complete(id: Id): FutureData<void> {
-        return Future.joinObj({
-            alerts: this.updateAlertsWithPHEOCStatus(id),
-            enrollmentResponse: apiToFuture(
-                this.api.tracker.enrollments.get({
-                    fields: {
-                        enrollment: true,
-                        enrolledAt: true,
-                        occurredAt: true,
-                    },
-                    trackedEntity: id,
-                    enrolledBefore: new Date().toISOString(),
-                    program: RTSL_ZEBRA_PROGRAM_ID,
-                    orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                })
-            ),
-        }).flatMap(({ enrollmentResponse }) => {
+        return apiToFuture(
+            this.api.tracker.enrollments.get({
+                fields: {
+                    enrollment: true,
+                    enrolledAt: true,
+                    occurredAt: true,
+                },
+                trackedEntity: id,
+                enrolledBefore: new Date().toISOString(),
+                program: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+            })
+        ).flatMap(enrollmentResponse => {
             const currentEnrollment = enrollmentResponse.instances[0];
             const currentEnrollmentId = currentEnrollment?.enrollment;
             if (!currentEnrollment || !currentEnrollmentId) {
@@ -235,47 +228,6 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                     return outbreak;
                 }
             });
-    }
-
-    private updateAlertsWithPHEOCStatus(
-        diseaseOutbreakId: Id
-    ): FutureData<D2TrackerTrackedEntity[]> {
-        return Future.fromPromise(
-            getAllTrackedEntitiesAsync(this.api, {
-                programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
-                ouMode: "DESCENDANTS",
-                filter: {
-                    id: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                    value: diseaseOutbreakId,
-                },
-            })
-        ).flatMap(trackedEntities => {
-            const trackedEntitiesToPost = trackedEntities.map(trackedEntity => ({
-                trackedEntity: trackedEntity.trackedEntity,
-                trackedEntityType: trackedEntity.trackedEntityType,
-                orgUnit: trackedEntity.orgUnit,
-                attributes: [
-                    {
-                        attribute: RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
-                        value: PHEOCStatus.Alert,
-                    },
-                ],
-            }));
-
-            if (trackedEntitiesToPost.length === 0) return Future.success([]);
-
-            return apiToFuture(
-                this.api.tracker.post(
-                    { importStrategy: "UPDATE" },
-                    { trackedEntities: trackedEntitiesToPost }
-                )
-            ).flatMap(saveResponse => {
-                if (saveResponse.status === "ERROR")
-                    return Future.error(new Error("Error updating alerts."));
-                else return Future.success(trackedEntitiesToPost);
-            });
-        });
     }
 
     private markCasesDataAsCompleted(diseaseOutbreakId: Id): FutureData<void> {
