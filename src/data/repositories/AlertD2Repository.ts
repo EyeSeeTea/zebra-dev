@@ -133,19 +133,30 @@ export class AlertD2Repository implements AlertRepository {
                 trackedEntity: alertId,
                 program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
                 enrollmentEnrolledBefore: new Date().toISOString(),
-                fields: { attributes: true },
+                fields: { orgUnit: true, attributes: true, enrollments: true },
             })
         ).flatMap(trackedEntityResponse => {
             const alertTrackedEntity = trackedEntityResponse.instances[0];
+
             if (!alertTrackedEntity) {
+                return Future.error(new Error(`Error fetching alert with id ${alertId}`));
+            }
+
+            const enrollment =
+                alertTrackedEntity.enrollments && alertTrackedEntity.enrollments[0]
+                    ? alertTrackedEntity.enrollments[0]
+                    : undefined;
+
+            if (!enrollment) {
                 return Future.error(new Error(`Error fetching alert with id ${alertId}`));
             }
 
             const disease = getAlertValueFromMap("suspectedDisease", alertTrackedEntity);
             const alert = {
-                id: alertTrackedEntity.trackedEntity || "",
+                id: alertId,
                 district: alertTrackedEntity.orgUnit || "",
                 disease: disease,
+                status: enrollment.status,
             };
 
             return Future.success(alert);

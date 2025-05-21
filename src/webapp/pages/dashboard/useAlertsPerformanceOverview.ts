@@ -206,12 +206,12 @@ export function useAlertsPerformanceOverview(): State {
                 .execute(alertId, orgUnitName, status)
                 .run(
                     () => {
-                        snackbar.info("Incident status updated successfully!");
+                        snackbar.info("PHEOC status updated successfully!");
                         setRefreshAlertsPerformanceOverviewMetrics({}); //trigger reload of data
                         setIsLoading(false);
                     },
                     error => {
-                        snackbar.error(`Error updating Incident status : ${error.message}`);
+                        snackbar.error(`Error while updating PHEOC status : ${error.message}`);
                         setIsLoading(false);
                     }
                 );

@@ -4,6 +4,7 @@ export type Alert = {
     id: Id;
     district: Id;
     disease: Code;
+    status?: "ACTIVE" | "COMPLETED" | "CANCELLED";
 };
 
 export enum VerificationStatus {

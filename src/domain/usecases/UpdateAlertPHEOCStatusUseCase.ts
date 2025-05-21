@@ -22,6 +22,14 @@ export class UpdateAlertPHEOCStatusUseCase {
             .updateAlertPHEOCStatus(alertId, orgUnitName, pheocStatus)
             .flatMap(() => {
                 return this.options.alertRepository.getAlertById(alertId).flatMap(alert => {
+                    if (alert.status !== "ACTIVE") {
+                        return Future.error(
+                            new Error(
+                                "This alert is not active and therefore the PHEOC status cannot be changed."
+                            )
+                        );
+                    }
+
                     const disease = alert.disease;
                     return this.options.diseaseOutbreakEventRepository
                         .getActiveByDisease(disease)
