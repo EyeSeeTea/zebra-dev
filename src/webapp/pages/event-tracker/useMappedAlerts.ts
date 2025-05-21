@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
-import _ from "../../../domain/entities/generic/Collection";
 import {
     FiltersConfig,
     FiltersValuesType,
@@ -94,8 +93,6 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
-            { label: i18n.t("Cases"), value: "cases", type: "text" },
-            { label: i18n.t("Deaths"), value: "deaths", type: "text" },
             { label: i18n.t("Duration"), value: "duration", type: "text" },
             { label: i18n.t("Manager"), value: "incidentManager", type: "text" },
             { label: i18n.t("Detect 7d"), dark: true, value: "detect7d", type: "text" },

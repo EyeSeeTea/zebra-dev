@@ -1,6 +1,7 @@
 import { OutbreakData } from "../../../domain/entities/alert/OutbreakAlert";
 import {
     CasesDataSource,
+    DataSource,
     DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -43,6 +44,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             incidentManagerName: "incidentManager",
             notes: undefined,
             casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+            dataSource: DataSource.ND1,
         });
     }
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
@@ -75,6 +77,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 incidentManagerName: "incidentManager",
                 notes: undefined,
                 casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                dataSource: DataSource.ND1,
             },
             {
                 id: "2",
@@ -104,6 +107,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 incidentManagerName: "incidentManager",
                 notes: undefined,
                 casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                dataSource: DataSource.ND1,
             },
         ]);
     }
@@ -137,6 +141,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 notes: undefined,
                 status: "ACTIVE",
                 casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                dataSource: DataSource.ND1,
             },
             {
                 id: "2",
@@ -166,6 +171,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 notes: undefined,
                 status: "COMPLETED",
                 casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                dataSource: DataSource.ND1,
             },
         ]);
     }

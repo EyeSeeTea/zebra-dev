@@ -17,6 +17,7 @@ import {
 import moment from "moment";
 import {
     CasesDataSource,
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DataStoreClient } from "../DataStoreClient";
@@ -79,6 +80,7 @@ type EventTrackerOverviewInDataStore = {
     confirmedCasesId: Id;
     deathsId: Id;
     probableCasesId: Id;
+    dataSource?: keyof typeof DataSource;
 };
 
 type EventTrackerOverview = EventTrackerOverviewInDataStore & {
@@ -227,12 +229,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     private getEventTrackerOverviewIdsFromDatastore(
         type: string,
-        casesDataSource: CasesDataSource
-    ): FutureData<EventTrackerOverview> {
-        const datastoreKey =
-            casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
-                ? CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                : ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY;
+        dataSource: Maybe<DataSource>
+    ): FutureData<EventTrackerOverviewInDataStore> {
+        const datastoreKey = CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY;
 
         return this.datastore
             .getObject<EventTrackerOverviewInDataStore[]>(datastoreKey)
@@ -240,7 +239,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                 return assertOrError(nullableEventTrackerOverviewIds, datastoreKey).flatMap(
                     eventTrackerOverviewIds => {
                         const currentEventTrackerOverviewId = eventTrackerOverviewIds?.find(
-                            indicator => indicator.key === type
+                            indicator =>
+                                indicator.key === type &&
+                                (!dataSource || indicator.dataSource === dataSource)
                         );
 
                         if (!currentEventTrackerOverviewId)
@@ -251,7 +252,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             );
                         return Future.success({
                             ...currentEventTrackerOverviewId,
-                            casesDataSource: casesDataSource,
                         });
                     }
                 );
@@ -320,9 +320,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     getEventTrackerOverviewMetrics(
         type: string,
-        casesDataSource: CasesDataSource
+        dataSource?: DataSource
     ): FutureData<OverviewCard[]> {
-        return this.getEventTrackerOverviewIdsFromDatastore(type, casesDataSource).flatMap(
+        return this.getEventTrackerOverviewIdsFromDatastore(type, dataSource).flatMap(
             eventTrackerOverview => {
                 const { suspectedCasesId, probableCasesId, confirmedCasesId, deathsId } =
                     eventTrackerOverview;

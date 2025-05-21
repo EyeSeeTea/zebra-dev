@@ -275,6 +275,9 @@ msgstr ""
 msgid "Event Tracker"
 msgstr ""
 
+msgid "Alerts"
+msgstr ""
+
 msgid "Districts Affected"
 msgstr ""
 
@@ -315,9 +318,6 @@ msgid "Overview"
 msgstr ""
 
 msgid "Cases and Deaths"
-msgstr ""
-
-msgid "Alerts"
 msgstr ""
 
 msgid "Complete event"

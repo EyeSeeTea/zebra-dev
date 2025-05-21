@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 import { OverviewCard } from "../../../domain/entities/PerformanceOverview";
+import { useDataSourceFilter } from "./useDataSourceFilter";
 
 export function useOverviewCards() {
     const { compositionRoot } = useAppContext();
@@ -9,6 +10,7 @@ export function useOverviewCards() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
+    const dataSourceFilter = useDataSourceFilter();
 
     useEffect(() => {
         const type = currentEventTracker?.suspectedDiseaseCode;
@@ -16,21 +18,28 @@ export function useOverviewCards() {
 
         if (type && casesDataSource) {
             setIsLoading(true);
-            compositionRoot.performanceOverview.getOverviewCards.execute(type, casesDataSource).run(
-                overviewCards => {
-                    setIsLoading(false);
-                    setOverviewCards(overviewCards);
-                },
-                err => {
-                    setIsLoading(false);
-                    console.error(err);
-                }
-            );
+            compositionRoot.performanceOverview.getOverviewCards
+                .execute(type, dataSourceFilter.dataSource)
+                .run(
+                    overviewCards => {
+                        setIsLoading(false);
+                        setOverviewCards(overviewCards);
+                    },
+                    err => {
+                        setIsLoading(false);
+                        console.error(err);
+                    }
+                );
         }
-    }, [compositionRoot.performanceOverview.getOverviewCards, currentEventTracker]);
+    }, [
+        compositionRoot.performanceOverview.getOverviewCards,
+        currentEventTracker,
+        dataSourceFilter.dataSource,
+    ]);
 
     return {
         overviewCards,
         isLoading,
+        dataSourceFilter,
     };
 }

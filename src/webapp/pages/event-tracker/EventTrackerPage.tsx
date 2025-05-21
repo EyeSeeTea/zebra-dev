@@ -29,6 +29,7 @@ import { Selector } from "../../components/selector/Selector";
 import { StatisticTable } from "../../components/table/statistic-table/StatisticTable";
 import { Pagination } from "../../components/pagination/Pagination";
 import { useMappedAlerts } from "./useMappedAlerts";
+import { useDataSourceFilter } from "./useDataSourceFilter";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -63,16 +64,19 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
-    const { overviewCards, isLoading: areOverviewCardsLoading } = useOverviewCards();
     const theme = useTheme();
 
     const isCasesDataUserDefined =
         currentEventTracker?.casesDataSource ===
         CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
 
-    const { dateRangeFilter, dataSourceFilter: mapDataSourceFilter } =
-        useMapFilters(isCasesDataUserDefined);
-    const { dataSourceFilter: chartsDataSourceFilter } = useMapFilters(isCasesDataUserDefined);
+    const {
+        overviewCards,
+        isLoading: areOverviewCardsLoading,
+        dataSourceFilter: overviewDataSourceFilter,
+    } = useOverviewCards();
+    const { dateRangeFilter, dataSourceFilter: mapDataSourceFilter } = useMapFilters();
+    const chartsDataSourceFilter = useDataSourceFilter();
 
     const goToRiskSummaryForm = useCallback(() => {
         goTo(RouteName.CREATE_FORM, {
@@ -114,6 +118,23 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 globalMessage={globalMessage}
                 isCasesDataUserDefined={isCasesDataUserDefined}
             />
+            <LoaderContainer loading={alertsPerformanceOverviewLoading}>
+                <Section title={i18n.t("Alerts")} hasSeparator={true} titleVariant="secondary">
+                    <StatisticTableWrapper>
+                        <StatisticTable
+                            rows={dataAlertsPerformanceOverview}
+                            paginatedRows={paginatedDataAlertsPerformanceOverview}
+                            {...restAlertsPerformanceOverview}
+                        />
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={currentPage}
+                            onChange={goToPage}
+                        />
+                    </StatisticTableWrapper>
+                </Section>
+            </LoaderContainer>
+
             <Section title={i18n.t("Districts Affected")} titleVariant="secondary" hasSeparator>
                 <FiltersSection>
                     <FilterContainer>
@@ -230,16 +251,32 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             ) : null}
 
             <Section title={i18n.t("Overview")} hasSeparator={true} titleVariant="secondary">
-                <GridWrapper>
-                    {overviewCards?.map((card, index) => (
-                        <StyledStatsCard
-                            key={index}
-                            stat={card.value.toString()}
-                            title={i18n.t(card.name)}
-                            fillParent
-                        />
-                    ))}
-                </GridWrapper>
+                {!isCasesDataUserDefined && overviewDataSourceFilter.value && (
+                    <FiltersSection>
+                        <FilterContainer>
+                            <Selector
+                                id={"overview-filters-data-source"}
+                                options={overviewDataSourceFilter.options}
+                                placeholder={i18n.t("Select data source")}
+                                label={i18n.t("Data Source")}
+                                selected={overviewDataSourceFilter.value}
+                                onChange={overviewDataSourceFilter.onChange}
+                            />
+                        </FilterContainer>
+                    </FiltersSection>
+                )}
+                <LoaderContainer loading={areOverviewCardsLoading}>
+                    <GridWrapper>
+                        {overviewCards?.map((card, index) => (
+                            <StyledStatsCard
+                                key={index}
+                                stat={card.value.toString()}
+                                title={i18n.t(card.name)}
+                                fillParent
+                            />
+                        ))}
+                    </GridWrapper>
+                </LoaderContainer>
             </Section>
 
             <Section
@@ -251,7 +288,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     <FiltersSection>
                         <FilterContainer>
                             <Selector
-                                id={"filters-data-source"}
+                                id={"charts-filters-data-source"}
                                 options={chartsDataSourceFilter.options}
                                 placeholder={i18n.t("Select data source")}
                                 label={i18n.t("Data Source")}
@@ -287,23 +324,6 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     )}
                 </GridWrapper>
             </Section>
-            <LoaderContainer loading={alertsPerformanceOverviewLoading}>
-                <Section title={i18n.t("Alerts")} hasSeparator={true} titleVariant="secondary">
-                    <StatisticTableWrapper>
-                        <StatisticTable
-                            rows={dataAlertsPerformanceOverview}
-                            paginatedRows={paginatedDataAlertsPerformanceOverview}
-                            {...restAlertsPerformanceOverview}
-                        />
-                        <Pagination
-                            totalPages={totalPages}
-                            currentPage={currentPage}
-                            onChange={goToPage}
-                        />
-                    </StatisticTableWrapper>
-                </Section>
-            </LoaderContainer>
-
             <SimpleModal
                 open={openCompleteModal}
                 onClose={onCloseCompleteModal}
