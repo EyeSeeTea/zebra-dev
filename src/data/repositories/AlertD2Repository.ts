@@ -2,6 +2,7 @@ import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+    RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
 } from "./consts/DiseaseOutbreakConstants";
@@ -15,10 +16,20 @@ import { Alert, PHEOCStatus, VerificationStatus } from "../../domain/entities/al
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
 import { getAlertValueFromMap, outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
+import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+
+const ALERT_TRACKED_ENTITY_TYPE = "QH1LBzGrk5g";
+
+const incidentStatusOptionMap = new Map<IncidentStatus, string>([
+    ["Alert", "PHEOC_STATUS_ALERT"],
+    ["Respond", "PHEOC_STATUS_RESPOND"],
+    ["Watch", "PHEOC_STATUS_WATCH"],
+]);
 
 export class AlertD2Repository implements AlertRepository {
     constructor(private api: D2Api) {}
 
+    //TO DO : Remove this automatic mapping of alerts to disease as per R3 requirements.
     updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]> {
         const { eventId, outbreakValue } = alertOptions;
         const outbreakData = this.getAlertOutbreakData(outbreakValue);
@@ -50,6 +61,79 @@ export class AlertD2Repository implements AlertRepository {
                 else return Future.success(activeVerifiedAlerts);
             });
         });
+    }
+
+    updateAlertIncidentStatus(
+        alertId: Id,
+        orgUnitName: string,
+        status: IncidentStatus
+    ): FutureData<void> {
+        return apiToFuture(
+            this.api.models.organisationUnits.get({
+                fields: { id: true },
+                filter: { name: { eq: orgUnitName } },
+            })
+        ).flatMap(resp => {
+            if (!resp.objects[0]) {
+                return Future.error(
+                    new Error(`Error fetching organisation unit id for ${orgUnitName}`)
+                );
+            }
+            const orgUnitId = resp.objects[0].id;
+            const alertsToPost: D2TrackerTrackedEntity = {
+                trackedEntity: alertId,
+                trackedEntityType: ALERT_TRACKED_ENTITY_TYPE,
+                orgUnit: orgUnitId,
+                attributes: [
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
+                        value: this.mapIncidentStatusToOption(status),
+                    },
+                ],
+            };
+            return apiToFuture(
+                this.api.tracker.post(
+                    { importStrategy: "UPDATE" },
+                    { trackedEntities: [alertsToPost] }
+                )
+            ).flatMap(resp => {
+                if (resp.status === "ERROR")
+                    return Future.error(
+                        new Error(`Error updating alert incident status : ${resp.message}`)
+                    );
+                else return Future.success(undefined);
+            });
+        });
+    }
+
+    getIncidentStatusByAlert(alertId: Id): FutureData<Maybe<IncidentStatus>> {
+        return apiToFuture(
+            this.api.tracker.trackedEntities.get({
+                trackedEntity: alertId,
+                program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                enrollmentEnrolledBefore: new Date().toISOString(),
+                fields: { attributes: true },
+            })
+        ).flatMap(trackedEntityResponse => {
+            const status = trackedEntityResponse.instances[0]?.attributes?.find(
+                attr => attr.attribute === RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID
+            )?.value;
+
+            return Future.success(this.mapOptionToIncidentStatus(status));
+        });
+    }
+
+    private mapIncidentStatusToOption(status: IncidentStatus): string {
+        return incidentStatusOptionMap.get(status) || "";
+    }
+
+    private mapOptionToIncidentStatus(status: Maybe<string>): Maybe<IncidentStatus> {
+        if (!status) return undefined;
+
+        const incidentStatus = [...incidentStatusOptionMap.entries()].find(
+            ([, value]) => value === status
+        );
+        return incidentStatus ? incidentStatus[0] : undefined;
     }
 
     private getRespondAlertsToPost(

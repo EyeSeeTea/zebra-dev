@@ -25,7 +25,7 @@ import {
     PerformanceOverviewMetrics,
     DiseaseNames,
     PerformanceMetrics717,
-    IncidentStatus,
+    IncidentStatusFilter,
     PerformanceMetrics717Key,
     TotalPerformanceMetrics717,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
@@ -163,7 +163,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         id: activeVerified.id,
                         type: "disease",
                         name: activeVerified.disease as DiseaseNames,
-                        incidentStatus: activeVerified.incidentStatus as IncidentStatus,
+                        incidentStatus: activeVerified.incidentStatus as IncidentStatusFilter,
                     };
                     return eventTrackerCount;
                 }
