@@ -1,16 +1,48 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
-import _ from "../../../domain/entities/generic/Collection";
-import { FiltersConfig, TableColumn } from "../../components/table/statistic-table/StatisticTable";
+import {
+    FiltersConfig,
+    FiltersValuesType,
+    TableColumn,
+} from "../../components/table/statistic-table/StatisticTable";
 import { AlertsPerformanceOverviewMetrics } from "../../../domain/entities/alert/AlertsPerformanceOverviewMetrics";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import i18n from "../../../utils/i18n";
 import {
     AlertsPerformanceOverviewMetricsTableData,
-    State,
+    Order,
 } from "../dashboard/useAlertsPerformanceOverview";
 import { usePerformanceOverviewTable } from "../dashboard/usePerformanceOverviewTable";
 import { Id } from "../../../domain/entities/Ref";
+import { Maybe } from "../../../utils/ts-utils";
+import { AlertDataSource } from "../../../domain/entities/alert/Alert";
+import { Option } from "../../components/utils/option";
+
+type State = {
+    columns: TableColumn[];
+    dataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
+    paginatedDataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
+    columnRules: { [key: string]: number };
+    order: Maybe<Order>;
+    onOrderBy: (columnValue: string) => void;
+    isLoading: boolean;
+    searchTerm: string;
+    setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+    filtersConfig: FiltersConfig[];
+    filters: FiltersValuesType;
+    setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
+    filterOptions: (
+        column: string,
+        dataSource?: AlertDataSource
+    ) => { value: string; label: string }[];
+    totalPages: number;
+    currentPage: number;
+    goToPage: (event: React.ChangeEvent<unknown>, page: number) => void;
+    eventSourceOptions: Option[];
+    eventSourceSelected: string;
+    setEventSourceSelected: (selection: string) => void;
+    hasEventSourceFilter?: boolean;
+};
 
 export function useMappedAlerts(diseaseOutbreakId: Id): State {
     const {
@@ -57,18 +89,18 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
 
     const columns = useMemo<TableColumn[]>(
         () => [
-            { label: i18n.t("Disease"), value: "event" },
-            { label: i18n.t("Province"), value: "province" },
-            { label: i18n.t("Organisation unit"), value: "orgUnit" },
-            { label: i18n.t("Organisation unit type"), value: "orgUnitType" },
-            { label: i18n.t("Duration"), value: "duration" },
-            { label: i18n.t("Manager"), value: "incidentManager" },
-            { label: i18n.t("Detect 7d"), dark: true, value: "detect7d" },
-            { label: i18n.t("Notify 1d"), dark: true, value: "notify1d" },
-            { label: i18n.t("Respond 7d"), dark: true, value: "respond7d" },
-            { label: i18n.t("Incident Status"), value: "incidentStatus" },
-            { label: i18n.t("EMS Id"), value: "eventEBSId" },
-            { label: i18n.t("Outbreak Id"), value: "eventIBSId" },
+            { label: i18n.t("Disease"), value: "event", type: "text" },
+            { label: i18n.t("Province"), value: "province", type: "text" },
+            { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
+            { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
+            { label: i18n.t("Duration"), value: "duration", type: "text" },
+            { label: i18n.t("Manager"), value: "incidentManager", type: "text" },
+            { label: i18n.t("Detect 7d"), dark: true, value: "detect7d", type: "text" },
+            { label: i18n.t("Notify 1d"), dark: true, value: "notify1d", type: "text" },
+            { label: i18n.t("Respond 7d"), dark: true, value: "respond7d", type: "text" },
+            { label: i18n.t("Incident Status"), value: "incidentStatus", type: "text" },
+            { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
+            { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
         ],
         []
     );
