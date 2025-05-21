@@ -21,8 +21,8 @@ export class AlertTestRepository implements AlertRepository {
     }
     updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
         _alertId: Id,
-        _diseaseOutbreakId: Id,
-        _status: IncidentStatus
+        _status: IncidentStatus,
+        _diseaseOutbreakId?: Id
     ): FutureData<void> {
         return Future.success(undefined);
     }

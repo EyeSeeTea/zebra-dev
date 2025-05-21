@@ -165,8 +165,8 @@ export class AlertD2Repository implements AlertRepository {
 
     updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
         alertId: Id,
-        diseaseOutbreakId: Id,
-        pheocStatus: IncidentStatus
+        pheocStatus: IncidentStatus,
+        diseaseOutbreakId?: Id
     ): FutureData<void> {
         return apiToFuture(
             this.api.tracker.trackedEntities.get({
@@ -181,8 +181,16 @@ export class AlertD2Repository implements AlertRepository {
                 return Future.error(new Error(`Error fetching alert with id ${alertId}`));
             }
 
+            if (pheocStatus === "Respond" && !diseaseOutbreakId) {
+                return Future.error(
+                    new Error(
+                        `Error while updating PHEOC status to Respond in alert with id ${alertId}`
+                    )
+                );
+            }
+
             const updatedMappedDiseaseOutbreakEventId =
-                pheocStatus === "Respond" ? diseaseOutbreakId : "";
+                pheocStatus === "Respond" && diseaseOutbreakId ? diseaseOutbreakId : "";
 
             const updatedAlert: D2TrackerTrackedEntity = {
                 trackedEntity: alertId,

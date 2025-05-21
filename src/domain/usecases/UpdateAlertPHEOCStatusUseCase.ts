@@ -31,19 +31,28 @@ export class UpdateAlertPHEOCStatusUseCase {
                 .updateAlertPHEOCStatus(alertId, orgUnitName, pheocStatus)
                 .flatMap(() => {
                     const disease = alert.disease;
-                    return this.options.diseaseOutbreakEventRepository
-                        .getActiveByDisease(disease)
-                        .flatMap(maybeDiseaseOutbreakEvent => {
-                            if (maybeDiseaseOutbreakEvent) {
-                                return this.options.alertRepository.updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
-                                    alertId,
-                                    maybeDiseaseOutbreakEvent.id,
-                                    pheocStatus
-                                );
-                            } else {
-                                return Future.success(undefined);
-                            }
-                        });
+                    const isNeededToMapWithDiseaseOutbreakEventId = pheocStatus === "Respond";
+
+                    if (isNeededToMapWithDiseaseOutbreakEventId) {
+                        return this.options.diseaseOutbreakEventRepository
+                            .getActiveByDisease(disease)
+                            .flatMap(maybeDiseaseOutbreakEvent => {
+                                if (maybeDiseaseOutbreakEvent) {
+                                    return this.options.alertRepository.updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
+                                        alertId,
+                                        pheocStatus,
+                                        maybeDiseaseOutbreakEvent.id
+                                    );
+                                } else {
+                                    return Future.success(undefined);
+                                }
+                            });
+                    } else {
+                        return this.options.alertRepository.updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
+                            alertId,
+                            pheocStatus
+                        );
+                    }
                 });
         });
     }

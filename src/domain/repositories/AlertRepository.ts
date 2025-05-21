@@ -14,8 +14,8 @@ export interface AlertRepository {
     ): FutureData<void>;
     updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
         alertId: Id,
-        diseaseOutbreakId: Id,
-        pheocStatus: IncidentStatus
+        pheocStatus: IncidentStatus,
+        diseaseOutbreakId?: Id
     ): FutureData<void>;
     getIncidentStatusByAlert(alertId: Id): FutureData<Maybe<IncidentStatus>>;
     getAlertById(alertId: Id): FutureData<Alert>;
