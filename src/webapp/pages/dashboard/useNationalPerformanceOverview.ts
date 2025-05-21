@@ -86,6 +86,7 @@ export function useNationalPerformanceOverview(): State {
     const columns: TableColumn[] = useMemo(
         () => [
             { label: i18n.t("Event"), value: "event", type: "text" },
+            { label: i18n.t("Disease"), value: "suspectedDisease", type: "text" },
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Cases"), value: "cases", type: "text" },
             { label: i18n.t("Deaths"), value: "deaths", type: "text" },
