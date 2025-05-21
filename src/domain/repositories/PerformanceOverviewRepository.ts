@@ -1,7 +1,7 @@
 import { FutureData } from "../../data/api-futures";
 import { AlertsPerformanceOverviewMetrics } from "../entities/alert/AlertsPerformanceOverviewMetrics";
 import {
-    CasesDataSource,
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
@@ -29,6 +29,6 @@ export interface PerformanceOverviewRepository {
     getAlerts717Performance(): FutureData<PerformanceMetrics717[]>;
     getEventTrackerOverviewMetrics(
         type: string,
-        casesDataSource: CasesDataSource
+        dataSource?: DataSource
     ): FutureData<OverviewCard[]>;
 }
