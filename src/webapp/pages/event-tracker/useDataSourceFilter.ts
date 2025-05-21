@@ -1,8 +1,12 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../components/utils/option";
-import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import {
+    CasesDataSource,
+    DataSource,
+} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
+import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 
 export type DataSourceFiltersState = {
     onChange: (value: string) => void;
@@ -11,9 +15,17 @@ export type DataSourceFiltersState = {
     dataSource: Maybe<DataSource>;
 };
 
-export function useDataSourceFilter(isCasesDataUserDefined: boolean) {
+export function useDataSourceFilter() {
     const { configurations } = useAppContext();
-    const [dataSourceFilter, setDataSourceFilter] = useState(DataSource.ND1 as string);
+    const { getCurrentEventTracker } = useCurrentEventTracker();
+    const currentEventTracker = getCurrentEventTracker();
+
+    const isCasesDataUserDefined =
+        currentEventTracker?.casesDataSource ===
+        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
+
+    const defaultDataSource = (currentEventTracker?.dataSource || DataSource.ND1) as string;
+    const [dataSourceFilter, setDataSourceFilter] = useState(defaultDataSource);
 
     const dataSourceOptions = useMemo(
         () =>
