@@ -29,6 +29,8 @@ export const casesDataSourceMap: Record<string, CasesDataSource> = {
     RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF,
 };
 
+export const RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID = "jLvbkuvPdZ6";
+
 export const diseaseOutbreakCodes = {
     name: "RTSL_ZEB_TEA_EVENT_NAME",
     mainSyndrome: "RTSL_ZEB_TEA_MAIN_SYNDROME",

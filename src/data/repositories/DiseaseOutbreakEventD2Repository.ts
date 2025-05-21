@@ -6,12 +6,13 @@ import {
     DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { Id } from "../../domain/entities/Ref";
+import { Code, Id } from "../../domain/entities/Ref";
 import {
     mapDiseaseOutbreakEventToTrackedEntityAttributes,
     mapTrackedEntityAttributesToDiseaseOutbreak,
 } from "./utils/DiseaseOutbreakMapper";
 import {
+    RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID,
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
@@ -41,6 +42,7 @@ import {
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import _c from "../../domain/entities/generic/Collection";
 import { PHEOCStatus } from "../../domain/entities/alert/Alert";
+import { Maybe } from "../../utils/ts-utils";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -213,6 +215,26 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 }
             });
         });
+    }
+
+    getActiveByDisease(disease: Code): FutureData<Maybe<DiseaseOutbreakEventBaseAttrs>> {
+        return apiToFuture(
+            this.api.tracker.trackedEntities.get({
+                program: RTSL_ZEBRA_PROGRAM_ID,
+                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
+                fields: { attributes: true, trackedEntity: true, updatedAt: true },
+                filter: `${RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID}:eq:${disease}`,
+            })
+        )
+            .flatMap(response => assertOrError(response.instances[0], "Tracked entity"))
+            .map(trackedEntity => {
+                if (trackedEntity.inactive) return undefined;
+
+                const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                if (outbreak) {
+                    return outbreak;
+                }
+            });
     }
 
     private updateAlertsWithPHEOCStatus(

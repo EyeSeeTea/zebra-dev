@@ -5,8 +5,9 @@ import {
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../domain/entities/generic/Future";
-import { Id, ConfigLabel } from "../../../domain/entities/Ref";
+import { Id, ConfigLabel, Code } from "../../../domain/entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/DiseaseOutbreakEventRepository";
+import { Maybe } from "../../../utils/ts-utils";
 import { FutureData } from "../../api-futures";
 
 export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventRepository {
@@ -176,5 +177,8 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
     }
     getConfigStrings(): FutureData<ConfigLabel[]> {
         throw new Error("Method not implemented.");
+    }
+    getActiveByDisease(_disease: Code): FutureData<Maybe<DiseaseOutbreakEventBaseAttrs>> {
+        return Future.success(undefined);
     }
 }

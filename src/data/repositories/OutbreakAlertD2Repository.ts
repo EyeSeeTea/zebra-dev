@@ -13,7 +13,10 @@ import { FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
 import _ from "../../domain/entities/generic/Collection";
 import { getTEAttributeById } from "./utils/MetadataHelper";
-import { mapTrackedEntityAttributesToNotificationOptions } from "./utils/AlertOutbreakMapper";
+import {
+    getAlertValueFromMap,
+    mapTrackedEntityAttributesToNotificationOptions,
+} from "./utils/AlertOutbreakMapper";
 import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
 import { NotificationOptions } from "../../domain/repositories/NotificationRepository";
@@ -59,10 +62,13 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
         if (!trackedEntity.trackedEntity || !trackedEntity.orgUnit)
             throw new Error(`Alert data not found for ${outbreakData.value}`);
 
+        const disease = getAlertValueFromMap("suspectedDisease", trackedEntity);
+
         return {
             alert: {
                 id: trackedEntity.trackedEntity,
                 district: trackedEntity.orgUnit,
+                disease: disease,
             },
             outbreakData: outbreakData,
             notificationOptions: notificationOptions,

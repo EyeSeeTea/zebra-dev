@@ -1,6 +1,9 @@
+import { Code, Id } from "../Ref";
+
 export type Alert = {
-    id: string;
-    district: string;
+    id: Id;
+    district: Id;
+    disease: Code;
 };
 
 export enum VerificationStatus {
