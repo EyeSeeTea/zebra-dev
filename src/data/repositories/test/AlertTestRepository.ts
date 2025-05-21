@@ -6,7 +6,7 @@ import { AlertOptions, AlertRepository } from "../../../domain/repositories/Aler
 import { FutureData } from "../../api-futures";
 
 export class AlertTestRepository implements AlertRepository {
-    updateAlertIncidentStatus(
+    updateAlertPHEOCStatus(
         _alertId: Id,
         _orgUnit: string,
         _status: IncidentStatus
@@ -18,5 +18,27 @@ export class AlertTestRepository implements AlertRepository {
     }
     updateAlerts(_alertOptions: AlertOptions): FutureData<Alert[]> {
         return Future.success([]);
+    }
+    updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
+        _alertId: Id,
+        _status: IncidentStatus,
+        _diseaseOutbreakId?: Id
+    ): FutureData<void> {
+        return Future.success(undefined);
+    }
+
+    getAlertById(alertId: Id): FutureData<Alert> {
+        return Future.success({
+            id: alertId,
+            district: "District",
+            disease: "Disease",
+        });
+    }
+
+    updateAlertsPHEOCStatusByDiseaseOutbreakId(
+        _diseaseOutbreakId: Id,
+        _pheocStatus: IncidentStatus
+    ): FutureData<void> {
+        return Future.success(undefined);
     }
 }

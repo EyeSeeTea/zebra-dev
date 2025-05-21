@@ -35,6 +35,8 @@ export const dataSourceMap: Record<string, DataSource> = {
     ND2: DataSource.ND2,
 };
 
+export const RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID = "jLvbkuvPdZ6";
+
 export const diseaseOutbreakCodes = {
     name: "RTSL_ZEB_TEA_EVENT_NAME",
     mainSyndrome: "RTSL_ZEB_TEA_MAIN_SYNDROME",

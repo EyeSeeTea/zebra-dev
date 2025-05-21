@@ -84,8 +84,8 @@ import { ResourceFileTestRepository } from "./data/repositories/test/ResourceFil
 import { ResourceFileRepository } from "./domain/repositories/ResourceFileRepository";
 import { ResourceFileD2Repository } from "./data/repositories/ResourceFileD2Repository";
 import { GetResourceUserPermissionsUseCase } from "./domain/usecases/GetResourceUserPermissionsUseCase";
-import { UpdateAlertIncidentStatusUseCase } from "./domain/usecases/UpdateAlertIncidentStatusUseCase";
 import { GetMappedAlertsUseCase } from "./domain/usecases/GetMappedAlertsUseCase";
+import { UpdateAlertPHEOCStatusUseCase } from "./domain/usecases/UpdateAlertPHEOCStatusUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -155,9 +155,7 @@ function getCompositionRoot(repositories: Repositories) {
             getOverviewCards: new GetOverviewCardsUseCase(
                 repositories.performanceOverviewRepository
             ),
-            updateAlertIncidentStatus: new UpdateAlertIncidentStatusUseCase(
-                repositories.alertRepository
-            ),
+            updateAlertIncidentStatus: new UpdateAlertPHEOCStatusUseCase(repositories),
         },
         maps: {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),

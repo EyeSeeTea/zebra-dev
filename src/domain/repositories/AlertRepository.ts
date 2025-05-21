@@ -7,12 +7,22 @@ import { Id } from "../entities/Ref";
 export interface AlertRepository {
     //TO DO : Remove this automatic mapping of alerts to disease as per R3 requirements.
     updateAlerts(alertOptions: AlertOptions): FutureData<Alert[]>;
-    updateAlertIncidentStatus(
+    updateAlertPHEOCStatus(
         alertId: Id,
         orgUnitName: string,
-        status: IncidentStatus
+        pheocStatus: IncidentStatus
+    ): FutureData<void>;
+    updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
+        alertId: Id,
+        pheocStatus: IncidentStatus,
+        diseaseOutbreakId?: Id
     ): FutureData<void>;
     getIncidentStatusByAlert(alertId: Id): FutureData<Maybe<IncidentStatus>>;
+    getAlertById(alertId: Id): FutureData<Alert>;
+    updateAlertsPHEOCStatusByDiseaseOutbreakId(
+        diseaseOutbreakId: Id,
+        pheocStatus: IncidentStatus
+    ): FutureData<void>;
 }
 
 export type OutbreakValueCode = string;

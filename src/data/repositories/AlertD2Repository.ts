@@ -41,10 +41,14 @@ export class AlertD2Repository implements AlertRepository {
             filter: outbreakData,
         }).flatMap(alertTrackedEntities => {
             const alertsToPost = this.getRespondAlertsToPost(alertTrackedEntities, eventId);
-            const activeVerifiedAlerts = alertsToPost.map<Alert>(trackedEntity => ({
-                id: trackedEntity.trackedEntity || "",
-                district: trackedEntity.orgUnit || "",
-            }));
+            const activeVerifiedAlerts = alertsToPost.map<Alert>(trackedEntity => {
+                const disease = getAlertValueFromMap("suspectedDisease", trackedEntity);
+                return {
+                    id: trackedEntity.trackedEntity || "",
+                    district: trackedEntity.orgUnit || "",
+                    disease: disease,
+                };
+            });
 
             if (activeVerifiedAlerts.length === 0) return Future.success([]);
 
@@ -63,10 +67,10 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    updateAlertIncidentStatus(
+    updateAlertPHEOCStatus(
         alertId: Id,
         orgUnitName: string,
-        status: IncidentStatus
+        pheocStatus: IncidentStatus
     ): FutureData<void> {
         return apiToFuture(
             this.api.models.organisationUnits.get({
@@ -87,7 +91,7 @@ export class AlertD2Repository implements AlertRepository {
                 attributes: [
                     {
                         attribute: RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
-                        value: this.mapIncidentStatusToOption(status),
+                        value: this.mapIncidentStatusToOption(pheocStatus),
                     },
                 ],
             };
@@ -120,6 +124,144 @@ export class AlertD2Repository implements AlertRepository {
             )?.value;
 
             return Future.success(this.mapOptionToIncidentStatus(status));
+        });
+    }
+
+    getAlertById(alertId: Id): FutureData<Alert> {
+        return apiToFuture(
+            this.api.tracker.trackedEntities.get({
+                trackedEntity: alertId,
+                program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                enrollmentEnrolledBefore: new Date().toISOString(),
+                fields: { orgUnit: true, attributes: true, enrollments: true },
+            })
+        ).flatMap(trackedEntityResponse => {
+            const alertTrackedEntity = trackedEntityResponse.instances[0];
+
+            if (!alertTrackedEntity) {
+                return Future.error(new Error(`Error fetching alert with id ${alertId}`));
+            }
+
+            const enrollment =
+                alertTrackedEntity.enrollments && alertTrackedEntity.enrollments[0]
+                    ? alertTrackedEntity.enrollments[0]
+                    : undefined;
+
+            if (!enrollment) {
+                return Future.error(new Error(`Error fetching alert with id ${alertId}`));
+            }
+
+            const disease = getAlertValueFromMap("suspectedDisease", alertTrackedEntity);
+            const alert = {
+                id: alertId,
+                district: alertTrackedEntity.orgUnit || "",
+                disease: disease,
+                status: enrollment.status,
+            };
+
+            return Future.success(alert);
+        });
+    }
+
+    updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
+        alertId: Id,
+        pheocStatus: IncidentStatus,
+        diseaseOutbreakId?: Id
+    ): FutureData<void> {
+        return apiToFuture(
+            this.api.tracker.trackedEntities.get({
+                trackedEntity: alertId,
+                program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                enrollmentEnrolledBefore: new Date().toISOString(),
+                fields: { trackedEntityType: true, orgUnit: true },
+            })
+        ).flatMap(alertTrackedEntityResponse => {
+            const alertTrackedEntity = alertTrackedEntityResponse.instances[0];
+            if (!alertTrackedEntity) {
+                return Future.error(new Error(`Error fetching alert with id ${alertId}`));
+            }
+
+            if (pheocStatus === "Respond" && !diseaseOutbreakId) {
+                return Future.error(
+                    new Error(
+                        `Error while updating PHEOC status to Respond in alert with id ${alertId}`
+                    )
+                );
+            }
+
+            const updatedMappedDiseaseOutbreakEventId =
+                pheocStatus === "Respond" && diseaseOutbreakId ? diseaseOutbreakId : "";
+
+            const updatedAlert: D2TrackerTrackedEntity = {
+                trackedEntity: alertId,
+                trackedEntityType: alertTrackedEntity.trackedEntityType,
+                orgUnit: alertTrackedEntity.orgUnit,
+                attributes: [
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                        value: updatedMappedDiseaseOutbreakEventId,
+                    },
+                ],
+            };
+
+            return apiToFuture(
+                this.api.tracker.post(
+                    { importStrategy: "UPDATE" },
+                    { trackedEntities: [updatedAlert] }
+                )
+            ).flatMap(response => {
+                if (response.status === "ERROR")
+                    return Future.error(
+                        new Error(
+                            `Error updating mapped disease outbreak event id in alert ${alertId} with new value: ${updatedMappedDiseaseOutbreakEventId}`
+                        )
+                    );
+                else return Future.success(undefined);
+            });
+        });
+    }
+
+    updateAlertsPHEOCStatusByDiseaseOutbreakId(
+        diseaseOutbreakId: Id,
+        pheocStatus: IncidentStatus
+    ): FutureData<void> {
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                ouMode: "DESCENDANTS",
+                filter: {
+                    id: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                    value: diseaseOutbreakId,
+                },
+            })
+        ).flatMap(trackedEntities => {
+            const trackedEntitiesToPost = trackedEntities.map(trackedEntity => ({
+                trackedEntity: trackedEntity.trackedEntity,
+                trackedEntityType: trackedEntity.trackedEntityType,
+                orgUnit: trackedEntity.orgUnit,
+                attributes: [
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
+                        value: PHEOCStatus[pheocStatus],
+                    },
+                ],
+            }));
+
+            if (trackedEntitiesToPost.length === 0) return Future.success(undefined);
+
+            return apiToFuture(
+                this.api.tracker.post(
+                    { importStrategy: "UPDATE" },
+                    { trackedEntities: trackedEntitiesToPost }
+                )
+            ).flatMap(saveResponse => {
+                if (saveResponse.status === "ERROR") {
+                    return Future.error(new Error("Error updating alerts PHEOC status."));
+                }
+
+                return Future.success(undefined);
+            });
         });
     }
 
