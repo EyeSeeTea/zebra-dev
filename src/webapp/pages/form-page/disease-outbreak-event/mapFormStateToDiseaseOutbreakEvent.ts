@@ -2,6 +2,7 @@ import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/Config
 import {
     DiseaseOutbreakEvent,
     CasesDataSource,
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Maybe } from "../../../../utils/ts-utils";
@@ -176,6 +177,7 @@ function getDiseaseOutbreakEventFromDiseaseOutbreakForm(
         created: diseaseOutbreakEvent?.created,
         lastUpdated: diseaseOutbreakEvent?.lastUpdated,
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
+        dataSource: diseaseOutbreakEvent?.dataSource || DataSource.ND1,
         ...diseaseOutbreakEventEditableData,
     };
     const newDiseaseOutbreakEvent = new DiseaseOutbreakEvent({

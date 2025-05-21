@@ -74,10 +74,9 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         overviewCards,
         isLoading: areOverviewCardsLoading,
         dataSourceFilter: overviewDataSourceFilter,
-    } = useOverviewCards(isCasesDataUserDefined);
-    const { dateRangeFilter, dataSourceFilter: mapDataSourceFilter } =
-        useMapFilters(isCasesDataUserDefined);
-    const chartsDataSourceFilter = useDataSourceFilter(isCasesDataUserDefined);
+    } = useOverviewCards();
+    const { dateRangeFilter, dataSourceFilter: mapDataSourceFilter } = useMapFilters();
+    const chartsDataSourceFilter = useDataSourceFilter();
 
     const goToRiskSummaryForm = useCallback(() => {
         goTo(RouteName.CREATE_FORM, {

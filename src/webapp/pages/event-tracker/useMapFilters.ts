@@ -10,9 +10,9 @@ export type MapFiltersState = {
     dataSourceFilter: DataSourceFiltersState;
 };
 
-export function useMapFilters(isCasesDataUserDefined: boolean): MapFiltersState {
+export function useMapFilters(): MapFiltersState {
     const [selectedRangeDateFilter, setSelectedRangeDateFilter] = useState<string[]>([]);
-    const dataSourceFilter = useDataSourceFilter(isCasesDataUserDefined);
+    const dataSourceFilter = useDataSourceFilter();
 
     return {
         dateRangeFilter: {

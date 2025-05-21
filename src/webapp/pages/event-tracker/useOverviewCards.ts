@@ -4,13 +4,13 @@ import { useCurrentEventTracker } from "../../contexts/current-event-tracker-con
 import { OverviewCard } from "../../../domain/entities/PerformanceOverview";
 import { useDataSourceFilter } from "./useDataSourceFilter";
 
-export function useOverviewCards(isCasesDataUserDefined: boolean) {
+export function useOverviewCards() {
     const { compositionRoot } = useAppContext();
     const [overviewCards, setOverviewCards] = useState<OverviewCard[]>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
-    const dataSourceFilter = useDataSourceFilter(isCasesDataUserDefined);
+    const dataSourceFilter = useDataSourceFilter();
 
     useEffect(() => {
         const type = currentEventTracker?.suspectedDiseaseCode;

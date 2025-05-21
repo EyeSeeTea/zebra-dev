@@ -1,5 +1,6 @@
 import {
     CasesDataSource,
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import _c from "../../../domain/entities/generic/Collection";
@@ -27,6 +28,11 @@ export const RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID = "KeUbzfFQYCX";
 export const casesDataSourceMap: Record<string, CasesDataSource> = {
     RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
     RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF,
+};
+
+export const dataSourceMap: Record<string, DataSource> = {
+    ND1: DataSource.ND1,
+    ND2: DataSource.ND2,
 };
 
 export const diseaseOutbreakCodes = {
@@ -58,6 +64,7 @@ export const diseaseOutbreakCodes = {
     incidentManager: "RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER",
     notes: "RTSL_ZEB_TEA_NOTES",
     casesDataSource: "RTSL_ZEB_TEA_CASE_DATA_SOURCE",
+    dataSource: "RTSL_ZEB_TEA_DEFAULT_DATA_SOURCE",
 } as const;
 
 export type DiseaseOutbreakCode = GetValue<typeof diseaseOutbreakCodes>;
@@ -139,6 +146,7 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
         RTSL_ZEB_TEA_CASE_DATA_SOURCE: diseaseOutbreak.casesDataSource,
+        RTSL_ZEB_TEA_DEFAULT_DATA_SOURCE: diseaseOutbreak.dataSource,
     };
 }
 
