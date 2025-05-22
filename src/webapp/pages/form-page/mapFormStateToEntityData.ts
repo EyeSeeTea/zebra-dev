@@ -57,7 +57,7 @@ export function mapFormStateToEntityData(
     switch (formData.type) {
         case "disease-outbreak-event":
         case "disease-outbreak-event-case-data": {
-            const dieaseEntity = mapFormStateToDiseaseOutbreakEvent(
+            const diseaseEntity = mapFormStateToDiseaseOutbreakEvent(
                 formState,
                 currentUserName,
                 formData
@@ -75,7 +75,7 @@ export function mapFormStateToEntityData(
 
             const diseaseForm: DiseaseOutbreakEventFormData = {
                 ...formData,
-                entity: dieaseEntity,
+                entity: diseaseEntity,
                 uploadedCasesDataFile: uploadedCasesDataFileValue,
                 uploadedCasesDataFileId: uploadedCasesDataFileId,
             };

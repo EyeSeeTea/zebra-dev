@@ -252,7 +252,7 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         return optionSet.options.map(
             (option): Option => ({
                 id: option.code,
-                name: option.name,
+                name: option.name.trim(),
             })
         );
     }
