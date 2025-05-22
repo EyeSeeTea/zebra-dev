@@ -87,7 +87,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 programId: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
                 filter: {
-                    id: RTSL_ZEBRA_DISEASE_TEA_ID,
+                    id: RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID,
                     value: filter.value,
                 },
             })
@@ -211,23 +211,13 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     }
 
     getActiveByDisease(disease: Code): FutureData<Maybe<DiseaseOutbreakEventBaseAttrs>> {
-        return apiToFuture(
-            this.api.tracker.trackedEntities.get({
-                program: RTSL_ZEBRA_PROGRAM_ID,
-                orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
-                fields: { attributes: true, trackedEntity: true, updatedAt: true },
-                filter: `${RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID}:eq:${disease}`,
-            })
-        )
-            .flatMap(response => assertOrError(response.instances[0], "Tracked entity"))
-            .map(trackedEntity => {
-                if (trackedEntity.inactive) return undefined;
-
-                const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
-                if (outbreak) {
-                    return outbreak;
-                }
-            });
+        return this.getEventByDisease({ type: "disease", value: disease }).map(diseaseOutbreaks => {
+            if (diseaseOutbreaks.length === 0) return undefined;
+            const activeDiseaseOutbreaks = diseaseOutbreaks.filter(
+                outbreak => outbreak.status === "ACTIVE"
+            );
+            return activeDiseaseOutbreaks[0];
+        });
     }
 
     private markCasesDataAsCompleted(diseaseOutbreakId: Id): FutureData<void> {
@@ -370,5 +360,3 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
 
     //TO DO : Implement delete/archive after requirement confirmation
 }
-
-const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";
