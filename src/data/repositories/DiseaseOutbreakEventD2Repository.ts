@@ -24,7 +24,7 @@ import {
 } from "./utils/MetadataHelper";
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
-import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
+import { getAllTrackedEntitiesAsync, programStatusOptions } from "./utils/getAllTrackedEntities";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import {
@@ -68,17 +68,17 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
             getAllTrackedEntitiesAsync(this.api, {
                 programId: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                programStatus: programStatusOptions.ACTIVE,
             })
-        ).map(trackedEntities => {
-            const filteredOutbreaks: DiseaseOutbreakEventBaseAttrs[] = _c(
+        ).map(trackedEntities =>
+            _c(
                 trackedEntities.map(trackedEntity =>
                     mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity)
                 )
             )
                 .compact()
-                .value();
-            return filteredOutbreaks.filter(outbreak => outbreak.status === "ACTIVE");
-        });
+                .value()
+        );
     }
 
     getEventByDisease(filter: OutbreakData): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
@@ -90,6 +90,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                     id: RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID,
                     value: filter.value,
                 },
+                programStatus: programStatusOptions.ACTIVE,
             })
         ).map(trackedEntities => {
             return _c(trackedEntities)
