@@ -58,7 +58,7 @@ export const Visualisation: React.FC<VisualisationProps> = React.memo(props => {
 const VisualisationIFrame = styled.iframe``;
 
 const styles: Record<string, React.CSSProperties> = {
-    wrapperVisible: { width: "100%", height: "80vh" },
+    wrapperVisible: { width: "100%", height: "80vh", maxHeight: "850px" },
     wrapperHidden: { visibility: "hidden", width: "100%" },
 };
 
