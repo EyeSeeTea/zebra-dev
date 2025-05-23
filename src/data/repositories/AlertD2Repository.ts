@@ -18,7 +18,11 @@ import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEnti
 import { Maybe } from "../../utils/ts-utils";
 import { Alert, PHEOCStatus, VerificationStatus } from "../../domain/entities/alert/Alert";
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
-import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
+import {
+    getAllTrackedEntitiesAsync,
+    ProgramStatus,
+    programStatusOptions,
+} from "./utils/getAllTrackedEntities";
 import { getAlertValueFromMap, outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
 import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { assertOrError } from "./utils/AssertOrError";
@@ -44,6 +48,7 @@ export class AlertD2Repository implements AlertRepository {
             orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
             ouMode: "DESCENDANTS",
             filter: outbreakData,
+            programStatus: programStatusOptions.ACTIVE,
         }).flatMap(alertTrackedEntities => {
             const alertsToPost = this.getRespondAlertsToPost(alertTrackedEntities, eventId);
             const activeVerifiedAlerts = alertsToPost.map<Alert>(trackedEntity => {
@@ -269,8 +274,9 @@ export class AlertD2Repository implements AlertRepository {
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
         filter: OutbreakData;
+        programStatus?: ProgramStatus;
     }): FutureData<D2TrackerTrackedEntity[]> {
-        const { program, orgUnit, ouMode, filter } = options;
+        const { program, orgUnit, ouMode, filter, programStatus } = options;
 
         return Future.fromPromise(
             getAllTrackedEntitiesAsync(this.api, {
@@ -281,6 +287,7 @@ export class AlertD2Repository implements AlertRepository {
                     id: this.getOutbreakFilterId(filter),
                     value: filter.value,
                 },
+                programStatus: programStatus,
             })
         );
     }
