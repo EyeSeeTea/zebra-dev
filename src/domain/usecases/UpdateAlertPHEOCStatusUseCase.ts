@@ -17,7 +17,7 @@ export class UpdateAlertPHEOCStatusUseCase {
 
     public execute(alertId: Id, pheocStatus: IncidentStatus): FutureData<void> {
         return this.fetchAndValidateAlert(alertId)
-            .flatMap(this.fetchAndValidateDiseaseOutbreakEventId(pheocStatus))
+            .flatMap(this.fetchAndValidateMaybeDiseaseOutbreakEventId(pheocStatus))
             .flatMap(this.updateStatus(alertId, pheocStatus));
     }
 
@@ -34,7 +34,7 @@ export class UpdateAlertPHEOCStatusUseCase {
         });
     };
 
-    private fetchAndValidateDiseaseOutbreakEventId =
+    private fetchAndValidateMaybeDiseaseOutbreakEventId =
         (pheocStatus: IncidentStatus) =>
         (alert: Alert): FutureData<Maybe<Id>> => {
             if (pheocStatus === "Respond") {
