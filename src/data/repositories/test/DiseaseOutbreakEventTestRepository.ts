@@ -1,6 +1,7 @@
 import { OutbreakData } from "../../../domain/entities/alert/OutbreakAlert";
 import {
     CasesDataSource,
+    DataSource,
     DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
