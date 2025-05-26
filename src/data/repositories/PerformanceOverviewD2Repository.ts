@@ -729,23 +729,50 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         );
     }
 
-    getAlerts717Performance(): FutureData<PerformanceMetrics717[]> {
+    getAlerts717Performance(diseaseName?: DiseaseNames): FutureData<PerformanceMetrics717[]> {
+        // use totals metric
+        const alertsTotal = 20;
+
         return this.get717PerformanceIndicators("alerts").flatMap(
             performance717ProgramIndicators => {
+                const filteredProgramIndicators = diseaseName
+                    ? performance717ProgramIndicators.filter(
+                          indicator => indicator.disease === diseaseName
+                      )
+                    : performance717ProgramIndicators.filter(indicator => !indicator.disease);
+                const analyticsDimension = `dx:${filteredProgramIndicators
+                    .map(({ id }) => id)
+                    .join(";")}`;
+
                 return apiToFuture(
                     this.api.analytics.get({
-                        dimension: [
-                            `dx:${performance717ProgramIndicators.map(({ id }) => id).join(";")}`,
-                        ],
+                        dimension: [analyticsDimension],
                         startDate: DEFAULT_START_DATE,
                         endDate: DEFAULT_END_DATE,
                         includeMetadataDetails: true,
                     })
                 ).map(res => {
-                    return this.mapIndicatorsTo717PerformanceMetrics(
+                    const performanceMetrics = this.mapIndicatorsTo717PerformanceMetrics(
                         res.rows,
                         performance717ProgramIndicators
                     );
+
+                    if (!diseaseName) return performanceMetrics;
+
+                    const secondaryDiseaseMetrics = performanceMetrics.filter(
+                        metric => metric.type === "secondary" && metric.disease === diseaseName
+                    );
+                    const primaryDiseaseMetrics =
+                        secondaryDiseaseMetrics.map<PerformanceMetrics717>(metric => ({
+                            ...metric,
+                            type: "primary",
+                            value:
+                                metric.value !== undefined && metric.value !== "Inc"
+                                    ? metric.value / alertsTotal
+                                    : "Inc",
+                        }));
+
+                    return [...primaryDiseaseMetrics, ...secondaryDiseaseMetrics];
                 });
             }
         );

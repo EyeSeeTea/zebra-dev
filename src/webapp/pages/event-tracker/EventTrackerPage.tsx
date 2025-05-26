@@ -75,7 +75,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
-    const { performanceMetrics717 } = use717Performance("event", id);
+    const { performanceMetrics717 } = use717Performance({
+        type: "event",
+        diseaseOutbreakEventId: id,
+    });
 
     useEffect(() => {
         if (eventTrackerDetails) {

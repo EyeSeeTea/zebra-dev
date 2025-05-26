@@ -1,5 +1,6 @@
 import { FutureData } from "../../data/api-futures";
 import {
+    DiseaseNames,
     PerformanceMetrics717,
     PerformanceMetrics717Key,
 } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
@@ -15,7 +16,8 @@ export class Get717PerformanceUseCase {
 
     public execute(
         type: PerformanceMetrics717Key,
-        diseaseOutbreakEventId: Id | undefined
+        diseaseOutbreakEventId: Id | undefined,
+        diseaseName?: DiseaseNames
     ): FutureData<PerformanceMetrics717[]> {
         if (type === "event" && diseaseOutbreakEventId) {
             return this.options.performanceOverviewRepository.getEvent717Performance(
@@ -24,7 +26,7 @@ export class Get717PerformanceUseCase {
         } else if (type === "national") {
             return this.options.performanceOverviewRepository.getNational717Performance();
         } else if (type === "alerts") {
-            return this.options.performanceOverviewRepository.getAlerts717Performance();
+            return this.options.performanceOverviewRepository.getAlerts717Performance(diseaseName);
         } else throw new Error(`Unknown 717 type: ${type} `);
     }
 }
