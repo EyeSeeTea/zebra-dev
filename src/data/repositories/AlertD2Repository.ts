@@ -6,7 +6,11 @@ import {
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
 } from "./consts/DiseaseOutbreakConstants";
-import { AlertOptions, AlertRepository } from "../../domain/repositories/AlertRepository";
+import {
+    AlertOptions,
+    AlertRepository,
+    UpdatePHEOCStatusOptions,
+} from "../../domain/repositories/AlertRepository";
 import { Id } from "../../domain/entities/Ref";
 import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
@@ -21,8 +25,7 @@ import {
 } from "./utils/getAllTrackedEntities";
 import { getAlertValueFromMap, outbreakTEAMapping } from "./utils/AlertOutbreakMapper";
 import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
-
-const ALERT_TRACKED_ENTITY_TYPE = "QH1LBzGrk5g";
+import { assertOrError } from "./utils/AssertOrError";
 
 const incidentStatusOptionMap = new Map<IncidentStatus, string>([
     ["Alert", "PHEOC_STATUS_ALERT"],
@@ -72,34 +75,29 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    updateAlertPHEOCStatus(
-        alertId: Id,
-        orgUnitName: string,
-        pheocStatus: IncidentStatus
-    ): FutureData<void> {
-        return apiToFuture(
-            this.api.models.organisationUnits.get({
-                fields: { id: true },
-                filter: { name: { eq: orgUnitName } },
-            })
-        ).flatMap(resp => {
-            if (!resp.objects[0]) {
-                return Future.error(
-                    new Error(`Error fetching organisation unit id for ${orgUnitName}`)
-                );
-            }
-            const orgUnitId = resp.objects[0].id;
+    updateAlertPHEOCStatus(options: UpdatePHEOCStatusOptions): FutureData<void> {
+        const { alertId, pheocStatus, diseaseOutbreakId } = options;
+
+        return this._getAlertTrackedEntityById(alertId, {
+            trackedEntityType: true,
+            orgUnit: true,
+        }).flatMap(alertTrackedEntity => {
             const alertsToPost: D2TrackerTrackedEntity = {
                 trackedEntity: alertId,
-                trackedEntityType: ALERT_TRACKED_ENTITY_TYPE,
-                orgUnit: orgUnitId,
+                trackedEntityType: alertTrackedEntity.trackedEntityType,
+                orgUnit: alertTrackedEntity.orgUnit,
                 attributes: [
                     {
                         attribute: RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
                         value: this.mapIncidentStatusToOption(pheocStatus),
                     },
+                    {
+                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                        value: diseaseOutbreakId ?? "",
+                    },
                 ],
             };
+
             return apiToFuture(
                 this.api.tracker.post(
                     { importStrategy: "UPDATE" },
@@ -133,20 +131,11 @@ export class AlertD2Repository implements AlertRepository {
     }
 
     getAlertById(alertId: Id): FutureData<Alert> {
-        return apiToFuture(
-            this.api.tracker.trackedEntities.get({
-                trackedEntity: alertId,
-                program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                enrollmentEnrolledBefore: new Date().toISOString(),
-                fields: { orgUnit: true, attributes: true, enrollments: true },
-            })
-        ).flatMap(trackedEntityResponse => {
-            const alertTrackedEntity = trackedEntityResponse.instances[0];
-
-            if (!alertTrackedEntity) {
-                return Future.error(new Error(`Error fetching alert with id ${alertId}`));
-            }
-
+        return this._getAlertTrackedEntityById(alertId, {
+            orgUnit: true,
+            attributes: true,
+            enrollments: true,
+        }).flatMap(alertTrackedEntity => {
             const enrollment =
                 alertTrackedEntity.enrollments && alertTrackedEntity.enrollments[0]
                     ? alertTrackedEntity.enrollments[0]
@@ -168,62 +157,20 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    updateMappedDiseaseOutbreakEventIdByPHEOCStatus(
-        alertId: Id,
-        pheocStatus: IncidentStatus,
-        diseaseOutbreakId?: Id
-    ): FutureData<void> {
+    private _getAlertTrackedEntityById(
+        id: Id,
+        fields?: AlertTrackerEntityFields
+    ): FutureData<D2TrackerTrackedEntity> {
         return apiToFuture(
             this.api.tracker.trackedEntities.get({
-                trackedEntity: alertId,
+                trackedEntity: id,
                 program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
                 enrollmentEnrolledBefore: new Date().toISOString(),
-                fields: { trackedEntityType: true, orgUnit: true },
+                fields: fields || alertTrackerEntityFields,
             })
-        ).flatMap(alertTrackedEntityResponse => {
-            const alertTrackedEntity = alertTrackedEntityResponse.instances[0];
-            if (!alertTrackedEntity) {
-                return Future.error(new Error(`Error fetching alert with id ${alertId}`));
-            }
-
-            if (pheocStatus === "Respond" && !diseaseOutbreakId) {
-                return Future.error(
-                    new Error(
-                        `Error while updating PHEOC status to Respond in alert with id ${alertId}`
-                    )
-                );
-            }
-
-            const updatedMappedDiseaseOutbreakEventId =
-                pheocStatus === "Respond" && diseaseOutbreakId ? diseaseOutbreakId : "";
-
-            const updatedAlert: D2TrackerTrackedEntity = {
-                trackedEntity: alertId,
-                trackedEntityType: alertTrackedEntity.trackedEntityType,
-                orgUnit: alertTrackedEntity.orgUnit,
-                attributes: [
-                    {
-                        attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                        value: updatedMappedDiseaseOutbreakEventId,
-                    },
-                ],
-            };
-
-            return apiToFuture(
-                this.api.tracker.post(
-                    { importStrategy: "UPDATE" },
-                    { trackedEntities: [updatedAlert] }
-                )
-            ).flatMap(response => {
-                if (response.status === "ERROR")
-                    return Future.error(
-                        new Error(
-                            `Error updating mapped disease outbreak event id in alert ${alertId} with new value: ${updatedMappedDiseaseOutbreakEventId}`
-                        )
-                    );
-                else return Future.success(undefined);
-            });
-        });
+        ).flatMap(response =>
+            assertOrError(response.instances[0], `Alert tracked entity with id ${id}`)
+        );
     }
 
     updateAlertsPHEOCStatusByDiseaseOutbreakId(
@@ -354,3 +301,11 @@ export class AlertD2Repository implements AlertRepository {
         };
     }
 }
+const alertTrackerEntityFields = {
+    orgUnit: true,
+    attributes: true,
+    enrollments: true,
+    trackedEntityType: true,
+} as const;
+
+type AlertTrackerEntityFields = Partial<typeof alertTrackerEntityFields>;
