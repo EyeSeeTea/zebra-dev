@@ -762,19 +762,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         });
     }
 
-    getAlerts717Performance(diseaseName: Maybe<DiseaseNames>): FutureData<PerformanceMetrics717[]> {
+    getAlerts717Performance(): FutureData<PerformanceMetrics717[]> {
         return Future.joinObj({
             performance717ProgramIndicators: this.get717PerformanceIndicators("alerts"),
             totalPerformance717ProgramIndicator:
                 this.getTotalPerformance717ProgramIndicator("alerts"),
         }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
-            const filteredProgramIndicators = diseaseName
-                ? performance717ProgramIndicators.filter(
-                      indicator => indicator.disease === diseaseName
-                  )
-                : performance717ProgramIndicators.filter(indicator => !indicator.disease);
             const performance717ProgramIndicatorIds = [
-                ...filteredProgramIndicators.map(({ id }) => id),
+                ...performance717ProgramIndicators.map(({ id }) => id),
                 totalPerformance717ProgramIndicator?.id,
             ];
 
@@ -786,25 +781,11 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     includeMetadataDetails: true,
                 })
             ).map(res => {
-                const performanceMetrics = this.mapIndicatorsTo717PerformanceMetrics(
+                return this.mapIndicatorsTo717PerformanceMetrics(
                     res.rows,
                     performance717ProgramIndicators,
                     totalPerformance717ProgramIndicator
                 );
-                if (!diseaseName) return performanceMetrics;
-
-                const secondaryDiseaseMetrics = performanceMetrics.filter(
-                    metric => metric.type === "secondary" && metric.disease === diseaseName
-                );
-                const primaryDiseaseMetrics = secondaryDiseaseMetrics.map<PerformanceMetrics717>(
-                    metric => ({
-                        ...metric,
-                        type: "primary",
-                        value: calculatePrimaryDiseaseValueFromSecondaryValue(metric),
-                    })
-                );
-
-                return [...primaryDiseaseMetrics, ...secondaryDiseaseMetrics];
             });
         });
     }
@@ -965,14 +946,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             return acc;
         }, {} as Partial<PerformanceOverviewMetrics>);
     }
-}
-
-function calculatePrimaryDiseaseValueFromSecondaryValue(
-    metric: PerformanceMetrics717
-): number | "Inc" {
-    return metric.value !== undefined && metric?.total !== undefined && metric.value !== "Inc"
-        ? parseFloat((metric.value / metric.total).toFixed(2))
-        : "Inc";
 }
 
 function filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(

@@ -5,6 +5,7 @@ import {
     PerformanceMetrics717,
     PerformanceMetrics717Key,
 } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { PerformanceOverviewRepository } from "../repositories/PerformanceOverviewRepository";
 
@@ -27,7 +28,32 @@ export class Get717PerformanceUseCase {
         } else if (type === "national") {
             return this.options.performanceOverviewRepository.getNational717Performance();
         } else if (type === "alerts") {
-            return this.options.performanceOverviewRepository.getAlerts717Performance(diseaseName);
+            return this.options.performanceOverviewRepository
+                .getAlerts717Performance()
+                .flatMap(performanceMetrics => {
+                    if (!diseaseName) return Future.success(performanceMetrics);
+
+                    const secondaryDiseaseMetrics = performanceMetrics.filter(
+                        metric => metric.type === "secondary" && metric.disease === diseaseName
+                    );
+
+                    const primaryDiseaseMetrics =
+                        secondaryDiseaseMetrics.map<PerformanceMetrics717>(metric => ({
+                            ...metric,
+                            type: "primary",
+                            value: calculatePrimaryDiseaseValueFromSecondaryValue(metric),
+                        }));
+
+                    return Future.success([...primaryDiseaseMetrics, ...secondaryDiseaseMetrics]);
+                });
         } else throw new Error(`Unknown 717 type: ${type} `);
     }
+}
+
+function calculatePrimaryDiseaseValueFromSecondaryValue(
+    metric: PerformanceMetrics717
+): number | "Inc" {
+    return metric.value !== undefined && metric?.total !== undefined && metric.value !== "Inc"
+        ? parseFloat((metric.value / metric.total).toFixed(2))
+        : "Inc";
 }
