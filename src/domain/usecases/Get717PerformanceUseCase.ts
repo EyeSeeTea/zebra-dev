@@ -1,4 +1,5 @@
 import { FutureData } from "../../data/api-futures";
+import { Maybe } from "../../utils/ts-utils";
 import {
     DiseaseNames,
     PerformanceMetrics717,
@@ -17,7 +18,7 @@ export class Get717PerformanceUseCase {
     public execute(
         type: PerformanceMetrics717Key,
         diseaseOutbreakEventId: Id | undefined,
-        diseaseName?: DiseaseNames
+        diseaseName: Maybe<DiseaseNames>
     ): FutureData<PerformanceMetrics717[]> {
         if (type === "event" && diseaseOutbreakEventId) {
             return this.options.performanceOverviewRepository.getEvent717Performance(

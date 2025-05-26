@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 import { StatsCardProps } from "../../components/stats-card/StatsCard";
@@ -105,11 +105,14 @@ export function use717Performance(options: {
         [getColor, type]
     );
 
+    const diseaseName = useMemo(() => {
+        return isDiseaseName(singleSelectFilters?.disease)
+            ? singleSelectFilters.disease
+            : undefined;
+    }, [singleSelectFilters?.disease]);
+
     useEffect(() => {
         setIsLoading(true);
-        const diseaseName = isDiseaseName(singleSelectFilters?.diseaseName)
-            ? singleSelectFilters?.diseaseName
-            : undefined;
 
         compositionRoot.performanceOverview.get717Performance
             .execute(type, diseaseOutbreakEventId, diseaseName)
@@ -125,8 +128,9 @@ export function use717Performance(options: {
             );
     }, [
         compositionRoot.performanceOverview.get717Performance,
+        diseaseName,
         diseaseOutbreakEventId,
-        singleSelectFilters?.diseaseName,
+        singleSelectFilters,
         transformData,
         type,
     ]);
