@@ -27,8 +27,6 @@ import { getAlertValueFromMap, outbreakTEAMapping } from "./utils/AlertOutbreakM
 import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { assertOrError } from "./utils/AssertOrError";
 
-const ALERT_TRACKED_ENTITY_TYPE = "QH1LBzGrk5g";
-
 const incidentStatusOptionMap = new Map<IncidentStatus, string>([
     ["Alert", "PHEOC_STATUS_ALERT"],
     ["Respond", "PHEOC_STATUS_RESPOND"],
