@@ -1,7 +1,7 @@
 import { FutureData } from "../../data/api-futures";
 import { AlertsPerformanceOverviewMetrics } from "../entities/alert/AlertsPerformanceOverviewMetrics";
 import {
-    CasesDataSource,
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import {
@@ -18,6 +18,7 @@ export interface PerformanceOverviewRepository {
         diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
     ): FutureData<PerformanceOverviewMetrics[]>;
     getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]>;
+    getMappedAlerts(diseaseOutbreakId: Id): FutureData<AlertsPerformanceOverviewMetrics[]>;
     getTotalCardCounts(
         allProvincesIds: string[],
         singleSelectFilters?: Record<string, string>,
@@ -29,6 +30,6 @@ export interface PerformanceOverviewRepository {
     getAlerts717Performance(diseaseName?: DiseaseNames): FutureData<PerformanceMetrics717[]>;
     getEventTrackerOverviewMetrics(
         type: string,
-        casesDataSource: CasesDataSource
+        dataSource?: DataSource
     ): FutureData<OverviewCard[]>;
 }

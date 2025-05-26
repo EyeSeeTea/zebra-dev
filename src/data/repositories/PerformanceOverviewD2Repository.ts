@@ -3,6 +3,7 @@ import { AnalyticsResponse, D2Api } from "../../types/d2-api";
 import { PerformanceOverviewRepository } from "../../domain/repositories/PerformanceOverviewRepository";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
+    RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID,
     RTSL_ZEBRA_PROGRAM_ID,
@@ -25,8 +26,9 @@ import {
     PerformanceOverviewMetrics,
     DiseaseNames,
     PerformanceMetrics717,
-    IncidentStatus,
+    IncidentStatusFilter,
     PerformanceMetrics717Key,
+    TotalPerformanceMetrics717,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
@@ -42,7 +44,9 @@ import {
     AlertsPerformanceOverviewDimensionsKey,
     AlertsPerformanceOverviewDimensionsValue,
 } from "./consts/AlertsPerformanceOverviewConstants";
+import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
+import { VerificationStatus } from "../../domain/entities/alert/Alert";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -64,6 +68,8 @@ const EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "event-tracker-717-performance-program-indicators";
 const ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "alerts-717-performance-program-indicators";
+const TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
+    "total-717-performance-program-indicators";
 const PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY = "performance-overview-dimensions";
 const ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY =
     "alerts-performance-overview-dimensions";
@@ -74,6 +80,7 @@ type EventTrackerOverviewInDataStore = {
     confirmedCasesId: Id;
     deathsId: Id;
     probableCasesId: Id;
+    dataSource?: keyof typeof DataSource;
 };
 
 type EventTrackerOverview = EventTrackerOverviewInDataStore & {
@@ -158,7 +165,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         id: activeVerified.id,
                         type: "disease",
                         name: activeVerified.disease as DiseaseNames,
-                        incidentStatus: activeVerified.incidentStatus as IncidentStatus,
+                        incidentStatus: activeVerified.incidentStatus as IncidentStatusFilter,
                     };
                     return eventTrackerCount;
                 }
@@ -222,12 +229,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     private getEventTrackerOverviewIdsFromDatastore(
         type: string,
-        casesDataSource: CasesDataSource
-    ): FutureData<EventTrackerOverview> {
-        const datastoreKey =
-            casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF
-                ? CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                : ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY;
+        dataSource: Maybe<DataSource>
+    ): FutureData<EventTrackerOverviewInDataStore> {
+        const datastoreKey = CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY;
 
         return this.datastore
             .getObject<EventTrackerOverviewInDataStore[]>(datastoreKey)
@@ -235,7 +239,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                 return assertOrError(nullableEventTrackerOverviewIds, datastoreKey).flatMap(
                     eventTrackerOverviewIds => {
                         const currentEventTrackerOverviewId = eventTrackerOverviewIds?.find(
-                            indicator => indicator.key === type
+                            indicator =>
+                                indicator.key === type &&
+                                (!dataSource || indicator.dataSource === dataSource)
                         );
 
                         if (!currentEventTrackerOverviewId)
@@ -246,7 +252,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             );
                         return Future.success({
                             ...currentEventTrackerOverviewId,
-                            casesDataSource: casesDataSource,
                         });
                     }
                 );
@@ -315,9 +320,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     getEventTrackerOverviewMetrics(
         type: string,
-        casesDataSource: CasesDataSource
+        dataSource?: DataSource
     ): FutureData<OverviewCard[]> {
-        return this.getEventTrackerOverviewIdsFromDatastore(type, casesDataSource).flatMap(
+        return this.getEventTrackerOverviewIdsFromDatastore(type, dataSource).flatMap(
             eventTrackerOverview => {
                 const { suspectedCasesId, probableCasesId, confirmedCasesId, deathsId } =
                     eventTrackerOverview;
@@ -559,6 +564,20 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.getAlertsPerformanceData({
+            filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:${VerificationStatus.RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED}`,
+        });
+    }
+
+    getMappedAlerts(diseaseOutbreakId: Id): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return this.getAlertsPerformanceData({
+            filter: `${RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID}:eq:${diseaseOutbreakId}`,
+        });
+    }
+
+    private getAlertsPerformanceData(options: {
+        filter: string;
+    }): FutureData<AlertsPerformanceOverviewMetrics[]> {
         return this.datastore
             .getObject<AlertsPerformanceOverviewDimensions>(
                 ALERTS_PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
@@ -590,7 +609,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 endDate: DEFAULT_END_DATE,
                                 paging: false,
                                 programStatus: "ACTIVE",
-                                filter: `${RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID}:eq:RTSL_ZEB_AL_OS_VERIFICATION_VERIFIED`,
+                                filter: options.filter,
                             }
                         )
                     ).flatMap(response => {
@@ -656,8 +675,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             .map(metrics => ({
                                 ...metrics,
                                 eventSource: metrics.eventEBSId
-                                    ? DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                                    : DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                                    ? AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                                    : AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                             }));
 
                         return Future.success(mappedIndicators);
@@ -688,45 +707,59 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     private mapIndicatorsTo717PerformanceMetrics(
         performanceMetric717Response: string[][],
-        metricIdList: PerformanceMetrics717[]
+        metricIdList: PerformanceMetrics717[],
+        totalPerformance717ProgramIndicator?: TotalPerformanceMetrics717
     ): PerformanceMetrics717[] {
+        const totalIndicatorValue = performanceMetric717Response.find(
+            ([id]) => id === totalPerformance717ProgramIndicator?.id
+        )?.[1];
+
         return _(
-            performanceMetric717Response.map(([id, value]) => {
-                const indicator = metricIdList.find(d => d.id === id);
+            performanceMetric717Response
+                .filter(([id]) => totalPerformance717ProgramIndicator?.id !== id)
+                .map(([id, value]) => {
+                    const indicator = metricIdList.find(d => d.id === id);
 
-                if (!indicator) throw new Error(`Unknown Indicator with id ${id} `);
+                    if (!indicator) throw new Error(`Unknown Indicator with id ${id} `);
 
-                return {
-                    ...indicator,
-                    value: value ? parseFloat(value) : ("Inc" as const),
-                    type: indicator.type,
-                };
-            })
+                    return {
+                        ...indicator,
+                        value: value ? parseFloat(value) : ("Inc" as const),
+                        type: indicator.type,
+                        total: totalIndicatorValue ? parseFloat(totalIndicatorValue) : undefined,
+                    };
+                })
         )
             .compact()
             .value();
     }
 
     getNational717Performance(): FutureData<PerformanceMetrics717[]> {
-        return this.get717PerformanceIndicators("national").flatMap(
-            performance717ProgramIndicators => {
-                return apiToFuture(
-                    this.api.analytics.get({
-                        dimension: [
-                            `dx:${performance717ProgramIndicators.map(({ id }) => id).join(";")}`,
-                        ],
-                        startDate: DEFAULT_START_DATE,
-                        endDate: DEFAULT_END_DATE,
-                        includeMetadataDetails: true,
-                    })
-                ).map(res => {
-                    return this.mapIndicatorsTo717PerformanceMetrics(
-                        res.rows,
-                        performance717ProgramIndicators
-                    );
-                });
-            }
-        );
+        return Future.joinObj({
+            performance717ProgramIndicators: this.get717PerformanceIndicators("national"),
+            totalPerformance717ProgramIndicator:
+                this.getTotalPerformance717ProgramIndicator("national"),
+        }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
+            const performance717ProgramIndicatorIds = [
+                ...performance717ProgramIndicators.map(({ id }) => id),
+                totalPerformance717ProgramIndicator?.id,
+            ];
+
+            return apiToFuture(
+                this.api.analytics.get({
+                    dimension: [`dx:${performance717ProgramIndicatorIds.join(";")}`],
+                    startDate: DEFAULT_START_DATE,
+                    endDate: DEFAULT_END_DATE,
+                    includeMetadataDetails: true,
+                })
+            ).map(res => {
+                return this.mapIndicatorsTo717PerformanceMetrics(
+                    res.rows,
+                    performance717ProgramIndicators,
+                    totalPerformance717ProgramIndicator
+                );
+            });
+        });
     }
 
     getAlerts717Performance(diseaseName?: DiseaseNames): FutureData<PerformanceMetrics717[]> {
@@ -840,6 +873,25 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         return Future.success(performance717ProgramIndicators);
                     }
                 );
+            });
+    }
+
+    private getTotalPerformance717ProgramIndicator(
+        key: PerformanceMetrics717Key
+    ): FutureData<Maybe<TotalPerformanceMetrics717>> {
+        return this.datastore
+            .getObject<TotalPerformanceMetrics717[]>(
+                TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+            )
+            .flatMap(nullable717TotalPerformanceIndicators => {
+                return assertOrError(
+                    nullable717TotalPerformanceIndicators,
+                    TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+                ).flatMap(performance717Indicators => {
+                    return Future.success(
+                        performance717Indicators.find(indicator => indicator.key === key)
+                    );
+                });
             });
     }
 

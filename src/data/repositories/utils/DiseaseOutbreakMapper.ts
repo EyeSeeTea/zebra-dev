@@ -1,5 +1,6 @@
 import {
     CasesDataSource,
+    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
@@ -13,6 +14,7 @@ import {
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
     casesDataSourceMap,
+    dataSourceMap,
 } from "../consts/DiseaseOutbreakConstants";
 import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2TrackedEntityAttributeSchema } from "../../../types/d2-api";
@@ -40,6 +42,8 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
     const casesDataSource =
         casesDataSourceMap[fromMap("casesDataSource")] ??
         CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR;
+
+    const dataSource = dataSourceMap[fromMap("dataSource")] ?? DataSource.ND1;
 
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
@@ -92,6 +96,7 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         },
         notes: fromMap("notes"),
         casesDataSource: casesDataSource,
+        dataSource: dataSource,
     };
 
     return diseaseOutbreak;

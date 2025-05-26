@@ -6,6 +6,14 @@ import {
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 
+export const programStatusOptions = {
+    ACTIVE: "ACTIVE",
+    COMPLETED: "COMPLETED",
+    CANCELLED: "CANCELLED",
+} as const;
+
+export type ProgramStatus = (typeof programStatusOptions)[keyof typeof programStatusOptions];
+
 export async function getAllTrackedEntitiesAsync(
     api: D2Api,
     options: {
@@ -13,9 +21,10 @@ export async function getAllTrackedEntitiesAsync(
         orgUnitId: Id;
         ouMode?: "SELECTED" | "DESCENDANTS";
         filter?: { id: string; value: Maybe<string> };
+        programStatus?: ProgramStatus;
     }
 ): Promise<D2TrackerTrackedEntity[]> {
-    const { programId, orgUnitId, ouMode, filter } = options;
+    const { programId, orgUnitId, ouMode, filter, programStatus } = options;
     const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
     const pageSize = 250;
@@ -34,6 +43,7 @@ export async function getAllTrackedEntitiesAsync(
                     pageSize: pageSize,
                     fields: fields,
                     filter: filter ? `${filter.id}:eq:${filter.value}` : undefined,
+                    ...(programStatus ? { programStatus } : {}),
                 })
                 .getData();
 
@@ -52,6 +62,7 @@ const fields = {
     orgUnit: true,
     trackedEntity: true,
     trackedEntityType: true,
+    inactive: true,
     enrollments: {
         status: true,
         events: {

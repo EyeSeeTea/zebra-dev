@@ -7,7 +7,7 @@ import {
     StatisticTableProps,
     TableColumn,
 } from "./StatisticTable";
-import { DataSource } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertDataSource } from "../../../../domain/entities/alert/Alert";
 
 export const useTableFilters = (
     rows: StatisticTableProps["rows"],
@@ -67,13 +67,12 @@ export const useTableFilters = (
     }, [allFiltersEmpty, filters, searchTerm, eventSourceSelected, rows, filtersConfig]);
 
     const eventSourceOptions = useMemo(() => {
-        const eventSources =
-            configurations.selectableOptions.eventTrackerConfigurations.dataSources.map(
-                dataSource => ({
-                    value: dataSource.id,
-                    label: dataSource.name,
-                })
-            );
+        const eventSources = configurations.selectableOptions.alertOptions.alertDataSources.map(
+            dataSource => ({
+                value: dataSource.id,
+                label: dataSource.name,
+            })
+        );
 
         if (!eventSourceSelected && !allFiltersEmpty) {
             return _(filteredRows)
@@ -90,13 +89,13 @@ export const useTableFilters = (
         return eventSources;
     }, [
         allFiltersEmpty,
-        configurations.selectableOptions.eventTrackerConfigurations.dataSources,
+        configurations.selectableOptions.alertOptions.alertDataSources,
         eventSourceSelected,
         filteredRows,
     ]);
 
     const filterOptions = useCallback(
-        (column: TableColumn["value"], dataSource?: DataSource) => {
+        (column: TableColumn["value"], dataSource?: AlertDataSource) => {
             return _(rows)
                 .compactMap(row => {
                     const columnValue = row[column]?.trim();

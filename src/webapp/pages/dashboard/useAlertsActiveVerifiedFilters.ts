@@ -12,6 +12,12 @@ export type SelectorFiltersConfig = {
     options: Option[];
 };
 
+export const incidentStatusOptions = [
+    { value: "Watch", label: "Watch" },
+    { value: "Alert", label: "Alert" },
+    { value: "Respond", label: "Respond" },
+];
+
 type State = {
     selectorFiltersConfig: SelectorFiltersConfig[];
     singleSelectFilters: Record<string, string>;
@@ -79,11 +85,7 @@ export function useAlertsActiveVerifiedFilters(): State {
                     label: "Incident Status",
                     placeholder: "Select Incident Status",
                     type: "singleselector",
-                    options: [
-                        { value: "Respond", label: "Respond" },
-                        { value: "Alert", label: "Alert" },
-                        { value: "Watch", label: "Watch" },
-                    ],
+                    options: incidentStatusOptions,
                 },
                 {
                     id: "disease",

@@ -5,10 +5,12 @@ export type MapProgramIndicator = {
     name: string;
     disease: string | null;
     incidentStatus: string | null;
+    dataSource: string | null;
 };
 
 export enum MapProgramIndicatorsDatastoreKey {
     ActiveVerifiedAlerts = "active-verified-alerts-program-indicators",
+    SuspectedCasesCasesProgram = "suspected-cases-cases-program-indicators",
 }
 
 export type MapConfig = {
@@ -21,7 +23,7 @@ export type MapConfig = {
     timeField: string;
     programIndicators: MapProgramIndicator[];
     zebraNamespace: "zebra";
-    dashboardDatastoreKey: MapProgramIndicatorsDatastoreKey.ActiveVerifiedAlerts;
+    mapProgramIndicatorDatastoreKey: MapProgramIndicatorsDatastoreKey;
 };
 
 export type MapKey = "dashboard" | "event_tracker";

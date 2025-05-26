@@ -20,6 +20,7 @@ export type PerformanceMetric717 = {
     primaryValue: number | "Inc";
     secondaryValue: number | "Inc";
     color: CardColors;
+    totalValue?: number;
 };
 export type PerformanceMetric717State = {
     performanceMetrics717: PerformanceMetric717[];
@@ -89,6 +90,7 @@ export function use717Performance(options: {
                         primaryValue: primaryValue,
                         secondaryValue: secondaryValue,
                         color: getColor(keyframes, primaryValue, type),
+                        totalValue: _(values).first()?.total,
                     };
                 })
                 .values();

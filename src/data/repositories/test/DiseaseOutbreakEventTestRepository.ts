@@ -5,8 +5,9 @@ import {
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Future } from "../../../domain/entities/generic/Future";
-import { Id, ConfigLabel } from "../../../domain/entities/Ref";
+import { Id, ConfigLabel, Code } from "../../../domain/entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../../../domain/repositories/DiseaseOutbreakEventRepository";
+import { Maybe } from "../../../utils/ts-utils";
 import { FutureData } from "../../api-futures";
 
 export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventRepository {
@@ -42,6 +43,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             incidentManagerName: "incidentManager",
             notes: undefined,
             casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+            dataSource: DataSource.ND1,
         });
     }
     getAll(): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
@@ -74,6 +76,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 incidentManagerName: "incidentManager",
                 notes: undefined,
                 casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                dataSource: DataSource.ND1,
             },
             {
                 id: "2",
@@ -103,6 +106,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 incidentManagerName: "incidentManager",
                 notes: undefined,
                 casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                dataSource: DataSource.ND1,
             },
         ]);
     }
@@ -136,6 +140,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 notes: undefined,
                 status: "ACTIVE",
                 casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                dataSource: DataSource.ND1,
             },
             {
                 id: "2",
@@ -165,6 +170,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
                 notes: undefined,
                 status: "COMPLETED",
                 casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                dataSource: DataSource.ND1,
             },
         ]);
     }
@@ -176,5 +182,8 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
     }
     getConfigStrings(): FutureData<ConfigLabel[]> {
         throw new Error("Method not implemented.");
+    }
+    getActiveByDisease(_disease: Code): FutureData<Maybe<DiseaseOutbreakEventBaseAttrs>> {
+        return Future.success(undefined);
     }
 }

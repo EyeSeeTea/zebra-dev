@@ -6,12 +6,16 @@ import {
     DiseaseOutbreakEvent,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { Id } from "../../domain/entities/Ref";
+import { Code, Id } from "../../domain/entities/Ref";
 import {
     mapDiseaseOutbreakEventToTrackedEntityAttributes,
     mapTrackedEntityAttributesToDiseaseOutbreak,
 } from "./utils/DiseaseOutbreakMapper";
-import { RTSL_ZEBRA_ORG_UNIT_ID, RTSL_ZEBRA_PROGRAM_ID } from "./consts/DiseaseOutbreakConstants";
+import {
+    RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID,
+    RTSL_ZEBRA_ORG_UNIT_ID,
+    RTSL_ZEBRA_PROGRAM_ID,
+} from "./consts/DiseaseOutbreakConstants";
 import { D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
     D2ProgramStageDataElement,
@@ -20,7 +24,7 @@ import {
 } from "./utils/MetadataHelper";
 import { assertOrError } from "./utils/AssertOrError";
 import { Future } from "../../domain/entities/generic/Future";
-import { getAllTrackedEntitiesAsync } from "./utils/getAllTrackedEntities";
+import { getAllTrackedEntitiesAsync, programStatusOptions } from "./utils/getAllTrackedEntities";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 import { D2TrackerEvent } from "@eyeseetea/d2-api/api/trackerEvents";
 import {
@@ -34,6 +38,7 @@ import {
 } from "./consts/CaseDataConstants";
 import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import _c from "../../domain/entities/generic/Collection";
+import { Maybe } from "../../utils/ts-utils";
 
 export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRepository {
     constructor(private api: D2Api) {}
@@ -63,17 +68,17 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
             getAllTrackedEntitiesAsync(this.api, {
                 programId: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                programStatus: programStatusOptions.ACTIVE,
             })
-        ).map(trackedEntities => {
-            const filteredOutbreaks: DiseaseOutbreakEventBaseAttrs[] = _c(
+        ).map(trackedEntities =>
+            _c(
                 trackedEntities.map(trackedEntity =>
                     mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity)
                 )
             )
                 .compact()
-                .value();
-            return filteredOutbreaks.filter(outbreak => outbreak.status === "ACTIVE");
-        });
+                .value()
+        );
     }
 
     getEventByDisease(filter: OutbreakData): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
@@ -82,19 +87,22 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 programId: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
                 filter: {
-                    id: RTSL_ZEBRA_DISEASE_TEA_ID,
+                    id: RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID,
                     value: filter.value,
                 },
+                programStatus: programStatusOptions.ACTIVE,
             })
         ).map(trackedEntities => {
-            return trackedEntities.map(trackedEntity => {
-                const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
-                if (!outbreak)
-                    throw new Error(
-                        "Error mapping disease outbreak, data source/incident status fields are missing"
-                    );
-                return outbreak;
-            });
+            return _c(trackedEntities)
+                .compactMap(trackedEntity => {
+                    if (trackedEntity.inactive) return undefined;
+
+                    const outbreak = mapTrackedEntityAttributesToDiseaseOutbreak(trackedEntity);
+                    if (!outbreak) return undefined;
+
+                    return outbreak;
+                })
+                .value();
         });
     }
 
@@ -200,6 +208,16 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                     );
                 }
             });
+        });
+    }
+
+    getActiveByDisease(disease: Code): FutureData<Maybe<DiseaseOutbreakEventBaseAttrs>> {
+        return this.getEventByDisease({ type: "disease", value: disease }).map(diseaseOutbreaks => {
+            if (diseaseOutbreaks.length === 0) return undefined;
+            const activeDiseaseOutbreaks = diseaseOutbreaks.filter(
+                outbreak => outbreak.status === "ACTIVE"
+            );
+            return activeDiseaseOutbreaks[0];
         });
     }
 
@@ -343,5 +361,3 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
 
     //TO DO : Implement delete/archive after requirement confirmation
 }
-
-const RTSL_ZEBRA_DISEASE_TEA_ID = "jLvbkuvPdZ6";

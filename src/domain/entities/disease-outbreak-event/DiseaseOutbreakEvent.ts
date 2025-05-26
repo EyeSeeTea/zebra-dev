@@ -38,8 +38,8 @@ type EarlyResponseActions = {
 };
 
 export enum DataSource {
-    RTSL_ZEB_OS_DATA_SOURCE_IBS = "RTSL_ZEB_OS_DATA_SOURCE_IBS",
-    RTSL_ZEB_OS_DATA_SOURCE_EBS = "RTSL_ZEB_OS_DATA_SOURCE_EBS",
+    ND1 = "ND1",
+    ND2 = "ND2",
 }
 
 export enum CasesDataSource {
@@ -72,6 +72,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     incidentManagerName: string;
     notes: Maybe<string>;
     casesDataSource: CasesDataSource;
+    dataSource: DataSource;
 };
 
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {

@@ -43,12 +43,18 @@ export type PerformanceOverviewMetrics = {
     incidentManagerUsername: string;
 };
 
-export type IncidentStatus = "Watch" | "Alert" | "Respond" | "ALL";
+const incidentStatuses = ["Watch", "Alert", "Respond"] as const;
+export type IncidentStatus = (typeof incidentStatuses)[number];
+export const isIncidentStatus = (status: string): status is IncidentStatus => {
+    return incidentStatuses.includes(status as IncidentStatus);
+};
+
+export type IncidentStatusFilter = IncidentStatus | "ALL";
 
 type BaseCounts = {
     name: DiseaseNames;
     total: number;
-    incidentStatus: IncidentStatus;
+    incidentStatus: IncidentStatusFilter;
     type: "disease";
 };
 
@@ -68,4 +74,12 @@ export type PerformanceMetrics717 = {
     value?: number | "Inc";
     key: PerformanceMetrics717Key;
     disease?: DiseaseNames;
+    total?: number;
+};
+
+export type TotalPerformanceMetrics717 = {
+    id: string;
+    type: "total";
+    value?: number | "Inc";
+    key: PerformanceMetrics717Key;
 };

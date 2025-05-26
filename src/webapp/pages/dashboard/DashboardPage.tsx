@@ -53,6 +53,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         totalPages,
         currentPage,
         goToPage,
+        updateAlertIncidentStatus,
         ...restAlertsPerformanceOverview
     } = useAlertsPerformanceOverview();
 
@@ -112,6 +113,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                     totalPages={totalPages}
                     currentPage={currentPage}
                     goToPage={goToPage}
+                    updateAlertIncidentStatus={updateAlertIncidentStatus}
                     {...restAlertsPerformanceOverview}
                 />
             ) : null}

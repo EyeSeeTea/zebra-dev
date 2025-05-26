@@ -7,7 +7,8 @@ import { SelectableOptions } from "../../domain/entities/AppConfigurations";
 import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
 
 const optionSetCode: Record<string, string> = {
-    dataSources: "RTSL_ZEB_OS_DATA_SOURCE",
+    alertDataSources: "RTSL_ZEB_OS_DATA_SOURCE",
+    dataSources: "RTSL_ZEB_OS_DEFAULT_DATA_SOURCE",
     mainSyndromes: "AGENTS",
     suspectedDiseases: "RTSL_ZEB_OS_DISEASE",
     notificationSources: "RTSL_ZEB_OS_SOURCE",
@@ -37,7 +38,14 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         ).flatMap(optionsResponse => {
             const selectableOptions = this.createEmptySelectableOptions();
             Object.entries(optionSetCode).map(([key, value]) => {
-                if (key === "dataSources") {
+                if (key === "alertDataSources") {
+                    const alertDataSources = optionsResponse.optionSets.find(
+                        optionSet => optionSet.code === value
+                    );
+                    if (alertDataSources)
+                        selectableOptions.alertOptions.alertDataSources =
+                            this.mapD2OptionSetToOptions(alertDataSources);
+                } else if (key === "dataSources") {
                     const dataSources = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
                     );
@@ -203,6 +211,9 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                 incidentManagers: [],
                 casesDataSource: [],
             },
+            alertOptions: {
+                alertDataSources: [],
+            },
             riskAssessmentGradingConfigurations: {
                 populationAtRisk: [],
                 lowMediumHigh: [],
@@ -241,7 +252,7 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         return optionSet.options.map(
             (option): Option => ({
                 id: option.code,
-                name: option.name,
+                name: option.name.trim(),
             })
         );
     }

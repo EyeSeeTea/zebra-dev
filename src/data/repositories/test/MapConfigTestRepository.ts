@@ -521,7 +521,7 @@ export class MapConfigTestRepository implements MapConfigRepository {
                 },
             ],
             zebraNamespace: "zebra",
-            dashboardDatastoreKey: "active-verified-alerts-program-indicators",
+            mapProgramIndicatorDatastoreKey: "active-verified-alerts-program-indicators",
         } as MapConfig);
     }
 }

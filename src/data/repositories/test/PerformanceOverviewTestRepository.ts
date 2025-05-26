@@ -1,5 +1,5 @@
 import { AlertsPerformanceOverviewMetrics } from "../../../domain/entities/alert/AlertsPerformanceOverviewMetrics";
-import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 import {
     DiseaseNames,
     PerformanceMetrics717,
@@ -98,7 +98,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "COVID19",
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
-                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
                 cases: "22",
@@ -118,7 +118,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "COVID19",
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
-                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
                 cases: "5",
@@ -138,7 +138,72 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "Acute VHF",
                 nationalDiseaseOutbreakEventId: "LALS50e9Zea",
                 date: "2024-08-27",
-                eventSource: DataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+            },
+        ]);
+    }
+
+    getMappedAlerts(_diseaseOutbreakId: Id): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        return Future.success([
+            {
+                cases: "1",
+                teiId: "n3zdthapNzC",
+                deaths: "3",
+                province: " ce Central Province ",
+                orgUnit: "Central Province",
+                orgUnitType: "Province",
+                detect7d: "",
+                duration: "158d",
+                notify1d: "3",
+                respond7d: "-2",
+                eventEBSId: "",
+                eventIBSId: "OUTBREAK_000005",
+                incidentStatus: "Watch",
+                incidentManager: "etst",
+                suspectedDisease: "COVID19",
+                nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
+                date: "2024-08-27",
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+            },
+            {
+                cases: "22",
+                teiId: "ZJylQsTku6z",
+                deaths: "1",
+                province: " ce Central Province ",
+                orgUnit: "Central Province",
+                orgUnitType: "Province",
+                detect7d: "",
+                duration: "139d",
+                notify1d: "1",
+                respond7d: "-1",
+                eventEBSId: "",
+                eventIBSId: "OUTBREAK_000011",
+                incidentStatus: "Watch",
+                incidentManager: "Zebra Test 1",
+                suspectedDisease: "COVID19",
+                nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
+                date: "2024-08-27",
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+            },
+            {
+                cases: "5",
+                teiId: "cOWooRCVHqa",
+                deaths: "5",
+                province: " ce Central Province ",
+                orgUnit: "Central Province",
+                orgUnitType: "Province",
+                detect7d: "2",
+                duration: "111d",
+                notify1d: "1",
+                respond7d: "-1",
+                eventEBSId: "12345",
+                eventIBSId: "",
+                incidentStatus: "Alert",
+                incidentManager: "Zebra Test 2",
+                suspectedDisease: "Acute VHF",
+                nationalDiseaseOutbreakEventId: "LALS50e9Zea",
+                date: "2024-08-27",
+                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
             },
         ]);
     }
