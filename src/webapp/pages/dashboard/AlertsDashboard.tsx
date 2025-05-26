@@ -268,7 +268,7 @@ function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardAc
                 case "disease":
                     setFilters(prev => ({
                         ...prev,
-                        event: [value],
+                        event: [value].filter(Boolean),
                     }));
                     break;
                 default:
