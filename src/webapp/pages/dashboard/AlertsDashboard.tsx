@@ -42,6 +42,7 @@ export type AlertsDashboardProps = {
     cardCountsLoading: boolean;
     cardCounts: TotalCardCounts[];
     alertsPerformanceMetrics717: PerformanceMetric717[];
+    alerts717CardsLoading: boolean;
     columns: TableColumn[];
     dataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
     paginatedDataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
@@ -73,6 +74,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         cardCountsLoading,
         cardCounts,
         alertsPerformanceMetrics717,
+        alerts717CardsLoading,
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
         totalPages,
@@ -175,21 +177,23 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                 />
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>
-                <GridWrapper>
-                    {alertsPerformanceMetrics717.map(
-                        (perfMetric717: PerformanceMetric717, index: number) => (
-                            <StatsCard
-                                key={index}
-                                stat={`${perfMetric717.primaryValue}`}
-                                title={perfMetric717.title}
-                                pretitle={formatStatCardPreTitle(perfMetric717)}
-                                color={perfMetric717.color}
-                                fillParent
-                                isPercentage
-                            />
-                        )
-                    )}
-                </GridWrapper>
+                <LoaderContainer loading={alerts717CardsLoading}>
+                    <GridWrapper>
+                        {alertsPerformanceMetrics717.map(
+                            (perfMetric717: PerformanceMetric717, index: number) => (
+                                <StatsCard
+                                    key={index}
+                                    stat={`${perfMetric717.primaryValue}`}
+                                    title={perfMetric717.title}
+                                    pretitle={formatStatCardPreTitle(perfMetric717)}
+                                    color={perfMetric717.color}
+                                    fillParent
+                                    isPercentage
+                                />
+                            )
+                        )}
+                    </GridWrapper>
+                </LoaderContainer>
             </Section>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>

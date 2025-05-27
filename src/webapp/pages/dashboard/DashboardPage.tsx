@@ -84,8 +84,7 @@ export const DashboardPage: React.FC = React.memo(() => {
 
     return performanceOverviewLoading ||
         alertsPerformanceOverviewLoading ||
-        national717CardsLoading ||
-        alerts717CardsLoading ? (
+        national717CardsLoading ? (
         <Loader />
     ) : (
         <Layout
@@ -108,6 +107,7 @@ export const DashboardPage: React.FC = React.memo(() => {
                     cardCountsLoading={cardCountsLoading}
                     cardCounts={cardCounts}
                     alertsPerformanceMetrics717={alertsPerformanceMetrics717}
+                    alerts717CardsLoading={alerts717CardsLoading}
                     dataAlertsPerformanceOverview={dataAlertsPerformanceOverview}
                     paginatedDataAlertsPerformanceOverview={paginatedDataAlertsPerformanceOverview}
                     totalPages={totalPages}
