@@ -152,7 +152,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                     )}
                     {filtersConfig.map(({ value, label, type }) => {
                         switch (type) {
-                            case "multiselector": {
+                            case "multiselector":
                                 return (
                                     <MultipleSelector
                                         id={`filters-${label}-${value}`}
@@ -168,7 +168,6 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                         }}
                                     />
                                 );
-                            }
                             case "datepicker":
                                 return (
                                     <DurationFilterContainer>
