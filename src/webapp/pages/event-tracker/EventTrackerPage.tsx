@@ -90,7 +90,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
-    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance("event", id);
+    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance({
+        type: "event",
+        diseaseOutbreakEventId: id,
+    });
     const {
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
