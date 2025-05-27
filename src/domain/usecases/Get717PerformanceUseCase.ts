@@ -30,23 +30,31 @@ export class Get717PerformanceUseCase {
         } else if (type === "alerts") {
             return this.options.performanceOverviewRepository
                 .getAlerts717Performance()
-                .flatMap(performanceMetrics => {
-                    if (!diseaseName) return Future.success(performanceMetrics);
-
-                    const secondaryDiseaseMetrics = performanceMetrics.filter(
-                        metric => metric.type === "secondary" && metric.disease === diseaseName
-                    );
-
-                    const primaryDiseaseMetrics =
-                        secondaryDiseaseMetrics.map<PerformanceMetrics717>(metric => ({
-                            ...metric,
-                            type: "primary",
-                            value: calculatePrimaryDiseaseValueFromSecondaryValue(metric),
-                        }));
-
-                    return Future.success([...primaryDiseaseMetrics, ...secondaryDiseaseMetrics]);
-                });
+                .flatMap(performanceMetrics =>
+                    this.getAlerts717PerformanceMetrics(diseaseName, performanceMetrics)
+                );
         } else throw new Error(`Unknown 717 type: ${type} `);
+    }
+
+    private getAlerts717PerformanceMetrics(
+        diseaseName: Maybe<DiseaseNames>,
+        performanceMetrics: PerformanceMetrics717[]
+    ): FutureData<PerformanceMetrics717[]> {
+        if (!diseaseName) return Future.success(performanceMetrics);
+
+        const secondaryDiseaseMetrics = performanceMetrics.filter(
+            metric => metric.type === "secondary" && metric.disease === diseaseName
+        );
+
+        const primaryDiseaseMetrics = secondaryDiseaseMetrics.map<PerformanceMetrics717>(
+            metric => ({
+                ...metric,
+                type: "primary",
+                value: calculatePrimaryDiseaseValueFromSecondaryValue(metric),
+            })
+        );
+
+        return Future.success([...primaryDiseaseMetrics, ...secondaryDiseaseMetrics]);
     }
 }
 
