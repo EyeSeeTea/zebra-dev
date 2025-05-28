@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useCallback } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
@@ -21,6 +21,7 @@ import { SelectorFiltersConfig } from "./useAlertsActiveVerifiedFilters";
 import {
     IncidentStatus,
     isIncidentStatus,
+    PerformanceMetricsStatus,
     TotalCardCounts,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { AlertsPerformanceOverviewMetricsTableData, Order } from "./useAlertsPerformanceOverview";
@@ -42,6 +43,7 @@ export type AlertsDashboardProps = {
     cardCountsLoading: boolean;
     cardCounts: TotalCardCounts[];
     alertsPerformanceMetrics717: PerformanceMetric717[];
+    alerts717CardsLoading: boolean;
     columns: TableColumn[];
     dataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
     paginatedDataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
@@ -62,6 +64,8 @@ export type AlertsDashboardProps = {
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, orgUnitName: string, status: IncidentStatus) => void;
+    performanceMetricsStatus: PerformanceMetricsStatus;
+    setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
 };
 
 export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props => {
@@ -75,12 +79,15 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         cardCountsLoading,
         cardCounts,
         alertsPerformanceMetrics717,
+        alerts717CardsLoading,
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
         totalPages,
         currentPage,
         goToPage,
         updateAlertIncidentStatus,
+        performanceMetricsStatus,
+        setPerformanceMetricsStatus,
         ...restAlertsPerformanceOverview
     } = props;
 
@@ -102,6 +109,13 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         },
         [updateAlertIncidentStatus]
     );
+
+    const performanceStatusOptions: Option<PerformanceMetricsStatus>[] = useMemo(() => {
+        return [
+            { value: "active", label: i18n.t("Active") },
+            { value: "completed", label: i18n.t("Completed") },
+        ];
+    }, []);
 
     return (
         <>
@@ -167,23 +181,36 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     dateRangeFilter={dateRangeFilter.value}
                 />
             </Section>
-            <Section title={i18n.t("7-1-7 performance")}>
-                <GridWrapper>
-                    {alertsPerformanceMetrics717.map(
-                        (perfMetric717: PerformanceMetric717, index: number) => (
-                            <StatsCard
-                                key={index}
-                                stat={`${perfMetric717.primaryValue}`}
-                                title={perfMetric717.title}
-                                pretitle={formatStatCardPreTitle(perfMetric717)}
-                                color={perfMetric717.color}
-                                fillParent
-                                isPercentage
-                            />
-                        )
-                    )}
-                </GridWrapper>
-            </Section>
+            <LoaderContainer loading={alerts717CardsLoading}>
+                <Section
+                    title={i18n.t("7-1-7 performance")}
+                    headerButtons={
+                        <Selector
+                            id={"performance-metrics-enrollment-status"}
+                            options={performanceStatusOptions}
+                            selected={performanceMetricsStatus}
+                            onChange={setPerformanceMetricsStatus}
+                            disableSearch
+                        />
+                    }
+                >
+                    <GridWrapper>
+                        {alertsPerformanceMetrics717.map(
+                            (perfMetric717: PerformanceMetric717, index: number) => (
+                                <StatsCard
+                                    key={index}
+                                    stat={`${perfMetric717.primaryValue}`}
+                                    title={perfMetric717.title}
+                                    pretitle={formatStatCardPreTitle(perfMetric717)}
+                                    color={perfMetric717.color}
+                                    fillParent
+                                    isPercentage
+                                />
+                            )
+                        )}
+                    </GridWrapper>
+                </Section>
+            </LoaderContainer>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>
                     <StatisticTable

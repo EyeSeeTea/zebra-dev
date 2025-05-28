@@ -77,3 +77,5 @@ export type TotalPerformanceMetrics717 = {
     value?: number | "Inc";
     key: PerformanceMetrics717Key;
 };
+
+export type PerformanceMetricsStatus = "active" | "completed";
