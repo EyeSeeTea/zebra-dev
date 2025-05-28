@@ -1,8 +1,9 @@
 import { FutureData } from "../../data/api-futures";
+import { Id } from "../entities/Ref";
 import { ResourceFileRepository } from "../repositories/ResourceFileRepository";
 import { ResourceRepository } from "../repositories/ResourceRepository";
 
-export class DeleteResourceFileUseCase {
+export class DeleteResourceUseCase {
     constructor(
         private options: {
             resourceRepository: ResourceRepository;
@@ -10,9 +11,9 @@ export class DeleteResourceFileUseCase {
         }
     ) {}
 
-    public execute(fileId: string): FutureData<void> {
-        return this.options.resourceFileRepository
-            .deleteResourceFile(fileId)
-            .flatMap(() => this.options.resourceRepository.deleteResource(fileId));
+    public execute(id: Id, fileId: Id): FutureData<void> {
+        return this.options.resourceRepository
+            .deleteById(id)
+            .flatMap(() => this.options.resourceFileRepository.deleteResourceFile(fileId));
     }
 }

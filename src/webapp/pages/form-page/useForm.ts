@@ -100,8 +100,6 @@ export function useForm(formType: FormType, id?: Id): State {
 
     const { onSaveResourceForm } = useResourceForm({
         editMode: !!id,
-        setOpenModal,
-        setModalData,
         setGlobalMessage,
         setIsLoading,
     });

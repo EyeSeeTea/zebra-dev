@@ -7,13 +7,13 @@ import { Id } from "../../../domain/entities/Ref";
 
 type ResourceFileProps = {
     resourceFileId: Maybe<Id>;
-    onDelete: () => void;
+    onDelete?: () => void;
 };
 
 type ResourceFileState = {
     globalMessage: Maybe<GlobalMessage>;
     resourceFile: Maybe<ResourceFile>;
-    deleteResource: (fileId: string) => void;
+    deleteResource: (id: Id, fileId: Id) => void;
 };
 
 export function useResourceFile(props: ResourceFileProps): ResourceFileState {
@@ -40,8 +40,12 @@ export function useResourceFile(props: ResourceFileProps): ResourceFileState {
     }, [compositionRoot.resources.downloadResourceFile, resourceFileId]);
 
     const deleteResource = useCallback(
-        (fileId: string) => {
-            return compositionRoot.resources.deleteResourceFile.execute(fileId).run(
+        (id: Id, fileId: Id) => {
+            if (!onDelete) {
+                return;
+            }
+
+            return compositionRoot.resources.delete.execute(id, fileId).run(
                 () => {
                     setResourceFile(undefined);
                     onDelete();
@@ -54,7 +58,7 @@ export function useResourceFile(props: ResourceFileProps): ResourceFileState {
                 }
             );
         },
-        [compositionRoot.resources.deleteResourceFile, onDelete]
+        [compositionRoot.resources.delete, onDelete]
     );
 
     return {
