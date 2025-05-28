@@ -4,32 +4,44 @@ import { RouteName, useRoutes } from "../../hooks/useRoutes";
 import { Maybe } from "../../../utils/ts-utils";
 import { GlobalMessage } from "../form-page/useForm";
 import {
+    DiseaseOutbreakEventDocument,
+    isDiseaseOutbreakEventDocument,
     isResponseDocument,
     isTemplate,
     Resource,
-    ResourceType,
     ResponseDocument,
     Template,
 } from "../../../domain/entities/resources/Resource";
-import { Id } from "../../../domain/entities/Ref";
 import _c from "../../../domain/entities/generic/Collection";
 import { ResourcePermissions } from "../../../domain/entities/resources/ResourcePermissions";
+import { DiseaseOutbreakEventBaseAttrs } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { Future } from "../../../domain/entities/generic/Future";
+import { Id } from "../../../domain/entities/Ref";
+import { ResourceType } from "../../../domain/entities/resources/ResourceTypeNamed";
+
+export type ResourcePresentationData = Resource & {
+    diseaseOutbreakEventName?: string;
+};
 
 export type ResponseDocumentsByFolder = {
+    resourceType: ResourceType.RESPONSE_DOCUMENT;
     resourceFolder: string;
-    resourceType: ResourceType;
-    resources: {
-        resourceFileId: Maybe<Id>;
-        resourceLabel: string;
-    }[];
+    resources: ResourcePresentationData[];
+};
+
+export type DiseaseOutbreakEventDocumentsByFolder = {
+    resourceFolder: string;
+    resourceType: ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
+    resources: ResourcePresentationData[];
 };
 
 export type ResourceData = {
     templates: Template[];
-    responseDocuments: ResponseDocumentsByFolder[];
+    responseDocumentsByFolder: ResponseDocumentsByFolder[];
+    diseaseOutbreakEventDocumentsByFolder: DiseaseOutbreakEventDocumentsByFolder[];
 };
 
-export function useResources() {
+export function useResources(diseaseOutbreakId?: Id) {
     const { goTo } = useRoutes();
     const { currentUser, compositionRoot } = useAppContext();
 
@@ -46,9 +58,17 @@ export function useResources() {
     }, [goTo]);
 
     const getResources = useCallback(() => {
-        compositionRoot.resources.get.execute().run(
-            resources => {
-                const resourceData: ResourceData = getResourceData(resources);
+        Future.joinObj({
+            resources: compositionRoot.resources.getAll.execute({
+                diseaseOutbreakId: diseaseOutbreakId,
+            }),
+            activeDiseaseOutbreakEvents: compositionRoot.diseaseOutbreakEvent.getAll.execute(),
+        }).run(
+            ({ resources, activeDiseaseOutbreakEvents }) => {
+                const resourceData: ResourceData = getResourceData(
+                    resources,
+                    activeDiseaseOutbreakEvents
+                );
                 setResources(resourceData);
                 setIsDeleting(false);
             },
@@ -59,7 +79,11 @@ export function useResources() {
                 });
             }
         );
-    }, [compositionRoot.resources.get]);
+    }, [
+        compositionRoot.diseaseOutbreakEvent.getAll,
+        compositionRoot.resources.getAll,
+        diseaseOutbreakId,
+    ]);
 
     const handleDelete = useCallback(() => {
         setIsDeleting(true);
@@ -110,26 +134,28 @@ const defaultUserPermissions = {
     isAccess: true,
 };
 
-function getResourceData(resources: Resource[]) {
-    const templates = resources.filter(resource => isTemplate(resource)) as Template[];
-    const resourceDocumentsByFolder = getResponseDocumentsByFolder(resources);
-
+function getResourceData(
+    resources: Resource[],
+    allActiveDiseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
+) {
     const resourceData: ResourceData = {
-        templates: templates,
-        responseDocuments: resourceDocumentsByFolder,
+        templates: resources.filter(isTemplate),
+        responseDocumentsByFolder: getResponseDocumentsByFolder(resources),
+        diseaseOutbreakEventDocumentsByFolder: getDiseaseOutbreakEventDocumentsByFolder(
+            resources,
+            allActiveDiseaseOutbreakEvents
+        ),
     };
     return resourceData;
 }
 
 function getResponseDocumentsByFolder(resources: Resource[]): ResponseDocumentsByFolder[] {
-    const responseDocuments = resources.filter(resource =>
-        isResponseDocument(resource)
-    ) as ResponseDocument[];
+    const responseDocuments: ResponseDocument[] = resources.filter(isResponseDocument);
     const groupedResources = _c(responseDocuments)
         .groupBy(responseDocument => responseDocument.resourceFolder)
         .values();
 
-    const responseDocumentsByFolder: ResponseDocumentsByFolder[] = _c(groupedResources)
+    const responseDocumentsByFolderByFolder: ResponseDocumentsByFolder[] = _c(groupedResources)
         .compactMap(group => {
             const responseDocument = group[0];
             if (!responseDocument) return undefined;
@@ -137,13 +163,44 @@ function getResponseDocumentsByFolder(resources: Resource[]): ResponseDocumentsB
             return {
                 resourceFolder: responseDocument.resourceFolder,
                 resourceType: responseDocument.resourceType,
-                resources: group.map(({ resourceFileId, resourceLabel }) => ({
-                    resourceFileId: resourceFileId,
-                    resourceLabel: resourceLabel,
-                })),
+                resources: group.map(resource => resource),
             };
         })
         .value();
 
-    return responseDocumentsByFolder;
+    return responseDocumentsByFolderByFolder;
+}
+
+function getDiseaseOutbreakEventDocumentsByFolder(
+    resources: Resource[],
+    allActiveDiseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[]
+): DiseaseOutbreakEventDocumentsByFolder[] {
+    const diseaseOutbreakEventDocuments: DiseaseOutbreakEventDocument[] = resources.filter(
+        isDiseaseOutbreakEventDocument
+    );
+    const groupedResources = _c(diseaseOutbreakEventDocuments)
+        .groupBy(diseaseOutbreakEventDocument => diseaseOutbreakEventDocument.resourceFolder)
+        .values();
+
+    const diseaseOutbreakEventDocumentsByFolderByFolder: DiseaseOutbreakEventDocumentsByFolder[] =
+        _c(groupedResources)
+            .compactMap(group => {
+                const responseDocument = group[0];
+                if (!responseDocument) return undefined;
+
+                return {
+                    resourceFolder: responseDocument.resourceFolder,
+                    resourceType: responseDocument.resourceType,
+                    resources: group.map(resource => ({
+                        ...resource,
+                        diseaseOutbreakEventName:
+                            allActiveDiseaseOutbreakEvents.find(
+                                event => event.id === resource.diseaseOutbreakEventId
+                            )?.name || "",
+                    })),
+                };
+            })
+            .value();
+
+    return diseaseOutbreakEventDocumentsByFolderByFolder;
 }

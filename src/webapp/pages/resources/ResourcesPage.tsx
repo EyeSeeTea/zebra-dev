@@ -6,7 +6,7 @@ import { Section } from "../../components/section/Section";
 import { Button } from "@material-ui/core";
 import { FileFileUpload } from "material-ui/svg-icons";
 import styled from "styled-components";
-import { ResponseDocumentHierarchyView } from "../../components/response-document-hierarchy/ResponseDocumentHierarchyView";
+import { ResourcesDocumentHierarchyView } from "../../components/resource-document-hierarchy/ResourcesDocumentHierarchyView";
 import { ResourceLabel } from "./ResourceLabel";
 import { NoticeBox } from "../../components/notice-box/NoticeBox";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
@@ -45,27 +45,52 @@ export const ResourcesPage: React.FC = React.memo(() => {
         <Layout title={i18n.t("Resources")}>
             <Section headerButtons={userCanUploadAndDelete ? uploadButton : undefined}>
                 {resources &&
-                (resources.responseDocuments.length > 0 || resources.templates.length > 0) ? (
-                    <ContentWrapper>
-                        {resources.responseDocuments.length > 0 && (
-                            <div>
-                                <ResourceTypeLabel>Response Documents</ResourceTypeLabel>
+                (resources.responseDocumentsByFolder.length > 0 ||
+                    resources.templates.length > 0 ||
+                    resources.diseaseOutbreakEventDocumentsByFolder.length > 0) ? (
+                    <RowFlexContainer>
+                        <ColumnFlexContainer>
+                            {resources.responseDocumentsByFolder.length > 0 && (
+                                <>
+                                    <ResourceTypeLabel>
+                                        {i18n.t("Response Documents")}
+                                    </ResourceTypeLabel>
 
-                                <Container>
-                                    <ResponseDocumentHierarchyView
-                                        responseDocuments={resources.responseDocuments}
-                                        onDelete={handleDelete}
-                                        isDeleting={isDeleting}
-                                        userCanDelete={userCanUploadAndDelete}
-                                        userCanDownload={userCanDownload}
-                                    />
-                                </Container>
-                            </div>
-                        )}
+                                    <Container>
+                                        <ResourcesDocumentHierarchyView
+                                            resourcesByFolder={resources.responseDocumentsByFolder}
+                                            onDelete={handleDelete}
+                                            isDeleting={isDeleting}
+                                            userCanDelete={userCanUploadAndDelete}
+                                            userCanDownload={userCanDownload}
+                                        />
+                                    </Container>
+                                </>
+                            )}
+
+                            {resources.diseaseOutbreakEventDocumentsByFolder.length > 0 && (
+                                <>
+                                    <ResourceTypeLabel>
+                                        {i18n.t("Events Documents")}
+                                    </ResourceTypeLabel>
+                                    <Container>
+                                        <ResourcesDocumentHierarchyView
+                                            resourcesByFolder={
+                                                resources.diseaseOutbreakEventDocumentsByFolder
+                                            }
+                                            onDelete={handleDelete}
+                                            isDeleting={isDeleting}
+                                            userCanDelete={userCanUploadAndDelete}
+                                            userCanDownload={userCanDownload}
+                                        />
+                                    </Container>
+                                </>
+                            )}
+                        </ColumnFlexContainer>
 
                         {resources.templates.length > 0 && (
-                            <div>
-                                <ResourceTypeLabel>Templates</ResourceTypeLabel>
+                            <OtherBlock>
+                                <ResourceTypeLabel>{i18n.t("Templates")}</ResourceTypeLabel>
                                 <Container>
                                     {resources.templates.map(template => (
                                         <ResourceLabel
@@ -78,9 +103,9 @@ export const ResourcesPage: React.FC = React.memo(() => {
                                         />
                                     ))}
                                 </Container>
-                            </div>
+                            </OtherBlock>
                         )}
-                    </ContentWrapper>
+                    </RowFlexContainer>
                 ) : (
                     <NoticeBox title={i18n.t("No resources created")}>
                         {userCanUploadAndDelete
@@ -101,14 +126,27 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: stretch;
-    height: 100%;
 `;
 
-const ContentWrapper = styled.div`
-    display: grid;
+const RowFlexContainer = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
     width: 100%;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+`;
+
+const ColumnFlexContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 350px;
+    min-width: 300px;
+    max-width: 100%;
+`;
+
+const OtherBlock = styled.div`
+    flex: 1 1 350px;
+    min-width: 300px;
+    max-width: 100%;
 `;
 
 const ResourceTypeLabel = styled.p`
