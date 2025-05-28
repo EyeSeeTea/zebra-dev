@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-05-21T07:03:22.391Z\n"
-"PO-Revision-Date: 2025-05-21T07:03:22.391Z\n"
+"POT-Creation-Date: 2025-05-28T11:26:48.961Z\n"
+"PO-Revision-Date: 2025-05-28T11:26:48.961Z\n"
 
 msgid "Low"
 msgstr ""
@@ -90,10 +90,19 @@ msgstr ""
 msgid "Replace case data"
 msgstr ""
 
+msgid "Show resources"
+msgstr ""
+
 msgid "Complete Event"
 msgstr ""
 
 msgid "Notes"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Events Documents"
 msgstr ""
 
 msgid "Edit Profile"
@@ -112,9 +121,6 @@ msgid "Select a file"
 msgstr ""
 
 msgid "Errors in file"
-msgstr ""
-
-msgid "Close"
 msgstr ""
 
 msgid "Download empty template"
@@ -380,11 +386,6 @@ msgstr ""
 msgid "Resource saved successfully"
 msgstr ""
 
-msgid ""
-"You have uploaded a new resource with an existing file name. This action "
-"will replace the current resource. Are you sure you want to continue?"
-msgstr ""
-
 msgid "Add another"
 msgstr ""
 
@@ -458,6 +459,12 @@ msgid "Upload File"
 msgstr ""
 
 msgid "Resources"
+msgstr ""
+
+msgid "Response Documents"
+msgstr ""
+
+msgid "Templates"
 msgstr ""
 
 msgid "No resources created"
