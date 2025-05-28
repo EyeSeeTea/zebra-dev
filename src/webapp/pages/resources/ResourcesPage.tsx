@@ -94,7 +94,7 @@ export const ResourcesPage: React.FC = React.memo(() => {
                                 <Container>
                                     {resources.templates.map(template => (
                                         <ResourceLabel
-                                            key={template.resourceFileId}
+                                            key={template.fileId}
                                             resource={template}
                                             isDeleting={isDeleting}
                                             onDelete={handleDelete}

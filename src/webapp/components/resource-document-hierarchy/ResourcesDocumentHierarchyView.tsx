@@ -48,7 +48,7 @@ export const ResourcesDocumentHierarchyView: React.FC<ResourcesDocumentHierarchy
                 {resourcesByFolder.map(folderWithResources => {
                     return (
                         <ResourceDocumentHierarchyItem
-                            key={folderWithResources.resourceFolder}
+                            key={folderWithResources.folder}
                             isDeleting={isDeleting}
                             folderWithResources={folderWithResources}
                             userCanDelete={userCanDelete}

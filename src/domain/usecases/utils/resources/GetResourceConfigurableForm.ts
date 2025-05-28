@@ -58,7 +58,7 @@ export function getResourceConfigurableForm(options: {
 }
 
 function getResourceFolderOptions(resources: Resource[]): ResourceFolderOption[] {
-    const resourcesByType = _c(resources).groupBy(resource => resource.resourceType);
+    const resourcesByType = _c(resources).groupBy(resource => resource.type);
 
     const folderNamesByType = resourcesByType.mapValues(([_, group]) =>
         getUniqueFolderNames(group)
@@ -80,7 +80,7 @@ function getUniqueFolderNames(resources: Resource[]): string[] {
     return _c(resources)
         .map(resource =>
             isResponseDocument(resource) || isDiseaseOutbreakEventDocument(resource)
-                ? resource.resourceFolder
+                ? resource.folder
                 : undefined
         )
         .compact()

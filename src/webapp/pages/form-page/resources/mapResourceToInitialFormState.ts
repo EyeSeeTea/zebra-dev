@@ -63,7 +63,7 @@ export function mapResourceToInitialFormState(
                         isVisible: true,
                         errors: [],
                         type: "text",
-                        value: resource?.resourceLabel || "",
+                        value: resource?.name || "",
                         required: true,
                     },
                 ],
@@ -82,7 +82,7 @@ export function mapResourceToInitialFormState(
                         type: "select",
                         multiple: false,
                         options: resourceTypeOptions,
-                        value: resource?.resourceType || "",
+                        value: resource?.type || "",
                         required: true,
                     },
                 ],
@@ -121,7 +121,7 @@ export function mapResourceToInitialFormState(
                                   isVisible: isResourceResponseDocument,
                                   errors: [],
                                   type: "text",
-                                  value: isResourceResponseDocument ? resource.resourceFolder : "",
+                                  value: isResourceResponseDocument ? resource.folder : "",
                                   required: true,
                               },
                           ]
@@ -134,7 +134,7 @@ export function mapResourceToInitialFormState(
                                   options: responseDocumentsFolderOptions,
                                   multiple: false,
                                   addNewOption: isAdmin,
-                                  value: isResourceResponseDocument ? resource.resourceFolder : "",
+                                  value: isResourceResponseDocument ? resource.folder : "",
                                   required: true,
                               },
                           ],
@@ -153,7 +153,7 @@ export function mapResourceToInitialFormState(
                                   errors: [],
                                   type: "text",
                                   value: isResourceDiseaseOutbreakEventDocument
-                                      ? resource.resourceFolder
+                                      ? resource.folder
                                       : "",
                                   required: true,
                               },
@@ -168,7 +168,7 @@ export function mapResourceToInitialFormState(
                                   multiple: false,
                                   addNewOption: isAdmin,
                                   value: isResourceDiseaseOutbreakEventDocument
-                                      ? resource.resourceFolder
+                                      ? resource.folder
                                       : "",
                                   required: true,
                               },
@@ -186,7 +186,7 @@ export function mapResourceToInitialFormState(
                         errors: [],
                         type: "file",
                         value: uploadedResourceFile || undefined,
-                        fileId: resource?.resourceFileId || undefined,
+                        fileId: resource?.fileId || undefined,
                         required: true,
                         data: undefined,
                         fileTemplate: undefined,

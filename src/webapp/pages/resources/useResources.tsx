@@ -24,14 +24,14 @@ export type ResourcePresentationData = Resource & {
 };
 
 export type ResponseDocumentsByFolder = {
-    resourceType: ResourceType.RESPONSE_DOCUMENT;
-    resourceFolder: string;
+    type: ResourceType.RESPONSE_DOCUMENT;
+    folder: string;
     resources: ResourcePresentationData[];
 };
 
 export type DiseaseOutbreakEventDocumentsByFolder = {
-    resourceFolder: string;
-    resourceType: ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
+    folder: string;
+    type: ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
     resources: ResourcePresentationData[];
 };
 
@@ -152,7 +152,7 @@ function getResourceData(
 function getResponseDocumentsByFolder(resources: Resource[]): ResponseDocumentsByFolder[] {
     const responseDocuments: ResponseDocument[] = resources.filter(isResponseDocument);
     const groupedResources = _c(responseDocuments)
-        .groupBy(responseDocument => responseDocument.resourceFolder)
+        .groupBy(responseDocument => responseDocument.folder)
         .values();
 
     const responseDocumentsByFolderByFolder: ResponseDocumentsByFolder[] = _c(groupedResources)
@@ -161,8 +161,8 @@ function getResponseDocumentsByFolder(resources: Resource[]): ResponseDocumentsB
             if (!responseDocument) return undefined;
 
             return {
-                resourceFolder: responseDocument.resourceFolder,
-                resourceType: responseDocument.resourceType,
+                folder: responseDocument.folder,
+                type: responseDocument.type,
                 resources: group.map(resource => resource),
             };
         })
@@ -179,7 +179,7 @@ function getDiseaseOutbreakEventDocumentsByFolder(
         isDiseaseOutbreakEventDocument
     );
     const groupedResources = _c(diseaseOutbreakEventDocuments)
-        .groupBy(diseaseOutbreakEventDocument => diseaseOutbreakEventDocument.resourceFolder)
+        .groupBy(diseaseOutbreakEventDocument => diseaseOutbreakEventDocument.folder)
         .values();
 
     const diseaseOutbreakEventDocumentsByFolderByFolder: DiseaseOutbreakEventDocumentsByFolder[] =
@@ -189,8 +189,8 @@ function getDiseaseOutbreakEventDocumentsByFolder(
                 if (!responseDocument) return undefined;
 
                 return {
-                    resourceFolder: responseDocument.resourceFolder,
-                    resourceType: responseDocument.resourceType,
+                    folder: responseDocument.folder,
+                    type: responseDocument.type,
                     resources: group.map(resource => ({
                         ...resource,
                         diseaseOutbreakEventName:

@@ -21,8 +21,8 @@ export const ResourceDocumentHierarchyItem: React.FC<ResourceDocumentHierarchyIt
 
         return (
             <StyledTreeItemMUI
-                nodeId={folderWithResources.resourceFolder}
-                label={folderWithResources.resourceFolder}
+                nodeId={folderWithResources.folder}
+                label={folderWithResources.folder}
             >
                 {folderWithResources.resources.map(resource => {
                     return (

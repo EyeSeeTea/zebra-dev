@@ -163,7 +163,7 @@ export class SaveEntityUseCase {
                     .flatMap(resourceFileId => {
                         const resource: Resource = {
                             ...entity,
-                            resourceFileId: resourceFileId,
+                            fileId: resourceFileId,
                         };
 
                         return this.options.resourceRepository.save(resource);

@@ -4,44 +4,44 @@ import { ResourceType } from "./ResourceTypeNamed";
 
 export type ResourceBase = {
     id: Id;
-    resourceType: ResourceType;
-    resourceLabel: string;
-    resourceFileId: Maybe<Id>;
+    type: ResourceType;
+    name: string;
+    fileId: Maybe<Id>;
 };
 
 export type ResponseDocument = ResourceBase & {
-    resourceType: ResourceType.RESPONSE_DOCUMENT;
-    resourceFolder: string;
+    type: ResourceType.RESPONSE_DOCUMENT;
+    folder: string;
 };
 
 export type Template = ResourceBase & {
-    resourceType: ResourceType.TEMPLATE;
+    type: ResourceType.TEMPLATE;
 };
 
 export type DiseaseOutbreakEventDocument = ResourceBase & {
-    resourceType: ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
-    resourceFolder: string;
+    type: ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
+    folder: string;
     diseaseOutbreakEventId: Id;
 };
 
 export type Resource = ResponseDocument | Template | DiseaseOutbreakEventDocument;
 
 export function isResponseDocument(resource: Resource): resource is ResponseDocument {
-    return resource.resourceType === ResourceType.RESPONSE_DOCUMENT;
+    return resource.type === ResourceType.RESPONSE_DOCUMENT;
 }
 
 export function isTemplate(resource: Resource): resource is Template {
-    return resource.resourceType === ResourceType.TEMPLATE;
+    return resource.type === ResourceType.TEMPLATE;
 }
 
 export function isDiseaseOutbreakEventDocument(
     resource: Resource
 ): resource is DiseaseOutbreakEventDocument {
-    return resource.resourceType === ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
+    return resource.type === ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
 }
 
 const validResourceTypes = new Set<string>(Object.values(ResourceType));
 
-export function isResouceType(resourceType: unknown): resourceType is ResourceType {
-    return typeof resourceType === "string" && validResourceTypes.has(resourceType);
+export function isResouceType(type: unknown): type is ResourceType {
+    return typeof type === "string" && validResourceTypes.has(type);
 }

@@ -10,13 +10,13 @@ import { Loader } from "../../components/loader/Loader";
 import { SimpleModal } from "../../components/simple-modal/SimpleModal";
 import { ResourcePresentationData } from "./useResources";
 
-interface ResourceLabelProps {
+type ResourceLabelProps = {
     isDeleting: boolean;
     resource: ResourcePresentationData;
     userCanDelete: boolean;
     userCanDownload: boolean;
     onDelete?: () => void;
-}
+};
 
 export const ResourceLabel: React.FC<ResourceLabelProps> = ({
     isDeleting,
@@ -27,9 +27,9 @@ export const ResourceLabel: React.FC<ResourceLabelProps> = ({
 }) => {
     const snackbar = useSnackbar();
     const [openModal, setOpenModal] = useState(false);
-    const { resourceFileId, resourceLabel, id, diseaseOutbreakEventName } = resource;
+    const { fileId, name, id, diseaseOutbreakEventName } = resource;
     const { globalMessage, resourceFile, deleteResource } = useResourceFile({
-        resourceFileId: resourceFileId,
+        resourceFileId: fileId,
         onDelete: onDelete,
     });
 
@@ -46,19 +46,19 @@ export const ResourceLabel: React.FC<ResourceLabelProps> = ({
                 {userCanDownload ? (
                     <Link
                         href={resourceFile ? URL.createObjectURL(resourceFile.file) : undefined}
-                        download={resourceLabel}
+                        download={name}
                         underline="hover"
                     >
-                        {`${resourceLabel}${
+                        {`${name}${
                             diseaseOutbreakEventName ? ` (${diseaseOutbreakEventName})` : ""
                         }`}
                     </Link>
                 ) : (
-                    resourceLabel
+                    name
                 )}
             </p>
 
-            {resourceFileId && userCanDelete && onDelete && (
+            {fileId && userCanDelete && onDelete && (
                 <>
                     <Button onClick={() => setOpenModal(true)}>
                         <Delete fontSize="small" color="error" />
@@ -75,7 +75,7 @@ export const ResourceLabel: React.FC<ResourceLabelProps> = ({
                                 {isDeleting && <Loader />}
                                 <StyledButton
                                     variant="contained"
-                                    onClick={() => deleteResource(id, resourceFileId)}
+                                    onClick={() => deleteResource(id, fileId)}
                                 >
                                     {i18n.t("Delete")}
                                 </StyledButton>

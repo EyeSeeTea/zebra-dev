@@ -681,18 +681,18 @@ export function buildResource(resourceId: Maybe<Id>, allFields: FormFieldState[]
             return {
                 id: resourceId || "",
 
-                resourceType: resourceType,
-                resourceLabel: resourceLabel,
-                resourceFolder: resourceFolder,
-                resourceFileId: uploadedResourceFileId,
+                type: resourceType,
+                name: resourceLabel,
+                folder: resourceFolder,
+                fileId: uploadedResourceFileId,
             };
 
         case ResourceType.TEMPLATE:
             return {
                 id: resourceId || "",
-                resourceType: resourceType,
-                resourceLabel: resourceLabel,
-                resourceFileId: uploadedResourceFileId,
+                type: resourceType,
+                name: resourceLabel,
+                fileId: uploadedResourceFileId,
             };
 
         case ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT:
@@ -702,10 +702,10 @@ export function buildResource(resourceId: Maybe<Id>, allFields: FormFieldState[]
                 );
             return {
                 id: resourceId || "",
-                resourceType: resourceType,
-                resourceLabel: resourceLabel,
-                resourceFileId: uploadedResourceFileId,
-                resourceFolder: resourceFolder,
+                type: resourceType,
+                name: resourceLabel,
+                fileId: uploadedResourceFileId,
+                folder: resourceFolder,
                 diseaseOutbreakEventId: diseaseOutbreakEventId,
             };
 

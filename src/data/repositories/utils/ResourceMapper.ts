@@ -43,18 +43,18 @@ export function mapD2TrackerEventToResource(d2TrackerEvent: D2TrackerEvent): Res
             if (!resourceFolder) throw new Error("Missing resource folder for Response Document");
             return {
                 id: event,
-                resourceType: resourceType,
-                resourceLabel: resourceLabel,
-                resourceFileId: resourceFileId,
-                resourceFolder: resourceFolder,
+                type: resourceType,
+                name: resourceLabel,
+                fileId: resourceFileId,
+                folder: resourceFolder,
             };
 
         case ResourceType.TEMPLATE:
             return {
                 id: event,
-                resourceType: resourceType,
-                resourceLabel: resourceLabel,
-                resourceFileId: resourceFileId,
+                type: resourceType,
+                name: resourceLabel,
+                fileId: resourceFileId,
             };
 
         case ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT:
@@ -64,10 +64,10 @@ export function mapD2TrackerEventToResource(d2TrackerEvent: D2TrackerEvent): Res
                 );
             return {
                 id: event,
-                resourceType: resourceType,
-                resourceLabel: resourceLabel,
-                resourceFileId: resourceFileId,
-                resourceFolder: resourceFolder,
+                type: resourceType,
+                name: resourceLabel,
+                fileId: resourceFileId,
+                folder: resourceFolder,
                 diseaseOutbreakEventId: diseaseOutbreakEventId,
             };
     }
@@ -100,43 +100,42 @@ export function mapResourceToD2TrackerEvent(
 }
 
 function getDataValuesFromResource(resource: Resource): Record<ResourcesCodes, string> {
-    switch (resource.resourceType) {
+    switch (resource.type) {
         case ResourceType.RESPONSE_DOCUMENT:
-            if (!resource.resourceFolder)
-                throw new Error("Missing resource folder for Response Document");
+            if (!resource.folder) throw new Error("Missing resource folder for Response Document");
             return {
                 RTSL_ZEB_DET_RESOURCES_RESOURCE_TYPE: resourceTypeToDHIS2ResourceType(
-                    resource.resourceType
+                    resource.type
                 ),
-                RTSL_ZEB_DET_RESOURCES_FILE_NAME: resource.resourceLabel,
-                RTSL_ZEB_DET_RESOURCES_FILE_FOLDER: resource.resourceFolder,
-                RTSL_ZEB_DET_RESOURCES_FILE_ID: resource.resourceFileId || "",
+                RTSL_ZEB_DET_RESOURCES_FILE_NAME: resource.name,
+                RTSL_ZEB_DET_RESOURCES_FILE_FOLDER: resource.folder,
+                RTSL_ZEB_DET_RESOURCES_FILE_ID: resource.fileId || "",
                 RTSL_ZEB_DET_RESOURCES_DISEASE_OUTBREAK_EVENT_ID: "",
             };
 
         case ResourceType.TEMPLATE:
             return {
                 RTSL_ZEB_DET_RESOURCES_RESOURCE_TYPE: resourceTypeToDHIS2ResourceType(
-                    resource.resourceType
+                    resource.type
                 ),
-                RTSL_ZEB_DET_RESOURCES_FILE_NAME: resource.resourceLabel,
-                RTSL_ZEB_DET_RESOURCES_FILE_ID: resource.resourceFileId || "",
+                RTSL_ZEB_DET_RESOURCES_FILE_NAME: resource.name,
+                RTSL_ZEB_DET_RESOURCES_FILE_ID: resource.fileId || "",
                 RTSL_ZEB_DET_RESOURCES_FILE_FOLDER: "",
                 RTSL_ZEB_DET_RESOURCES_DISEASE_OUTBREAK_EVENT_ID: "",
             };
 
         case ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT:
-            if (!resource.diseaseOutbreakEventId || !resource.resourceFolder)
+            if (!resource.diseaseOutbreakEventId || !resource.folder)
                 throw new Error(
                     "Missing Disease Outbreak Event Id or Resource Folder for Event Document"
                 );
             return {
                 RTSL_ZEB_DET_RESOURCES_RESOURCE_TYPE: resourceTypeToDHIS2ResourceType(
-                    resource.resourceType
+                    resource.type
                 ),
-                RTSL_ZEB_DET_RESOURCES_FILE_NAME: resource.resourceLabel,
-                RTSL_ZEB_DET_RESOURCES_FILE_FOLDER: resource.resourceFolder,
-                RTSL_ZEB_DET_RESOURCES_FILE_ID: resource.resourceFileId || "",
+                RTSL_ZEB_DET_RESOURCES_FILE_NAME: resource.name,
+                RTSL_ZEB_DET_RESOURCES_FILE_FOLDER: resource.folder,
+                RTSL_ZEB_DET_RESOURCES_FILE_ID: resource.fileId || "",
                 RTSL_ZEB_DET_RESOURCES_DISEASE_OUTBREAK_EVENT_ID: resource.diseaseOutbreakEventId,
             };
     }

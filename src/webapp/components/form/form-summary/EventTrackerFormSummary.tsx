@@ -49,7 +49,7 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
         resources,
         userCanUploadAndDelete,
         userCanDownload,
-    } = useResources();
+    } = useResources(id);
 
     const [openResourcesModal, setOpenResourcesModal] = useState(false);
 
