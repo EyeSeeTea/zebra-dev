@@ -95,6 +95,8 @@ type IdValue = {
     value: string;
 };
 
+type TotalPerformanceMetrics717Key = PerformanceMetrics717Key | "alerts-completed";
+
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
     constructor(private api: D2Api, private datastore: DataStoreClient) {}
 
@@ -768,13 +770,16 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     getAlerts717Performance(
         performanceMetricsStatus: PerformanceMetricsStatus
     ): FutureData<PerformanceMetrics717[]> {
+        const totalPerformanceKey =
+            performanceMetricsStatus === "active" ? "alerts" : "alerts-completed";
+
         return Future.joinObj({
             performance717ProgramIndicators: this.get717PerformanceIndicators(
                 "alerts",
                 performanceMetricsStatus
             ),
             totalPerformance717ProgramIndicator:
-                this.getTotalPerformance717ProgramIndicator("alerts"),
+                this.getTotalPerformance717ProgramIndicator(totalPerformanceKey),
         }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
             const performance717ProgramIndicatorIds = [
                 ...performance717ProgramIndicators.map(({ id }) => id),
@@ -867,7 +872,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private getTotalPerformance717ProgramIndicator(
-        key: PerformanceMetrics717Key
+        key: TotalPerformanceMetrics717Key
     ): FutureData<Maybe<TotalPerformanceMetrics717>> {
         return this.datastore
             .getObject<TotalPerformanceMetrics717[]>(
