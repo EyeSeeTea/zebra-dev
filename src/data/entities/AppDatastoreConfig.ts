@@ -1,4 +1,4 @@
-import { Id } from "./Ref";
+import { Id } from "../../domain/entities/Ref";
 
 export type AppDatastoreConfig = {
     userGroups: {
@@ -9,5 +9,8 @@ export type AppDatastoreConfig = {
     casesFileTemplate: {
         fileId: Id;
         fileName: string;
+    };
+    appDefaults: {
+        diseaseOutbreakDataSource: string;
     };
 };
