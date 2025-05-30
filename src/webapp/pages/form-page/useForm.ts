@@ -366,11 +366,12 @@ export function useForm(formType: FormType, id?: Id): State {
     const onPrimaryButtonClick = useCallback(() => {
         if (formState.kind !== "loaded" || !configurableForm || !formState.data.isValid) return;
 
-        const formData = mapFormStateToEntityData(
-            formState.data,
-            currentUser.username,
-            configurableForm
-        );
+        const formData = mapFormStateToEntityData({
+            formState: formState.data,
+            currentUserName: currentUser.username,
+            formData: configurableForm,
+            appDefaults: configurations.appDefaults,
+        });
 
         if (
             formData.type === "disease-outbreak-event" ||
