@@ -128,7 +128,9 @@ const StyledDatePicker = styled(DatePickerMUI)<{ error?: boolean; disabled?: boo
     }
     .MuiOutlinedInput-notchedOutline {
         border-color: ${props =>
-            props.error ? props.theme.palette.common.red600 : props.theme.palette.common.grey500};
+            props.error
+                ? props.theme.palette.common.red600
+                : props.theme.palette.common.grey500} !important;
     }
     .MuiIconButton-edgeEnd {
         color: ${props => props.theme.palette.icon.color};

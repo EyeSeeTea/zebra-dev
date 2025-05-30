@@ -1,18 +1,14 @@
-import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../components/utils/option";
-import {
-    CasesDataSource,
-    DataSource,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
 
 export type DataSourceFiltersState = {
     onChange: (value: string) => void;
-    value: Maybe<string>;
+    value: string;
     options: Option[];
-    dataSource: Maybe<DataSource>;
+    dataSource: DataSource;
 };
 
 export function useDataSourceFilter() {
@@ -20,12 +16,7 @@ export function useDataSourceFilter() {
     const { getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
 
-    const isCasesDataUserDefined =
-        currentEventTracker?.casesDataSource ===
-        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
-
-    const defaultDataSource = (currentEventTracker?.dataSource || DataSource.ND1) as string;
-    const [dataSourceFilter, setDataSourceFilter] = useState(defaultDataSource);
+    const [dataSourceFilter, setDataSourceFilter] = useState("");
 
     const dataSourceOptions = useMemo(
         () =>
@@ -38,18 +29,14 @@ export function useDataSourceFilter() {
         [configurations]
     );
 
-    const dataSourceValue = useMemo(
-        () =>
-            isCasesDataUserDefined
-                ? {}
-                : {
-                      value: dataSourceFilter,
-                      dataSource:
-                          Object.values(DataSource).find(v => v === dataSourceFilter) ||
-                          DataSource.ND1,
-                  },
-        [isCasesDataUserDefined, dataSourceFilter]
-    );
+    const dataSourceValue = useMemo(() => {
+        const dataSource = dataSourceFilter || currentEventTracker?.dataSource;
+
+        return {
+            value: dataSource || DataSource.ND1.toString(),
+            dataSource: Object.values(DataSource).find(v => v === dataSource) || DataSource.ND1,
+        };
+    }, [dataSourceFilter, currentEventTracker]);
 
     return {
         onChange: setDataSourceFilter,

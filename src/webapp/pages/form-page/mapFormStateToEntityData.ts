@@ -48,20 +48,24 @@ import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { mapFormStateToDiseaseOutbreakEvent } from "./disease-outbreak-event/mapFormStateToDiseaseOutbreakEvent";
 import { Resource, ResourceType } from "../../../domain/entities/resources/Resource";
+import { AppDefaults } from "../../../domain/entities/AppConfigurations";
 
-export function mapFormStateToEntityData(
-    formState: FormState,
-    currentUserName: string,
-    formData: ConfigurableForm
-): ConfigurableForm {
+type MapFormStateToEntityDataProps = {
+    formState: FormState;
+    currentUserName: string;
+    formData: ConfigurableForm;
+    appDefaults: AppDefaults;
+};
+
+export function mapFormStateToEntityData(props: MapFormStateToEntityDataProps): ConfigurableForm {
+    const { formState, formData } = props;
     switch (formData.type) {
         case "disease-outbreak-event":
         case "disease-outbreak-event-case-data": {
-            const diseaseEntity = mapFormStateToDiseaseOutbreakEvent(
-                formState,
-                currentUserName,
-                formData
-            );
+            const diseaseEntity = mapFormStateToDiseaseOutbreakEvent({
+                ...props,
+                formData,
+            });
 
             const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
             const uploadedCasesDataFileValue = getFileFieldValue(

@@ -12,6 +12,7 @@ import { OutbreakAlertD2Repository } from "../data/repositories/OutbreakAlertD2R
 import { DiseaseOutbreakEventD2Repository } from "../data/repositories/DiseaseOutbreakEventD2Repository";
 import { ConfigurationsD2Repository } from "../data/repositories/ConfigurationsD2Repository";
 import { Future } from "../domain/entities/generic/Future";
+import { DataStoreClient } from "../data/DataStoreClient";
 
 function main() {
     const cmd = command({
@@ -28,13 +29,14 @@ function main() {
         },
         handler: async args => {
             const { api, instance } = getApiInstanceFromEnvVariables();
+            const dataStoreClient = new DataStoreClient(api);
 
             const alertRepository = new AlertD2Repository(api);
             const alertSyncRepository = new AlertSyncDataStoreRepository(api);
             const diseaseOutbreakEventRepository = new DiseaseOutbreakEventD2Repository(api);
             const notificationRepository = new NotificationD2Repository(api);
             const outbreakAlertRepository = new OutbreakAlertD2Repository(api);
-            const configurationsRepository = new ConfigurationsD2Repository(api);
+            const configurationsRepository = new ConfigurationsD2Repository(api, dataStoreClient);
             const userGroupRepository = new UserGroupD2Repository(api);
 
             const mapAndSaveAlertsUseCase = new MapAndSaveAlertsUseCase({
