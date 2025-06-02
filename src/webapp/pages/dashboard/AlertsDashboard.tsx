@@ -181,19 +181,19 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     dateRangeFilter={dateRangeFilter.value}
                 />
             </Section>
-            <LoaderContainer loading={alerts717CardsLoading}>
-                <Section
-                    title={i18n.t("7-1-7 performance")}
-                    headerButtons={
-                        <Selector
-                            id={"performance-metrics-enrollment-status"}
-                            options={performanceStatusOptions}
-                            selected={performanceMetricsStatus}
-                            onChange={setPerformanceMetricsStatus}
-                            disableSearch
-                        />
-                    }
-                >
+            <Section
+                title={i18n.t("7-1-7 performance")}
+                headerButtons={
+                    <Selector
+                        id={"performance-metrics-enrollment-status"}
+                        options={performanceStatusOptions}
+                        selected={performanceMetricsStatus}
+                        onChange={setPerformanceMetricsStatus}
+                        disableSearch
+                    />
+                }
+            >
+                <LoaderContainer loading={alerts717CardsLoading}>
                     <GridWrapper>
                         {alertsPerformanceMetrics717.map(
                             (perfMetric717: PerformanceMetric717, index: number) => (
@@ -209,8 +209,8 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                             )
                         )}
                     </GridWrapper>
-                </Section>
-            </LoaderContainer>
+                </LoaderContainer>
+            </Section>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>
                     <StatisticTable
