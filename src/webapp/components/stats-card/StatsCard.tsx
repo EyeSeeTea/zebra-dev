@@ -65,7 +65,6 @@ const StyledCard = styled(Card)<{ $error?: boolean; $fillParent?: boolean }>`
 
 const StyledCardActionArea = styled(CardActionArea)<{ $clickable?: boolean }>`
     height: 100%;
-    cursor: ${props => (props.$clickable ? "pointer" : "default")};
 `;
 
 const StyledCardContent = styled(CardContent)`
