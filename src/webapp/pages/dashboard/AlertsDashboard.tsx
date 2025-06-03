@@ -63,7 +63,7 @@ export type AlertsDashboardProps = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
-    updateAlertIncidentStatus: (alertId: Id, orgUnitName: string, status: IncidentStatus) => void;
+    updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
     performanceMetricsStatus: PerformanceMetricsStatus;
     setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
 };
@@ -102,7 +102,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     console.debug("Invalid incident status, not updating status");
                     return;
                 }
-                updateAlertIncidentStatus(alertId, orgUnitName, value);
+                updateAlertIncidentStatus(alertId, value);
             } else {
                 console.debug(`Unhandled column edit :  ${columnName}`);
             }
