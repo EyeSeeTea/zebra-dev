@@ -60,14 +60,17 @@ export const DashboardPage: React.FC = React.memo(() => {
     const {
         performanceMetrics717: nationalPerformanceMetrics717,
         isLoading: national717CardsLoading,
-    } = use717Performance("national");
+    } = use717Performance({ type: "national" });
 
     const {
         performanceMetrics717: alertsPerformanceMetrics717,
         isLoading: alerts717CardsLoading,
         performanceMetricsStatus,
         setPerformanceMetricsStatus,
-    } = use717Performance("alerts");
+    } = use717Performance({
+        type: "alerts",
+        singleSelectFilters: singleSelectFilters,
+    });
 
     const { cardCounts, isLoading: cardCountsLoading } = useCardCounts(
         singleSelectFilters,

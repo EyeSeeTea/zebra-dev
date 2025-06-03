@@ -98,7 +98,9 @@ export const useTableFilters = (
         (column: TableColumn["value"], dataSource?: AlertDataSource) => {
             return _(rows)
                 .compactMap(row => {
-                    const columnValue = row[column] || "";
+                    const columnValue = row[column]?.trim();
+                    if (!columnValue) return undefined;
+
                     const filterOption = {
                         value: columnValue,
                         label: columnValue,

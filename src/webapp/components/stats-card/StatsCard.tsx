@@ -1,5 +1,5 @@
 import React from "react";
-import { CardContent, Card } from "@material-ui/core";
+import { CardContent, Card, CardActionArea } from "@material-ui/core";
 import styled from "styled-components";
 
 export type StatsCardProps = {
@@ -11,6 +11,7 @@ export type StatsCardProps = {
     isPercentage?: boolean;
     error?: boolean;
     fillParent?: boolean;
+    onClick?: () => void;
 };
 
 export const StatsCard: React.FC<StatsCardProps> = React.memo(
@@ -23,10 +24,11 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
         isPercentage = false,
         error = false,
         fillParent = false,
+        onClick,
     }) => {
-        return (
-            <StyledCard $error={error} $fillParent={fillParent}>
-                <StyledCardContent>
+        const StatsCardContent = () => {
+            return (
+                <StyledCardContent onClick={onClick}>
                     <Stat color={color}>{`${stat}${isPercentage ? "%" : ""}`}</Stat>
 
                     <PreTitle>{pretitle}</PreTitle>
@@ -35,6 +37,18 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
 
                     <SubTitle>{subtitle}</SubTitle>
                 </StyledCardContent>
+            );
+        };
+
+        return (
+            <StyledCard $error={error} $fillParent={fillParent}>
+                {onClick ? (
+                    <StyledCardActionArea>
+                        <StatsCardContent />
+                    </StyledCardActionArea>
+                ) : (
+                    <StatsCardContent />
+                )}
             </StyledCard>
         );
     }
@@ -47,6 +61,10 @@ const StyledCard = styled(Card)<{ $error?: boolean; $fillParent?: boolean }>`
     border-style: ${props => (props.$error ? "solid" : "none")};
     border-width: ${props => (props.$error ? "1px" : "0")};
     border-color: ${props => (props.$error ? props.theme.palette.stats.red : "unset")};
+`;
+
+const StyledCardActionArea = styled(CardActionArea)<{ $clickable?: boolean }>`
+    height: 100%;
 `;
 
 const StyledCardContent = styled(CardContent)`

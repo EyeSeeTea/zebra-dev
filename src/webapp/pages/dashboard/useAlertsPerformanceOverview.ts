@@ -158,6 +158,7 @@ export function useAlertsPerformanceOverview(): State {
                 event: data.suspectedDisease,
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
+                province: data.province.trim(),
             };
         },
         []

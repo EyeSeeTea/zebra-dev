@@ -1,3 +1,4 @@
+import { isValueInUnionType, Maybe } from "../../../utils/ts-utils";
 import { Id } from "../Ref";
 
 export const diseaseNames = [
@@ -18,6 +19,10 @@ export const diseaseNames = [
     "Zika fever",
 ] as const;
 export type DiseaseNames = (typeof diseaseNames)[number];
+
+export function isDiseaseName(name: Maybe<string>): name is DiseaseNames {
+    return isValueInUnionType(name, diseaseNames);
+}
 
 export type PerformanceOverviewMetrics = {
     id: Id;
@@ -68,6 +73,7 @@ export type PerformanceMetrics717 = {
     type: "primary" | "secondary";
     value?: number | "Inc";
     key: PerformanceMetrics717Key;
+    disease?: DiseaseNames;
     total?: number;
 };
 
@@ -76,6 +82,7 @@ export type TotalPerformanceMetrics717 = {
     type: "total";
     value?: number | "Inc";
     key: PerformanceMetrics717Key;
+    disease?: DiseaseNames;
 };
 
 export type PerformanceMetricsStatus = "active" | "completed";

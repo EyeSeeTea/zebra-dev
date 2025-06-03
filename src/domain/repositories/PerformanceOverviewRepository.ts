@@ -1,4 +1,5 @@
 import { FutureData } from "../../data/api-futures";
+import { Maybe } from "../../utils/ts-utils";
 import { AlertsPerformanceOverviewMetrics } from "../entities/alert/AlertsPerformanceOverviewMetrics";
 import {
     DataSource,
@@ -8,6 +9,7 @@ import {
     TotalCardCounts,
     PerformanceOverviewMetrics,
     PerformanceMetrics717,
+    DiseaseNames,
     PerformanceMetricsStatus,
 } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { OverviewCard } from "../entities/PerformanceOverview";
@@ -28,7 +30,8 @@ export interface PerformanceOverviewRepository {
     getNational717Performance(): FutureData<PerformanceMetrics717[]>;
     getEvent717Performance(diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]>;
     getAlerts717Performance(
-        performanceMetricsStatus: PerformanceMetricsStatus
+        performanceMetricsStatus: PerformanceMetricsStatus,
+        diseaseName: Maybe<DiseaseNames>
     ): FutureData<PerformanceMetrics717[]>;
     getEventTrackerOverviewMetrics(
         type: string,

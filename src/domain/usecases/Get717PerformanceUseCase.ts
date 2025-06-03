@@ -1,5 +1,7 @@
 import { FutureData } from "../../data/api-futures";
+import { Maybe } from "../../utils/ts-utils";
 import {
+    DiseaseNames,
     PerformanceMetrics717,
     PerformanceMetrics717Key,
     PerformanceMetricsStatus,
@@ -18,8 +20,9 @@ export class Get717PerformanceUseCase {
         type: PerformanceMetrics717Key;
         diseaseOutbreakEventId: Id | undefined;
         performanceMetricsStatus: PerformanceMetricsStatus;
+        diseaseName: Maybe<DiseaseNames>;
     }): FutureData<PerformanceMetrics717[]> {
-        const { type, diseaseOutbreakEventId, performanceMetricsStatus } = options;
+        const { type, diseaseOutbreakEventId, diseaseName, performanceMetricsStatus } = options;
 
         if (type === "event" && diseaseOutbreakEventId) {
             return this.options.performanceOverviewRepository.getEvent717Performance(
@@ -29,7 +32,8 @@ export class Get717PerformanceUseCase {
             return this.options.performanceOverviewRepository.getNational717Performance();
         } else if (type === "alerts") {
             return this.options.performanceOverviewRepository.getAlerts717Performance(
-                performanceMetricsStatus
+                performanceMetricsStatus,
+                diseaseName
             );
         } else throw new Error(`Unknown 717 type: ${type} `);
     }
