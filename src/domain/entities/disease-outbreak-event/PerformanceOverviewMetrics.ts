@@ -82,4 +82,5 @@ export type TotalPerformanceMetrics717 = {
     type: "total";
     value?: number | "Inc";
     key: PerformanceMetrics717Key;
+    disease?: DiseaseNames;
 };

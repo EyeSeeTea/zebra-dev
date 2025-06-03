@@ -767,8 +767,10 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     ): FutureData<PerformanceMetrics717[]> {
         return Future.joinObj({
             performance717ProgramIndicators: this.get717PerformanceIndicators("alerts"),
-            totalPerformance717ProgramIndicator:
-                this.getTotalPerformance717ProgramIndicator("alerts"),
+            totalPerformance717ProgramIndicator: this.getTotalPerformance717ProgramIndicator(
+                "alerts",
+                diseaseName
+            ),
         }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
             const filteredProgramIndicators = diseaseName
                 ? performance717ProgramIndicators.filter(
@@ -877,7 +879,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private getTotalPerformance717ProgramIndicator(
-        key: PerformanceMetrics717Key
+        key: PerformanceMetrics717Key,
+        diseaseName?: Maybe<DiseaseNames>
     ): FutureData<Maybe<TotalPerformanceMetrics717>> {
         return this.datastore
             .getObject<TotalPerformanceMetrics717[]>(
@@ -889,7 +892,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
                 ).flatMap(performance717Indicators => {
                     return Future.success(
-                        performance717Indicators.find(indicator => indicator.key === key)
+                        performance717Indicators.find(indicator => {
+                            const hasDiseaseName = indicator.disease
+                                ? indicator.disease === diseaseName
+                                : !diseaseName;
+                            return indicator.key === key && hasDiseaseName;
+                        })
                     );
                 });
             });
@@ -973,7 +981,7 @@ function calculatePrimaryDiseaseValueFromSecondaryValue(
     metric: PerformanceMetrics717
 ): number | "Inc" {
     return metric.value !== undefined && metric?.total !== undefined && metric.value !== "Inc"
-        ? parseFloat((metric.value / metric.total).toFixed(2))
+        ? parseFloat((metric.value / metric.total).toFixed(2)) * 100
         : "Inc";
 }
 
