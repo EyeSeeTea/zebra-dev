@@ -1,18 +1,20 @@
 import { Future } from "../entities/generic/Future";
-import { Option } from "../entities/Ref";
+import { Code, Id, Option } from "../entities/Ref";
 import { AlertRepository } from "../repositories/AlertRepository";
 import { AlertSyncRepository } from "../repositories/AlertSyncRepository";
 import _ from "../entities/generic/Collection";
-import { DiseaseOutbreakEventBaseAttrs } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { logger } from "../../utils/logger";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 import { UserGroupRepository } from "../repositories/UserGroupRepository";
-import { OutbreakAlert, OutbreakData } from "../entities/alert/OutbreakAlert";
+import { OutbreakAlert } from "../entities/alert/OutbreakAlert";
 import { OutbreakAlertRepository } from "../repositories/OutbreakAlertRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { getOutbreakKey } from "../entities/AlertsAndCaseForCasesData";
 import { FutureData } from "../../data/api-futures";
 import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
+import { HashMap } from "../entities/generic/HashMap";
+import { Maybe } from "../../utils/ts-utils";
+import { Alert } from "../entities/alert/Alert";
 
 export class MapAndSaveAlertsUseCase {
     constructor(
@@ -28,59 +30,95 @@ export class MapAndSaveAlertsUseCase {
     ) {}
 
     public execute(): FutureData<void> {
-        return Future.joinObj({
-            alertData: this.options.outbreakAlertRepository.get(),
-            selectableOptions: this.getOptions(),
-        }).flatMap(({ alertData, selectableOptions }) => {
-            handleAsyncLogging(
-                logger.info(
-                    `${alertData.length} event(s) found in the Zebra Alerts program with no national event id.`
-                )
-            );
-            const alertsByDisease = getAlertsByDisease(alertData);
-
-            return Future.sequential(
-                alertsByDisease.map(diseaseAlerts => {
-                    const { outbreakData, alerts } = diseaseAlerts;
-                    return this.mapDiseaseOutbreakToAlertsAndSave(
-                        alerts,
-                        outbreakData,
-                        selectableOptions.suspectedDiseases
-                    );
-                })
-            ).flatMap(() => Future.success(undefined));
-        });
-    }
-
-    private mapDiseaseOutbreakToAlertsAndSave(
-        alertData: OutbreakAlert[],
-        outbreakData: OutbreakData,
-        suspectedDiseases: Option[]
-    ): FutureData<void> {
-        return this.getDiseaseOutbreakEvents(outbreakData).flatMap(diseaseOutbreakEvents => {
-            const outbreakKey = getOutbreakKey({
-                outbreakValue: outbreakData.value,
-                suspectedDiseases: suspectedDiseases,
-            });
-
-            if (diseaseOutbreakEvents.length > 1) {
-                return handleAsyncLogging(
-                    logger.error(`More than 1 National event found for ${outbreakKey} outbreak.`)
+        // 1. Update all alerts from the Zebra Alerts program that have no confirmed disease already set
+        return this.options.outbreakAlertRepository.updateConfirmedDiseaseInAlerts().flatMap(() => {
+            // 2. Get all outbreak alerts that have no disease outbreak event id but have a confirmed disease
+            return Future.joinObj({
+                outbreakAlertsWithoutNationalId:
+                    this.options.outbreakAlertRepository.getOutbreakAlertsWithoutNationalId(),
+                selectableOptions: this.getOptions(),
+            }).flatMap(({ outbreakAlertsWithoutNationalId, selectableOptions }) => {
+                handleAsyncLogging(
+                    logger.info(
+                        `[${new Date().toISOString()}] ${
+                            outbreakAlertsWithoutNationalId.length
+                        } event(s) found in the Zebra Alerts program with no national event id.`
+                    )
                 );
-            }
+                const alertsByDisease = getOutbreakAlertsByConfirmedDisease(
+                    outbreakAlertsWithoutNationalId
+                );
 
-            return this.mapAndSaveAlertData({
-                alertData: alertData,
-                diseaseOutbreakEvents: diseaseOutbreakEvents,
-                outbreakKey: outbreakKey,
+                return Future.sequential(
+                    // 3. For each confirmed disease, add in active verified alerts with PHEOC status Respond the corresponding disease outbreak event id
+                    // and save alerts sync data in datastore
+                    alertsByDisease.toPairs().map(([confirmedDiseaseCode, outbreakAlerts]) => {
+                        if (
+                            !confirmedDiseaseCode ||
+                            confirmedDiseaseCode === "RTSL_ZEB_OS_DISEASE_UNKNOWN"
+                        ) {
+                            return Future.success(undefined);
+                        }
+
+                        return this.mapDiseaseOutbreakEventIdAndSaveAlertData(
+                            confirmedDiseaseCode,
+                            outbreakAlerts,
+                            selectableOptions.suspectedDiseases
+                        );
+                    })
+                ).flatMap(() => Future.success(undefined));
             });
         });
     }
 
-    private getDiseaseOutbreakEvents(
-        outbreakData: OutbreakData
-    ): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
-        return this.options.diseaseOutbreakEventRepository.getEventByDisease(outbreakData);
+    private mapDiseaseOutbreakEventIdAndSaveAlertData(
+        confirmedDiseaseCode: Code,
+        alertData: OutbreakAlert[],
+        diseaseOptions: Option[]
+    ): FutureData<void> {
+        return this.options.diseaseOutbreakEventRepository
+            .getAllActiveByDisease(confirmedDiseaseCode)
+            .flatMap(diseaseOutbreakEvents => {
+                const outbreakKey = getOutbreakKey({
+                    diseaseCode: confirmedDiseaseCode,
+                    diseaseOptions: diseaseOptions,
+                });
+
+                if (diseaseOutbreakEvents.length > 1) {
+                    return handleAsyncLogging(
+                        logger.error(
+                            `[${new Date().toISOString()}] More than 1 National event found for ${outbreakKey} outbreak.`
+                        )
+                    );
+                }
+
+                if (diseaseOutbreakEvents.length === 0) {
+                    handleAsyncLogging(
+                        logger.debug(
+                            `[${new Date().toISOString()}] There is no national event with ${outbreakKey} disease type.`
+                        )
+                    );
+                    return Future.sequential(
+                        alertData.map(outbreakAlert => {
+                            return this.notifyNationalWatchStaff(outbreakAlert, outbreakKey);
+                        })
+                    ).flatMap(() => Future.success(undefined));
+                }
+
+                const diseaseOutbreakEvent = diseaseOutbreakEvents[0];
+                if (!diseaseOutbreakEvent)
+                    return handleAsyncLogging(
+                        logger.error(
+                            `[${new Date().toISOString()}] No disease outbreak event found for ${outbreakKey} disease type.`
+                        )
+                    );
+
+                return this.updateRespondAlertsWithDiseaseOutbreakEventId({
+                    diseaseOutbreakEventId: diseaseOutbreakEvent.id,
+                    diseaseOutbreakEventDiseaseCode: diseaseOutbreakEvent.suspectedDiseaseCode,
+                    outbreakKey: outbreakKey,
+                });
+            });
     }
 
     private getOptions(): FutureData<{ suspectedDiseases: Option[] }> {
@@ -95,80 +133,84 @@ export class MapAndSaveAlertsUseCase {
         });
     }
 
-    private mapAndSaveAlertData(options: {
-        alertData: OutbreakAlert[];
-        diseaseOutbreakEvents: DiseaseOutbreakEventBaseAttrs[];
-        outbreakKey: string;
-    }): FutureData<void> {
-        const { alertData, diseaseOutbreakEvents, outbreakKey } = options;
-
-        if (diseaseOutbreakEvents.length === 0) {
-            return Future.sequential(
-                alertData.map(outbreakAlert => {
-                    return this.notifyNationalWatchStaff(outbreakAlert, outbreakKey);
-                })
-            ).flatMap(() => Future.success(undefined));
-        }
-
-        const diseaseOutbreakEvent = diseaseOutbreakEvents[0];
-        if (!diseaseOutbreakEvent)
-            return handleAsyncLogging(
-                logger.error(`No disease outbreak event found for ${outbreakKey} disease type.`)
-            );
-
-        return this.updateAlertData({
-            diseaseOutbreakEvent: diseaseOutbreakEvent,
-            outbreakKey: outbreakKey,
-        });
-    }
-
     private notifyNationalWatchStaff(
         alertData: OutbreakAlert,
         outbreakKey: string
     ): FutureData<void> {
-        return Future.joinObj({
-            logMissingNationalDisease: handleAsyncLogging(
-                logger.debug(`There is no national event with ${outbreakKey} disease type.`)
-            ),
-            nationalWatchStaffUserGroup: this.options.userGroupRepository.getUserGroupByCode(
-                RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE
-            ),
-        }).flatMap(({ nationalWatchStaffUserGroup }) =>
-            this.options.notificationRepository.notifyNationalWatchStaff(alertData, outbreakKey, [
-                nationalWatchStaffUserGroup,
-            ])
-        );
+        return this.options.userGroupRepository
+            .getUserGroupByCode(RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE)
+            .flatMap(nationalWatchStaffUserGroup =>
+                this.options.notificationRepository.notifyNationalWatchStaff(
+                    alertData,
+                    outbreakKey,
+                    [nationalWatchStaffUserGroup]
+                )
+            );
     }
 
-    private updateAlertData(options: {
-        diseaseOutbreakEvent: DiseaseOutbreakEventBaseAttrs;
+    private updateRespondAlertsWithDiseaseOutbreakEventId(options: {
+        diseaseOutbreakEventId: Id;
+        diseaseOutbreakEventDiseaseCode: Maybe<Code>;
         outbreakKey: string;
     }): FutureData<void> {
-        const { diseaseOutbreakEvent, outbreakKey } = options;
+        const { diseaseOutbreakEventId, diseaseOutbreakEventDiseaseCode, outbreakKey } = options;
 
         return this.options.alertRepository
-            .updateAlerts({
-                eventId: diseaseOutbreakEvent.id,
-                outbreakValue: diseaseOutbreakEvent.suspectedDiseaseCode,
+            .updateActiveVerifiedRespondAlerts({
+                diseaseOutbreakEventId: diseaseOutbreakEventId,
+                diseaseCode: diseaseOutbreakEventDiseaseCode,
             })
             .flatMap(alerts => {
-                if (alerts.length === 0) return Future.success(undefined);
-                return handleAsyncLogging(
-                    logger.success(`Successfully updated ${alerts.length} active verified alerts.`)
-                ).flatMap(() => {
-                    return Future.sequential(
-                        alerts.map(alert => {
-                            return this.options.alertSyncRepository.saveAlertSyncData({
-                                alert: alert,
-                                nationalDiseaseOutbreakEventId: diseaseOutbreakEvent.id,
-                                outbreakKey: outbreakKey,
-                            });
-                        })
-                    ).flatMap(() =>
-                        handleAsyncLogging(logger.success("Successfully saved alert sync data."))
+                if (alerts.length === 0) {
+                    return handleAsyncLogging(
+                        logger.info(
+                            `[${new Date().toISOString()}] No active verified alerts found for disease outbreak id ${diseaseOutbreakEventId} (disease ${diseaseOutbreakEventDiseaseCode}) with Respond PHEOC status from the Zebra Alerts program`
+                        )
                     );
-                });
+                } else {
+                    return handleAsyncLogging(
+                        logger.info(
+                            `[${new Date().toISOString()}] Disease outbreak id ${diseaseOutbreakEventId} (disease ${diseaseOutbreakEventDiseaseCode}) added in ${
+                                alerts.length
+                            } active verified alerts(s) with Respond PHEOC status from the Zebra Alerts program`
+                        )
+                    ).flatMap(() => {
+                        return this.saveAlertsSyncData(diseaseOutbreakEventId, outbreakKey, alerts);
+                    });
+                }
             });
+    }
+
+    private saveAlertsSyncData(
+        diseaseOutbreakEventId: Id,
+        outbreakKey: string,
+        alerts: Alert[]
+    ): FutureData<void> {
+        if (alerts.length === 0) return Future.success(undefined);
+
+        return handleAsyncLogging(
+            logger.success(
+                `[${new Date().toISOString()}] Successfully updated ${
+                    alerts.length
+                } active verified alerts.`
+            )
+        ).flatMap(() => {
+            return Future.sequential(
+                alerts.map(alert => {
+                    return this.options.alertSyncRepository.saveAlertSyncData({
+                        alert: alert,
+                        nationalDiseaseOutbreakEventId: diseaseOutbreakEventId,
+                        outbreakKey: outbreakKey,
+                    });
+                })
+            ).flatMap(() =>
+                handleAsyncLogging(
+                    logger.success(
+                        `[${new Date().toISOString()}] Successfully saved alert sync data.`
+                    )
+                )
+            );
+        });
     }
 }
 
@@ -176,19 +218,14 @@ const handleAsyncLogging = (logger: Promise<void>): FutureData<void> => {
     return Future.fromPromise(logger).flatMap(() => Future.success(undefined));
 };
 
-function getAlertsByDisease(alerts: OutbreakAlert[]) {
-    return _(alerts)
-        .groupBy(alert => alert.outbreakData.value)
-        .values()
-        .flatMap(alertsByDisease => {
-            return _(alertsByDisease)
-                .uniqBy(alertData => alertData.outbreakData.value)
-                .map(alertData => ({
-                    outbreakData: alertData.outbreakData,
-                    alerts: alertsByDisease,
-                }))
-                .value();
-        });
+function getOutbreakAlertsByConfirmedDisease(
+    outbreakAlerts: OutbreakAlert[]
+): HashMap<Maybe<string>, OutbreakAlert[]> {
+    const groupedByConfirmedDisease = _(outbreakAlerts)
+        .groupBy(outbreakAlert => outbreakAlert.alert.confirmedDiseaseCode)
+        .omitBy(([key, _value]) => key === null || key === undefined || key === "");
+
+    return groupedByConfirmedDisease;
 }
 
 const RTSL_ZEBRA_NATIONAL_WATCH_STAFF_USER_GROUP_CODE = "RTSL_ZEBRA_NATONAL_WATCH_STAFF";

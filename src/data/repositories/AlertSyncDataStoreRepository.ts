@@ -52,7 +52,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
         return apiToFuture(
             this.api.tracker.trackedEntities.get({
                 program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                orgUnit: alert.district,
+                orgUnit: alert.districtId,
                 trackedEntity: alert.id,
                 ouMode: "SELECTED",
                 fields: {
@@ -83,7 +83,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
         const { alert, nationalDiseaseOutbreakEventId } = options;
         const outbreakType = "disease";
 
-        const alerts =
+        const casesEventsInAlerts =
             trackedEntity.enrollments?.flatMap(enrollment =>
                 enrollment.events?.map(event => {
                     const dataValues = event.dataValues;
@@ -92,7 +92,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
                         type: outbreakType,
                         alertId: event.event,
                         eventDate: event.createdAt,
-                        orgUnit: alert.district,
+                        orgUnit: alert.districtId,
                         suspectedCases: getDataValueFromMap("Suspected Cases", dataValues),
                         probableCases: getDataValueFromMap("Probable Cases", dataValues),
                         confirmedCases: getDataValueFromMap("Confirmed Cases", dataValues),
@@ -106,7 +106,7 @@ export class AlertSyncDataStoreRepository implements AlertSyncRepository {
             lastUpdated: new Date().toISOString(),
             nationalDiseaseOutbreakEventId: nationalDiseaseOutbreakEventId,
             [outbreakType]: outbreakKey,
-            alerts: alerts,
+            alerts: casesEventsInAlerts,
         };
     }
 }

@@ -17,6 +17,7 @@ export const diseaseNames = [
     "SARIs",
     "Typhoid fever",
     "Zika fever",
+    "Unknown",
 ] as const;
 export type DiseaseNames = (typeof diseaseNames)[number];
 

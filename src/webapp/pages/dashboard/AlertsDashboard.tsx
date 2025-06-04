@@ -64,6 +64,7 @@ export type AlertsDashboardProps = {
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
+    updateAlertConfirmedDisease: (alertId: Id, diseaseName: string) => void;
     performanceMetricsStatus: PerformanceMetricsStatus;
     setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
 };
@@ -85,6 +86,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         setFilters,
         goToPage,
         updateAlertIncidentStatus,
+        updateAlertConfirmedDisease,
         performanceMetricsStatus,
         setPerformanceMetricsStatus,
         ...restAlertsPerformanceOverview
@@ -109,11 +111,17 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     return;
                 }
                 updateAlertIncidentStatus(alertId, value);
+            } else if (columnName === "event") {
+                if (!alertId) {
+                    console.debug("Alert id cannot be null, not updating confirmed disease");
+                    return;
+                }
+                updateAlertConfirmedDisease(alertId, value);
             } else {
                 console.debug(`Unhandled column edit :  ${columnName}`);
             }
         },
-        [updateAlertIncidentStatus]
+        [updateAlertConfirmedDisease, updateAlertIncidentStatus]
     );
 
     const performanceStatusOptions: Option<PerformanceMetricsStatus>[] = useMemo(() => {

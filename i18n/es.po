@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-05-29T14:26:19.734Z\n"
+"POT-Creation-Date: 2025-06-04T14:37:33.269Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -233,12 +233,6 @@ msgstr ""
 msgid "Organisation unit type"
 msgstr ""
 
-msgid "Cases"
-msgstr ""
-
-msgid "Deaths"
-msgstr ""
-
 msgid "Manager"
 msgstr ""
 
@@ -261,6 +255,12 @@ msgid "Outbreak Id"
 msgstr ""
 
 msgid "Event"
+msgstr ""
+
+msgid "Cases"
+msgstr ""
+
+msgid "Deaths"
 msgstr ""
 
 msgid "ERA1"

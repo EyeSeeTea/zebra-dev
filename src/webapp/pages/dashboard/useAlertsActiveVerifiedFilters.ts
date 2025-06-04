@@ -74,10 +74,12 @@ export function useAlertsActiveVerifiedFilters(): State {
     // Initialize filter options based on eventTrackerCountsIndicatorMap
     useEffect(() => {
         const buildSelectorFiltersConfig = (): SelectorFiltersConfig[] => {
-            const diseaseOptions = diseaseNames.map(diseaseName => ({
-                value: diseaseName,
-                label: diseaseName,
-            }));
+            const diseaseOptions = diseaseNames
+                .map(diseaseName => ({
+                    value: diseaseName,
+                    label: diseaseName,
+                }))
+                .filter(option => option.value !== "Unknown");
 
             return [
                 {

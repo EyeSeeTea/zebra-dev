@@ -1,5 +1,5 @@
 import { Maybe } from "../../utils/ts-utils";
-import { Id, Option } from "./Ref";
+import { Code, Id, Option } from "./Ref";
 
 export type AlertsAndCaseForCasesData = {
     lastSyncTime: string;
@@ -23,13 +23,13 @@ export type AlertsAndCaseForCasesData = {
 };
 
 export function getOutbreakKey(options: {
-    outbreakValue: Maybe<string>;
-    suspectedDiseases: Option[];
+    diseaseCode: Maybe<Code>;
+    diseaseOptions: Option[];
 }): string {
-    const { outbreakValue, suspectedDiseases } = options;
-    const diseaseName = suspectedDiseases.find(disease => disease.id === outbreakValue)?.name;
+    const { diseaseCode, diseaseOptions } = options;
+    const diseaseName = diseaseOptions.find(disease => disease.id === diseaseCode)?.name;
 
-    if (!diseaseName) throw new Error(`Outbreak not found for ${outbreakValue}`);
+    if (!diseaseName) throw new Error(`Outbreak not found for ${diseaseCode}`);
 
     return diseaseName;
 }

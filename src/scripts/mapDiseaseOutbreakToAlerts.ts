@@ -22,12 +22,12 @@ function main() {
         args: {
             debug: flag({
                 type: boolean,
-                defaultValue: () => true,
                 long: "debug",
                 description: "Option to print also logs in console",
             }),
         },
         handler: async args => {
+            console.debug(`[${new Date().toISOString()}] Starting mapping script.`);
             const { api, instance } = getApiInstanceFromEnvVariables();
             const dataStoreClient = new DataStoreClient(api);
 
@@ -49,11 +49,22 @@ function main() {
                 configurationsRepository: configurationsRepository,
             });
 
-            return Future.fromPromise(setupLogger(instance, { isDebug: args.debug }))
+            return Future.fromPromise(setupLogger(instance, { isDebug: args.debug ?? true }))
                 .flatMap(() => mapAndSaveAlertsUseCase.execute())
                 .run(
-                    () => {},
-                    () => {}
+                    () => {
+                        console.debug(
+                            `[${new Date().toISOString()}] Mapping script completed successfully.`
+                        );
+                        process.exit(0);
+                    },
+                    error => {
+                        console.error(
+                            `[${new Date().toISOString()}] Error during mapping script:`,
+                            error
+                        );
+                        process.exit(1);
+                    }
                 );
         },
     });

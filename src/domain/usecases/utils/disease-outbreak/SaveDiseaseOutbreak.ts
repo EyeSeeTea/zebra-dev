@@ -62,8 +62,8 @@ export function saveDiseaseOutbreak(
             ).flatMap(() => {
                 if (hasNewCasesData || haveChangedCasesData) {
                     const outbreakKey = getOutbreakKey({
-                        outbreakValue: diseaseOutbreakEventWithId.suspectedDiseaseCode,
-                        suspectedDiseases:
+                        diseaseCode: diseaseOutbreakEventWithId.suspectedDiseaseCode,
+                        diseaseOptions:
                             configurations.selectableOptions.eventTrackerConfigurations
                                 .suspectedDiseases,
                     });

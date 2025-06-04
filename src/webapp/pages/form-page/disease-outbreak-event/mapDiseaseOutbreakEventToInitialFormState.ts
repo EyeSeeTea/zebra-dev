@@ -118,7 +118,10 @@ function getInitialFormStateForDiseaseOutbreakEvent(
     //If An Event Tracker has already been created for a given suspected disease or harzd type,
     //then do not allow to create another one. Remove it from dropwdown options
     const filteredSuspectedDiseases = suspectedDiseases.filter(suspectedDisease => {
-        return !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames);
+        return (
+            !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames) &&
+            suspectedDisease.name !== "Unknown"
+        );
     });
 
     const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
