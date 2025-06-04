@@ -198,7 +198,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         incidentManagementTeamRepository: new IncidentManagementTeamD2Repository(api),
         chartConfigRepository: new ChartConfigD2Repository(dataStoreClient),
         systemRepository: new SystemD2Repository(api),
-        configurationsRepository: new ConfigurationsD2Repository(api),
+        configurationsRepository: new ConfigurationsD2Repository(api, dataStoreClient),
         casesFileRepository: new CasesFileD2Repository(api, dataStoreClient),
         userGroupRepository: new UserGroupD2Repository(api),
         resourceRepository: new ResourceD2Repository(api),

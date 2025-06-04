@@ -51,20 +51,24 @@ import { isResouceType, Resource } from "../../../domain/entities/resources/Reso
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { ResourceType } from "../../../domain/entities/resources/ResourceTypeNamed";
+import { AppDefaults } from "../../../domain/entities/AppConfigurations";
 
-export function mapFormStateToEntityData(
-    formState: FormState,
-    currentUserName: string,
-    formData: ConfigurableForm
-): ConfigurableForm {
+type MapFormStateToEntityDataProps = {
+    formState: FormState;
+    currentUserName: string;
+    formData: ConfigurableForm;
+    appDefaults: AppDefaults;
+};
+
+export function mapFormStateToEntityData(props: MapFormStateToEntityDataProps): ConfigurableForm {
+    const { formState, formData } = props;
     switch (formData.type) {
         case "disease-outbreak-event":
         case "disease-outbreak-event-case-data": {
-            const diseaseEntity = mapFormStateToDiseaseOutbreakEvent(
-                formState,
-                currentUserName,
-                formData
-            );
+            const diseaseEntity = mapFormStateToDiseaseOutbreakEvent({
+                ...props,
+                formData,
+            });
 
             const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
             const uploadedCasesDataFileValue = getFileFieldValue(

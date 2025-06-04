@@ -3,8 +3,12 @@ import { ConfigurationsRepository as ConfigurationsRepository } from "../../doma
 import { Option } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
-import { SelectableOptions } from "../../domain/entities/AppConfigurations";
+import { AppDefaults, SelectableOptions } from "../../domain/entities/AppConfigurations";
 import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
+import { AppDatastoreConfig } from "../entities/AppDatastoreConfig";
+import { DataStoreClient } from "../DataStoreClient";
+import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { dataSourceMap } from "./consts/DiseaseOutbreakConstants";
 
 const optionSetCode: Record<string, string> = {
     alertDataSources: "RTSL_ZEB_OS_DATA_SOURCE",
@@ -28,7 +32,7 @@ const optionSetCode: Record<string, string> = {
 };
 
 export class ConfigurationsD2Repository implements ConfigurationsRepository {
-    constructor(private api: D2Api) {}
+    constructor(private api: D2Api, private dataStoreClient: DataStoreClient) {}
 
     getSelectableOptions(): FutureData<SelectableOptions> {
         return apiToFuture(
@@ -201,6 +205,12 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         });
     }
 
+    getAppDefaults(): FutureData<AppDefaults> {
+        return this.dataStoreClient
+            .getObject<AppDatastoreConfig>("app-config")
+            .map(appConfig => this.mapD2AppDefaultsToAppDefaults(appConfig));
+    }
+
     private createEmptySelectableOptions(): SelectableOptions {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
@@ -255,6 +265,15 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                 name: option.name.trim(),
             })
         );
+    }
+
+    private mapD2AppDefaultsToAppDefaults(appConfig?: AppDatastoreConfig): AppDefaults {
+        const defaultDataSource = appConfig?.appDefaults.diseaseOutbreakDataSource;
+        const dataSource =
+            (defaultDataSource ? dataSourceMap[defaultDataSource] : null) || DataSource.ND1;
+        return {
+            diseaseOutbreakDataSource: dataSource,
+        };
     }
 }
 

@@ -1,6 +1,6 @@
 import { Future } from "../../domain/entities/generic/Future";
 import { User } from "../../domain/entities/User";
-import { AppDatastoreConfig } from "../../domain/entities/AppDatastoreConfig";
+import { AppDatastoreConfig } from "../entities/AppDatastoreConfig";
 import { UserRepository } from "../../domain/repositories/UserRepository";
 import { D2Api, MetadataPick } from "../../types/d2-api";
 import { apiToFuture, FutureData } from "../api-futures";
