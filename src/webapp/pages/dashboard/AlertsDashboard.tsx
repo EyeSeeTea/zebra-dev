@@ -42,6 +42,7 @@ export type AlertsDashboardProps = {
     cardCountsLoading: boolean;
     cardCounts: TotalCardCounts[];
     alertsPerformanceMetrics717: PerformanceMetric717[];
+    alerts717CardsLoading: boolean;
     columns: TableColumn[];
     dataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
     paginatedDataAlertsPerformanceOverview: AlertsPerformanceOverviewMetricsTableData[];
@@ -61,28 +62,35 @@ export type AlertsDashboardProps = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
-    updateAlertIncidentStatus: (alertId: Id, orgUnitName: string, status: IncidentStatus) => void;
+    updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
 };
 
 export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props => {
     const {
         selectorFiltersConfig,
         singleSelectFilters,
-        setSingleSelectFilters,
         multiSelectFilters,
-        setMultiSelectFilters,
         dateRangeFilter,
         cardCountsLoading,
         cardCounts,
         alertsPerformanceMetrics717,
+        alerts717CardsLoading,
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
         totalPages,
         currentPage,
+        setFilters,
         goToPage,
         updateAlertIncidentStatus,
         ...restAlertsPerformanceOverview
     } = props;
+
+    const {
+        onChangeDateRangeFilter,
+        onChangeMultiSelectFilter,
+        onChangeSingleSelectFilter,
+        onClickStatCard,
+    } = useAlertDashboardActions(props);
 
     const handleColumnEdit = useCallback(
         (columnName: string, alertId: Maybe<Id>, orgUnitName: Maybe<string>, value: string) => {
@@ -95,7 +103,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     console.debug("Invalid incident status, not updating status");
                     return;
                 }
-                updateAlertIncidentStatus(alertId, orgUnitName, value);
+                updateAlertIncidentStatus(alertId, value);
             } else {
                 console.debug(`Unhandled column edit :  ${columnName}`);
             }
@@ -118,7 +126,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                                         placeholder={i18n.t(placeholder)}
                                         options={options || []}
                                         onChange={(values: string[]) =>
-                                            setMultiSelectFilters(id, values)
+                                            onChangeMultiSelectFilter(id, options, values)
                                         }
                                     />
                                 ) : (
@@ -129,7 +137,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                                         placeholder={i18n.t(placeholder)}
                                         selected={singleSelectFilters[id] || ""}
                                         onChange={(value: string) =>
-                                            setSingleSelectFilters(id, value)
+                                            onChangeSingleSelectFilter(id, value)
                                         }
                                         allowClear
                                     />
@@ -140,7 +148,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     <FilterContainer>
                         <DateRangePicker
                             value={dateRangeFilter.value || []}
-                            onChange={dateRangeFilter.onChange}
+                            onChange={onChangeDateRangeFilter}
                             placeholder={i18n.t("Select duration")}
                             label={i18n.t("Duration")}
                         />
@@ -153,6 +161,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                                 key={index}
                                 stat={cardCount.total.toString()}
                                 title={i18n.t(cardCount.name)}
+                                onClick={() => onClickStatCard(cardCount)}
                                 fillParent
                             />
                         ))}
@@ -168,27 +177,30 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                 />
             </Section>
             <Section title={i18n.t("7-1-7 performance")}>
-                <GridWrapper>
-                    {alertsPerformanceMetrics717.map(
-                        (perfMetric717: PerformanceMetric717, index: number) => (
-                            <StatsCard
-                                key={index}
-                                stat={`${perfMetric717.primaryValue}`}
-                                title={perfMetric717.title}
-                                pretitle={formatStatCardPreTitle(perfMetric717)}
-                                color={perfMetric717.color}
-                                fillParent
-                                isPercentage
-                            />
-                        )
-                    )}
-                </GridWrapper>
+                <LoaderContainer loading={alerts717CardsLoading}>
+                    <GridWrapper>
+                        {alertsPerformanceMetrics717.map(
+                            (perfMetric717: PerformanceMetric717, index: number) => (
+                                <StatsCard
+                                    key={index}
+                                    stat={`${perfMetric717.primaryValue}`}
+                                    title={perfMetric717.title}
+                                    pretitle={formatStatCardPreTitle(perfMetric717)}
+                                    color={perfMetric717.color}
+                                    fillParent
+                                    isPercentage
+                                />
+                            )
+                        )}
+                    </GridWrapper>
+                </LoaderContainer>
             </Section>
             <Section title={i18n.t("Performance overview")}>
                 <StatisticTableWrapper>
                     <StatisticTable
                         rows={dataAlertsPerformanceOverview}
                         paginatedRows={paginatedDataAlertsPerformanceOverview}
+                        setFilters={setFilters}
                         handleColumnEdit={handleColumnEdit}
                         {...restAlertsPerformanceOverview}
                     />
@@ -202,6 +214,92 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         </>
     );
 });
+
+type AlertDashboardActionsState = {
+    onChangeDateRangeFilter: (value: string[]) => void;
+    onChangeMultiSelectFilter: (
+        id: SelectorFiltersConfig["id"],
+        options: SelectorFiltersConfig["options"],
+        values: string[]
+    ) => void;
+    onChangeSingleSelectFilter: (id: SelectorFiltersConfig["id"], value: string) => void;
+    onClickStatCard: (cardCount: TotalCardCounts) => void;
+};
+
+function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardActionsState {
+    const { dateRangeFilter, setFilters, setMultiSelectFilters, setSingleSelectFilters } = props;
+
+    const onClickStatCard = useCallback(
+        (cardCount: TotalCardCounts) => {
+            setSingleSelectFilters("disease", cardCount.name);
+            setFilters(prev => ({
+                ...prev,
+                event: [cardCount.name],
+            }));
+        },
+        [setFilters, setSingleSelectFilters]
+    );
+
+    const onChangeMultiSelectFilter = useCallback(
+        (
+            id: SelectorFiltersConfig["id"],
+            options: SelectorFiltersConfig["options"],
+            values: string[]
+        ) => {
+            setMultiSelectFilters(id, values);
+
+            switch (id) {
+                case "province":
+                    setFilters(prev => ({
+                        ...prev,
+                        province: values.map(
+                            value => options.find(option => option.value === value)?.label || ""
+                        ),
+                    }));
+                    break;
+                default:
+                    break;
+            }
+        },
+        [setFilters, setMultiSelectFilters]
+    );
+
+    const onChangeSingleSelectFilter = useCallback(
+        (id: SelectorFiltersConfig["id"], value: string) => {
+            setSingleSelectFilters(id, value);
+
+            switch (id) {
+                case "disease":
+                    setFilters(prev => ({
+                        ...prev,
+                        event: [value].filter(Boolean),
+                    }));
+                    break;
+                default:
+                    break;
+            }
+        },
+        [setFilters, setSingleSelectFilters]
+    );
+
+    const onChangeDateRangeFilter = useCallback(
+        (value: string[]) => {
+            dateRangeFilter.onChange(value);
+            setFilters(prev => ({
+                ...prev,
+                date: value,
+            }));
+        },
+        [dateRangeFilter, setFilters]
+    );
+
+    return {
+        onChangeDateRangeFilter: onChangeDateRangeFilter,
+        onChangeMultiSelectFilter: onChangeMultiSelectFilter,
+        onChangeSingleSelectFilter: onChangeSingleSelectFilter,
+        onClickStatCard: onClickStatCard,
+    };
+}
 
 const GridWrapper = styled.div`
     width: 100%;

@@ -762,14 +762,23 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         });
     }
 
-    getAlerts717Performance(): FutureData<PerformanceMetrics717[]> {
+    getAlerts717Performance(
+        diseaseName?: Maybe<DiseaseNames>
+    ): FutureData<PerformanceMetrics717[]> {
         return Future.joinObj({
             performance717ProgramIndicators: this.get717PerformanceIndicators("alerts"),
-            totalPerformance717ProgramIndicator:
-                this.getTotalPerformance717ProgramIndicator("alerts"),
+            totalPerformance717ProgramIndicator: this.getTotalPerformance717ProgramIndicator(
+                "alerts",
+                diseaseName
+            ),
         }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
+            const filteredProgramIndicators = diseaseName
+                ? performance717ProgramIndicators.filter(
+                      indicator => indicator.disease === diseaseName
+                  )
+                : performance717ProgramIndicators.filter(indicator => !indicator.disease);
             const performance717ProgramIndicatorIds = [
-                ...performance717ProgramIndicators.map(({ id }) => id),
+                ...filteredProgramIndicators.map(({ id }) => id),
                 totalPerformance717ProgramIndicator?.id,
             ];
 
@@ -781,11 +790,25 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     includeMetadataDetails: true,
                 })
             ).map(res => {
-                return this.mapIndicatorsTo717PerformanceMetrics(
+                const performanceMetrics = this.mapIndicatorsTo717PerformanceMetrics(
                     res.rows,
                     performance717ProgramIndicators,
                     totalPerformance717ProgramIndicator
                 );
+                if (!diseaseName) return performanceMetrics;
+
+                const secondaryDiseaseMetrics = performanceMetrics.filter(
+                    metric => metric.type === "secondary" && metric.disease === diseaseName
+                );
+                const primaryDiseaseMetrics = secondaryDiseaseMetrics.map<PerformanceMetrics717>(
+                    metric => ({
+                        ...metric,
+                        type: "primary",
+                        value: calculatePrimaryDiseaseValueFromSecondaryValue(metric),
+                    })
+                );
+
+                return [...primaryDiseaseMetrics, ...secondaryDiseaseMetrics];
             });
         });
     }
@@ -856,7 +879,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private getTotalPerformance717ProgramIndicator(
-        key: PerformanceMetrics717Key
+        key: PerformanceMetrics717Key,
+        diseaseName?: Maybe<DiseaseNames>
     ): FutureData<Maybe<TotalPerformanceMetrics717>> {
         return this.datastore
             .getObject<TotalPerformanceMetrics717[]>(
@@ -868,7 +892,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
                 ).flatMap(performance717Indicators => {
                     return Future.success(
-                        performance717Indicators.find(indicator => indicator.key === key)
+                        performance717Indicators.find(indicator => {
+                            const hasDiseaseName = indicator.disease
+                                ? indicator.disease === diseaseName
+                                : !diseaseName;
+                            return indicator.key === key && hasDiseaseName;
+                        })
                     );
                 });
             });
@@ -946,6 +975,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             return acc;
         }, {} as Partial<PerformanceOverviewMetrics>);
     }
+}
+
+function calculatePrimaryDiseaseValueFromSecondaryValue(
+    metric: PerformanceMetrics717
+): number | "Inc" {
+    return metric.value !== undefined && metric?.total !== undefined && metric.value !== "Inc"
+        ? parseFloat((metric.value / metric.total).toFixed(2)) * 100
+        : "Inc";
 }
 
 function filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
