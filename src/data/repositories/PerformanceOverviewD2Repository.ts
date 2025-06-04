@@ -259,63 +259,35 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<EventTrackerOverview[]> {
-        return Future.joinObj({
-            alertsEventTrackerOverviewIdsResponse: this.datastore.getObject<
-                EventTrackerOverviewInDataStore[]
-            >(ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY),
-            casesEventTrackerOverviewIdsResponse: this.datastore.getObject<
-                EventTrackerOverviewInDataStore[]
-            >(CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY),
-        }).flatMap(
-            ({ alertsEventTrackerOverviewIdsResponse, casesEventTrackerOverviewIdsResponse }) => {
+        return this.datastore
+            .getObject<EventTrackerOverviewInDataStore[]>(
+                CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+            )
+            .flatMap(casesEventTrackerOverviewIdsResponse => {
                 return assertOrError(
-                    alertsEventTrackerOverviewIdsResponse,
-                    ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                ).flatMap(alertsEventTrackerOverviewIds => {
-                    return assertOrError(
-                        casesEventTrackerOverviewIdsResponse,
-                        CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                    ).flatMap(casesEventTrackerOverviewIds => {
-                        return Future.success([
-                            ...alertsEventTrackerOverviewIds.map(
-                                ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                }) => ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                    casesDataSource:
-                                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
-                                })
-                            ),
-                            ...casesEventTrackerOverviewIds.map(
-                                ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                }) => ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                    casesDataSource:
-                                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF,
-                                })
-                            ),
-                        ]);
-                    });
+                    casesEventTrackerOverviewIdsResponse,
+                    CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+                ).map(casesEventTrackerOverviewIds => {
+                    return casesEventTrackerOverviewIds
+                        .filter(caseEventOverviewId => !caseEventOverviewId.dataSource)
+                        .map(
+                            ({
+                                key,
+                                suspectedCasesId,
+                                confirmedCasesId,
+                                deathsId,
+                                probableCasesId,
+                            }) => ({
+                                key,
+                                suspectedCasesId,
+                                confirmedCasesId,
+                                deathsId,
+                                probableCasesId,
+                                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                            })
+                        );
                 });
-            }
-        );
+            });
     }
 
     getEventTrackerOverviewMetrics(
@@ -487,7 +459,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 const deathsIndicatorIds = eventTrackerOverviewsForKeys.map(
                                     overview => overview.deathsId
                                 );
-
                                 return Future.joinObj({
                                     allCases: this.getAnalyticsByIndicators(casesIndicatorIds),
                                     allDeaths: this.getAnalyticsByIndicators(deathsIndicatorIds),
