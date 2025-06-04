@@ -2,39 +2,38 @@ import { TreeItem as TreeItemMUI } from "@material-ui/lab";
 import React from "react";
 import styled from "styled-components";
 import { ResourceLabel } from "../../pages/resources/ResourceLabel";
-import { ResponseDocumentsByFolder } from "../../pages/resources/useResources";
+import {
+    DiseaseOutbreakEventDocumentsByFolder,
+    ResponseDocumentsByFolder,
+} from "../../pages/resources/useResources";
 
-type ResponseDocumentHierarchyItemProps = {
+type ResourceDocumentHierarchyItemProps = {
     isDeleting: boolean;
-    responseDocument: ResponseDocumentsByFolder;
+    folderWithResources: ResponseDocumentsByFolder | DiseaseOutbreakEventDocumentsByFolder;
     userCanDelete: boolean;
     userCanDownload: boolean;
-    onDelete: () => void;
+    onDelete?: () => void;
 };
 
-export const ResponseDocumentHierarchyItem: React.FC<ResponseDocumentHierarchyItemProps> =
+export const ResourceDocumentHierarchyItem: React.FC<ResourceDocumentHierarchyItemProps> =
     React.memo(props => {
-        const { isDeleting, responseDocument, userCanDelete, userCanDownload, onDelete } = props;
+        const { isDeleting, folderWithResources, userCanDelete, userCanDownload, onDelete } = props;
 
         return (
             <StyledTreeItemMUI
-                nodeId={responseDocument.resourceFolder}
-                label={responseDocument.resourceFolder}
+                nodeId={folderWithResources.folder}
+                label={folderWithResources.folder}
             >
-                {responseDocument.resources.map(resource => {
+                {folderWithResources.resources.map(resource => {
                     return (
                         <StyledTreeItemMUI
-                            key={resource.resourceLabel}
-                            nodeId={resource.resourceLabel}
+                            key={resource.id}
+                            nodeId={resource.id}
                             label={
                                 <ResourceLabel
                                     isDeleting={isDeleting}
                                     onDelete={onDelete}
-                                    resource={{
-                                        resourceFileId: resource.resourceFileId,
-                                        resourceLabel: resource.resourceLabel,
-                                        resourceType: responseDocument.resourceType,
-                                    }}
+                                    resource={resource}
                                     userCanDelete={userCanDelete}
                                     userCanDownload={userCanDownload}
                                 />
