@@ -29,6 +29,7 @@ import {
     IncidentStatusFilter,
     PerformanceMetrics717Key,
     TotalPerformanceMetrics717,
+    PerformanceMetricsStatus,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
@@ -68,6 +69,8 @@ const EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "event-tracker-717-performance-program-indicators";
 const ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "alerts-717-performance-program-indicators";
+const COMPLETED_ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
+    "completed-alerts-717-performance-program-indicators";
 const TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
     "total-717-performance-program-indicators";
 const PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY = "performance-overview-dimensions";
@@ -91,6 +94,8 @@ type IdValue = {
     id: Id;
     value: string;
 };
+
+type TotalPerformanceMetrics717Key = PerformanceMetrics717Key | "alerts-completed";
 
 export class PerformanceOverviewD2Repository implements PerformanceOverviewRepository {
     constructor(private api: D2Api, private datastore: DataStoreClient) {}
@@ -762,14 +767,30 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         });
     }
 
-    getAlerts717Performance(): FutureData<PerformanceMetrics717[]> {
+    getAlerts717Performance(
+        performanceMetricsStatus: PerformanceMetricsStatus,
+        diseaseName: Maybe<DiseaseNames>
+    ): FutureData<PerformanceMetrics717[]> {
+        const totalPerformanceKey =
+            performanceMetricsStatus === "active" ? "alerts" : "alerts-completed";
+
         return Future.joinObj({
-            performance717ProgramIndicators: this.get717PerformanceIndicators("alerts"),
-            totalPerformance717ProgramIndicator:
-                this.getTotalPerformance717ProgramIndicator("alerts"),
+            performance717ProgramIndicators: this.get717PerformanceIndicators(
+                "alerts",
+                performanceMetricsStatus
+            ),
+            totalPerformance717ProgramIndicator: this.getTotalPerformance717ProgramIndicator(
+                totalPerformanceKey,
+                diseaseName
+            ),
         }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
+            const filteredProgramIndicators = diseaseName
+                ? performance717ProgramIndicators.filter(
+                      indicator => indicator.disease === diseaseName
+                  )
+                : performance717ProgramIndicators.filter(indicator => !indicator.disease);
             const performance717ProgramIndicatorIds = [
-                ...performance717ProgramIndicators.map(({ id }) => id),
+                ...filteredProgramIndicators.map(({ id }) => id),
                 totalPerformance717ProgramIndicator?.id,
             ];
 
@@ -781,11 +802,25 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     includeMetadataDetails: true,
                 })
             ).map(res => {
-                return this.mapIndicatorsTo717PerformanceMetrics(
+                const performanceMetrics = this.mapIndicatorsTo717PerformanceMetrics(
                     res.rows,
                     performance717ProgramIndicators,
                     totalPerformance717ProgramIndicator
                 );
+                if (!diseaseName) return performanceMetrics;
+
+                const secondaryDiseaseMetrics = performanceMetrics.filter(
+                    metric => metric.type === "secondary" && metric.disease === diseaseName
+                );
+                const primaryDiseaseMetrics = secondaryDiseaseMetrics.map<PerformanceMetrics717>(
+                    metric => ({
+                        ...metric,
+                        type: "primary",
+                        value: calculatePrimaryDiseaseValueFromSecondaryValue(metric),
+                    })
+                );
+
+                return [...primaryDiseaseMetrics, ...secondaryDiseaseMetrics];
             });
         });
     }
@@ -835,14 +870,17 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private get717PerformanceIndicators(
-        key: PerformanceMetrics717Key
+        key: PerformanceMetrics717Key,
+        performanceMetricsStatus?: PerformanceMetricsStatus
     ): FutureData<PerformanceMetrics717[]> {
-        const datastoreKey =
-            key === "national"
-                ? NATIONAL_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
-                : key === "alerts"
-                ? ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
-                : EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY;
+        const datastoreKey = {
+            national: NATIONAL_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY,
+            alerts:
+                performanceMetricsStatus === "active"
+                    ? ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
+                    : COMPLETED_ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY,
+            event: EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY,
+        }[key];
 
         return this.datastore
             .getObject<PerformanceMetrics717[]>(datastoreKey)
@@ -856,7 +894,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private getTotalPerformance717ProgramIndicator(
-        key: PerformanceMetrics717Key
+        key: TotalPerformanceMetrics717Key,
+        diseaseName?: Maybe<DiseaseNames>
     ): FutureData<Maybe<TotalPerformanceMetrics717>> {
         return this.datastore
             .getObject<TotalPerformanceMetrics717[]>(
@@ -868,7 +907,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     TOTALS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY
                 ).flatMap(performance717Indicators => {
                     return Future.success(
-                        performance717Indicators.find(indicator => indicator.key === key)
+                        performance717Indicators.find(indicator => {
+                            const hasDiseaseName = indicator.disease
+                                ? indicator.disease === diseaseName
+                                : !diseaseName;
+                            return indicator.key === key && hasDiseaseName;
+                        })
                     );
                 });
             });
@@ -946,6 +990,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             return acc;
         }, {} as Partial<PerformanceOverviewMetrics>);
     }
+}
+
+function calculatePrimaryDiseaseValueFromSecondaryValue(
+    metric: PerformanceMetrics717
+): number | "Inc" {
+    return metric.value !== undefined && metric.total && metric.value !== "Inc"
+        ? parseFloat((metric.value / metric.total).toFixed(2)) * 100
+        : "Inc";
 }
 
 function filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(

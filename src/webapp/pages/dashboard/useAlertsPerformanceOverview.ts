@@ -65,7 +65,7 @@ type State = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
-    updateAlertIncidentStatus: (alertId: Id, orgUnitName: string, status: IncidentStatus) => void;
+    updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
 };
 
 export type Order = {
@@ -156,6 +156,7 @@ export function useAlertsPerformanceOverview(): State {
                 event: data.suspectedDisease,
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
+                province: data.province.trim(),
             };
         },
         []
@@ -198,10 +199,10 @@ export function useAlertsPerformanceOverview(): State {
     ]);
 
     const updateAlertIncidentStatus = useCallback(
-        (alertId: Id, orgUnitName: string, status: IncidentStatus) => {
+        (alertId: Id, status: IncidentStatus) => {
             setIsLoading(true);
             compositionRoot.performanceOverview.updateAlertIncidentStatus
-                .execute(alertId, orgUnitName, status)
+                .execute(alertId, status)
                 .run(
                     () => {
                         snackbar.info("PHEOC status updated successfully!");

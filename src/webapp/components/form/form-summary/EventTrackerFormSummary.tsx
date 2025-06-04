@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import i18n from "@eyeseetea/d2-ui-components/locales";
 import { EditOutlined } from "@material-ui/icons";
-import { CheckOutlined } from "@material-ui/icons";
+import { CheckOutlined, FolderOpen } from "@material-ui/icons";
 import BackupIcon from "@material-ui/icons/Backup";
 import { useSnackbar } from "@eyeseetea/d2-ui-components";
 
@@ -16,6 +16,9 @@ import { Maybe } from "../../../../utils/ts-utils";
 import { Id } from "../../../../domain/entities/Ref";
 import { GlobalMessage } from "../../../pages/form-page/useForm";
 import { TextPreview } from "../../text-editor/TextEditor";
+import { useResources } from "../../../pages/resources/useResources";
+import { SimpleModal } from "../../simple-modal/SimpleModal";
+import { ResourcesDocumentHierarchyView } from "../../resource-document-hierarchy/ResourcesDocumentHierarchyView";
 
 export type EventTrackerFormSummaryProps = {
     id: Id;
@@ -41,13 +44,23 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
     } = props;
     const { goTo } = useRoutes();
     const snackbar = useSnackbar();
+    const {
+        globalMessage: resourcesGlobalMessage,
+        resources,
+        userCanUploadAndDelete,
+        userCanDownload,
+    } = useResources(id);
+
+    const [openResourcesModal, setOpenResourcesModal] = useState(false);
 
     useEffect(() => {
-        if (!globalMessage) return;
+        if (!globalMessage || !resourcesGlobalMessage) return;
 
-        snackbar[globalMessage.type](globalMessage.text);
+        snackbar[globalMessage.type || resourcesGlobalMessage.type](
+            globalMessage.text || resourcesGlobalMessage.type
+        );
         goTo(RouteName.ZEBRA_DASHBOARD);
-    }, [globalMessage, goTo, snackbar]);
+    }, [globalMessage, goTo, resourcesGlobalMessage, snackbar]);
 
     const onEditClick = useCallback(() => {
         goTo(RouteName.EDIT_FORM, { formType: diseaseOutbreakFormType, id: id });
@@ -78,6 +91,17 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
                     {i18n.t("Replace case data")}
                 </Button>
             ) : null}
+
+            {resources && resources.diseaseOutbreakEventDocumentsByFolder.length > 0 && (
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => setOpenResourcesModal(true)}
+                    startIcon={<FolderOpen />}
+                >
+                    {i18n.t("Show resources")}
+                </Button>
+            )}
 
             <Button
                 variant="outlined"
@@ -144,6 +168,34 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
                     </Box>{" "}
                     <TextPreview value={formSummary.notes} />
                 </StyledType>
+                <SimpleModal
+                    open={openResourcesModal}
+                    onClose={() => setOpenResourcesModal(false)}
+                    title={"Resources"}
+                    closeLabel={i18n.t("Close")}
+                    alignFooterButtons="end"
+                    width={700}
+                >
+                    <>
+                        {resources &&
+                            resources.diseaseOutbreakEventDocumentsByFolder.length > 0 && (
+                                <>
+                                    <ResourceTypeLabel>
+                                        {i18n.t("Events Documents")}
+                                    </ResourceTypeLabel>
+                                    <ResourceContainer>
+                                        <ResourcesDocumentHierarchyView
+                                            resourcesByFolder={
+                                                resources.diseaseOutbreakEventDocumentsByFolder
+                                            }
+                                            userCanDelete={userCanUploadAndDelete}
+                                            userCanDownload={userCanDownload}
+                                        />
+                                    </ResourceContainer>
+                                </>
+                            )}
+                    </>
+                </SimpleModal>
             </Section>
         </>
     ) : (
@@ -176,4 +228,18 @@ const StyledType = styled(Typography)`
 
 const IncidentManagerContainer = styled.div`
     margin-block-end: 10px;
+`;
+
+const ResourceContainer = styled.div`
+    background-color: ${props => props.theme.palette.common.white};
+    color: ${props => props.theme.palette.common.grey700};
+    padding: 8px 16px;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+`;
+
+const ResourceTypeLabel = styled.p`
+    font-size: 20px;
 `;

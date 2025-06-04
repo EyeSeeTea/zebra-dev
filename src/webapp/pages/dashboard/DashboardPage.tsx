@@ -60,10 +60,17 @@ export const DashboardPage: React.FC = React.memo(() => {
     const {
         performanceMetrics717: nationalPerformanceMetrics717,
         isLoading: national717CardsLoading,
-    } = use717Performance("national");
+    } = use717Performance({ type: "national" });
 
-    const { performanceMetrics717: alertsPerformanceMetrics717, isLoading: alerts717CardsLoading } =
-        use717Performance("alerts");
+    const {
+        performanceMetrics717: alertsPerformanceMetrics717,
+        isLoading: alerts717CardsLoading,
+        performanceMetricsStatus,
+        setPerformanceMetricsStatus,
+    } = use717Performance({
+        type: "alerts",
+        singleSelectFilters: singleSelectFilters,
+    });
 
     const { cardCounts, isLoading: cardCountsLoading } = useCardCounts(
         singleSelectFilters,
@@ -81,8 +88,7 @@ export const DashboardPage: React.FC = React.memo(() => {
 
     return performanceOverviewLoading ||
         alertsPerformanceOverviewLoading ||
-        national717CardsLoading ||
-        alerts717CardsLoading ? (
+        national717CardsLoading ? (
         <Loader />
     ) : (
         <Layout
@@ -105,11 +111,14 @@ export const DashboardPage: React.FC = React.memo(() => {
                     cardCountsLoading={cardCountsLoading}
                     cardCounts={cardCounts}
                     alertsPerformanceMetrics717={alertsPerformanceMetrics717}
+                    alerts717CardsLoading={alerts717CardsLoading}
                     dataAlertsPerformanceOverview={dataAlertsPerformanceOverview}
                     paginatedDataAlertsPerformanceOverview={paginatedDataAlertsPerformanceOverview}
                     totalPages={totalPages}
                     currentPage={currentPage}
                     goToPage={goToPage}
+                    performanceMetricsStatus={performanceMetricsStatus}
+                    setPerformanceMetricsStatus={setPerformanceMetricsStatus}
                     updateAlertIncidentStatus={updateAlertIncidentStatus}
                     {...restAlertsPerformanceOverview}
                 />

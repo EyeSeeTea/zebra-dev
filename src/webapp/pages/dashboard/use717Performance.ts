@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import _ from "../../../domain/entities/generic/Collection";
 import { StatsCardProps } from "../../components/stats-card/StatsCard";
 import {
+    isDiseaseName,
     PerformanceMetrics717,
     PerformanceMetrics717Key,
+    PerformanceMetricsStatus,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Id } from "../../../domain/entities/Ref";
 
@@ -24,18 +26,24 @@ export type PerformanceMetric717 = {
 export type PerformanceMetric717State = {
     performanceMetrics717: PerformanceMetric717[];
     isLoading: boolean;
+    performanceMetricsStatus: PerformanceMetricsStatus;
+    setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
 };
 
 export type Order = { name: string; direction: "asc" | "desc" };
 
-export function use717Performance(
-    type: PerformanceMetrics717Key,
-    diseaseOutbreakEventId?: Id
-): PerformanceMetric717State {
+export function use717Performance(options: {
+    type: PerformanceMetrics717Key;
+    diseaseOutbreakEventId?: Id;
+    singleSelectFilters?: Record<string, string>;
+}): PerformanceMetric717State {
     const { compositionRoot } = useAppContext();
+    const { type, diseaseOutbreakEventId, singleSelectFilters } = options;
 
     const [performanceMetrics717, setPerformanceMetrics717] = useState<PerformanceMetric717[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [performanceMetricsStatus, setPerformanceMetricsStatus] =
+        useState<PerformanceMetricsStatus>("active");
 
     const getColor = useCallback(
         (key: string, value: number | "Inc", type: PerformanceMetrics717Key): CardColors => {
@@ -102,10 +110,17 @@ export function use717Performance(
         [getColor, type]
     );
 
+    const diseaseName = useMemo(() => {
+        return isDiseaseName(singleSelectFilters?.disease)
+            ? singleSelectFilters.disease
+            : undefined;
+    }, [singleSelectFilters?.disease]);
+
     useEffect(() => {
         setIsLoading(true);
+
         compositionRoot.performanceOverview.get717Performance
-            .execute(type, diseaseOutbreakEventId)
+            .execute({ type, diseaseOutbreakEventId, performanceMetricsStatus, diseaseName })
             .run(
                 performanceMetrics717 => {
                     setPerformanceMetrics717(transformData(performanceMetrics717));
@@ -118,7 +133,10 @@ export function use717Performance(
             );
     }, [
         compositionRoot.performanceOverview.get717Performance,
+        diseaseName,
         diseaseOutbreakEventId,
+        performanceMetricsStatus,
+        singleSelectFilters,
         transformData,
         type,
     ]);
@@ -126,5 +144,7 @@ export function use717Performance(
     return {
         performanceMetrics717,
         isLoading,
+        performanceMetricsStatus,
+        setPerformanceMetricsStatus,
     };
 }

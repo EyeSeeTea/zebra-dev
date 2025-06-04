@@ -1,11 +1,16 @@
 import { AlertsPerformanceOverviewMetrics } from "../../../domain/entities/alert/AlertsPerformanceOverviewMetrics";
 import { AlertDataSource } from "../../../domain/entities/alert/Alert";
-import { PerformanceMetrics717 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    DiseaseNames,
+    PerformanceMetrics717,
+    PerformanceMetricsStatus,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Future } from "../../../domain/entities/generic/Future";
 import { OverviewCard } from "../../../domain/entities/PerformanceOverview";
 import { Id } from "../../../domain/entities/Ref";
 import { PerformanceOverviewRepository } from "../../../domain/repositories/PerformanceOverviewRepository";
 import { FutureData } from "../../api-futures";
+import { Maybe } from "../../../utils/ts-utils";
 
 export class PerformanceOverviewTestRepository implements PerformanceOverviewRepository {
     getEvent717Performance(_diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
@@ -21,7 +26,10 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
         return Future.success(0);
     }
 
-    getAlerts717Performance(): FutureData<any> {
+    getAlerts717Performance(
+        _performanceMetricsStatus: PerformanceMetricsStatus,
+        _diseaseName: Maybe<DiseaseNames>
+    ): FutureData<any> {
         return Future.success(0);
     }
 

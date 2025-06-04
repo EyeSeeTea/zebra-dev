@@ -1,6 +1,6 @@
 import { Maybe } from "../../utils/ts-utils";
 import { TeamMember } from "./incident-management-team/TeamMember";
-import { Id, Option } from "./Ref";
+import { Id, NamedRef, Option } from "./Ref";
 import { Rule } from "./Rule";
 import { DiseaseOutbreakEvent } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 import { FormType } from "../../webapp/pages/form-page/FormPage";
@@ -13,6 +13,7 @@ import { IncidentManagementTeam } from "./incident-management-team/IncidentManag
 import { Role } from "./incident-management-team/Role";
 import { Resource } from "./resources/Resource";
 import { OrgUnit } from "./OrgUnit";
+import { ResourceType, ResourceTypeNamed } from "./resources/ResourceTypeNamed";
 
 export type DiseaseOutbreakEventOptions = {
     mainSyndromes: Option[];
@@ -68,9 +69,14 @@ export type IncidentResponseActionOptions = {
     verification: Option[];
 };
 
+export type ResourceFolderOption = NamedRef & {
+    resourceType: ResourceType;
+};
+
 export type ResourceOptions = {
-    resourceType: Option[];
-    resourceFolder: Option[];
+    resourceType: ResourceTypeNamed[];
+    resourceFolder: ResourceFolderOption[];
+    activeDiseaseOutbreakEvents: Option[];
 };
 
 export type FormLables = {
