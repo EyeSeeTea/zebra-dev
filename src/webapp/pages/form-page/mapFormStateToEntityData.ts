@@ -47,7 +47,10 @@ import { TeamMember } from "../../../domain/entities/incident-management-team/Te
 import { TEAM_ROLE_FIELD_ID } from "./incident-management-team-member-assignment/mapIncidentManagementTeamMemberToInitialFormState";
 import { incidentManagementTeamBuilderCodesWithoutRoles } from "../../../data/repositories/consts/IncidentManagementTeamBuilderConstants";
 import { mapFormStateToDiseaseOutbreakEvent } from "./disease-outbreak-event/mapFormStateToDiseaseOutbreakEvent";
-import { Resource, ResourceType } from "../../../domain/entities/resources/Resource";
+import { isResouceType, Resource } from "../../../domain/entities/resources/Resource";
+import { Id } from "../../../domain/entities/Ref";
+import { Maybe } from "../../../utils/ts-utils";
+import { ResourceType } from "../../../domain/entities/resources/ResourceTypeNamed";
 
 export function mapFormStateToEntityData(
     formState: FormState,
@@ -146,7 +149,7 @@ export function mapFormStateToEntityData(
             return incidentManagementTeamMemberForm;
         }
         case "resource": {
-            const resource = mapFormStateToResource(formState);
+            const resource = mapFormStateToResource(formData.entity?.id, formState);
 
             const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
             const uploadedResourceFileValue = getFileFieldValue("resourceFile", allFields);
@@ -640,20 +643,10 @@ function mapFormStateToIncidentManagementTeamMember(
     });
 }
 
-function mapFormStateToResource(formState: FormState): Resource {
+function mapFormStateToResource(resourceId: Maybe<Id>, formState: FormState): Resource {
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
-    const resourceType = getStringFieldValue("resourceType", allFields) as ResourceType;
-    const resourceLabel = getStringFieldValue("resourceLabel", allFields);
-    const resourceFolder = getStringFieldValue("resourceFolder", allFields);
-    const uploadedResourceFileId = getFieldFileIdById("resourceFile", allFields);
-
-    const resource: Resource = {
-        resourceType: resourceType,
-        resourceLabel: resourceLabel,
-        resourceFolder: resourceFolder,
-        resourceFileId: uploadedResourceFileId,
-    };
+    const resource = buildResource(resourceId, allFields);
 
     return resource;
 }
@@ -664,4 +657,59 @@ function extractIndex(input: string): number | undefined {
     const index = Number(lastPart);
 
     return isNaN(index) ? undefined : index;
+}
+
+export function buildResource(resourceId: Maybe<Id>, allFields: FormFieldState[]): Resource {
+    const resourceType = getStringFieldValue("resourceType", allFields);
+    if (!isResouceType(resourceType)) {
+        throw new Error(`Invalid resource type: ${resourceType}`);
+    }
+
+    const resourceLabel = getStringFieldValue("resourceLabel", allFields);
+    const resourceFolder = getStringFieldValue(
+        resourceType === ResourceType.RESPONSE_DOCUMENT
+            ? "responseResourceFolder"
+            : "eventResourceFolder",
+        allFields
+    );
+    const uploadedResourceFileId = getFieldFileIdById("resourceFile", allFields);
+    const diseaseOutbreakEventId = getStringFieldValue("resourceDiseaseOutbreakEventId", allFields);
+
+    switch (resourceType) {
+        case ResourceType.RESPONSE_DOCUMENT:
+            if (!resourceFolder) throw new Error("Missing resource folder for Response Document");
+            return {
+                id: resourceId || "",
+
+                type: resourceType,
+                name: resourceLabel,
+                folder: resourceFolder,
+                fileId: uploadedResourceFileId,
+            };
+
+        case ResourceType.TEMPLATE:
+            return {
+                id: resourceId || "",
+                type: resourceType,
+                name: resourceLabel,
+                fileId: uploadedResourceFileId,
+            };
+
+        case ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT:
+            if (!diseaseOutbreakEventId || !resourceFolder)
+                throw new Error(
+                    "Missing Disease Outbreak Event Id or Resource Folder for Event Document"
+                );
+            return {
+                id: resourceId || "",
+                type: resourceType,
+                name: resourceLabel,
+                fileId: uploadedResourceFileId,
+                folder: resourceFolder,
+                diseaseOutbreakEventId: diseaseOutbreakEventId,
+            };
+
+        default:
+            throw new Error(`Invalid resource type: ${resourceType}`);
+    }
 }
