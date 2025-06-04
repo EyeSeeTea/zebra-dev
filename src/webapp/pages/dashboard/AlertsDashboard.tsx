@@ -19,7 +19,6 @@ import i18n from "../../../utils/i18n";
 import { Pagination } from "../../components/pagination/Pagination";
 import { SelectorFiltersConfig } from "./useAlertsActiveVerifiedFilters";
 import {
-    IncidentStatus,
     isIncidentStatus,
     PerformanceMetricsStatus,
     TotalCardCounts,
@@ -29,6 +28,7 @@ import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../components/utils/option";
 import { Id } from "../../../domain/entities/Ref";
 import { formatStatCardPreTitle } from "./NationalDashboard";
+import { AlertStatus } from "../../../domain/usecases/UpdateAlertPHEOCStatusUseCase";
 
 export type AlertsDashboardProps = {
     selectorFiltersConfig: SelectorFiltersConfig[];
@@ -63,7 +63,7 @@ export type AlertsDashboardProps = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
-    updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
+    updateAlertIncidentStatus: (alertId: Id, status: AlertStatus) => void;
     performanceMetricsStatus: PerformanceMetricsStatus;
     setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
 };
@@ -104,7 +104,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     console.debug("Alert id cannot be null, not updating status");
                     return;
                 }
-                if (!isIncidentStatus(value)) {
+                if (!isAlertStatus(value)) {
                     console.debug("Invalid incident status, not updating status");
                     return;
                 }
@@ -251,6 +251,10 @@ type AlertDashboardActionsState = {
     ) => void;
     onChangeSingleSelectFilter: (id: SelectorFiltersConfig["id"], value: string) => void;
     onClickStatCard: (cardCount: TotalCardCounts) => void;
+};
+
+const isAlertStatus = (status: string): status is AlertStatus => {
+    return isIncidentStatus(status) || status === "Completed";
 };
 
 function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardActionsState {

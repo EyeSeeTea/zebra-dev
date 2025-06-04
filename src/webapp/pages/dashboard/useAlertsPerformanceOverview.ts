@@ -16,8 +16,8 @@ import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
 import { AlertDataSource } from "../../../domain/entities/alert/Alert";
-import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
+import { AlertStatus } from "../../../domain/usecases/UpdateAlertPHEOCStatusUseCase";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     event: string;
@@ -65,7 +65,7 @@ type State = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
-    updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
+    updateAlertIncidentStatus: (alertId: Id, status: AlertStatus) => void;
 };
 
 export type Order = {
@@ -136,7 +136,7 @@ export function useAlertsPerformanceOverview(): State {
                 label: i18n.t("Incident Status"),
                 value: "incidentStatus",
                 type: "selector",
-                options: incidentStatusOptions,
+                options: [...incidentStatusOptions, { value: "Completed", label: "Completed" }],
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
@@ -199,7 +199,7 @@ export function useAlertsPerformanceOverview(): State {
     ]);
 
     const updateAlertIncidentStatus = useCallback(
-        (alertId: Id, status: IncidentStatus) => {
+        (alertId: Id, status: AlertStatus) => {
             setIsLoading(true);
             compositionRoot.performanceOverview.updateAlertIncidentStatus
                 .execute(alertId, status)
