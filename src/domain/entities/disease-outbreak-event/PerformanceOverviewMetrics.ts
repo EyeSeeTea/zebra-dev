@@ -84,3 +84,5 @@ export type TotalPerformanceMetrics717 = {
     key: PerformanceMetrics717Key;
     disease?: DiseaseNames;
 };
+
+export type PerformanceMetricsStatus = "active" | "completed";

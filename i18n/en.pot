@@ -195,6 +195,12 @@ msgstr ""
 msgid "You do not have permission to create/edit this form"
 msgstr ""
 
+msgid "Active"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
 msgid "Select duration"
 msgstr ""
 
