@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 
 import { Row, SheetData } from "../../../components/form/FormFieldsState";
 
-export async function readFile(file: File): Promise<SheetData[]> {
+export async function readXLSXFile(file: File): Promise<SheetData[]> {
     const workbook = XLSX.read(await file.arrayBuffer(), { cellDates: true });
 
     return Object.entries(workbook.Sheets).map(([sheetName, worksheet]): SheetData => {
