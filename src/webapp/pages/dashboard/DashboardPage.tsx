@@ -62,11 +62,15 @@ export const DashboardPage: React.FC = React.memo(() => {
         isLoading: national717CardsLoading,
     } = use717Performance({ type: "national" });
 
-    const { performanceMetrics717: alertsPerformanceMetrics717, isLoading: alerts717CardsLoading } =
-        use717Performance({
-            type: "alerts",
-            singleSelectFilters: singleSelectFilters,
-        });
+    const {
+        performanceMetrics717: alertsPerformanceMetrics717,
+        isLoading: alerts717CardsLoading,
+        performanceMetricsStatus,
+        setPerformanceMetricsStatus,
+    } = use717Performance({
+        type: "alerts",
+        singleSelectFilters: singleSelectFilters,
+    });
 
     const { cardCounts, isLoading: cardCountsLoading } = useCardCounts(
         singleSelectFilters,
@@ -113,6 +117,8 @@ export const DashboardPage: React.FC = React.memo(() => {
                     totalPages={totalPages}
                     currentPage={currentPage}
                     goToPage={goToPage}
+                    performanceMetricsStatus={performanceMetricsStatus}
+                    setPerformanceMetricsStatus={setPerformanceMetricsStatus}
                     updateAlertIncidentStatus={updateAlertIncidentStatus}
                     {...restAlertsPerformanceOverview}
                 />
