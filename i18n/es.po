@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-06-04T13:41:35.334Z\n"
+"POT-Creation-Date: 2025-06-05T14:25:45.470Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -215,6 +215,9 @@ msgstr ""
 msgid "Performance overview"
 msgstr ""
 
+msgid "Are you sure you want to complete this alert? This cannot be undone."
+msgstr ""
+
 msgid "eIDSR Alerts Dashboard"
 msgstr ""
 
@@ -287,6 +290,18 @@ msgstr ""
 msgid "ERA7"
 msgstr ""
 
+msgid "Complete event"
+msgstr ""
+
+msgid "Not now"
+msgstr ""
+
+msgid "Complete"
+msgstr ""
+
+msgid "Are you sure you want to complete this Event? This cannot be undone."
+msgstr ""
+
 msgid "Event Tracker"
 msgstr ""
 
@@ -333,18 +348,6 @@ msgid "Overview"
 msgstr ""
 
 msgid "Cases and Deaths"
-msgstr ""
-
-msgid "Complete event"
-msgstr ""
-
-msgid "Not now"
-msgstr ""
-
-msgid "Complete"
-msgstr ""
-
-msgid "Are you sure you want to complete this Event? This cannot be undone."
 msgstr ""
 
 msgid "Overall Risk"
