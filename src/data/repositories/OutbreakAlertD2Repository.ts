@@ -21,7 +21,11 @@ import {
     getAlertValueFromMap,
     mapTrackedEntityAttributesToNotificationOptions,
 } from "./utils/AlertOutbreakMapper";
-import { getAllTrackedEntitiesAsync, programStatusOptions } from "./utils/getAllTrackedEntities";
+import {
+    getAllTrackedEntitiesAsync,
+    ProgramStatus,
+    programStatusOptions,
+} from "./utils/getAllTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
 import { NotificationOptions } from "../../domain/repositories/NotificationRepository";
 import { Alert } from "../../domain/entities/alert/Alert";
@@ -216,24 +220,29 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
         program: Id;
         orgUnit: Id;
         ouMode: "SELECTED" | "DESCENDANTS";
+        programStatus: ProgramStatus;
     }): FutureData<D2TrackerTrackedEntity[]> {
-        const { program, orgUnit, ouMode } = options;
+        const { program, orgUnit, ouMode, programStatus } = options;
 
         return Future.fromPromise(
             getAllTrackedEntitiesAsync(this.api, {
                 programId: program,
                 orgUnitId: orgUnit,
                 ouMode: ouMode,
-                programStatus: programStatusOptions.ACTIVE,
+                programStatus: programStatus,
             })
         );
     }
 
-    private getAlertTrackedEntities(): FutureData<D2TrackerTrackedEntity[]> {
+    private getAlertTrackedEntities(options?: {
+        programStatus?: ProgramStatus;
+    }): FutureData<D2TrackerTrackedEntity[]> {
+        const { programStatus } = options || {};
         return this.getTrackedEntitiesByTEACode({
             program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
             orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
             ouMode: "DESCENDANTS",
+            programStatus: programStatus || programStatusOptions.ACTIVE,
         });
     }
 }

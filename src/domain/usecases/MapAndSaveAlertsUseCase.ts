@@ -47,7 +47,7 @@ export class MapAndSaveAlertsUseCase {
                     logger.info(
                         `[${new Date().toISOString()}] Updating all alerts from the Zebra Alerts program that have no national Event ID. ${
                             outbreakAlertsWithoutNationalId.length
-                        } event(s) found in the Zebra Alerts program with no national Event ID.`
+                        } event(s) found in the Zebra Alerts program with no national Event ID. Checking for active verified alerts with Respond PHEOC status to be mapped...`
                     )
                 );
                 const alertsByDisease = getOutbreakAlertsByConfirmedDisease(
