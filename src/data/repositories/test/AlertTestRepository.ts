@@ -13,23 +13,24 @@ export class AlertTestRepository implements AlertRepository {
     updateAlertPHEOCStatus(_options: UpdatePHEOCStatusOptions): FutureData<void> {
         return Future.success(undefined);
     }
-    getIncidentStatusByAlert(_alertId: Id): FutureData<IncidentStatus> {
-        return Future.success("Alert");
-    }
-    updateAlerts(_alertOptions: AlertOptions): FutureData<Alert[]> {
+    updateActiveVerifiedRespondAlerts(_alertOptions: AlertOptions): FutureData<Alert[]> {
         return Future.success([]);
     }
-    getAlertById(alertId: Id): FutureData<Alert> {
+    getById(alertId: Id): FutureData<Alert> {
         return Future.success({
             id: alertId,
-            district: "District",
-            disease: "Disease",
+            districtId: "District",
+            confirmedDiseaseCode: "DiseaseCode",
+            suspectedDiseaseCode: "SuspectedDiseaseCode",
         });
     }
     updateAlertsPHEOCStatusByDiseaseOutbreakId(
         _diseaseOutbreakId: Id,
         _pheocStatus: IncidentStatus
     ): FutureData<void> {
+        return Future.success(undefined);
+    }
+    updateConfirmedDisease(_alertId: Id, _diseaseName: string): FutureData<void> {
         return Future.success(undefined);
     }
 }

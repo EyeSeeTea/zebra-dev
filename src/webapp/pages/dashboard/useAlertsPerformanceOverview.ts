@@ -5,6 +5,7 @@ import { useAppContext } from "../../contexts/app-context";
 import {
     FiltersConfig,
     FiltersValuesType,
+    Row,
     TableColumn,
 } from "../../components/table/statistic-table/StatisticTable";
 import { Maybe } from "../../../utils/ts-utils";
@@ -16,7 +17,10 @@ import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
 import { AlertDataSource } from "../../../domain/entities/alert/Alert";
-import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    diseaseNames,
+    IncidentStatus,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
@@ -66,6 +70,7 @@ type State = {
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
+    updateAlertConfirmedDisease: (alertId: Id, diseaseName: string) => void;
 };
 
 export type Order = {
@@ -121,9 +126,27 @@ export function useAlertsPerformanceOverview(): State {
         setEventSourceSelected,
     } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>(filtersConfig, true);
 
+    // TODO: Use disease options codes instead of names
+    const diseaseOptions = useMemo(
+        () =>
+            diseaseNames.map(diseaseName => ({
+                value: diseaseName,
+                label: diseaseName,
+            })),
+        []
+    );
+
     const columns = useMemo<TableColumn[]>(
         () => [
-            { label: i18n.t("Disease"), value: "event", type: "text" },
+            {
+                label: i18n.t("Disease"),
+                value: "event", // TODO: Check why event?
+                type: "selector",
+                options: diseaseOptions,
+                disableSelection: (row: Row) => {
+                    return !row.eventIBSId;
+                },
+            },
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
@@ -141,7 +164,7 @@ export function useAlertsPerformanceOverview(): State {
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
         ],
-        []
+        [diseaseOptions]
     );
 
     const mapEntityToTableData = useCallback(
@@ -150,7 +173,6 @@ export function useAlertsPerformanceOverview(): State {
             allTeamMembers: TeamMember[]
         ): AlertsPerformanceOverviewMetricsTableData => {
             const incidentManager = allTeamMembers.find(tm => tm.name === data.incidentManager);
-
             return {
                 ...data,
                 event: data.suspectedDisease,
@@ -218,6 +240,26 @@ export function useAlertsPerformanceOverview(): State {
         [compositionRoot, snackbar]
     );
 
+    const updateAlertConfirmedDisease = useCallback(
+        (alertId: Id, diseaseName: string) => {
+            setIsLoading(true);
+            compositionRoot.performanceOverview.updateAlertConfirmedDisease
+                .execute(alertId, diseaseName)
+                .run(
+                    () => {
+                        snackbar.info("Confirmed disease updated successfully!");
+                        setRefreshAlertsPerformanceOverviewMetrics({}); //trigger reload of data
+                        setIsLoading(false);
+                    },
+                    error => {
+                        snackbar.error(`Error while updating confirmed disease: ${error.message}`);
+                        setIsLoading(false);
+                    }
+                );
+        },
+        [compositionRoot, snackbar]
+    );
+
     return {
         columns,
         dataAlertsPerformanceOverview,
@@ -240,5 +282,6 @@ export function useAlertsPerformanceOverview(): State {
         setEventSourceSelected,
         hasEventSourceFilter: true,
         updateAlertIncidentStatus,
+        updateAlertConfirmedDisease,
     };
 }

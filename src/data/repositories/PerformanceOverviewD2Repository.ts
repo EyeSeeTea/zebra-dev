@@ -667,7 +667,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             const nameValue = Object.values(
                                                 response.metaData.items
                                             ).find(item => item.code === row[index])?.name;
-
+                                            // TODO: Check why name instead of code. Name is only needed in presentation layer but for filters we should use code
                                             return {
                                                 ...acc,
                                                 [dimensionKey]: nameValue || row[index],

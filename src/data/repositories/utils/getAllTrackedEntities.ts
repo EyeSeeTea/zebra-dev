@@ -64,9 +64,17 @@ const fields = {
     trackedEntityType: true,
     inactive: true,
     enrollments: {
+        occurredAt: true,
         status: true,
+        enrollment: true,
+        program: true,
+        orgUnit: true,
+        enrolledAt: true,
         events: {
+            orgUnit: true,
+            status: true,
             createdAt: true,
+            occurredAt: true,
             dataValues: {
                 dataElement: true,
                 value: true,

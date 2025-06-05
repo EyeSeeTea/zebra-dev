@@ -1,10 +1,14 @@
+import { Maybe } from "../../../utils/ts-utils";
+import { IncidentStatus } from "../disease-outbreak-event/PerformanceOverviewMetrics";
 import { Code, Id } from "../Ref";
 
 export type Alert = {
     id: Id;
-    district: Id;
-    disease: Code;
+    districtId: Id;
+    suspectedDiseaseCode: Code;
+    confirmedDiseaseCode: Maybe<Code>;
     status?: "ACTIVE" | "COMPLETED" | "CANCELLED";
+    incidentStatus?: IncidentStatus; // TODO: Change IncidentStatus to be mandatory
 };
 
 export enum VerificationStatus {

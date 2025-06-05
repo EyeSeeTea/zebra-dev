@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-06-04T08:10:34.122Z\n"
-"PO-Revision-Date: 2025-06-04T08:10:34.122Z\n"
+"POT-Creation-Date: 2025-06-04T14:39:44.749Z\n"
+"PO-Revision-Date: 2025-06-04T14:39:44.749Z\n"
 
 msgid "Low"
 msgstr ""
@@ -237,12 +237,6 @@ msgstr ""
 msgid "Organisation unit type"
 msgstr ""
 
-msgid "Cases"
-msgstr ""
-
-msgid "Deaths"
-msgstr ""
-
 msgid "Manager"
 msgstr ""
 
@@ -265,6 +259,12 @@ msgid "Outbreak Id"
 msgstr ""
 
 msgid "Event"
+msgstr ""
+
+msgid "Cases"
+msgstr ""
+
+msgid "Deaths"
 msgstr ""
 
 msgid "ERA1"
