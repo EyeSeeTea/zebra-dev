@@ -31,6 +31,11 @@ export class MapAndSaveAlertsUseCase {
 
     public execute(): FutureData<void> {
         // 1. Update all alerts from the Zebra Alerts program that have no confirmed disease already set
+        handleAsyncLogging(
+            logger.info(
+                `[${new Date().toISOString()}] Updating all alerts from the Zebra Alerts program that have no confirmed disease already set.`
+            )
+        );
         return this.options.outbreakAlertRepository.updateConfirmedDiseaseInAlerts().flatMap(() => {
             // 2. Get all outbreak alerts that have no disease outbreak event id but have a confirmed disease
             return Future.joinObj({
@@ -40,9 +45,9 @@ export class MapAndSaveAlertsUseCase {
             }).flatMap(({ outbreakAlertsWithoutNationalId, selectableOptions }) => {
                 handleAsyncLogging(
                     logger.info(
-                        `[${new Date().toISOString()}] ${
+                        `[${new Date().toISOString()}] Updating all alerts from the Zebra Alerts program that have no national Event ID. ${
                             outbreakAlertsWithoutNationalId.length
-                        } event(s) found in the Zebra Alerts program with no national event id.`
+                        } event(s) found in the Zebra Alerts program with no national Event ID.`
                     )
                 );
                 const alertsByDisease = getOutbreakAlertsByConfirmedDisease(
