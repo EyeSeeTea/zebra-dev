@@ -128,9 +128,7 @@ export class AlertD2Repository implements AlertRepository {
                 this.api.tracker.post({ importStrategy: "UPDATE" }, { enrollments: [enrollment] })
             ).flatMap(response => {
                 if (response.status !== "OK") {
-                    return Future.error(
-                        new Error(`Error completing disease outbreak event : ${response.message}`)
-                    );
+                    return Future.error(new Error(`Error completing alert: ${response.message}`));
                 }
                 return Future.success(undefined);
             });

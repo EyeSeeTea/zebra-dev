@@ -16,7 +16,6 @@ export class GetAllAlertsPerformanceOverviewMetricsUseCase {
         return this.options.performanceOverviewRepository
             .getAlertsPerformanceOverviewMetrics()
             .flatMap(alertMetrics => {
-                // TODO: Fetch the completion status of the alert and filter for only active alerts
                 const alertsWithStatus = alertMetrics.map(alert => {
                     const alertId = alert.teiId;
                     //R3: Fetch the incident status from alerts program, as we need the ability to update it
