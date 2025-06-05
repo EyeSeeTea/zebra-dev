@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-05-29T14:26:19.734Z\n"
-"PO-Revision-Date: 2025-05-29T14:26:19.734Z\n"
+"POT-Creation-Date: 2025-06-04T08:10:34.122Z\n"
+"PO-Revision-Date: 2025-06-04T08:10:34.122Z\n"
 
 msgid "Low"
 msgstr ""
@@ -112,6 +112,9 @@ msgid "Currently assigned:"
 msgstr ""
 
 msgid "Multiple uploads not allowed, please select one file"
+msgstr ""
+
+msgid "Error parsing file"
 msgstr ""
 
 msgid "Error uploading file."

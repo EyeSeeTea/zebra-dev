@@ -111,6 +111,7 @@ export const FieldWidget: React.FC<FieldWidgetProps> = React.memo((props): JSX.E
                     fileTemplate={field.fileTemplate}
                     fileId={field.fileId}
                     fileNameLabel={field.fileNameLabel}
+                    parseAsSheetData={field.parseAsSheetData}
                 />
             );
         }
