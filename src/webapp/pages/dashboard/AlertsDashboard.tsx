@@ -19,6 +19,7 @@ import i18n from "../../../utils/i18n";
 import { Pagination } from "../../components/pagination/Pagination";
 import { SelectorFiltersConfig } from "./useAlertsActiveVerifiedFilters";
 import {
+    IncidentStatus,
     isIncidentStatus,
     PerformanceMetricsStatus,
     TotalCardCounts,
@@ -28,7 +29,6 @@ import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../components/utils/option";
 import { Id } from "../../../domain/entities/Ref";
 import { formatStatCardPreTitle } from "./NationalDashboard";
-import { AlertStatus } from "../../../domain/usecases/UpdateAlertPHEOCStatusUseCase";
 import { CompleteEventModal } from "../event-tracker/CompleteEventModal";
 
 export type AlertsDashboardProps = {
@@ -64,10 +64,11 @@ export type AlertsDashboardProps = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
-    updateAlertIncidentStatus: (alertId: Id, status: AlertStatus) => void;
+    updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
     performanceMetricsStatus: PerformanceMetricsStatus;
     setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
     completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
+    completeAlert: (alertId: Id) => void;
     closeCompleteModal: () => void;
     openCompleteModal: (alertId: Id) => void;
 };
@@ -91,6 +92,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         updateAlertIncidentStatus,
         performanceMetricsStatus,
         setPerformanceMetricsStatus,
+        completeAlert,
         completeModalState,
         closeCompleteModal,
         openCompleteModal,
@@ -111,12 +113,12 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     console.debug("Alert id cannot be null, not updating status");
                     return;
                 }
-                if (!isAlertStatus(value)) {
-                    console.debug("Invalid incident status, not updating status");
-                    return;
-                }
                 if (value === "Completed") {
                     openCompleteModal(alertId);
+                    return;
+                }
+                if (!isIncidentStatus(value)) {
+                    console.debug("Invalid incident status, not updating status");
                     return;
                 }
                 updateAlertIncidentStatus(alertId, value);
@@ -256,8 +258,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                 openModal={completeModalState.isVisible}
                 onCloseModal={closeCompleteModal}
                 onCompleteClick={() => {
-                    if (completeModalState.alertId)
-                        updateAlertIncidentStatus(completeModalState.alertId, "Completed");
+                    if (completeModalState.alertId) completeAlert(completeModalState.alertId);
                 }}
             />
         </>
@@ -273,10 +274,6 @@ type AlertDashboardActionsState = {
     ) => void;
     onChangeSingleSelectFilter: (id: SelectorFiltersConfig["id"], value: string) => void;
     onClickStatCard: (cardCount: TotalCardCounts) => void;
-};
-
-const isAlertStatus = (status: string): status is AlertStatus => {
-    return isIncidentStatus(status) || status === "Completed";
 };
 
 function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardActionsState {

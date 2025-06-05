@@ -17,7 +17,7 @@ import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
 import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
-import { AlertStatus } from "../../../domain/usecases/UpdateAlertPHEOCStatusUseCase";
+import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     event: string;
@@ -65,8 +65,9 @@ type State = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
-    updateAlertIncidentStatus: (alertId: Id, status: AlertStatus) => void;
+    updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
     completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
+    completeAlert: (alertId: Id) => void;
     closeCompleteModal: () => void;
     openCompleteModal: (alertId: Id) => void;
 };
@@ -214,8 +215,30 @@ export function useAlertsPerformanceOverview(): State {
         []
     );
 
+    const completeAlert = useCallback(
+        (alertId: Maybe<Id>) => {
+            if (!alertId) return;
+
+            setIsLoading(true);
+            compositionRoot.performanceOverview.completeAlert.execute(alertId).run(
+                () => {
+                    snackbar.info("Alert completed successfully!");
+                    setRefreshAlertsPerformanceOverviewMetrics({}); //trigger reload of data
+                    setIsLoading(false);
+                    closeCompleteModal();
+                },
+                error => {
+                    snackbar.error(`Error while completing alert: ${error.message}`);
+                    setIsLoading(false);
+                    closeCompleteModal();
+                }
+            );
+        },
+        [closeCompleteModal, compositionRoot.performanceOverview.completeAlert, snackbar]
+    );
+
     const updateAlertIncidentStatus = useCallback(
-        (alertId: Id, status: AlertStatus) => {
+        (alertId: Id, status: IncidentStatus) => {
             setIsLoading(true);
             compositionRoot.performanceOverview.updateAlertIncidentStatus
                 .execute(alertId, status)
@@ -257,6 +280,7 @@ export function useAlertsPerformanceOverview(): State {
         hasEventSourceFilter: true,
         updateAlertIncidentStatus,
         completeModalState,
+        completeAlert,
         closeCompleteModal,
         openCompleteModal,
     };

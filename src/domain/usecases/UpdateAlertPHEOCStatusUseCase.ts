@@ -7,8 +7,6 @@ import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakE
 import { Maybe } from "../../utils/ts-utils";
 import { Alert } from "../entities/alert/Alert";
 
-export type AlertStatus = IncidentStatus | "Completed"; // Completed represents the enrollment status and is not a PHEOC status
-
 export class UpdateAlertPHEOCStatusUseCase {
     constructor(
         private options: {
@@ -17,23 +15,14 @@ export class UpdateAlertPHEOCStatusUseCase {
         }
     ) {}
 
-    public execute(alertId: Id, status: AlertStatus): FutureData<void> {
-        switch (status) {
-            case "Completed":
-                return this.options.alertRepository.complete(alertId);
-            default:
-                return this.fetchAndValidateAlert(alertId)
-                    .flatMap(alert =>
-                        this.fetchAndValidateMaybeDiseaseOutbreakEventId(status, alert)
-                    )
-                    .flatMap(diseaseOutbreakId => {
-                        return this.options.diseaseOutbreakEventRepository
-                            .complete(alertId)
-                            .flatMap(() => {
-                                return this.updateStatus(alertId, status, diseaseOutbreakId);
-                            });
-                    });
-        }
+    public execute(alertId: Id, status: IncidentStatus): FutureData<void> {
+        return this.fetchAndValidateAlert(alertId)
+            .flatMap(alert => this.fetchAndValidateMaybeDiseaseOutbreakEventId(status, alert))
+            .flatMap(diseaseOutbreakId => {
+                return this.options.diseaseOutbreakEventRepository.complete(alertId).flatMap(() => {
+                    return this.updateStatus(alertId, status, diseaseOutbreakId);
+                });
+            });
     }
 
     private fetchAndValidateAlert(alertId: Id): FutureData<Alert> {
