@@ -58,8 +58,6 @@ const formatDate = (date: Date): string => {
 const DEFAULT_END_DATE: string = formatDate(new Date());
 const DEFAULT_START_DATE = "2000-01-01";
 
-const ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
-    "alerts-program-event-tracker-overview-ids";
 const CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
     "cases-program-event-tracker-overview-ids";
 const NATIONAL_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
