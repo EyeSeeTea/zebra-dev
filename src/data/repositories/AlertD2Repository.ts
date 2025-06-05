@@ -138,41 +138,27 @@ export class AlertD2Repository implements AlertRepository {
     }
 
     private getTrackedEntityEnrollment(id: Id): FutureData<D2TrackerEnrollment> {
-        return apiToFuture(
-            this.api.tracker.trackedEntities.get({
-                trackedEntity: id,
-                program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                enrollmentEnrolledBefore: new Date().toISOString(),
-                fields: {
-                    trackedEntity: true,
-                    orgUnit: true,
-                },
-            })
-        )
-            .flatMap(trackedEntityResponse =>
-                assertOrError(trackedEntityResponse.instances[0], `Tracked entity with id ${id}`)
-            )
-            .flatMap(trackedEntity =>
-                apiToFuture(
-                    this.api.tracker.enrollments.get({
-                        fields: {
-                            enrollment: true,
-                            enrolledAt: true,
-                            occurredAt: true,
-                            orgUnit: true,
-                        },
-                        trackedEntity: trackedEntity.trackedEntity,
-                        enrolledBefore: new Date().toISOString(),
-                        program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
-                        orgUnit: trackedEntity.orgUnit,
-                    })
-                ).flatMap(enrollmentResponse =>
-                    assertOrError(
-                        enrollmentResponse.instances[0],
-                        `Enrollment for tracked entity with id ${trackedEntity.trackedEntity}`
-                    )
+        return this._getAlertTrackedEntityById(id, { orgUnit: true }).flatMap(trackedEntity =>
+            apiToFuture(
+                this.api.tracker.enrollments.get({
+                    fields: {
+                        enrollment: true,
+                        enrolledAt: true,
+                        occurredAt: true,
+                        orgUnit: true,
+                    },
+                    trackedEntity: id,
+                    enrolledBefore: new Date().toISOString(),
+                    program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                    orgUnit: trackedEntity.orgUnit,
+                })
+            ).flatMap(enrollmentResponse =>
+                assertOrError(
+                    enrollmentResponse.instances[0],
+                    `Enrollment for tracked entity with id ${id}`
                 )
-            );
+            )
+        );
     }
 
     getIncidentStatusByAlert(alertId: Id): FutureData<Maybe<IncidentStatus>> {
