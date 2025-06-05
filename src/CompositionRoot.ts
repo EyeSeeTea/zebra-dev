@@ -89,6 +89,7 @@ import { UpdateAlertPHEOCStatusUseCase } from "./domain/usecases/UpdateAlertPHEO
 import { ResourceTypeNamedRepository } from "./domain/repositories/ResourceTypeNamedRepository";
 import { ResourceTypeNamedTestRepository } from "./data/repositories/test/ResourceTypeNamedTestRepository";
 import { ResourceTypeNamedD2Repository } from "./data/repositories/ResourceTypeNamedD2Repository";
+import { CompleteAlertUseCase } from "./domain/usecases/CompleteAlertUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -160,6 +161,7 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.performanceOverviewRepository
             ),
             updateAlertIncidentStatus: new UpdateAlertPHEOCStatusUseCase(repositories),
+            completeAlert: new CompleteAlertUseCase(repositories),
         },
         maps: {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),

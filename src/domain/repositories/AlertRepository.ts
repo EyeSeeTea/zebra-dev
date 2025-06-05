@@ -14,6 +14,7 @@ export interface AlertRepository {
         diseaseOutbreakId: Id,
         pheocStatus: IncidentStatus
     ): FutureData<void>;
+    complete(id: Id): FutureData<void>;
 }
 
 export type OutbreakValueCode = string;
