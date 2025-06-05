@@ -40,6 +40,7 @@ export type TextColumn = BaseColumn & {
 export type SelectorColumn = BaseColumn & {
     type: "selector";
     options: Option<string>[];
+    disableSelection?: (row: Row) => boolean;
 };
 
 export type TableColumn = TextColumn | SelectorColumn;
@@ -61,7 +62,7 @@ export type FiltersValuesType = {
     [key: TableColumn["value"]]: string[];
 };
 
-type Row = { [key: TableColumn["value"]]: string };
+export type Row = { [key: TableColumn["value"]]: string };
 
 export type StatisticTableProps = {
     columns: TableColumn[];
@@ -231,6 +232,8 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                                 )}
                                             />
                                         ) : column.type === "selector" &&
+                                          !!column.disableSelection &&
+                                          !column.disableSelection(row) &&
                                           column.options &&
                                           handleColumnEdit ? (
                                             <StyledTableCell>

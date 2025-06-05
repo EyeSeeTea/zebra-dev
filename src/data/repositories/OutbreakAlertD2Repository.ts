@@ -1,5 +1,5 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
-import { OutbreakAlert } from "../../domain/entities/alert/OutbreakAlert";
+import { OutbreakAlert, UNKNOWN_DISEASE_CODE } from "../../domain/entities/alert/OutbreakAlert";
 import { OutbreakAlertRepository } from "../../domain/repositories/OutbreakAlertRepository";
 import { Attribute, D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import {
@@ -88,7 +88,7 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
                         const confirmedDiseaseValue =
                             diseaseOptions.options.find(
                                 option => option.code === suspectedDiseaseCode
-                            )?.code || "RTSL_ZEB_OS_DISEASE_UNKNOWN";
+                            )?.code || UNKNOWN_DISEASE_CODE;
 
                         const restAttributes: Attribute[] =
                             trackedEntity.attributes?.filter(

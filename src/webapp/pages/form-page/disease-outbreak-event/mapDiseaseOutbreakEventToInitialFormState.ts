@@ -8,7 +8,10 @@ import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
-import { DiseaseNames } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    DiseaseNames,
+    UNKNOWN_DISEASE_NAME,
+} from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -120,7 +123,7 @@ function getInitialFormStateForDiseaseOutbreakEvent(
     const filteredSuspectedDiseases = suspectedDiseases.filter(suspectedDisease => {
         return (
             !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames) &&
-            suspectedDisease.name !== "Unknown"
+            suspectedDisease.name !== UNKNOWN_DISEASE_NAME
         );
     });
 

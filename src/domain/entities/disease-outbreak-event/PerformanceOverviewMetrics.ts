@@ -1,6 +1,8 @@
 import { isValueInUnionType, Maybe } from "../../../utils/ts-utils";
 import { Id } from "../Ref";
 
+export const UNKNOWN_DISEASE_NAME = "Unknown" as const;
+
 export const diseaseNames = [
     "AFP",
     "Acute VHF",
@@ -17,8 +19,9 @@ export const diseaseNames = [
     "SARIs",
     "Typhoid fever",
     "Zika fever",
-    "Unknown",
+    UNKNOWN_DISEASE_NAME,
 ] as const;
+
 export type DiseaseNames = (typeof diseaseNames)[number];
 
 export function isDiseaseName(name: Maybe<string>): name is DiseaseNames {

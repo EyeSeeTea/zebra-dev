@@ -10,3 +10,5 @@ export type NotifiedAlert = {
     district: string;
     outbreak: string;
 };
+
+export const UNKNOWN_DISEASE_CODE = "RTSL_ZEB_OS_DISEASE_UNKNOWN";

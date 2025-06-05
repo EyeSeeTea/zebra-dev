@@ -18,7 +18,7 @@ function main() {
     const cmd = command({
         name: path.basename(__filename),
         description:
-            "Map national event ID to Zebra Alert Events with no event ID, and save alert data to datastore",
+            "Map Zebra national event ID to Zebra Alert Events with no Event ID, map suspected disease to confirmed disease in Zebra Alert Events and save alert sync data to datastore",
         args: {
             debug: flag({
                 type: boolean,

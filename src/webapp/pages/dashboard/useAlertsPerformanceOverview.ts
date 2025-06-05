@@ -5,6 +5,7 @@ import { useAppContext } from "../../contexts/app-context";
 import {
     FiltersConfig,
     FiltersValuesType,
+    Row,
     TableColumn,
 } from "../../components/table/statistic-table/StatisticTable";
 import { Maybe } from "../../../utils/ts-utils";
@@ -142,6 +143,9 @@ export function useAlertsPerformanceOverview(): State {
                 value: "event", // TODO: Check why event?
                 type: "selector",
                 options: diseaseOptions,
+                disableSelection: (row: Row) => {
+                    return !row.eventIBSId;
+                },
             },
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },

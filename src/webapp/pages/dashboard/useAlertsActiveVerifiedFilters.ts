@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import { OrgUnit } from "../../../domain/entities/OrgUnit";
 import { Option } from "../../components/utils/option";
-import { diseaseNames } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    diseaseNames,
+    UNKNOWN_DISEASE_NAME,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type SelectorFiltersConfig = {
     id: string;
@@ -79,7 +82,7 @@ export function useAlertsActiveVerifiedFilters(): State {
                     value: diseaseName,
                     label: diseaseName,
                 }))
-                .filter(option => option.value !== "Unknown");
+                .filter(option => option.value !== UNKNOWN_DISEASE_NAME);
 
             return [
                 {
