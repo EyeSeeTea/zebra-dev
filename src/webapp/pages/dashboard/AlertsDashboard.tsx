@@ -29,6 +29,7 @@ import { Option } from "../../components/utils/option";
 import { Id } from "../../../domain/entities/Ref";
 import { formatStatCardPreTitle } from "./NationalDashboard";
 import { AlertStatus } from "../../../domain/usecases/UpdateAlertPHEOCStatusUseCase";
+import { CompleteEventModal } from "../event-tracker/CompleteEventModal";
 
 export type AlertsDashboardProps = {
     selectorFiltersConfig: SelectorFiltersConfig[];
@@ -66,6 +67,9 @@ export type AlertsDashboardProps = {
     updateAlertIncidentStatus: (alertId: Id, status: AlertStatus) => void;
     performanceMetricsStatus: PerformanceMetricsStatus;
     setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
+    completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
+    closeCompleteModal: () => void;
+    openCompleteModal: (alertId: Id) => void;
 };
 
 export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props => {
@@ -87,6 +91,9 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         updateAlertIncidentStatus,
         performanceMetricsStatus,
         setPerformanceMetricsStatus,
+        completeModalState,
+        closeCompleteModal,
+        openCompleteModal,
         ...restAlertsPerformanceOverview
     } = props;
 
@@ -108,12 +115,16 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     console.debug("Invalid incident status, not updating status");
                     return;
                 }
+                if (value === "Completed") {
+                    openCompleteModal(alertId);
+                    return;
+                }
                 updateAlertIncidentStatus(alertId, value);
             } else {
                 console.debug(`Unhandled column edit :  ${columnName}`);
             }
         },
-        [updateAlertIncidentStatus]
+        [openCompleteModal, updateAlertIncidentStatus]
     );
 
     const performanceStatusOptions: Option<PerformanceMetricsStatus>[] = useMemo(() => {
@@ -238,6 +249,17 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     />
                 </StatisticTableWrapper>
             </Section>
+            <CompleteEventModal
+                modalText={i18n.t(
+                    "Are you sure you want to complete this alert? This cannot be undone."
+                )}
+                openModal={completeModalState.isVisible}
+                onCloseModal={closeCompleteModal}
+                onCompleteClick={() => {
+                    if (completeModalState.alertId)
+                        updateAlertIncidentStatus(completeModalState.alertId, "Completed");
+                }}
+            />
         </>
     );
 });

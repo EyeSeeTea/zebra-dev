@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Box, Button, useTheme } from "@material-ui/core";
+import { Box, Button } from "@material-ui/core";
 import { useParams } from "react-router-dom";
 import { AddCircleOutline, EditOutlined } from "@material-ui/icons";
 import i18n from "../../../utils/i18n";
@@ -22,7 +22,6 @@ import { GridWrapper, StyledStatsCard } from "../dashboard/DashboardPage";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
 import { useOverviewCards } from "./useOverviewCards";
-import { SimpleModal } from "../../components/simple-modal/SimpleModal";
 import { RiskAssessmentSummaryInfo } from "./RiskAssessmentSummaryInfo";
 import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Selector } from "../../components/selector/Selector";
@@ -30,6 +29,7 @@ import { StatisticTable } from "../../components/table/statistic-table/Statistic
 import { Pagination } from "../../components/pagination/Pagination";
 import { useMappedAlerts } from "./useMappedAlerts";
 import { useDataSourceFilter } from "./useDataSourceFilter";
+import { CompleteEventModal } from "./CompleteEventModal";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -64,7 +64,6 @@ export const EventTrackerPage: React.FC = React.memo(() => {
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
     const { lastAnalyticsRuntime } = useLastAnalyticsRuntime();
-    const theme = useTheme();
 
     const isCasesDataUserDefined =
         currentEventTracker?.casesDataSource ===
@@ -327,28 +326,11 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     )}
                 </GridWrapper>
             </Section>
-            <SimpleModal
-                open={openCompleteModal}
-                onClose={onCloseCompleteModal}
-                title={i18n.t("Complete event")}
-                closeLabel={i18n.t("Not now")}
-                footerButtons={
-                    <Button
-                        variant="contained"
-                        onClick={() => onCompleteClick()}
-                        style={{
-                            backgroundColor: theme.palette.error.main,
-                            color: theme.palette.common.white,
-                        }}
-                    >
-                        {i18n.t("Complete")}
-                    </Button>
-                }
-                alignFooterButtons="end"
-                buttonDirection="row-reverse"
-            >
-                {i18n.t("Are you sure you want to complete this Event? This cannot be undone.")}
-            </SimpleModal>
+            <CompleteEventModal
+                openModal={openCompleteModal}
+                onCloseModal={onCloseCompleteModal}
+                onCompleteClick={onCompleteClick}
+            />
         </Layout>
     );
 });

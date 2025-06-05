@@ -66,6 +66,9 @@ type State = {
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, status: AlertStatus) => void;
+    completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
+    closeCompleteModal: () => void;
+    openCompleteModal: (alertId: Id) => void;
 };
 
 export type Order = {
@@ -198,6 +201,19 @@ export function useAlertsPerformanceOverview(): State {
         refreshAlertsPerformanceOverviewMetrics,
     ]);
 
+    const [completeModalState, updateCompleteModalState] = useState<{
+        isVisible: boolean;
+        alertId: Maybe<string>;
+    }>({ isVisible: false, alertId: undefined });
+    const openCompleteModal = useCallback(
+        (alertId: Id) => updateCompleteModalState({ isVisible: true, alertId: alertId }),
+        []
+    );
+    const closeCompleteModal = useCallback(
+        () => updateCompleteModalState({ isVisible: false, alertId: undefined }),
+        []
+    );
+
     const updateAlertIncidentStatus = useCallback(
         (alertId: Id, status: AlertStatus) => {
             setIsLoading(true);
@@ -240,5 +256,8 @@ export function useAlertsPerformanceOverview(): State {
         setEventSourceSelected,
         hasEventSourceFilter: true,
         updateAlertIncidentStatus,
+        completeModalState,
+        closeCompleteModal,
+        openCompleteModal,
     };
 }
