@@ -114,6 +114,9 @@ msgstr ""
 msgid "Multiple uploads not allowed, please select one file"
 msgstr ""
 
+msgid "Error parsing file"
+msgstr ""
+
 msgid "Error uploading file."
 msgstr ""
 

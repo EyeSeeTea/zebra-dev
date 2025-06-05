@@ -12,7 +12,7 @@ import { FormHelperText, InputLabel, Link } from "@mui/material";
 import { Maybe } from "../../../utils/ts-utils";
 import { IconButton } from "../icon-button/IconButton";
 import { SimpleModal } from "../simple-modal/SimpleModal";
-import { readFile } from "../../pages/form-page/utils/FileHelper";
+import { readXLSXFile } from "../../pages/form-page/utils/FileHelper";
 import { SheetData } from "../form/FormFieldsState";
 import { Id } from "../../../domain/entities/Ref";
 
@@ -30,6 +30,7 @@ type ImportFileProps = {
     error?: boolean;
     required?: boolean;
     fileNameLabel?: string;
+    parseAsSheetData?: boolean;
 };
 
 export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
@@ -45,6 +46,7 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
         fileTemplate,
         fileId,
         fileNameLabel,
+        parseAsSheetData = false,
     } = props;
 
     const snackbar = useSnackbar();
@@ -62,9 +64,19 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
                 const uploadedFile = files[0];
                 if (rejections.length > 0 || !uploadedFile) {
                     snackbar.error(i18n.t("Multiple uploads not allowed, please select one file"));
+                    return;
+                }
+
+                if (parseAsSheetData) {
+                    try {
+                        const spreadsheets = await readXLSXFile(uploadedFile);
+                        onChange(uploadedFile, spreadsheets);
+                    } catch (error) {
+                        snackbar.error(i18n.t("Error parsing file"));
+                        console.error("Error parsing file:", error);
+                    }
                 } else {
-                    const spreadsheets = await readFile(uploadedFile);
-                    onChange(uploadedFile, spreadsheets);
+                    onChange(uploadedFile, undefined);
                 }
             };
 
@@ -73,7 +85,7 @@ export const ImportFile: React.FC<ImportFileProps> = React.memo(props => {
                 console.error("Error uploading file:", error);
             });
         },
-        [onChange, snackbar]
+        [onChange, parseAsSheetData, snackbar]
     );
 
     const onOpenConfirmationModalRemoveFile = useCallback(() => {
