@@ -16,8 +16,8 @@ import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
 import { AlertDataSource } from "../../../domain/entities/alert/Alert";
-import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
 import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     event: string;

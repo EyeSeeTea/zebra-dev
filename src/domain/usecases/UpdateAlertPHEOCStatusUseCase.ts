@@ -15,14 +15,12 @@ export class UpdateAlertPHEOCStatusUseCase {
         }
     ) {}
 
-    public execute(alertId: Id, status: IncidentStatus): FutureData<void> {
+    public execute(alertId: Id, pheocStatus: IncidentStatus): FutureData<void> {
         return this.fetchAndValidateAlert(alertId)
-            .flatMap(alert => this.fetchAndValidateMaybeDiseaseOutbreakEventId(status, alert))
-            .flatMap(diseaseOutbreakId => {
-                return this.options.diseaseOutbreakEventRepository.complete(alertId).flatMap(() => {
-                    return this.updateStatus(alertId, status, diseaseOutbreakId);
-                });
-            });
+            .flatMap(alert => this.fetchAndValidateMaybeDiseaseOutbreakEventId(pheocStatus, alert))
+            .flatMap(diseaseOutbreakId =>
+                this.updateStatus(alertId, pheocStatus, diseaseOutbreakId)
+            );
     }
 
     private fetchAndValidateAlert(alertId: Id): FutureData<Alert> {

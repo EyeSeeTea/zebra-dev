@@ -68,7 +68,7 @@ export type AlertsDashboardProps = {
     performanceMetricsStatus: PerformanceMetricsStatus;
     setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
     completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
-    completeAlert: (alertId: Id) => void;
+    completeAlert: (alertId: Maybe<Id>) => void;
     closeCompleteModal: () => void;
     openCompleteModal: (alertId: Id) => void;
 };
@@ -257,9 +257,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                 )}
                 openModal={completeModalState.isVisible}
                 onCloseModal={closeCompleteModal}
-                onCompleteClick={() => {
-                    if (completeModalState.alertId) completeAlert(completeModalState.alertId);
-                }}
+                onCompleteClick={() => completeAlert(completeModalState.alertId)}
             />
         </>
     );
