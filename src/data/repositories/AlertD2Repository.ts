@@ -54,7 +54,7 @@ export class AlertD2Repository implements AlertRepository {
             programStatus: programStatusOptions.ACTIVE,
         }).flatMap(alertTrackedEntitiesByConfirmedDisease => {
             const alertsTrackedEntitiesToPost =
-                this.getActiveVerifiedRespondAlertsWithoutDiseaseOutbrekId(
+                this.getActiveVerifiedRespondAlertsWithoutDiseaseOutbreakId(
                     alertTrackedEntitiesByConfirmedDisease,
                     diseaseOutbreakEventId
                 );
@@ -288,7 +288,7 @@ export class AlertD2Repository implements AlertRepository {
         return incidentStatus ? incidentStatus[0] : undefined;
     }
 
-    private getActiveVerifiedRespondAlertsWithoutDiseaseOutbrekId(
+    private getActiveVerifiedRespondAlertsWithoutDiseaseOutbreakId(
         alertTrackedEntitiesByConfirmedDisease: D2TrackerTrackedEntity[],
         diseaseOutbreakEventId: Id
     ): D2TrackerTrackedEntity[] {
