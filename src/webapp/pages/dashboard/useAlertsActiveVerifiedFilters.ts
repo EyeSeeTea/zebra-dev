@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import { OrgUnit } from "../../../domain/entities/OrgUnit";
 import { Option } from "../../components/utils/option";
-import { diseaseNames } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    diseaseNames,
+    UNKNOWN_DISEASE_NAME,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export type SelectorFiltersConfig = {
     id: string;
@@ -74,10 +77,12 @@ export function useAlertsActiveVerifiedFilters(): State {
     // Initialize filter options based on eventTrackerCountsIndicatorMap
     useEffect(() => {
         const buildSelectorFiltersConfig = (): SelectorFiltersConfig[] => {
-            const diseaseOptions = diseaseNames.map(diseaseName => ({
-                value: diseaseName,
-                label: diseaseName,
-            }));
+            const diseaseOptions = diseaseNames
+                .map(diseaseName => ({
+                    value: diseaseName,
+                    label: diseaseName,
+                }))
+                .filter(option => option.value !== UNKNOWN_DISEASE_NAME);
 
             return [
                 {

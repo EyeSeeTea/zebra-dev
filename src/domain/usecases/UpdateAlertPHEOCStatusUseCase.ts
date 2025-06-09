@@ -1,7 +1,7 @@
 import { FutureData } from "../../data/api-futures";
 import { IncidentStatus } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Future } from "../entities/generic/Future";
-import { Id } from "../entities/Ref";
+import { Code, Id } from "../entities/Ref";
 import { AlertRepository } from "../repositories/AlertRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { Maybe } from "../../utils/ts-utils";
@@ -17,14 +17,20 @@ export class UpdateAlertPHEOCStatusUseCase {
 
     public execute(alertId: Id, pheocStatus: IncidentStatus): FutureData<void> {
         return this.fetchAndValidateAlert(alertId)
-            .flatMap(alert => this.fetchAndValidateMaybeDiseaseOutbreakEventId(pheocStatus, alert))
+            .flatMap(alert =>
+                this.fetchAndValidateMaybeDiseaseOutbreakEventId(
+                    pheocStatus,
+                    alertId,
+                    alert.confirmedDiseaseCode
+                )
+            )
             .flatMap(diseaseOutbreakId =>
                 this.updateStatus(alertId, pheocStatus, diseaseOutbreakId)
             );
     }
 
     private fetchAndValidateAlert(alertId: Id): FutureData<Alert> {
-        return this.options.alertRepository.getAlertById(alertId).flatMap(alert => {
+        return this.options.alertRepository.getById(alertId).flatMap(alert => {
             if (alert.status !== "ACTIVE") {
                 return Future.error(
                     new Error(
@@ -38,19 +44,20 @@ export class UpdateAlertPHEOCStatusUseCase {
 
     private fetchAndValidateMaybeDiseaseOutbreakEventId(
         pheocStatus: IncidentStatus,
-        alert: Alert
+        alertId: Id,
+        alertConfirmedDisease: Maybe<Code>
     ): FutureData<Maybe<Id>> {
-        if (pheocStatus === "Respond") {
+        if (pheocStatus === "Respond" && alertConfirmedDisease) {
             return this.options.diseaseOutbreakEventRepository
-                .getActiveByDisease(alert.disease)
+                .getActiveByDisease(alertConfirmedDisease)
                 .flatMap(disease => {
                     if (!disease?.id) {
                         console.error(
-                            `No active disease outbreak event found for disease ${alert.disease}`
+                            `No active disease outbreak event found for disease ${alertConfirmedDisease}`
                         );
                         return Future.error(
                             new Error(
-                                `Error while updating PHEOC status to Respond in alert with id ${alert.id}`
+                                `Error while updating PHEOC status to Respond in alert with id ${alertId}`
                             )
                         );
                     }
