@@ -67,7 +67,7 @@ type State = {
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
     completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
-    completeAlert: (alertId: Id) => void;
+    completeAlert: (alertId: Maybe<Id>) => void;
     closeCompleteModal: () => void;
     openCompleteModal: (alertId: Id) => void;
 };
