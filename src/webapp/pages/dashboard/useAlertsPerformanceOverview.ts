@@ -66,6 +66,10 @@ type State = {
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
+    completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
+    completeAlert: (alertId: Maybe<Id>) => void;
+    closeCompleteModal: () => void;
+    openCompleteModal: (alertId: Id) => void;
 };
 
 export type Order = {
@@ -136,7 +140,7 @@ export function useAlertsPerformanceOverview(): State {
                 label: i18n.t("Incident Status"),
                 value: "incidentStatus",
                 type: "selector",
-                options: incidentStatusOptions,
+                options: [...incidentStatusOptions, { value: "Completed", label: "Completed" }],
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
@@ -198,6 +202,41 @@ export function useAlertsPerformanceOverview(): State {
         refreshAlertsPerformanceOverviewMetrics,
     ]);
 
+    const [completeModalState, updateCompleteModalState] = useState<{
+        isVisible: boolean;
+        alertId: Maybe<string>;
+    }>({ isVisible: false, alertId: undefined });
+    const openCompleteModal = useCallback(
+        (alertId: Id) => updateCompleteModalState({ isVisible: true, alertId: alertId }),
+        []
+    );
+    const closeCompleteModal = useCallback(
+        () => updateCompleteModalState({ isVisible: false, alertId: undefined }),
+        []
+    );
+
+    const completeAlert = useCallback(
+        (alertId: Maybe<Id>) => {
+            if (!alertId) return;
+
+            setIsLoading(true);
+            compositionRoot.performanceOverview.completeAlert.execute(alertId).run(
+                () => {
+                    snackbar.info("Alert completed successfully!");
+                    setRefreshAlertsPerformanceOverviewMetrics({}); //trigger reload of data
+                    setIsLoading(false);
+                    closeCompleteModal();
+                },
+                error => {
+                    snackbar.error(`Error while completing alert: ${error.message}`);
+                    setIsLoading(false);
+                    closeCompleteModal();
+                }
+            );
+        },
+        [closeCompleteModal, compositionRoot.performanceOverview.completeAlert, snackbar]
+    );
+
     const updateAlertIncidentStatus = useCallback(
         (alertId: Id, status: IncidentStatus) => {
             setIsLoading(true);
@@ -240,5 +279,9 @@ export function useAlertsPerformanceOverview(): State {
         setEventSourceSelected,
         hasEventSourceFilter: true,
         updateAlertIncidentStatus,
+        completeModalState,
+        completeAlert,
+        closeCompleteModal,
+        openCompleteModal,
     };
 }
