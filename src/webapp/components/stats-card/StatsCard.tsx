@@ -29,7 +29,7 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
         const StatsCardContent = () => {
             return (
                 <StyledCardContent onClick={onClick}>
-                    <Stat color={color}>{`${stat}${isPercentage ? "%" : ""}`}</Stat>
+                    <Stat color={color}>{isPercentage ? formatPercent(stat) : stat}</Stat>
 
                     <PreTitle>{pretitle}</PreTitle>
 
@@ -53,6 +53,10 @@ export const StatsCard: React.FC<StatsCardProps> = React.memo(
         );
     }
 );
+
+function formatPercent(value: string): string {
+    return `${!isNaN(Number(value)) ? Number(value).toFixed(2) : value}%`;
+}
 
 const StyledCard = styled(Card)<{ $error?: boolean; $fillParent?: boolean }>`
     width: ${props => (props.$fillParent ? "100%" : "fit-content")};
