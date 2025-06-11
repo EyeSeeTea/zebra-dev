@@ -59,8 +59,6 @@ const formatDate = (date: Date): string => {
 const DEFAULT_END_DATE: string = formatDate(new Date());
 const DEFAULT_START_DATE = "2000-01-01";
 
-const ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
-    "alerts-program-event-tracker-overview-ids";
 const CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
     "cases-program-event-tracker-overview-ids";
 const NATIONAL_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
@@ -264,63 +262,35 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<EventTrackerOverview[]> {
-        return Future.joinObj({
-            alertsEventTrackerOverviewIdsResponse: this.datastore.getObject<
-                EventTrackerOverviewInDataStore[]
-            >(ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY),
-            casesEventTrackerOverviewIdsResponse: this.datastore.getObject<
-                EventTrackerOverviewInDataStore[]
-            >(CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY),
-        }).flatMap(
-            ({ alertsEventTrackerOverviewIdsResponse, casesEventTrackerOverviewIdsResponse }) => {
+        return this.datastore
+            .getObject<EventTrackerOverviewInDataStore[]>(
+                CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+            )
+            .flatMap(casesEventTrackerOverviewIdsResponse => {
                 return assertOrError(
-                    alertsEventTrackerOverviewIdsResponse,
-                    ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                ).flatMap(alertsEventTrackerOverviewIds => {
-                    return assertOrError(
-                        casesEventTrackerOverviewIdsResponse,
-                        CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                    ).flatMap(casesEventTrackerOverviewIds => {
-                        return Future.success([
-                            ...alertsEventTrackerOverviewIds.map(
-                                ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                }) => ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                    casesDataSource:
-                                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
-                                })
-                            ),
-                            ...casesEventTrackerOverviewIds.map(
-                                ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                }) => ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                    casesDataSource:
-                                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF,
-                                })
-                            ),
-                        ]);
-                    });
+                    casesEventTrackerOverviewIdsResponse,
+                    CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+                ).map(casesEventTrackerOverviewIds => {
+                    return casesEventTrackerOverviewIds
+                        .filter(caseEventOverviewId => !caseEventOverviewId.dataSource)
+                        .map(
+                            ({
+                                key,
+                                suspectedCasesId,
+                                confirmedCasesId,
+                                deathsId,
+                                probableCasesId,
+                            }) => ({
+                                key,
+                                suspectedCasesId,
+                                confirmedCasesId,
+                                deathsId,
+                                probableCasesId,
+                                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
+                            })
+                        );
                 });
-            }
-        );
+            });
     }
 
     getEventTrackerOverviewMetrics(
@@ -492,7 +462,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 const deathsIndicatorIds = eventTrackerOverviewsForKeys.map(
                                     overview => overview.deathsId
                                 );
-
                                 return Future.joinObj({
                                     allCases: this.getAnalyticsByIndicators(casesIndicatorIds),
                                     allDeaths: this.getAnalyticsByIndicators(deathsIndicatorIds),
@@ -512,10 +481,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 );
                                             const currentEventTrackerOverview =
                                                 eventTrackerOverviewsForKeys.find(
-                                                    overview =>
-                                                        overview.key === key &&
-                                                        overview.casesDataSource ===
-                                                            event.casesDataSource
+                                                    overview => overview.key === key
                                                 );
 
                                             const currentCases = allCases.find(
