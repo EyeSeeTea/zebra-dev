@@ -34,6 +34,8 @@ export function useDiseaseOutbreakEvent(id: Id) {
     const [riskAssessmentRows, setRiskAssessmentRows] = useState<TableRowType[]>([]);
     const [eventTrackerDetails, setEventTrackerDetails] = useState<DiseaseOutbreakEvent>();
     const [openCompleteModal, setOpenCompleteModal] = useState(false);
+    const [isCompletingEvent, setIsCompletingEvent] = useState(false);
+
     const { changeExistingEventTrackerTypes, existingEventTrackerTypes } =
         useExistingEventTrackerTypes();
 
@@ -171,6 +173,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
 
     const onCompleteClick = useCallback(() => {
         if (eventTrackerDetails) {
+            setIsCompletingEvent(true);
             compositionRoot.diseaseOutbreakEvent.complete
                 .execute(eventTrackerDetails, configurations)
                 .run(
@@ -184,13 +187,14 @@ export function useDiseaseOutbreakEvent(id: Id) {
                         if (eventTrackerName) {
                             changeExistingEventTrackerTypes(updatedEventTrackerTypes);
                         }
-
+                        setIsCompletingEvent(false);
                         setGlobalMessage({
                             type: "success",
                             text: `Event tracker with id: ${id} has been completed`,
                         });
                     },
                     err => {
+                        setIsCompletingEvent(false);
                         console.error(err);
                         setGlobalMessage({
                             type: "error",
@@ -227,5 +231,6 @@ export function useDiseaseOutbreakEvent(id: Id) {
         onCompleteClick,
         onOpenCompleteModal,
         orderByRiskAssessmentDate,
+        isCompletingEvent,
     };
 }
