@@ -54,11 +54,10 @@ export const EventTrackerFormSummary: React.FC<EventTrackerFormSummaryProps> = R
     const [openResourcesModal, setOpenResourcesModal] = useState(false);
 
     useEffect(() => {
-        if (!globalMessage || !resourcesGlobalMessage) return;
+        const message = globalMessage || resourcesGlobalMessage;
+        if (!message) return;
 
-        snackbar[globalMessage.type || resourcesGlobalMessage.type](
-            globalMessage.text || resourcesGlobalMessage.type
-        );
+        snackbar[message.type](message.text);
         goTo(RouteName.ZEBRA_DASHBOARD);
     }, [globalMessage, goTo, resourcesGlobalMessage, snackbar]);
 
