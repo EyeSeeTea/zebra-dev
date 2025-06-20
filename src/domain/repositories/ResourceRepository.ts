@@ -3,7 +3,7 @@ import { Id } from "../entities/Ref";
 import { Resource } from "../entities/resources/Resource";
 
 export interface ResourceRepository {
-    getAllResources(): FutureData<Resource[]>;
-    saveResource(resource: Resource): FutureData<void>;
-    deleteResource(fileId: Id): FutureData<void>;
+    getAll(options?: { ids?: Id[]; diseaseOutbreakId?: Id }): FutureData<Resource[]>;
+    deleteById(id: Id): FutureData<void>;
+    save(resource: Resource): FutureData<void>;
 }

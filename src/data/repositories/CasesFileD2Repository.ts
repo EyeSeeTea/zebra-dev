@@ -7,7 +7,7 @@ import { Maybe } from "../../utils/ts-utils";
 import { Id } from "../../domain/entities/Ref";
 import { Future } from "../../domain/entities/generic/Future";
 import { CaseFile } from "../../domain/entities/CasesFile";
-import { AppDatastoreConfig } from "../../domain/entities/AppDatastoreConfig";
+import { AppDatastoreConfig } from "../entities/AppDatastoreConfig";
 
 export class CasesFileD2Repository implements CasesFileRepository {
     constructor(private api: D2Api, private dataStoreClient: DataStoreClient) {}

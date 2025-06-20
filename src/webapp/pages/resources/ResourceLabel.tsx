@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import i18n from "../../../utils/i18n";
-import { ResourceBase } from "../../../domain/entities/resources/Resource";
 import { Delete, DescriptionOutlined } from "@material-ui/icons";
 import { Link } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -9,14 +8,15 @@ import { useSnackbar } from "@eyeseetea/d2-ui-components";
 import { useResourceFile } from "./useResourceFile";
 import { Loader } from "../../components/loader/Loader";
 import { SimpleModal } from "../../components/simple-modal/SimpleModal";
+import { ResourcePresentationData } from "./useResources";
 
-interface ResourceLabelProps {
+type ResourceLabelProps = {
     isDeleting: boolean;
-    resource: ResourceBase;
+    resource: ResourcePresentationData;
     userCanDelete: boolean;
     userCanDownload: boolean;
-    onDelete: () => void;
-}
+    onDelete?: () => void;
+};
 
 export const ResourceLabel: React.FC<ResourceLabelProps> = ({
     isDeleting,
@@ -27,9 +27,9 @@ export const ResourceLabel: React.FC<ResourceLabelProps> = ({
 }) => {
     const snackbar = useSnackbar();
     const [openModal, setOpenModal] = useState(false);
-    const { resourceFileId, resourceLabel } = resource;
+    const { fileId, name, id, diseaseOutbreakEventName } = resource;
     const { globalMessage, resourceFile, deleteResource } = useResourceFile({
-        resourceFileId: resourceFileId,
+        resourceFileId: fileId,
         onDelete: onDelete,
     });
 
@@ -40,23 +40,25 @@ export const ResourceLabel: React.FC<ResourceLabelProps> = ({
     }, [globalMessage, snackbar]);
 
     return (
-        <StyledTemplateLabel key={resourceLabel}>
+        <StyledTemplateLabel key={id}>
             <p>
                 <DescriptionOutlined fontSize="small" />
                 {userCanDownload ? (
                     <Link
                         href={resourceFile ? URL.createObjectURL(resourceFile.file) : undefined}
-                        download={resourceLabel}
+                        download={name}
                         underline="hover"
                     >
-                        {resourceLabel}
+                        {`${name}${
+                            diseaseOutbreakEventName ? ` (${diseaseOutbreakEventName})` : ""
+                        }`}
                     </Link>
                 ) : (
-                    resourceLabel
+                    name
                 )}
             </p>
 
-            {resourceFileId && userCanDelete && (
+            {fileId && userCanDelete && onDelete && (
                 <>
                     <Button onClick={() => setOpenModal(true)}>
                         <Delete fontSize="small" color="error" />
@@ -73,7 +75,7 @@ export const ResourceLabel: React.FC<ResourceLabelProps> = ({
                                 {isDeleting && <Loader />}
                                 <StyledButton
                                     variant="contained"
-                                    onClick={() => deleteResource(resourceFileId)}
+                                    onClick={() => deleteResource(id, fileId)}
                                 >
                                     {i18n.t("Delete")}
                                 </StyledButton>

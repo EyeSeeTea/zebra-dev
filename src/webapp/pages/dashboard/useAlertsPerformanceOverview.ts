@@ -127,8 +127,6 @@ export function useAlertsPerformanceOverview(): State {
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
-            { label: i18n.t("Cases"), value: "cases", type: "text" },
-            { label: i18n.t("Deaths"), value: "deaths", type: "text" },
             { label: i18n.t("Duration"), value: "duration", type: "text" },
             { label: i18n.t("Manager"), value: "incidentManager", type: "text" },
             { label: i18n.t("Detect 7d"), dark: true, value: "detect7d", type: "text" },
@@ -158,6 +156,7 @@ export function useAlertsPerformanceOverview(): State {
                 event: data.suspectedDisease,
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
+                province: data.province.trim(),
             };
         },
         []

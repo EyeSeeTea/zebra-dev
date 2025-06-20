@@ -1,20 +1,29 @@
 import { TreeView as TreeViewMUI } from "@material-ui/lab";
 import React from "react";
 import { ArrowDropDown, ArrowRight, FolderOpenOutlined, FolderOutlined } from "@material-ui/icons";
-import { ResponseDocumentHierarchyItem } from "./ResponseDocumentHierarchyItem";
-import { ResponseDocumentsByFolder } from "../../pages/resources/useResources";
+import { ResourceDocumentHierarchyItem } from "./ResourceDocumentHierarchyItem";
+import {
+    DiseaseOutbreakEventDocumentsByFolder,
+    ResponseDocumentsByFolder,
+} from "../../pages/resources/useResources";
 
-type ResponseDocumentHierarchyViewProps = {
-    isDeleting: boolean;
-    responseDocuments: ResponseDocumentsByFolder[];
+type ResourcesDocumentHierarchyViewProps = {
+    isDeleting?: boolean;
+    resourcesByFolder: ResponseDocumentsByFolder[] | DiseaseOutbreakEventDocumentsByFolder[];
     userCanDelete: boolean;
     userCanDownload: boolean;
-    onDelete: () => void;
+    onDelete?: () => void;
 };
 
-export const ResponseDocumentHierarchyView: React.FC<ResponseDocumentHierarchyViewProps> =
+export const ResourcesDocumentHierarchyView: React.FC<ResourcesDocumentHierarchyViewProps> =
     React.memo(props => {
-        const { isDeleting, responseDocuments, userCanDelete, userCanDownload, onDelete } = props;
+        const {
+            isDeleting = false,
+            resourcesByFolder,
+            userCanDelete,
+            userCanDownload,
+            onDelete,
+        } = props;
 
         const defaultCollapseIcon = (
             <>
@@ -36,12 +45,12 @@ export const ResponseDocumentHierarchyView: React.FC<ResponseDocumentHierarchyVi
                 defaultCollapseIcon={defaultCollapseIcon}
                 defaultExpandIcon={defaultExpandIcon}
             >
-                {responseDocuments.map(responseDocument => {
+                {resourcesByFolder.map(folderWithResources => {
                     return (
-                        <ResponseDocumentHierarchyItem
-                            key={responseDocument.resourceFolder}
+                        <ResourceDocumentHierarchyItem
+                            key={folderWithResources.folder}
                             isDeleting={isDeleting}
-                            responseDocument={responseDocument}
+                            folderWithResources={folderWithResources}
                             userCanDelete={userCanDelete}
                             userCanDownload={userCanDownload}
                             onDelete={onDelete}

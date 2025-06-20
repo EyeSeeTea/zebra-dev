@@ -81,6 +81,7 @@ export type FormFileFieldState = FormFieldStateBase<Maybe<File>> & {
     fileId: Maybe<Id>;
     fileTemplate: Maybe<File>;
     fileNameLabel?: string;
+    parseAsSheetData?: boolean;
 };
 
 export type FormTextEditorFieldState = FormFieldStateBase<string> & {

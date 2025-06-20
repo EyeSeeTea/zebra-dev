@@ -2,7 +2,6 @@ import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/Config
 import {
     DiseaseOutbreakEvent,
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Maybe } from "../../../../utils/ts-utils";
@@ -18,12 +17,19 @@ import {
 import { FormState } from "../../../components/form/FormState";
 import { getCaseDataFromField } from "./CaseDataFileFieldHelper";
 import { diseaseOutbreakEventFieldIds } from "./mapDiseaseOutbreakEventToInitialFormState";
+import { AppDefaults } from "../../../../domain/entities/AppConfigurations";
+
+type MapFormStateToDiseaseOutbreakEventProps = {
+    formState: FormState;
+    currentUserName: string;
+    formData: DiseaseOutbreakEventFormData;
+    appDefaults: AppDefaults;
+};
 
 export function mapFormStateToDiseaseOutbreakEvent(
-    formState: FormState,
-    currentUserName: string,
-    formData: DiseaseOutbreakEventFormData
+    props: MapFormStateToDiseaseOutbreakEventProps
 ): DiseaseOutbreakEvent {
+    const { formState, currentUserName, formData, appDefaults } = props;
     const { entity: diseaseOutbreakEvent, type: formType } = formData;
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
@@ -31,7 +37,8 @@ export function mapFormStateToDiseaseOutbreakEvent(
         ? getDiseaseOutbreakEventFromDiseaseOutbreakForm(
               currentUserName,
               diseaseOutbreakEvent,
-              allFields
+              allFields,
+              appDefaults
           )
         : getDiseaseOutbreakEventFromDiseaseOutbreakCaseDataForm(
               currentUserName,
@@ -43,7 +50,8 @@ export function mapFormStateToDiseaseOutbreakEvent(
 function getDiseaseOutbreakEventFromDiseaseOutbreakForm(
     currentUserName: string,
     diseaseOutbreakEvent: Maybe<DiseaseOutbreakEvent>,
-    allFields: FormFieldState[]
+    allFields: FormFieldState[],
+    appDefaults: AppDefaults
 ): DiseaseOutbreakEvent {
     const diseaseOutbreakEventEditableData = {
         name: getStringFieldValue(diseaseOutbreakEventFieldIds.name, allFields),
@@ -177,7 +185,7 @@ function getDiseaseOutbreakEventFromDiseaseOutbreakForm(
         created: diseaseOutbreakEvent?.created,
         lastUpdated: diseaseOutbreakEvent?.lastUpdated,
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
-        dataSource: diseaseOutbreakEvent?.dataSource || DataSource.ND1,
+        dataSource: diseaseOutbreakEvent?.dataSource || appDefaults.diseaseOutbreakDataSource,
         ...diseaseOutbreakEventEditableData,
     };
     const newDiseaseOutbreakEvent = new DiseaseOutbreakEvent({

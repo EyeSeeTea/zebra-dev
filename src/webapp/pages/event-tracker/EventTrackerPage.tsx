@@ -90,7 +90,10 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
-    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance("event", id);
+    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance({
+        type: "event",
+        diseaseOutbreakEventId: id,
+    });
     const {
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
@@ -145,7 +148,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                             label={i18n.t("Duration")}
                         />
                     </FilterContainer>
-                    {!isCasesDataUserDefined && mapDataSourceFilter.value && (
+                    {!isCasesDataUserDefined && (
                         <FilterContainer>
                             <Selector
                                 id={"filters-data-source"}
@@ -251,7 +254,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
             ) : null}
 
             <Section title={i18n.t("Overview")} hasSeparator={true} titleVariant="secondary">
-                {!isCasesDataUserDefined && overviewDataSourceFilter.value && (
+                {!isCasesDataUserDefined && (
                     <FiltersSection>
                         <FilterContainer>
                             <Selector
@@ -284,7 +287,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 titleVariant="secondary"
                 hasSeparator={true}
             >
-                {!isCasesDataUserDefined && chartsDataSourceFilter.value && (
+                {!isCasesDataUserDefined && (
                     <FiltersSection>
                         <FilterContainer>
                             <Selector

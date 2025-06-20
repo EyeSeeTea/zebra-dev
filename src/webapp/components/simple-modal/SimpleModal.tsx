@@ -14,6 +14,7 @@ type SimpleModalProps = {
     closeLabel?: string;
     alignFooterButtons?: "start" | "center" | "end";
     buttonDirection?: "row" | "column" | "row-reverse" | "column-reverse";
+    width?: number;
 };
 
 export const SimpleModal: React.FC<SimpleModalProps> = React.memo(
@@ -26,6 +27,7 @@ export const SimpleModal: React.FC<SimpleModalProps> = React.memo(
         open = false,
         onClose,
         title,
+        width,
     }) => {
         return (
             <Modal
@@ -35,7 +37,7 @@ export const SimpleModal: React.FC<SimpleModalProps> = React.memo(
                 onClose={onClose}
                 hideBackdrop
             >
-                <StyledCard variant="outlined">
+                <StyledCard variant="outlined" width={width}>
                     <Title>{title}</Title>
 
                     <Content>
@@ -78,8 +80,8 @@ const Footer = styled.div<{ alignFooterButtons?: string; buttonDirection?: strin
     flex-direction: ${props => props.buttonDirection};
 `;
 
-const StyledCard = styled(Card)`
-    width: 500px;
+const StyledCard = styled(Card)<{ width?: number }>`
+    width: ${props => (props.width ? `${props.width}px` : "500px")};
     @media (max-width: 700px) {
         width: 300px;
     }

@@ -1,50 +1,47 @@
 import { Maybe } from "../../../utils/ts-utils";
 import { Id } from "../Ref";
-
-export enum ResourceType {
-    TEMPLATE = "template",
-    RESPONSE_DOCUMENT = "response-document",
-}
+import { ResourceType } from "./ResourceTypeNamed";
 
 export type ResourceBase = {
-    resourceType: ResourceType;
-    resourceLabel: string;
-    resourceFileId: Maybe<Id>;
+    id: Id;
+    type: ResourceType;
+    name: string;
+    fileId: Maybe<Id>;
 };
 
 export type ResponseDocument = ResourceBase & {
-    resourceType: ResourceType.RESPONSE_DOCUMENT;
-    resourceFolder: string;
+    type: ResourceType.RESPONSE_DOCUMENT;
+    folder: string;
 };
 
 export type Template = ResourceBase & {
-    resourceType: ResourceType.TEMPLATE;
+    type: ResourceType.TEMPLATE;
 };
 
-export type Resource = ResponseDocument | Template;
+export type DiseaseOutbreakEventDocument = ResourceBase & {
+    type: ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
+    folder: string;
+    diseaseOutbreakEventId: Id;
+};
+
+export type Resource = ResponseDocument | Template | DiseaseOutbreakEventDocument;
 
 export function isResponseDocument(resource: Resource): resource is ResponseDocument {
-    return resource.resourceType === ResourceType.RESPONSE_DOCUMENT;
+    return resource.type === ResourceType.RESPONSE_DOCUMENT;
 }
 
 export function isTemplate(resource: Resource): resource is Template {
-    return resource.resourceType === ResourceType.TEMPLATE;
+    return resource.type === ResourceType.TEMPLATE;
 }
 
-export function isExistingResource(resources: Resource[], resource: Resource): boolean {
-    return resources.some(existingResource => {
-        const isSameType = existingResource.resourceType === resource.resourceType;
-        const isResponseDoc = isResponseDocument(resource);
-        const isExistingResponseDoc = isResponseDocument(existingResource);
-        const isTemplateResource = isTemplate(resource);
-        const isSameLabel = existingResource.resourceLabel === resource.resourceLabel;
+export function isDiseaseOutbreakEventDocument(
+    resource: Resource
+): resource is DiseaseOutbreakEventDocument {
+    return resource.type === ResourceType.DISEASE_OUTBREAK_EVENT_DOCUMENT;
+}
 
-        if (isResponseDoc && isExistingResponseDoc) {
-            return resource.resourceFolder === existingResource.resourceFolder && isSameLabel;
-        } else if (isTemplateResource) {
-            return isSameType && isSameLabel;
-        } else {
-            return false;
-        }
-    });
+const validResourceTypes = new Set<string>(Object.values(ResourceType));
+
+export function isResouceType(type: unknown): type is ResourceType {
+    return typeof type === "string" && validResourceTypes.has(type);
 }

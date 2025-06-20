@@ -19,6 +19,7 @@ import moment from "moment";
 import { CasesFileRepository } from "../repositories/CasesFileRepository";
 import { ResourceRepository } from "../repositories/ResourceRepository";
 import { ResourceFileRepository } from "../repositories/ResourceFileRepository";
+import { Resource } from "../entities/resources/Resource";
 
 export class SaveEntityUseCase {
     constructor(
@@ -153,22 +154,19 @@ export class SaveEntityUseCase {
                 }
             }
             case "resource": {
-                const { uploadedResourceFile } = formData;
-                if (!uploadedResourceFile) return Future.error(new Error("No file uploaded"));
+                const { uploadedResourceFile, entity } = formData;
+                if (!uploadedResourceFile || !entity)
+                    return Future.error(new Error("No file uploaded or resource entity found"));
 
                 return this.options.resourceFileRepository
                     .uploadFile(uploadedResourceFile)
                     .flatMap(resourceFileId => {
-                        const { entity } = formData;
-
-                        if (!entity) return Future.error(new Error("No resource found"));
-
-                        const resource = {
+                        const resource: Resource = {
                             ...entity,
-                            resourceFileId: resourceFileId,
+                            fileId: resourceFileId,
                         };
 
-                        return this.options.resourceRepository.saveResource(resource);
+                        return this.options.resourceRepository.save(resource);
                     });
             }
             default:
