@@ -6,12 +6,12 @@ import { AlertDataSourceRepository } from "../../domain/repositories/AlertDataSo
 import { mapD2OptionSetToValidatedCodedNamedRef } from "./common/mapD2OptionSetToCodedNamedRef";
 
 const OPTION_SET_ID = "kSsd5PSQqH7";
-
+const OPTION_SET_NAME = "Alert Data Sources";
 export class AlertDataSourceD2Repository implements AlertDataSourceRepository {
     constructor(private api: D2Api) {}
 
     getAll(): FutureData<AlertDataSource[]> {
-        return getOptionSet(this.api, OPTION_SET_ID).map(optionSet =>
+        return getOptionSet(this.api, OPTION_SET_ID, OPTION_SET_NAME).map(optionSet =>
             mapD2OptionSetToValidatedCodedNamedRef(optionSet, AlertDataSourceCodes)
         );
     }

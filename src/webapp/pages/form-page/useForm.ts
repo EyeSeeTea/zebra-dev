@@ -69,7 +69,8 @@ type State = {
 };
 
 export function useForm(formType: FormType, id?: Id): State {
-    const { compositionRoot, currentUser, configurations, mainSyndromes } = useAppContext();
+    const { compositionRoot, currentUser, configurations, mainSyndromes, appSettings } =
+        useAppContext();
     const { goTo } = useRoutes();
 
     const { getCurrentEventTracker } = useCurrentEventTracker();
@@ -370,7 +371,7 @@ export function useForm(formType: FormType, id?: Id): State {
             formState: formState.data,
             currentUserName: currentUser.username,
             formData: configurableForm,
-            appDefaults: configurations.appDefaults,
+            appDefaults: appSettings.appDefaults,
         });
 
         if (
@@ -464,6 +465,7 @@ export function useForm(formType: FormType, id?: Id): State {
             );
         }
     }, [
+        appSettings.appDefaults,
         compositionRoot.save,
         configurableForm,
         configurations,

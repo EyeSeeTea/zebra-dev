@@ -2,9 +2,9 @@ import { Id } from "../../domain/entities/Ref";
 
 export type AppDatastoreConfig = {
     userGroups: {
-        visualizer: string[];
-        capture: string[];
-        admin: string[];
+        visualizer: Id[];
+        capture: Id[];
+        admin: Id[];
     };
     casesFileTemplate: {
         fileId: Id;

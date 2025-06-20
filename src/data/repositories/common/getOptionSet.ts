@@ -3,14 +3,16 @@ import { D2Api, MetadataPick } from "../../../types/d2-api";
 import { apiToFuture, FutureData } from "../../api-futures";
 import { assertOrError } from "../utils/AssertOrError";
 
-export function getOptionSet(api: D2Api, optionSetCode: Id): FutureData<D2OptionSet> {
+export function getOptionSet(
+    api: D2Api,
+    optionSetCode: Id,
+    optionSetName: string
+): FutureData<D2OptionSet> {
     return apiToFuture(
         api.metadata.get({
             optionSets: { fields: optionSetsFields, filter: { id: { eq: optionSetCode } } },
         })
-    ).flatMap(response =>
-        assertOrError(response.optionSets[0], `Option set with code ${optionSetCode}`)
-    );
+    ).flatMap(response => assertOrError(response.optionSets[0], `Option set ${optionSetName}`));
 }
 
 const optionSetsFields = {

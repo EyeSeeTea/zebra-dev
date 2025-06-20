@@ -40,6 +40,8 @@ function App(props: AppProps) {
                 .execute()
                 .toPromise();
 
+            const appSettings = await compositionRoot.getAppSettings.execute().toPromise();
+
             const alertDataSources = await compositionRoot.alerts.getAlertDataSources
                 .execute()
                 .toPromise();
@@ -55,6 +57,7 @@ function App(props: AppProps) {
                 isDev,
                 api,
                 configurations,
+                appSettings,
                 alertDataSources,
                 mainSyndromes,
             });

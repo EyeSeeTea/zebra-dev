@@ -19,6 +19,20 @@ export function getTestContext() {
         compositionRoot: getTestCompositionRoot(),
         api: {} as D2Api,
         isDev: true,
+        appSettings: {
+            userGroups: {
+                visualizer: ["visualizerUserGroup"],
+                capture: ["captureUserGroup"],
+                admin: ["adminUserGroup"],
+            },
+            casesFileTemplate: {
+                fileId: "casesFileTemplateFileId",
+                fileName: "casesFileTemplateFileName",
+            },
+            appDefaults: {
+                diseaseOutbreakDataSource: DataSource.ND1,
+            },
+        },
         configurations: {
             incidentManagerUserGroup: { id: "incidentManagerUserGroup" },
             selectableOptions: {
@@ -67,9 +81,6 @@ export function getTestContext() {
                 responseOfficers: [],
             },
             orgUnits: [],
-            appDefaults: {
-                diseaseOutbreakDataSource: DataSource.ND1,
-            },
         },
         alertDataSources: [],
         mainSyndromes: [],

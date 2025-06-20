@@ -26,7 +26,6 @@ import {
     Capability2,
 } from "./risk-assessment/RiskAssessmentGrading";
 import { UserGroup } from "./UserGroup";
-import { DataSource } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type SelectableOptions = {
     eventTrackerConfigurations: DiseaseOutbreakEventOptions & DiseaseOutbreakCaseDataOptions;
@@ -56,9 +55,4 @@ export type Configurations = {
         responseOfficers: TeamMember[];
     };
     orgUnits: OrgUnit[];
-    appDefaults: AppDefaults;
-};
-
-export type AppDefaults = {
-    diseaseOutbreakDataSource: DataSource;
 };

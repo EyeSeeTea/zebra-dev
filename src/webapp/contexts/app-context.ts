@@ -5,12 +5,14 @@ import { D2Api } from "../../types/d2-api";
 import { Configurations } from "../../domain/entities/AppConfigurations";
 import { AlertDataSource } from "../../domain/entities/alert/AlertDataSource";
 import { MainSyndrome } from "../../domain/entities/disease-outbreak-event/MainSyndrome";
+import { AppSettings } from "../../domain/entities/AppSettings";
 
 export interface AppContextState {
     api: D2Api;
     isDev: boolean;
     currentUser: User;
     compositionRoot: CompositionRoot;
+    appSettings: AppSettings;
     configurations: Configurations;
     alertDataSources: AlertDataSource[];
     mainSyndromes: MainSyndrome[];

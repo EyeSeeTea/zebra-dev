@@ -6,12 +6,12 @@ import { MainSyndrome } from "../../domain/entities/disease-outbreak-event/MainS
 import { MainSyndromeRepository } from "../../domain/repositories/MainSyndromeRepository";
 
 const OPTION_SET_ID = "q0iXscTqP1D";
-
+const OPTION_SET_NAME = "Main Syndromes";
 export class MainSyndromeD2Repository implements MainSyndromeRepository {
     constructor(private api: D2Api) {}
 
     getAll(): FutureData<MainSyndrome[]> {
-        return getOptionSet(this.api, OPTION_SET_ID).map(optionSet =>
+        return getOptionSet(this.api, OPTION_SET_ID, OPTION_SET_NAME).map(optionSet =>
             mapD2OptionSetToCodedNamedRef(optionSet)
         );
     }

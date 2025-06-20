@@ -97,6 +97,10 @@ import { MainSyndromeRepository } from "./domain/repositories/MainSyndromeReposi
 import { MainSyndromeD2Repository } from "./data/repositories/MainSyndromeD2Repository";
 import { MainSyndromeTestRepository } from "./data/repositories/test/MainSyndromeTestRepository";
 import { GetMainSyndromesUseCase } from "./domain/usecases/GetMainSyndromesUseCase";
+import { AppSettingsTestRepository } from "./data/repositories/test/AppSettingsTestRepository";
+import { AppSettingsD2Repository } from "./data/repositories/AppSettingsD2Repository";
+import { AppSettingsRepository } from "./domain/repositories/AppSettingsRepository";
+import { GetAppSettingsUseCase } from "./domain/usecases/GetAppSettingsUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -123,10 +127,12 @@ type Repositories = {
     resourceTypeNamedRepository: ResourceTypeNamedRepository;
     alertDataSourceRepository: AlertDataSourceRepository;
     mainSyndromeRepository: MainSyndromeRepository;
+    appSettingsRepository: AppSettingsRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
     return {
+        getAppSettings: new GetAppSettingsUseCase(repositories),
         getConfigurableForm: new GetConfigurableFormUseCase(repositories),
         save: new SaveEntityUseCase(repositories),
         users: {
@@ -212,7 +218,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         incidentManagementTeamRepository: new IncidentManagementTeamD2Repository(api),
         chartConfigRepository: new ChartConfigD2Repository(dataStoreClient),
         systemRepository: new SystemD2Repository(api),
-        configurationsRepository: new ConfigurationsD2Repository(api, dataStoreClient),
+        configurationsRepository: new ConfigurationsD2Repository(api),
         casesFileRepository: new CasesFileD2Repository(api, dataStoreClient),
         userGroupRepository: new UserGroupD2Repository(api),
         resourceRepository: new ResourceD2Repository(api),
@@ -220,6 +226,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         resourceTypeNamedRepository: new ResourceTypeNamedD2Repository(api),
         alertDataSourceRepository: new AlertDataSourceD2Repository(api),
         mainSyndromeRepository: new MainSyndromeD2Repository(api),
+        appSettingsRepository: new AppSettingsD2Repository(api, dataStoreClient),
     };
 
     return getCompositionRoot(repositories);
@@ -249,6 +256,7 @@ export function getTestCompositionRoot() {
         resourceTypeNamedRepository: new ResourceTypeNamedTestRepository(),
         alertDataSourceRepository: new AlertDataSourceTestRepository(),
         mainSyndromeRepository: new MainSyndromeTestRepository(),
+        appSettingsRepository: new AppSettingsTestRepository(),
     };
 
     return getCompositionRoot(repositories);
