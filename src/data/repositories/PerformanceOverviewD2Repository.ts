@@ -48,6 +48,7 @@ import {
 import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { VerificationStatus } from "../../domain/entities/alert/Alert";
+import _c from "../../domain/entities/generic/Collection";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -271,24 +272,23 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     casesEventTrackerOverviewIdsResponse,
                     CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
                 ).map(casesEventTrackerOverviewIds => {
-                    return casesEventTrackerOverviewIds
-                        .filter(caseEventOverviewId => !caseEventOverviewId.dataSource)
-                        .map(
-                            ({
-                                key,
-                                suspectedCasesId,
-                                confirmedCasesId,
-                                deathsId,
-                                probableCasesId,
-                            }) => ({
-                                key,
-                                suspectedCasesId,
-                                confirmedCasesId,
-                                deathsId,
-                                probableCasesId,
-                                casesDataSource: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
-                            })
-                        );
+                    return casesEventTrackerOverviewIds.map(
+                        ({
+                            key,
+                            suspectedCasesId,
+                            confirmedCasesId,
+                            deathsId,
+                            probableCasesId,
+                            dataSource,
+                        }) => ({
+                            key,
+                            suspectedCasesId,
+                            confirmedCasesId,
+                            deathsId,
+                            probableCasesId,
+                            dataSource,
+                        })
+                    );
                 });
             });
     }
@@ -442,17 +442,21 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                         )
                                     ) || [];
 
-                                const keys = _(
-                                    diseaseOutbreakEvents.map(
-                                        diseaseOutbreak => diseaseOutbreak.suspectedDiseaseCode
-                                    )
-                                )
-                                    .compact()
-                                    .uniq()
-                                    .value();
+                                const diseaseOutbreakEventsMap = _c(diseaseOutbreakEvents).keyBy(
+                                    diseaseOutbreakEvent =>
+                                        diseaseOutbreakEvent.suspectedDiseaseCode
+                                );
 
                                 const eventTrackerOverviewsForKeys = eventTrackerOverviews.filter(
                                     overview => keys.includes(overview.key)
+                                    overview => {
+                                        const event = diseaseOutbreakEventsMap.get(overview.key);
+                                        return (
+                                            !!event &&
+                                            ((!event.dataSource && !overview.dataSource) ||
+                                                event.dataSource === overview.dataSource)
+                                        );
+                                    }
                                 );
 
                                 const casesIndicatorIds = eventTrackerOverviewsForKeys.map(
