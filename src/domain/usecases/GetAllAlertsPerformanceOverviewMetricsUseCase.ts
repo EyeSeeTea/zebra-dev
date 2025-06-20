@@ -22,37 +22,42 @@ export class GetAllAlertsPerformanceOverviewMetricsUseCase {
                 this.options.performanceOverviewRepository.getAlertsPerformanceOverviewMetrics(),
             diseaseOptions: this.getDiseaseOptions(),
         }).flatMap(({ alertMetrics, diseaseOptions }) => {
-            const updatedAlertsMetrics$ = alertMetrics.map(alertMetric => {
-                const alertId = alertMetric.teiId;
-                // Fetch active alert from alerts program, as we need the ability to update it
-                //and see the update reflected real-time. Fetching alert data from analytics
-                //has stale data until the next analytics run is completed.
-                return this.options.alertRepository.getById(alertId).map(alert => {
-                    const confirmedDiseaseName = alert.confirmedDiseaseCode
-                        ? diseaseOptions.find(option => option.id === alert.confirmedDiseaseCode)
-                              ?.name
-                        : alertMetric.suspectedDisease;
+            // Fetch active alert from alerts program, as we need the ability to update it
+            //and see the update reflected real-time. Fetching alert data from analytics
+            //has stale data until the next analytics run is completed.
+            return this.options.alertRepository.getAllActive().flatMap(activeAlerts => {
+                const alertsPerformanceOverviewMetrics = alertMetrics.reduce(
+                    (
+                        acc: AlertsPerformanceOverviewMetrics[],
+                        alertMetric: AlertsPerformanceOverviewMetrics
+                    ): AlertsPerformanceOverviewMetrics[] => {
+                        const alertId = alertMetric.teiId;
+                        const activeAlert = activeAlerts.find(alert => alert.id === alertId);
 
-                    const activeAlert: AlertsPerformanceOverviewMetrics | undefined =
-                        alert.status === "ACTIVE"
-                            ? {
-                                  ...alertMetric,
-                                  suspectedDisease: confirmedDiseaseName ?? "",
-                                  incidentStatus: alert.incidentStatus ? alert.incidentStatus : "",
-                              }
-                            : undefined;
-                    return activeAlert;
-                });
+                        if (!activeAlert) {
+                            return acc;
+                        }
+
+                        const confirmedDiseaseName = activeAlert.confirmedDiseaseCode
+                            ? diseaseOptions.find(
+                                  option => option.id === activeAlert.confirmedDiseaseCode
+                              )?.name
+                            : alertMetric.suspectedDisease;
+
+                        const alertsPerformanceOverviewMetric: AlertsPerformanceOverviewMetrics = {
+                            ...alertMetric,
+                            suspectedDisease: confirmedDiseaseName ?? "",
+                            incidentStatus: activeAlert.incidentStatus
+                                ? activeAlert.incidentStatus
+                                : "",
+                        };
+                        return [...acc, alertsPerformanceOverviewMetric];
+                    },
+                    []
+                );
+
+                return Future.success(alertsPerformanceOverviewMetrics);
             });
-
-            return Future.parallel(updatedAlertsMetrics$, { concurrency: 10 }).map(
-                (updatedAlertsMetrics: (AlertsPerformanceOverviewMetrics | undefined)[]) => {
-                    const updated: AlertsPerformanceOverviewMetrics[] = _(updatedAlertsMetrics)
-                        .compact()
-                        .value();
-                    return updated;
-                }
-            );
         });
     }
 

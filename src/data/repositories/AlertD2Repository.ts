@@ -144,28 +144,47 @@ export class AlertD2Repository implements AlertRepository {
             attributes: true,
             enrollments: true,
         }).flatMap(alertTrackedEntity => {
-            const enrollment =
-                alertTrackedEntity.enrollments && alertTrackedEntity.enrollments[0]
-                    ? alertTrackedEntity.enrollments[0]
-                    : undefined;
+            return Future.success(this.mapAlertTrackedEntityToAlert(alertTrackedEntity));
+        });
+    }
 
-            if (!enrollment) {
-                return Future.error(new Error(`Error fetching alert with id ${alertId}`));
-            }
+    private mapAlertTrackedEntityToAlert(alertTrackedEntity: D2TrackerTrackedEntity): Alert {
+        const enrollment =
+            alertTrackedEntity.enrollments && alertTrackedEntity.enrollments[0]
+                ? alertTrackedEntity.enrollments[0]
+                : undefined;
 
-            const suspectedDisease = getAlertValueFromMap("suspectedDisease", alertTrackedEntity);
-            const confirmedDisease = getAlertValueFromMap("confirmedDisease", alertTrackedEntity);
-            const pheocStatus = getAlertValueFromMap("pheocStatus", alertTrackedEntity);
-            const alert = {
-                id: alertId,
-                districtId: alertTrackedEntity.orgUnit || "",
-                suspectedDiseaseCode: suspectedDisease,
-                confirmedDiseaseCode: confirmedDisease,
-                status: enrollment.status,
-                incidentStatus: this.mapOptionToIncidentStatus(pheocStatus),
-            };
+        if (!enrollment) {
+            throw new Error(`Error fetching alert`);
+        }
 
-            return Future.success(alert);
+        const suspectedDisease = getAlertValueFromMap("suspectedDisease", alertTrackedEntity);
+        const confirmedDisease = getAlertValueFromMap("confirmedDisease", alertTrackedEntity);
+        const pheocStatus = getAlertValueFromMap("pheocStatus", alertTrackedEntity);
+        const alert = {
+            id: alertTrackedEntity.trackedEntity || "",
+            districtId: alertTrackedEntity.orgUnit || "",
+            suspectedDiseaseCode: suspectedDisease,
+            confirmedDiseaseCode: confirmedDisease,
+            status: enrollment.status,
+            incidentStatus: this.mapOptionToIncidentStatus(pheocStatus),
+        };
+
+        return alert;
+    }
+
+    getAllActive(): FutureData<Alert[]> {
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                ouMode: "DESCENDANTS",
+                programStatus: programStatusOptions.ACTIVE,
+            })
+        ).map(alertTrackedEntities => {
+            return alertTrackedEntities.map(alertTrackedEntity =>
+                this.mapAlertTrackedEntityToAlert(alertTrackedEntity)
+            );
         });
     }
 

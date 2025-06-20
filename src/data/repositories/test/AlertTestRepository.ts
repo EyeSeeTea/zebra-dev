@@ -33,4 +33,8 @@ export class AlertTestRepository implements AlertRepository {
     updateConfirmedDisease(_alertId: Id, _diseaseName: string): FutureData<void> {
         return Future.success(undefined);
     }
+
+    getAllActive(): FutureData<Alert[]> {
+        return Future.success([]);
+    }
 }

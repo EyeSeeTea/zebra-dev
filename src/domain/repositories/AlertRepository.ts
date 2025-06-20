@@ -8,6 +8,7 @@ export interface AlertRepository {
     updateActiveVerifiedRespondAlerts(alertOptions: AlertOptions): FutureData<Alert[]>;
     updateAlertPHEOCStatus(options: UpdatePHEOCStatusOptions): FutureData<void>;
     getById(alertId: Id): FutureData<Alert>;
+    getAllActive(): FutureData<Alert[]>;
     updateAlertsPHEOCStatusByDiseaseOutbreakId(
         diseaseOutbreakId: Id,
         pheocStatus: IncidentStatus
