@@ -89,6 +89,10 @@ import { UpdateAlertPHEOCStatusUseCase } from "./domain/usecases/UpdateAlertPHEO
 import { ResourceTypeNamedRepository } from "./domain/repositories/ResourceTypeNamedRepository";
 import { ResourceTypeNamedTestRepository } from "./data/repositories/test/ResourceTypeNamedTestRepository";
 import { ResourceTypeNamedD2Repository } from "./data/repositories/ResourceTypeNamedD2Repository";
+import { AlertDataSourceD2Repository } from "./data/repositories/AlertDataSourceD2Repository";
+import { AlertDataSourceRepository } from "./domain/repositories/AlertDataSourceRepository";
+import { AlertDataSourceTestRepository } from "./data/repositories/test/AlertDataSourceTestRepository";
+import { GetAlertDataSources } from "./domain/usecases/utils/GetAlertDataSources";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -113,6 +117,7 @@ type Repositories = {
     resourceRepository: ResourceRepository;
     resourceFileRepository: ResourceFileRepository;
     resourceTypeNamedRepository: ResourceTypeNamedRepository;
+    alertDataSourceRepository: AlertDataSourceRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -178,6 +183,9 @@ function getCompositionRoot(repositories: Repositories) {
             delete: new DeleteResourceUseCase(repositories),
             getPermissions: new GetResourceUserPermissionsUseCase(repositories),
         },
+        alerts: {
+            getAlertDataSources: new GetAlertDataSources(repositories),
+        },
     };
 }
 
@@ -204,6 +212,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         resourceRepository: new ResourceD2Repository(api),
         resourceFileRepository: new ResourceFileD2Repository(api),
         resourceTypeNamedRepository: new ResourceTypeNamedD2Repository(api),
+        alertDataSourceRepository: new AlertDataSourceD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -231,6 +240,7 @@ export function getTestCompositionRoot() {
         resourceRepository: new ResourceTestRepository(),
         resourceFileRepository: new ResourceFileTestRepository(),
         resourceTypeNamedRepository: new ResourceTypeNamedTestRepository(),
+        alertDataSourceRepository: new AlertDataSourceTestRepository(),
     };
 
     return getCompositionRoot(repositories);

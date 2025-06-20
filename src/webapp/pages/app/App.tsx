@@ -40,6 +40,10 @@ function App(props: AppProps) {
                 .execute()
                 .toPromise();
 
+            const alertDataSources = await compositionRoot.alerts.getAlertDataSources
+                .execute()
+                .toPromise();
+
             const isDev = process.env.NODE_ENV === "development";
             setAppContext({
                 currentUser,
@@ -47,6 +51,7 @@ function App(props: AppProps) {
                 isDev,
                 api,
                 configurations,
+                alertDataSources,
             });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);

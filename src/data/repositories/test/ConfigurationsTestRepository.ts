@@ -16,9 +16,6 @@ export class ConfigurationsTestRepository implements ConfigurationsRepository {
                 incidentStatus: [],
                 casesDataSource: [],
             },
-            alertOptions: {
-                alertDataSources: [],
-            },
             riskAssessmentGradingConfigurations: {
                 geographicalSpread: [],
                 capability: [],

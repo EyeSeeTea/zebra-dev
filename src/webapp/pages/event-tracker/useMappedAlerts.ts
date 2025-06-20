@@ -15,8 +15,8 @@ import {
 import { usePerformanceOverviewTable } from "../dashboard/usePerformanceOverviewTable";
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
-import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 import { Option } from "../../components/utils/option";
+import { AlertDataSourceCode } from "../../../domain/entities/alert/AlertDataSource";
 
 type State = {
     columns: TableColumn[];
@@ -33,7 +33,7 @@ type State = {
     setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
     filterOptions: (
         column: string,
-        dataSource?: AlertDataSource
+        dataSource?: AlertDataSourceCode
     ) => { value: string; label: string }[];
     totalPages: number;
     currentPage: number;

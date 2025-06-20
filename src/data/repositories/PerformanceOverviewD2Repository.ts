@@ -45,9 +45,9 @@ import {
     AlertsPerformanceOverviewDimensionsKey,
     AlertsPerformanceOverviewDimensionsValue,
 } from "./consts/AlertsPerformanceOverviewConstants";
-import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { VerificationStatus } from "../../domain/entities/alert/Alert";
+import { AlertDataSourceCodes } from "../../domain/entities/alert/AlertDataSource";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -680,8 +680,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             .map(metrics => ({
                                 ...metrics,
                                 eventSource: metrics.eventEBSId
-                                    ? AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                                    : AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                                    ? AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                                    : AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                             }));
 
                         return Future.success(mappedIndicators);

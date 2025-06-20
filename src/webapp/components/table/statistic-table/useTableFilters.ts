@@ -7,13 +7,13 @@ import {
     StatisticTableProps,
     TableColumn,
 } from "./StatisticTable";
-import { AlertDataSource } from "../../../../domain/entities/alert/Alert";
+import { AlertDataSourceCode } from "../../../../domain/entities/alert/AlertDataSource";
 
 export const useTableFilters = (
     rows: StatisticTableProps["rows"],
     filtersConfig: FiltersConfig[]
 ) => {
-    const { configurations } = useAppContext();
+    const { alertDataSources } = useAppContext();
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [eventSourceSelected, setEventSourceSelected] = useState<string>("");
 
@@ -67,12 +67,10 @@ export const useTableFilters = (
     }, [allFiltersEmpty, filters, searchTerm, eventSourceSelected, rows, filtersConfig]);
 
     const eventSourceOptions = useMemo(() => {
-        const eventSources = configurations.selectableOptions.alertOptions.alertDataSources.map(
-            dataSource => ({
-                value: dataSource.id,
-                label: dataSource.name,
-            })
-        );
+        const eventSources = alertDataSources.map(dataSource => ({
+            value: dataSource.id,
+            label: dataSource.name,
+        }));
 
         if (!eventSourceSelected && !allFiltersEmpty) {
             return _(filteredRows)
@@ -87,15 +85,10 @@ export const useTableFilters = (
         }
 
         return eventSources;
-    }, [
-        allFiltersEmpty,
-        configurations.selectableOptions.alertOptions.alertDataSources,
-        eventSourceSelected,
-        filteredRows,
-    ]);
+    }, [allFiltersEmpty, alertDataSources, eventSourceSelected, filteredRows]);
 
     const filterOptions = useCallback(
-        (column: TableColumn["value"], dataSource?: AlertDataSource) => {
+        (column: TableColumn["value"], dataSource?: AlertDataSourceCode) => {
             return _(rows)
                 .compactMap(row => {
                     const columnValue = row[column]?.trim();

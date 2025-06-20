@@ -1,5 +1,4 @@
 import { AlertsPerformanceOverviewMetrics } from "../../../domain/entities/alert/AlertsPerformanceOverviewMetrics";
-import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 import {
     DiseaseNames,
     PerformanceMetrics717,
@@ -11,6 +10,7 @@ import { Id } from "../../../domain/entities/Ref";
 import { PerformanceOverviewRepository } from "../../../domain/repositories/PerformanceOverviewRepository";
 import { FutureData } from "../../api-futures";
 import { Maybe } from "../../../utils/ts-utils";
+import { AlertDataSourceCodes } from "../../../domain/entities/alert/AlertDataSource";
 
 export class PerformanceOverviewTestRepository implements PerformanceOverviewRepository {
     getEvent717Performance(_diseaseOutbreakEventId: Id): FutureData<PerformanceMetrics717[]> {
@@ -103,7 +103,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "COVID19",
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
-                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                eventSource: AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
                 cases: "22",
@@ -123,7 +123,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "COVID19",
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
-                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                eventSource: AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
                 cases: "5",
@@ -143,7 +143,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "Acute VHF",
                 nationalDiseaseOutbreakEventId: "LALS50e9Zea",
                 date: "2024-08-27",
-                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                eventSource: AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_EBS,
             },
         ]);
     }
@@ -168,7 +168,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "COVID19",
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
-                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                eventSource: AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
                 cases: "22",
@@ -188,7 +188,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "COVID19",
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
-                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                eventSource: AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_IBS,
             },
             {
                 cases: "5",
@@ -208,7 +208,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 suspectedDisease: "Acute VHF",
                 nationalDiseaseOutbreakEventId: "LALS50e9Zea",
                 date: "2024-08-27",
-                eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                eventSource: AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_EBS,
             },
         ]);
     }

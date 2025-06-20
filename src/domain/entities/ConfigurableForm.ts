@@ -23,10 +23,6 @@ export type DiseaseOutbreakEventOptions = {
     casesDataSource: Option[];
 };
 
-export type AlertOptions = {
-    alertDataSources: Option[];
-};
-
 export type DiseaseOutbreakCaseDataOptions = {
     dataSources: Option[];
 };

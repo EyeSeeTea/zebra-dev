@@ -30,9 +30,6 @@ export function getTestContext() {
                     incidentManagers: [],
                     casesDataSource: [],
                 },
-                alertOptions: {
-                    alertDataSources: [],
-                },
                 riskAssessmentGradingConfigurations: {
                     populationAtRisk: [],
                     geographicalSpread: [],
@@ -75,6 +72,7 @@ export function getTestContext() {
                 diseaseOutbreakDataSource: DataSource.ND1,
             },
         },
+        alertDataSources: [],
     };
 
     return context;

@@ -72,9 +72,6 @@ export class GetConfigurationsUseCase {
                 ...selectableOptionsResponse.eventTrackerConfigurations,
                 incidentManagers: managers,
             },
-            alertOptions: {
-                ...selectableOptionsResponse.alertOptions,
-            },
             riskAssessmentGradingConfigurations: {
                 ...selectableOptionsResponse.riskAssessmentGradingConfigurations,
             },

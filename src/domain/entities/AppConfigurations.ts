@@ -1,5 +1,4 @@
 import {
-    AlertOptions,
     DiseaseOutbreakCaseDataOptions,
     DiseaseOutbreakEventOptions,
     IncidentActionPlanOptions,
@@ -31,7 +30,6 @@ import { DataSource } from "./disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type SelectableOptions = {
     eventTrackerConfigurations: DiseaseOutbreakEventOptions & DiseaseOutbreakCaseDataOptions;
-    alertOptions: AlertOptions;
     riskAssessmentGradingConfigurations: {
         populationAtRisk: Array<
             LowPopulationAtRisk | MediumPopulationAtRisk | HighPopulationAtRisk

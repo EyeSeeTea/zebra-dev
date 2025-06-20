@@ -15,9 +15,9 @@ import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
 import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
-import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
+import { AlertDataSourceCode } from "../../../domain/entities/alert/AlertDataSource";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     event: string;
@@ -56,7 +56,7 @@ type State = {
     setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
     filterOptions: (
         column: string,
-        dataSource?: AlertDataSource
+        dataSource?: AlertDataSourceCode
     ) => { value: string; label: string }[];
     totalPages: number;
     currentPage: number;

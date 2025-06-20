@@ -23,8 +23,8 @@ import { RouteName, useRoutes } from "../../../hooks/useRoutes";
 import { DateRangePicker } from "../../date-picker/DateRangePicker";
 import { useAppContext } from "../../../contexts/app-context";
 import { Selector } from "../../selector/Selector";
-import { AlertDataSource } from "../../../../domain/entities/alert/Alert";
 import { Id } from "../../../../domain/entities/Ref";
+import { AlertDataSourceCode } from "../../../../domain/entities/alert/AlertDataSource";
 
 export type BaseColumn = {
     value: string;
@@ -81,7 +81,7 @@ export type StatisticTableProps = {
     setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
     filterOptions: (
         column: string,
-        dataSource?: AlertDataSource
+        dataSource?: AlertDataSourceCode
     ) => { value: string; label: string }[];
     allowGoToEventOnClick?: boolean;
     eventSourceOptions: Option[];
@@ -161,7 +161,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                         placeholder={i18n.t(label)}
                                         options={filterOptions(
                                             value,
-                                            eventSourceSelected as AlertDataSource
+                                            eventSourceSelected as AlertDataSourceCode
                                         )}
                                         onChange={(values: string[]) => {
                                             setFilters({ ...filters, [value]: values });

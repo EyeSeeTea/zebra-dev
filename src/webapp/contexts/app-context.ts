@@ -3,6 +3,7 @@ import { CompositionRoot } from "../../CompositionRoot";
 import { User } from "../../domain/entities/User";
 import { D2Api } from "../../types/d2-api";
 import { Configurations } from "../../domain/entities/AppConfigurations";
+import { AlertDataSource } from "../../domain/entities/alert/AlertDataSource";
 
 export interface AppContextState {
     api: D2Api;
@@ -10,6 +11,7 @@ export interface AppContextState {
     currentUser: User;
     compositionRoot: CompositionRoot;
     configurations: Configurations;
+    alertDataSources: AlertDataSource[];
 }
 
 export const AppContext = React.createContext<AppContextState | null>(null);
