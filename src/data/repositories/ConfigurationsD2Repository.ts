@@ -12,7 +12,6 @@ import { dataSourceMap } from "./consts/DiseaseOutbreakConstants";
 
 const optionSetCode: Record<string, string> = {
     dataSources: "RTSL_ZEB_OS_DEFAULT_DATA_SOURCE",
-    mainSyndromes: "AGENTS",
     suspectedDiseases: "RTSL_ZEB_OS_DISEASE",
     notificationSources: "RTSL_ZEB_OS_SOURCE",
     incidentStatus: "RTSL_ZEB_OS_INCIDENT_STATUS",
@@ -48,13 +47,6 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                     if (dataSources)
                         selectableOptions.eventTrackerConfigurations.dataSources =
                             this.mapD2OptionSetToOptions(dataSources);
-                } else if (key === "mainSyndromes") {
-                    const mainSyndromes = optionsResponse.optionSets.find(
-                        optionSet => optionSet.code === value
-                    );
-                    if (mainSyndromes)
-                        selectableOptions.eventTrackerConfigurations.mainSyndromes =
-                            this.mapD2OptionSetToOptions(mainSyndromes);
                 } else if (key === "suspectedDiseases") {
                     const suspectedDiseases = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
@@ -207,7 +199,6 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
                 dataSources: [],
-                mainSyndromes: [],
                 suspectedDiseases: [],
                 notificationSources: [],
                 incidentManagers: [],

@@ -28,7 +28,7 @@ export type FormSummaryData = {
     notes: string;
 };
 export function useDiseaseOutbreakEvent(id: Id) {
-    const { compositionRoot, configurations } = useAppContext();
+    const { compositionRoot, configurations, mainSyndromes } = useAppContext();
     const [formSummary, setFormSummary] = useState<FormSummaryData>();
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [riskAssessmentRows, setRiskAssessmentRows] = useState<TableRowType[]>([]);
@@ -38,7 +38,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
         useExistingEventTrackerTypes();
 
     useEffect(() => {
-        compositionRoot.diseaseOutbreakEvent.get.execute(id, configurations).run(
+        compositionRoot.diseaseOutbreakEvent.get.execute(id, configurations, mainSyndromes).run(
             diseaseOutbreakEvent => {
                 setFormSummary(mapDiseaseOutbreakEventToFormSummary(diseaseOutbreakEvent));
                 setRiskAssessmentRows(
@@ -54,7 +54,7 @@ export function useDiseaseOutbreakEvent(id: Id) {
                 });
             }
         );
-    }, [compositionRoot.diseaseOutbreakEvent.get, configurations, id]);
+    }, [compositionRoot.diseaseOutbreakEvent.get, configurations, id, mainSyndromes]);
 
     const mapDiseaseOutbreakEventToFormSummary = (
         diseaseOutbreakEvent: DiseaseOutbreakEvent

@@ -69,7 +69,7 @@ type State = {
 };
 
 export function useForm(formType: FormType, id?: Id): State {
-    const { compositionRoot, currentUser, configurations } = useAppContext();
+    const { compositionRoot, currentUser, configurations, mainSyndromes } = useAppContext();
     const { goTo } = useRoutes();
 
     const { getCurrentEventTracker } = useCurrentEventTracker();
@@ -135,6 +135,7 @@ export function useForm(formType: FormType, id?: Id): State {
                             existingEventTrackerTypes: existingEventTrackerTypes,
                             isIncidentManager: isIncidentManager,
                             resourcePermissions: resourcePermissions,
+                            mainSyndromes,
                         }),
                     });
                     setEntityData(formData);
@@ -162,6 +163,7 @@ export function useForm(formType: FormType, id?: Id): State {
         isIncidentManager,
         existingEventTrackerTypes,
         resourcePermissions,
+        mainSyndromes,
     ]);
 
     const handleAddNew = useCallback(() => {

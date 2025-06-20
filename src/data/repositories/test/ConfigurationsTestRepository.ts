@@ -10,7 +10,6 @@ export class ConfigurationsTestRepository implements ConfigurationsRepository {
             eventTrackerConfigurations: {
                 dataSources: [],
                 suspectedDiseases: [],
-                mainSyndromes: [],
                 notificationSources: [],
                 incidentManagers: [],
                 incidentStatus: [],

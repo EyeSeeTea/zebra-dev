@@ -1,4 +1,5 @@
 import { ConfigurableForm } from "../../../domain/entities/ConfigurableForm";
+import { MainSyndrome } from "../../../domain/entities/disease-outbreak-event/MainSyndrome";
 import { DiseaseNames } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../../domain/entities/Ref";
@@ -26,6 +27,7 @@ export function mapEntityToFormState(options: {
     existingEventTrackerTypes?: DiseaseNames[];
     isIncidentManager?: boolean;
     resourcePermissions: ResourcePermissions;
+    mainSyndromes: MainSyndrome[];
 }): FormState {
     const {
         configurableForm,
@@ -33,16 +35,18 @@ export function mapEntityToFormState(options: {
         existingEventTrackerTypes,
         isIncidentManager,
         resourcePermissions,
+        mainSyndromes,
     } = options;
 
     switch (configurableForm.type) {
         case "disease-outbreak-event":
         case "disease-outbreak-event-case-data":
-            return mapDiseaseOutbreakEventToInitialFormState(
-                configurableForm,
-                editMode ?? false,
-                existingEventTrackerTypes ?? []
-            );
+            return mapDiseaseOutbreakEventToInitialFormState({
+                diseaseOutbreakEventWithOptions: configurableForm,
+                editMode: editMode ?? false,
+                existingEventTrackerTypes: existingEventTrackerTypes ?? [],
+                mainSyndromes,
+            });
         case "risk-assessment-grading":
             return mapRiskGradingToInitialFormState(configurableForm);
         case "risk-assessment-summary":

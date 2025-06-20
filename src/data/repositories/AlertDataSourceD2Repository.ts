@@ -3,7 +3,7 @@ import { FutureData } from "../api-futures";
 import { getOptionSet } from "./common/getOptionSet";
 import { AlertDataSource, AlertDataSourceCodes } from "../../domain/entities/alert/AlertDataSource";
 import { AlertDataSourceRepository } from "../../domain/repositories/AlertDataSourceRepository";
-import { mapD2OptionSetToNameCodeRefEntity } from "./common/mapD2OptionSetToNameCodeRefEntity";
+import { mapD2OptionSetToValidatedCodedNamedRef } from "./common/mapD2OptionSetToCodedNamedRef";
 
 const OPTION_SET_ID = "kSsd5PSQqH7";
 
@@ -12,7 +12,7 @@ export class AlertDataSourceD2Repository implements AlertDataSourceRepository {
 
     getAll(): FutureData<AlertDataSource[]> {
         return getOptionSet(this.api, OPTION_SET_ID).map(optionSet =>
-            mapD2OptionSetToNameCodeRefEntity(optionSet, AlertDataSourceCodes)
+            mapD2OptionSetToValidatedCodedNamedRef(optionSet, AlertDataSourceCodes)
         );
     }
 }

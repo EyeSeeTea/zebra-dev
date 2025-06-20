@@ -68,7 +68,7 @@ export const useTableFilters = (
 
     const eventSourceOptions = useMemo(() => {
         const eventSources = alertDataSources.map(dataSource => ({
-            value: dataSource.id,
+            value: dataSource.code,
             label: dataSource.name,
         }));
 

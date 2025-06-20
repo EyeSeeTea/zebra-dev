@@ -92,7 +92,11 @@ import { ResourceTypeNamedD2Repository } from "./data/repositories/ResourceTypeN
 import { AlertDataSourceD2Repository } from "./data/repositories/AlertDataSourceD2Repository";
 import { AlertDataSourceRepository } from "./domain/repositories/AlertDataSourceRepository";
 import { AlertDataSourceTestRepository } from "./data/repositories/test/AlertDataSourceTestRepository";
-import { GetAlertDataSources } from "./domain/usecases/utils/GetAlertDataSources";
+import { GetAlertDataSources } from "./domain/usecases/GetAlertDataSources";
+import { MainSyndromeRepository } from "./domain/repositories/MainSyndromeRepository";
+import { MainSyndromeD2Repository } from "./data/repositories/MainSyndromeD2Repository";
+import { MainSyndromeTestRepository } from "./data/repositories/test/MainSyndromeTestRepository";
+import { GetMainSyndromesUseCase } from "./domain/usecases/GetMainSyndromesUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -118,6 +122,7 @@ type Repositories = {
     resourceFileRepository: ResourceFileRepository;
     resourceTypeNamedRepository: ResourceTypeNamedRepository;
     alertDataSourceRepository: AlertDataSourceRepository;
+    mainSyndromeRepository: MainSyndromeRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -141,6 +146,7 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.userGroupRepository
             ),
             complete: new CompleteEventTrackerUseCase(repositories),
+            getMainSyndromes: new GetMainSyndromesUseCase(repositories),
         },
         incidentActionPlan: {
             get: new GetIncidentActionByIdUseCase(repositories),
@@ -213,6 +219,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         resourceFileRepository: new ResourceFileD2Repository(api),
         resourceTypeNamedRepository: new ResourceTypeNamedD2Repository(api),
         alertDataSourceRepository: new AlertDataSourceD2Repository(api),
+        mainSyndromeRepository: new MainSyndromeD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -241,6 +248,7 @@ export function getTestCompositionRoot() {
         resourceFileRepository: new ResourceFileTestRepository(),
         resourceTypeNamedRepository: new ResourceTypeNamedTestRepository(),
         alertDataSourceRepository: new AlertDataSourceTestRepository(),
+        mainSyndromeRepository: new MainSyndromeTestRepository(),
     };
 
     return getCompositionRoot(repositories);

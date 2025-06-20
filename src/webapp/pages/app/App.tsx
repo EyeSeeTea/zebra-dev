@@ -44,6 +44,10 @@ function App(props: AppProps) {
                 .execute()
                 .toPromise();
 
+            const mainSyndromes = await compositionRoot.diseaseOutbreakEvent.getMainSyndromes
+                .execute()
+                .toPromise();
+
             const isDev = process.env.NODE_ENV === "development";
             setAppContext({
                 currentUser,
@@ -52,6 +56,7 @@ function App(props: AppProps) {
                 api,
                 configurations,
                 alertDataSources,
+                mainSyndromes,
             });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);

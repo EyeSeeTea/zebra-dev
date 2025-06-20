@@ -9,6 +9,7 @@ import { User } from "../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
 import { DiseaseNames } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import { MainSyndrome } from "../../../../domain/entities/disease-outbreak-event/MainSyndrome";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -80,25 +81,37 @@ type ResponseActionsSubsectionKeys =
     | "responseNarrative";
 
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
-export function mapDiseaseOutbreakEventToInitialFormState(
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
-    editMode: boolean,
-    existingEventTrackerTypes: DiseaseNames[]
-): FormState {
+export function mapDiseaseOutbreakEventToInitialFormState(params: {
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData;
+    editMode: boolean;
+    existingEventTrackerTypes: DiseaseNames[];
+    mainSyndromes: MainSyndrome[];
+}): FormState {
+    const {
+        diseaseOutbreakEventWithOptions,
+        editMode,
+        existingEventTrackerTypes = [],
+        mainSyndromes = [],
+    } = params;
     return diseaseOutbreakEventWithOptions.type === "disease-outbreak-event"
-        ? getInitialFormStateForDiseaseOutbreakEvent(
+        ? getInitialFormStateForDiseaseOutbreakEvent({
               diseaseOutbreakEventWithOptions,
               editMode,
-              existingEventTrackerTypes
-          )
+              existingEventTrackerTypes,
+              mainSyndromes,
+          })
         : getInitialFormStateForDiseaseOutbreakCaseData(diseaseOutbreakEventWithOptions);
 }
 
-function getInitialFormStateForDiseaseOutbreakEvent(
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
-    editMode: boolean,
-    existingEventTrackerTypes: DiseaseNames[]
-): FormState {
+function getInitialFormStateForDiseaseOutbreakEvent(params: {
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData;
+    editMode: boolean;
+    existingEventTrackerTypes: DiseaseNames[];
+    mainSyndromes: MainSyndrome[];
+}): FormState {
+    const { diseaseOutbreakEventWithOptions, editMode, existingEventTrackerTypes, mainSyndromes } =
+        params;
+
     const {
         entity: diseaseOutbreakEvent,
         options,
@@ -107,13 +120,7 @@ function getInitialFormStateForDiseaseOutbreakEvent(
         uploadedCasesDataFileId,
     } = diseaseOutbreakEventWithOptions;
 
-    const {
-        incidentManagers,
-        mainSyndromes,
-        suspectedDiseases,
-        notificationSources,
-        casesDataSource,
-    } = options;
+    const { incidentManagers, suspectedDiseases, notificationSources, casesDataSource } = options;
 
     //If An Event Tracker has already been created for a given suspected disease or harzd type,
     //then do not allow to create another one. Remove it from dropwdown options

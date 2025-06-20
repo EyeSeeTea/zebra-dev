@@ -1,6 +1,6 @@
-import { FutureData } from "../../../data/api-futures";
-import { AlertDataSource } from "../../entities/alert/AlertDataSource";
-import { AlertDataSourceRepository } from "../../repositories/AlertDataSourceRepository";
+import { FutureData } from "../../data/api-futures";
+import { AlertDataSource } from "../entities/alert/AlertDataSource";
+import { AlertDataSourceRepository } from "../repositories/AlertDataSourceRepository";
 
 export class GetAlertDataSources {
     constructor(

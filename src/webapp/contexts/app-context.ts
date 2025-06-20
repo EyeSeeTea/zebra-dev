@@ -4,6 +4,7 @@ import { User } from "../../domain/entities/User";
 import { D2Api } from "../../types/d2-api";
 import { Configurations } from "../../domain/entities/AppConfigurations";
 import { AlertDataSource } from "../../domain/entities/alert/AlertDataSource";
+import { MainSyndrome } from "../../domain/entities/disease-outbreak-event/MainSyndrome";
 
 export interface AppContextState {
     api: D2Api;
@@ -12,6 +13,7 @@ export interface AppContextState {
     compositionRoot: CompositionRoot;
     configurations: Configurations;
     alertDataSources: AlertDataSource[];
+    mainSyndromes: MainSyndrome[];
 }
 
 export const AppContext = React.createContext<AppContextState | null>(null);

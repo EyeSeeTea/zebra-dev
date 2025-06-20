@@ -1,6 +1,7 @@
 import { FutureData } from "../../data/api-futures";
 import { Configurations } from "../entities/AppConfigurations";
 import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { MainSyndrome } from "../entities/disease-outbreak-event/MainSyndrome";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
@@ -26,7 +27,11 @@ export class GetDiseaseOutbreakByIdUseCase {
         }
     ) {}
 
-    public execute(id: Id, configurations: Configurations): FutureData<DiseaseOutbreakEvent> {
+    public execute(
+        id: Id,
+        configurations: Configurations,
+        mainSyndromes: MainSyndrome[]
+    ): FutureData<DiseaseOutbreakEvent> {
         return this.options.diseaseOutbreakEventRepository
             .get(id)
             .flatMap(diseaseOutbreakEventBase => {
@@ -39,10 +44,9 @@ export class GetDiseaseOutbreakByIdUseCase {
 
                 const { selectableOptions } = configurations;
 
-                const mainSyndrome =
-                    selectableOptions.eventTrackerConfigurations.mainSyndromes.find(
-                        mainSyndrome => mainSyndrome.id === mainSyndromeCode
-                    );
+                const mainSyndrome = mainSyndromes.find(
+                    mainSyndrome => mainSyndrome.code === mainSyndromeCode
+                );
                 const suspectedDisease =
                     selectableOptions.eventTrackerConfigurations.suspectedDiseases.find(
                         suspectedDisease => suspectedDisease.id === suspectedDiseaseCode
