@@ -85,10 +85,6 @@ type EventTrackerOverviewInDataStore = {
     dataSource?: keyof typeof DataSource;
 };
 
-type EventTrackerOverview = EventTrackerOverviewInDataStore & {
-    casesDataSource: CasesDataSource;
-};
-
 type IdValue = {
     id: Id;
     value: string;
@@ -262,7 +258,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             });
     }
 
-    private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<EventTrackerOverview[]> {
+    private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<
+        EventTrackerOverviewInDataStore[]
+    > {
         return this.datastore
             .getObject<EventTrackerOverviewInDataStore[]>(
                 CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
@@ -448,7 +446,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 );
 
                                 const eventTrackerOverviewsForKeys = eventTrackerOverviews.filter(
-                                    overview => keys.includes(overview.key)
                                     overview => {
                                         const event = diseaseOutbreakEventsMap.get(overview.key);
                                         return (
