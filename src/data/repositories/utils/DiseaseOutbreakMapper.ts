@@ -43,7 +43,10 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         casesDataSourceMap[fromMap("casesDataSource")] ??
         CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR;
 
-    const dataSource = dataSourceMap[fromMap("dataSource")] ?? DataSource.ND1;
+    const dataSource =
+        casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR
+            ? dataSourceMap[fromMap("dataSource")] || DataSource.ND1
+            : undefined;
 
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,
