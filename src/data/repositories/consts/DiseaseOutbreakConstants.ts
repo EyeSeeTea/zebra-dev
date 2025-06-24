@@ -148,7 +148,7 @@ export function getValueFromDiseaseOutbreak(
         RTSL_ZEB_TEA_ASSIGN_INCIDENT_MANAGER: diseaseOutbreak.incidentManagerName,
         RTSL_ZEB_TEA_NOTES: diseaseOutbreak.notes ?? "",
         RTSL_ZEB_TEA_CASE_DATA_SOURCE: diseaseOutbreak.casesDataSource,
-        RTSL_ZEB_TEA_DEFAULT_DATA_SOURCE: diseaseOutbreak.dataSource,
+        RTSL_ZEB_TEA_DEFAULT_DATA_SOURCE: diseaseOutbreak.dataSource ?? "",
     };
 }
 
