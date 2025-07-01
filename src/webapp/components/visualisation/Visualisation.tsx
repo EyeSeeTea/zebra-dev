@@ -41,26 +41,29 @@ export const Visualisation: React.FC<VisualisationProps> = React.memo(props => {
     return (
         <React.Fragment>
             <LoaderContainer loading={isLoading}>
-                <div style={isLoading ? styles.wrapperHidden : styles.wrapperVisible}>
+                <IFrameContainer>
                     <VisualisationIFrame
+                        hidden={isLoading}
                         ref={iframeRef}
                         title="DHIS2 Maps App"
                         src={srcUrl}
                         width="100%"
                         height="100%"
                     />
-                </div>
+                </IFrameContainer>
             </LoaderContainer>
         </React.Fragment>
     );
 });
 
-const VisualisationIFrame = styled.iframe``;
-
-const styles: Record<string, React.CSSProperties> = {
-    wrapperVisible: { width: "100%", height: "80vh", maxHeight: "850px" },
-    wrapperHidden: { visibility: "hidden", width: "100%" },
-};
+const VisualisationIFrame = styled.iframe`
+    display: ${({ hidden }) => (hidden ? "none" : "block")};
+`;
+const IFrameContainer = styled.div`
+    width: 100%;
+    height: 80vh;
+    max-height: 850px;
+`;
 
 function waitforDocumentToLoad(iframeDocument: Document, selector: string) {
     return new Promise(resolve => {

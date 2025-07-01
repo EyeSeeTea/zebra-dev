@@ -50,18 +50,14 @@ export class UpdateAlertPHEOCStatusUseCase {
         if (pheocStatus === "Respond" && alertConfirmedDisease) {
             return this.options.diseaseOutbreakEventRepository
                 .getActiveByDisease(alertConfirmedDisease)
-                .flatMap(disease => {
-                    if (!disease?.id) {
+                .flatMap(maybeDiseaseOutbreakEvent => {
+                    if (!maybeDiseaseOutbreakEvent?.id) {
                         console.error(
                             `No active disease outbreak event found for disease ${alertConfirmedDisease}`
                         );
-                        return Future.error(
-                            new Error(
-                                `Error while updating PHEOC status to Respond in alert with id ${alertId}`
-                            )
-                        );
+                        return Future.success(undefined);
                     }
-                    return Future.success(disease?.id);
+                    return Future.success(maybeDiseaseOutbreakEvent.id);
                 });
         }
         return Future.success(undefined);
