@@ -232,8 +232,10 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                                 )}
                                             />
                                         ) : column.type === "selector" &&
-                                          !!column.disableSelection &&
-                                          !column.disableSelection(row) &&
+                                          !(
+                                              column.disableSelection &&
+                                              column.disableSelection(row)
+                                          ) &&
                                           column.options &&
                                           handleColumnEdit ? (
                                             <StyledTableCell>

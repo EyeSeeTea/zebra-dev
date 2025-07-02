@@ -42,11 +42,11 @@ export class GetAllAlertsPerformanceOverviewMetricsUseCase {
                             ? diseaseOptions.find(
                                   option => option.id === activeAlert.confirmedDiseaseCode
                               )?.name
-                            : alertMetric.suspectedDisease;
+                            : alertMetric.confirmedDisease;
 
                         const alertsPerformanceOverviewMetric: AlertsPerformanceOverviewMetrics = {
                             ...alertMetric,
-                            suspectedDisease: confirmedDiseaseName ?? "",
+                            confirmedDisease: confirmedDiseaseName ?? "",
                             incidentStatus: activeAlert.incidentStatus
                                 ? activeAlert.incidentStatus
                                 : "",

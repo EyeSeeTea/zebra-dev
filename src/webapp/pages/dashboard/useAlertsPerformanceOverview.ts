@@ -30,6 +30,7 @@ export type AlertsPerformanceOverviewMetricsTableData = {
     eventIBSId: Id;
     nationalDiseaseOutbreakEventId: Id;
     suspectedDisease: string;
+    confirmedDisease: string;
     province: string;
     orgUnit: string;
     orgUnitType: OrgUnitLevelType;
@@ -139,13 +140,18 @@ export function useAlertsPerformanceOverview(): State {
     const columns = useMemo<TableColumn[]>(
         () => [
             {
-                label: i18n.t("Disease"),
+                label: i18n.t("Confirmed disease"),
                 value: "event", // TODO: Check why event?
                 type: "selector",
                 options: diseaseOptions,
                 disableSelection: (row: Row) => {
-                    return !row.eventIBSId;
+                    return !row.eventIBSId || row.incidentManagerUsername !== currentUser.username;
                 },
+            },
+            {
+                label: i18n.t("Suspected disease"),
+                value: "suspectedDisease",
+                type: "text",
             },
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
@@ -160,11 +166,14 @@ export function useAlertsPerformanceOverview(): State {
                 value: "incidentStatus",
                 type: "selector",
                 options: incidentStatusOptions,
+                disableSelection: (row: Row) => {
+                    return !row.event;
+                },
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
         ],
-        [diseaseOptions]
+        [currentUser.username, diseaseOptions]
     );
 
     const mapEntityToTableData = useCallback(
@@ -175,7 +184,7 @@ export function useAlertsPerformanceOverview(): State {
             const incidentManager = allTeamMembers.find(tm => tm.name === data.incidentManager);
             return {
                 ...data,
-                event: data.suspectedDisease,
+                event: data.confirmedDisease, // TODO: Check why event is used for disease
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
                 province: data.province.trim(),
