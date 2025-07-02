@@ -49,6 +49,7 @@ import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { VerificationStatus } from "../../domain/entities/alert/Alert";
 import _c from "../../domain/entities/generic/Collection";
+import { getDateAsMonthYearString } from "./utils/DateTimeHelper";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -576,6 +577,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.respond7d,
                                     performanceOverviewDimensions.incidentStatus,
                                     performanceOverviewDimensions.emergedDate,
+                                    performanceOverviewDimensions.notifiedDate,
+                                    performanceOverviewDimensions.respondedDate,
                                 ],
                                 startDate: DEFAULT_START_DATE,
                                 endDate: DEFAULT_END_DATE,
@@ -604,16 +607,19 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 ...acc,
                                                 [dimensionKey]: formattedDate,
                                             };
-                                        } else if (dimensionKey === "emergedDate") {
-                                            const duration = row[index]
-                                                ? `${moment()
-                                                      .diff(moment(row[index]), "days")
-                                                      .toString()}d`
-                                                : "";
-
+                                        } else if (
+                                            [
+                                                "emergedDate",
+                                                "notifiedDate",
+                                                "respondedDate",
+                                            ].includes(dimensionKey)
+                                        ) {
+                                            const inputDate = row[index];
                                             return {
                                                 ...acc,
-                                                duration: duration,
+                                                [dimensionKey]: inputDate
+                                                    ? getDateAsMonthYearString(new Date(inputDate))
+                                                    : null,
                                             };
                                         } else if (dimension === "ounamehierarchy") {
                                             const hierarchyArray = row[index]?.split("/");
