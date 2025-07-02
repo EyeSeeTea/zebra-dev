@@ -27,6 +27,7 @@ export const RTSL_ZEBRA_ALERTS_IBS_OUTBREAK_ID_TEA_ID = "WGXUs3lyO2s";
 export const RTSL_ZEBRA_ALERTS_EBS_EMS_ID_TEA_ID = "nw5JvspoJ4N";
 export const RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID = "HvgldgBK8Th";
 export const RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID = "KeUbzfFQYCX";
+export const RTSL_ZEB_TEA_CONFIRMED_DISEASE_ALREADY_CHOSEN = "GHGsa3YRwZk";
 
 export const casesDataSourceMap: Record<string, CasesDataSource> = {
     RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR: CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,

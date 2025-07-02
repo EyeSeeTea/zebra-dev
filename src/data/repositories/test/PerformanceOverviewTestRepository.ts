@@ -105,6 +105,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
                 eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                confirmedDiseaseAlreadyChosen: false,
             },
             {
                 cases: "22",
@@ -126,6 +127,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
                 eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                confirmedDiseaseAlreadyChosen: false,
             },
             {
                 cases: "5",
@@ -147,6 +149,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 nationalDiseaseOutbreakEventId: "LALS50e9Zea",
                 date: "2024-08-27",
                 eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                confirmedDiseaseAlreadyChosen: false,
             },
         ]);
     }
@@ -173,6 +176,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
                 eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                confirmedDiseaseAlreadyChosen: false,
             },
             {
                 cases: "22",
@@ -194,6 +198,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 nationalDiseaseOutbreakEventId: "tnhWg7zKmNF",
                 date: "2024-08-27",
                 eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                confirmedDiseaseAlreadyChosen: false,
             },
             {
                 cases: "5",
@@ -215,6 +220,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 nationalDiseaseOutbreakEventId: "LALS50e9Zea",
                 date: "2024-08-27",
                 eventSource: AlertDataSource.RTSL_ZEB_OS_DATA_SOURCE_EBS,
+                confirmedDiseaseAlreadyChosen: false,
             },
         ]);
     }

@@ -10,7 +10,7 @@ import {
 import { FutureData } from "../../api-futures";
 
 export class AlertTestRepository implements AlertRepository {
-    updateAlertPHEOCStatus(_options: UpdatePHEOCStatusOptions): FutureData<void> {
+    updateAlertPHEOCStatusAndMappedEventId(_options: UpdatePHEOCStatusOptions): FutureData<void> {
         return Future.success(undefined);
     }
     updateActiveVerifiedRespondAlerts(_alertOptions: AlertOptions): FutureData<Alert[]> {
@@ -22,6 +22,7 @@ export class AlertTestRepository implements AlertRepository {
             districtId: "District",
             confirmedDiseaseCode: "DiseaseCode",
             suspectedDiseaseCode: "SuspectedDiseaseCode",
+            confirmedDiseaseAlreadyChosen: false,
         });
     }
     updateAlertsPHEOCStatusByDiseaseOutbreakId(
@@ -30,7 +31,10 @@ export class AlertTestRepository implements AlertRepository {
     ): FutureData<void> {
         return Future.success(undefined);
     }
-    updateConfirmedDisease(_alertId: Id, _diseaseName: string): FutureData<void> {
+    updateConfirmedDiseaseAndCleanMappedEventId(
+        _alertId: Id,
+        _diseaseName: string
+    ): FutureData<void> {
         return Future.success(undefined);
     }
 

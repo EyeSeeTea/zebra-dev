@@ -12,17 +12,28 @@ export class UpdateAlertConfirmedDiseaseUseCase {
     ) {}
 
     public execute(alertId: Id, diseaseName: string): FutureData<void> {
-        return this.fetchAndValidateAlert(alertId).flatMap(alert =>
-            this.options.alertRepository.updateConfirmedDisease(alert.id, diseaseName)
+        return this.fetchAndValidateAlert(alertId, diseaseName).flatMap(alert =>
+            this.options.alertRepository.updateConfirmedDiseaseAndCleanMappedEventId(
+                alert.id,
+                diseaseName
+            )
         );
     }
 
-    private fetchAndValidateAlert(alertId: Id): FutureData<Alert> {
+    private fetchAndValidateAlert(alertId: Id, confirmedDiseaseName: string): FutureData<Alert> {
         return this.options.alertRepository.getById(alertId).flatMap(alert => {
-            if (alert.status !== "ACTIVE") {
+            if (
+                alert.status !== "ACTIVE" ||
+                alert.confirmedDiseaseAlreadyChosen ||
+                confirmedDiseaseName === "Unknown"
+            ) {
                 return Future.error(
                     new Error(
-                        "This alert is not active and therefore the confirmed disease cannot be edited."
+                        alert.status !== "ACTIVE"
+                            ? "This alert is not active and therefore the confirmed disease cannot be edited."
+                            : confirmedDiseaseName === "Unknown"
+                            ? "Unknown cannot be set as confirmed disease."
+                            : "This confirmed disease has already been chosen and cannot be edited."
                     )
                 );
             }

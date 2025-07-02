@@ -6,14 +6,14 @@ import { Code, Id } from "../entities/Ref";
 
 export interface AlertRepository {
     updateActiveVerifiedRespondAlerts(alertOptions: AlertOptions): FutureData<Alert[]>;
-    updateAlertPHEOCStatus(options: UpdatePHEOCStatusOptions): FutureData<void>;
+    updateAlertPHEOCStatusAndMappedEventId(options: UpdatePHEOCStatusOptions): FutureData<void>;
     getById(alertId: Id): FutureData<Alert>;
     getAllActive(): FutureData<Alert[]>;
     updateAlertsPHEOCStatusByDiseaseOutbreakId(
         diseaseOutbreakId: Id,
         pheocStatus: IncidentStatus
     ): FutureData<void>;
-    updateConfirmedDisease(alertId: Id, diseaseName: string): FutureData<void>;
+    updateConfirmedDiseaseAndCleanMappedEventId(alertId: Id, diseaseName: string): FutureData<void>;
 }
 
 export type AlertOptions = {

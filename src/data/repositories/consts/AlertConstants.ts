@@ -13,6 +13,7 @@ export const alertOutbreakCodes = {
     detectedDate: "RTSL_ZEB_TEA_DATE_DETECTED",
     notifiedDate: "RTSL_ZEB_TEA_DATE_NOTIFIED",
     nationalEventId: "RTSL_ZEB_TEA_EVENT_id",
+    confirmedDiseaseAlreadyChosen: "RTSL_ZEB_TEA_CONFIRMED_DISEASE_ALREADY_CHOSEN",
 } as const;
 
 export const verificationStatusCodeMap: Record<string, AlertVerificationStatus> = {

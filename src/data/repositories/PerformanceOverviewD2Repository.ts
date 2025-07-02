@@ -576,6 +576,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.respond7d,
                                     performanceOverviewDimensions.incidentStatus, // PHEOC status
                                     performanceOverviewDimensions.emergedDate,
+                                    performanceOverviewDimensions.confirmedDiseaseAlreadyChosen,
                                 ],
                                 startDate: DEFAULT_START_DATE,
                                 endDate: DEFAULT_END_DATE,
@@ -630,6 +631,16 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                               hierarchyArray.length
                                                           ] || "National"
                                                         : "National",
+                                            };
+                                        } else if (
+                                            dimensionKey === "confirmedDiseaseAlreadyChosen"
+                                        ) {
+                                            const confirmedDiseaseAlreadyChosen =
+                                                row[index] === "true";
+                                            return {
+                                                ...acc,
+                                                confirmedDiseaseAlreadyChosen:
+                                                    confirmedDiseaseAlreadyChosen,
                                             };
                                         } else {
                                             const nameValue = Object.values(

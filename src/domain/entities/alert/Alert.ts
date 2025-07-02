@@ -9,6 +9,7 @@ export type Alert = {
     confirmedDiseaseCode: Maybe<Code>;
     status?: "ACTIVE" | "COMPLETED" | "CANCELLED";
     incidentStatus?: IncidentStatus; // TODO: Change IncidentStatus to be mandatory
+    confirmedDiseaseAlreadyChosen: boolean;
 };
 
 export enum VerificationStatus {

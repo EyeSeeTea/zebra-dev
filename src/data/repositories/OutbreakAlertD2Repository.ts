@@ -42,6 +42,7 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
                         maybeConfirmedDiseaseAttribute,
                         maybeNationalEventIdAttribute,
                         maybeIBSIdAttribute,
+                        maybeEBSIdAttribute,
                     } = this.getAlertTEAttributes(trackedEntity);
                     const notificationOptions =
                         mapTrackedEntityAttributesToNotificationOptions(trackedEntity);
@@ -57,7 +58,8 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
                     );
 
                     const needsToMapNationalId =
-                        !maybeNationalEventIdAttribute && !!maybeIBSIdAttribute;
+                        !maybeNationalEventIdAttribute &&
+                        (!!maybeIBSIdAttribute || !!maybeEBSIdAttribute);
 
                     return needsToMapNationalId ? outbreakAlertData : undefined;
                 })
@@ -73,7 +75,7 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
             diseaseOptions: getDiseaseOptions(this.api),
         }).flatMap(({ alertTEIs, diseaseOptions }) => {
             const alertsTEIsWithoutConfirmedDisease =
-                this.getIBSAlertsWithoutConfirmedDisease(alertTEIs);
+                this.getIBSAndEBSAlertsWithoutConfirmedDisease(alertTEIs);
 
             if (alertsTEIsWithoutConfirmedDisease.length === 0) {
                 return Future.success(undefined);
@@ -141,16 +143,16 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
         });
     }
 
-    private getIBSAlertsWithoutConfirmedDisease(
+    private getIBSAndEBSAlertsWithoutConfirmedDisease(
         alertTrackedEntities: D2TrackerTrackedEntity[]
     ): D2TrackerTrackedEntity[] {
         return alertTrackedEntities.filter(trackedEntity => {
-            const { maybeConfirmedDiseaseAttribute, maybeIBSIdAttribute } =
+            const { maybeConfirmedDiseaseAttribute, maybeIBSIdAttribute, maybeEBSIdAttribute } =
                 this.getAlertTEAttributes(trackedEntity);
             return (
                 (!maybeConfirmedDiseaseAttribute || maybeConfirmedDiseaseAttribute.value === "") &&
-                maybeIBSIdAttribute &&
-                maybeIBSIdAttribute.value !== ""
+                ((maybeIBSIdAttribute && maybeIBSIdAttribute.value !== "") ||
+                    (maybeEBSIdAttribute && maybeEBSIdAttribute.value !== ""))
             );
         });
     }
@@ -164,12 +166,17 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
             throw new Error(`Alert data not found for ${confirmedDiseaseCode}`);
 
         const suspectedDiseaseCode = getAlertValueFromMap("suspectedDisease", trackedEntity);
+        const confirmedDiseaseAlreadyChosen = getAlertValueFromMap(
+            "confirmedDiseaseAlreadyChosen",
+            trackedEntity
+        );
 
         const alert: Alert = {
             id: trackedEntity.trackedEntity,
             districtId: trackedEntity.orgUnit,
             suspectedDiseaseCode: suspectedDiseaseCode,
             confirmedDiseaseCode: confirmedDiseaseCode,
+            confirmedDiseaseAlreadyChosen: confirmedDiseaseAlreadyChosen === "true",
         };
 
         return {

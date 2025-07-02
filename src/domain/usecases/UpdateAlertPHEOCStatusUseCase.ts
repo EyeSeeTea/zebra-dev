@@ -15,17 +15,17 @@ export class UpdateAlertPHEOCStatusUseCase {
         }
     ) {}
 
-    public execute(alertId: Id, pheocStatus: IncidentStatus): FutureData<void> {
+    public execute(alertId: Id, newPheocStatus: IncidentStatus): FutureData<void> {
         return this.fetchAndValidateAlert(alertId)
             .flatMap(alert =>
                 this.fetchAndValidateMaybeDiseaseOutbreakEventId(
-                    pheocStatus,
+                    newPheocStatus,
                     alertId,
                     alert.confirmedDiseaseCode
                 )
             )
             .flatMap(diseaseOutbreakId =>
-                this.updateStatus(alertId, pheocStatus, diseaseOutbreakId)
+                this.updateStatus(alertId, newPheocStatus, diseaseOutbreakId)
             );
     }
 
@@ -43,11 +43,11 @@ export class UpdateAlertPHEOCStatusUseCase {
     }
 
     private fetchAndValidateMaybeDiseaseOutbreakEventId(
-        pheocStatus: IncidentStatus,
+        newPheocStatus: IncidentStatus,
         alertId: Id,
         alertConfirmedDisease: Maybe<Code>
     ): FutureData<Maybe<Id>> {
-        if (pheocStatus === "Respond" && alertConfirmedDisease) {
+        if (newPheocStatus === "Respond" && alertConfirmedDisease) {
             return this.options.diseaseOutbreakEventRepository
                 .getActiveByDisease(alertConfirmedDisease)
                 .flatMap(maybeDiseaseOutbreakEvent => {
@@ -65,12 +65,12 @@ export class UpdateAlertPHEOCStatusUseCase {
 
     private updateStatus(
         alertId: Id,
-        pheocStatus: IncidentStatus,
+        newPheocStatus: IncidentStatus,
         diseaseOutbreakId: Maybe<Id>
     ): FutureData<void> {
-        return this.options.alertRepository.updateAlertPHEOCStatus({
+        return this.options.alertRepository.updateAlertPHEOCStatusAndMappedEventId({
             alertId,
-            pheocStatus,
+            pheocStatus: newPheocStatus,
             diseaseOutbreakId,
         });
     }

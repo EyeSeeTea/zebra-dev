@@ -44,6 +44,7 @@ export type AlertsPerformanceOverviewMetricsTableData = {
     incidentManagerUsername: string;
     respond7d: string;
     incidentStatus: string;
+    confirmedDiseaseAlreadyChosen: string;
 };
 
 type State = {
@@ -141,12 +142,12 @@ export function useAlertsPerformanceOverview(): State {
         () => [
             {
                 label: i18n.t("Confirmed disease"),
-                value: "event", // TODO: Check why event?
+                value: "event", // TODO: Check why event and not confirmedDisease?
                 type: "selector",
                 options: diseaseOptions,
-                disableSelection: (row: Row) => {
-                    return !row.eventIBSId || row.incidentManagerUsername !== currentUser.username;
-                },
+                disableSelection: (row: Row) =>
+                    row.incidentManagerUsername !== currentUser.username ||
+                    row.confirmedDiseaseAlreadyChosen === "true",
             },
             {
                 label: i18n.t("Suspected disease"),
@@ -166,9 +167,8 @@ export function useAlertsPerformanceOverview(): State {
                 value: "incidentStatus",
                 type: "selector",
                 options: incidentStatusOptions,
-                disableSelection: (row: Row) => {
-                    return !row.event;
-                },
+                disableSelection: (row: Row) =>
+                    row.incidentManagerUsername !== currentUser.username,
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
@@ -188,6 +188,7 @@ export function useAlertsPerformanceOverview(): State {
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
                 province: data.province.trim(),
+                confirmedDiseaseAlreadyChosen: String(data.confirmedDiseaseAlreadyChosen),
             };
         },
         []

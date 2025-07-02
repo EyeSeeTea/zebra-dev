@@ -114,9 +114,10 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
 
             return {
                 ...data,
-                event: data.suspectedDisease,
+                event: data.confirmedDisease,
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
+                confirmedDiseaseAlreadyChosen: String(data.confirmedDiseaseAlreadyChosen),
             };
         },
         []
