@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: i18next-conv\n"
-"POT-Creation-Date: 2025-06-11T12:01:49.186Z\n"
+"POT-Creation-Date: 2025-07-02T07:19:56.681Z\n"
 "PO-Revision-Date: 2018-10-25T09:02:35.143Z\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -234,6 +234,15 @@ msgid "Organisation unit"
 msgstr ""
 
 msgid "Organisation unit type"
+msgstr ""
+
+msgid "Emergence Date"
+msgstr ""
+
+msgid "Notification Date"
+msgstr ""
+
+msgid "Response Date"
 msgstr ""
 
 msgid "Manager"
