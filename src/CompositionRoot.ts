@@ -105,6 +105,10 @@ import { NotificationSourcesD2Repository } from "./data/repositories/Notificatio
 import { NotificationSourcesRepository } from "./domain/repositories/NotificationSourcesRepository";
 import { NotificationSourcesTestRepository } from "./data/repositories/test/NotificationSourcesTestRepository";
 import { GetNotificationSourcesUseCase } from "./domain/usecases/GetNotificationSourcesUseCase";
+import { DataSourceRepository } from "./domain/repositories/DataSourceRepository";
+import { DataSourceD2Repository } from "./data/repositories/DataSourceD2Repository";
+import { DataSourceTestRepository } from "./data/repositories/test/DataSourceTestRepository";
+import { GetDataSourcesUseCase } from "./domain/usecases/GetDataSourcesUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -133,6 +137,7 @@ type Repositories = {
     mainSyndromeRepository: MainSyndromeRepository;
     appSettingsRepository: AppSettingsRepository;
     notificationSourcesRepository: NotificationSourcesRepository;
+    dataSourceRepository: DataSourceRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -204,6 +209,9 @@ function getCompositionRoot(repositories: Repositories) {
         alerts: {
             getAlertDataSources: new GetAlertDataSources(repositories),
         },
+        dataSource: {
+            getAll: new GetDataSourcesUseCase(repositories),
+        },
     };
 }
 
@@ -234,6 +242,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         mainSyndromeRepository: new MainSyndromeD2Repository(api),
         appSettingsRepository: new AppSettingsD2Repository(dataStoreClient),
         notificationSourcesRepository: new NotificationSourcesD2Repository(api),
+        dataSourceRepository: new DataSourceD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -265,6 +274,7 @@ export function getTestCompositionRoot() {
         mainSyndromeRepository: new MainSyndromeTestRepository(),
         appSettingsRepository: new AppSettingsTestRepository(),
         notificationSourcesRepository: new NotificationSourcesTestRepository(),
+        dataSourceRepository: new DataSourceTestRepository(),
     };
 
     return getCompositionRoot(repositories);

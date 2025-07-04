@@ -7,7 +7,10 @@ import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../components/utils/option";
-import { mapToPresentationOptions } from "../mapEntityToFormState";
+import {
+    mapCodeNameRefToPresentationOptions,
+    mapToPresentationOptions,
+} from "../mapEntityToFormState";
 import { DiseaseNames } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { MainSyndrome } from "../../../../domain/entities/disease-outbreak-event/MainSyndrome";
 import { NotificationSource } from "../../../../domain/entities/disease-outbreak-event/NotificationSources";
@@ -140,11 +143,13 @@ function getInitialFormStateForDiseaseOutbreakEvent(params: {
 
     const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
     const casesDataSourceOptions: PresentationOption[] = mapToPresentationOptions(casesDataSource);
-    const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
+    const mainSyndromesOptions: PresentationOption[] =
+        mapCodeNameRefToPresentationOptions(mainSyndromes);
+
     const suspectedDiseasesOptions: PresentationOption[] =
         mapToPresentationOptions(filteredSuspectedDiseases);
     const notificationSourcesOptions: PresentationOption[] =
-        mapToPresentationOptions(notificationSources);
+        mapCodeNameRefToPresentationOptions(notificationSources);
 
     const isCasesDataUserDefined =
         diseaseOutbreakEvent?.casesDataSource ===

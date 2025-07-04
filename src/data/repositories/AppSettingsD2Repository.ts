@@ -3,11 +3,11 @@ import { Future } from "../../domain/entities/generic/Future";
 import { DataStoreClient } from "../DataStoreClient";
 import { AppSettings } from "../../domain/entities/AppSettings";
 import { AppSettingsRepository } from "../../domain/repositories/AppSettingsRepository";
-import { dataSourceMap } from "./consts/DiseaseOutbreakConstants";
 import {
-    DataSource,
-    isDataSourceKey,
-} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+    DataSourceCode,
+    dataSourceCodes,
+    isDataSourceCode,
+} from "../../domain/entities/DataSource";
 
 type AppDatastoreDefaults = {
     diseaseOutbreakDataSource: "ND1" | "ND2";
@@ -31,9 +31,11 @@ export class AppSettingsD2Repository implements AppSettingsRepository {
 
     mapAppDatastoreConfigToAppSettings(appDatastoreConfig: AppDatastoreSettings): AppSettings {
         const defaultDataSource = appDatastoreConfig?.appDefaults.diseaseOutbreakDataSource;
-        const maybeDataSource = dataSourceMap[defaultDataSource];
-        const dataSource =
-            maybeDataSource && isDataSourceKey(maybeDataSource) ? maybeDataSource : DataSource.ND1;
+        const maybeDataSource = dataSourceCodes[defaultDataSource];
+        const dataSource: DataSourceCode =
+            maybeDataSource && isDataSourceCode(maybeDataSource)
+                ? maybeDataSource
+                : dataSourceCodes.ND1;
 
         return {
             appDefaults: {

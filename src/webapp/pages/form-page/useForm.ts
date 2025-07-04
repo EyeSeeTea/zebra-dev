@@ -172,6 +172,7 @@ export function useForm(formType: FormType, id?: Id): State {
         existingEventTrackerTypes,
         resourcePermissions,
         mainSyndromes,
+        notificationSources,
     ]);
 
     const handleAddNew = useCallback(() => {

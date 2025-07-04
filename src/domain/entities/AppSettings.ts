@@ -1,7 +1,7 @@
-import { DataSourceKey } from "./disease-outbreak-event/DiseaseOutbreakEvent";
+import { DataSourceCode } from "./DataSource";
 
 export type AppDefaults = {
-    diseaseOutbreakDataSource: DataSourceKey;
+    diseaseOutbreakDataSource: DataSourceCode;
 };
 
 export type AppSettings = {

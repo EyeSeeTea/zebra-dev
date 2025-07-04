@@ -2,7 +2,7 @@ import { ConfigurableForm } from "../../../domain/entities/ConfigurableForm";
 import { MainSyndrome } from "../../../domain/entities/disease-outbreak-event/MainSyndrome";
 import { DiseaseNames } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
-import { Option } from "../../../domain/entities/Ref";
+import { CodedNamedRef, Option } from "../../../domain/entities/Ref";
 import { ResourcePermissions } from "../../../domain/entities/resources/ResourcePermissions";
 import { FormState } from "../../components/form/FormState";
 import { User } from "../../components/user-selector/UserSelector";
@@ -80,6 +80,17 @@ export function mapToPresentationOptions(options: Option[]): PresentationOption[
     return options.map(
         (option): PresentationOption => ({
             value: option.id,
+            label: option.name,
+        })
+    );
+}
+
+export function mapCodeNameRefToPresentationOptions(
+    options: CodedNamedRef[]
+): PresentationOption[] {
+    return options.map(
+        (option): PresentationOption => ({
+            value: option.code,
             label: option.name,
         })
     );

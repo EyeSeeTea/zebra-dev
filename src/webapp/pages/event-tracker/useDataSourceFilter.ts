@@ -1,22 +1,24 @@
 import { Option } from "../../components/utils/option";
-import {
-    CasesDataSource,
-    DataSource,
-} from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { useMemo, useState } from "react";
 import { useAppContext } from "../../contexts/app-context";
 import { useCurrentEventTracker } from "../../contexts/current-event-tracker-context";
+import {
+    DataSourceCode,
+    dataSourceCodes,
+    isDataSourceCode,
+} from "../../../domain/entities/DataSource";
 import { Maybe } from "../../../utils/ts-utils";
+import { CasesDataSource } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 
 export type DataSourceFiltersState = {
     onChange: (value: string) => void;
     value: string;
     options: Option[];
-    dataSource: Maybe<DataSource>;
+    dataSource: Maybe<DataSourceCode>;
 };
 
 export function useDataSourceFilter() {
-    const { configurations } = useAppContext();
+    const { dataSources } = useAppContext();
     const { getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
 
@@ -24,13 +26,11 @@ export function useDataSourceFilter() {
 
     const dataSourceOptions = useMemo(
         () =>
-            configurations.selectableOptions.eventTrackerConfigurations.dataSources.map(
-                dataSource => ({
-                    value: dataSource.id,
-                    label: dataSource.name,
-                })
-            ),
-        [configurations]
+            dataSources.map(dataSource => ({
+                value: dataSource.code,
+                label: dataSource.name,
+            })),
+        [dataSources]
     );
 
     const dataSourceValue = useMemo(() => {
@@ -40,10 +40,12 @@ export function useDataSourceFilter() {
             CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF;
 
         return {
-            value: dataSource || DataSource.ND1.toString(),
+            value: dataSource || dataSourceCodes.ND1,
             dataSource: isCasesDataUserDefined
                 ? undefined
-                : Object.values(DataSource).find(v => v === dataSource) || DataSource.ND1,
+                : isDataSourceCode(dataSource)
+                ? dataSourceCodes[dataSource]
+                : dataSourceCodes.ND1,
         };
     }, [dataSourceFilter, currentEventTracker]);
 

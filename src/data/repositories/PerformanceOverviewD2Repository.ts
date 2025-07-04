@@ -15,10 +15,7 @@ import {
     PerformanceOverviewDimensions,
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
-import {
-    DataSource,
-    DiseaseOutbreakEventBaseAttrs,
-} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { DiseaseOutbreakEventBaseAttrs } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { DataStoreClient } from "../DataStoreClient";
 import {
     TotalCardCounts,
@@ -46,8 +43,9 @@ import {
 } from "./consts/AlertsPerformanceOverviewConstants";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { VerificationStatus } from "../../domain/entities/alert/Alert";
-import { AlertDataSourceCodes } from "../../domain/entities/alert/AlertDataSource";
 import _c from "../../domain/entities/generic/Collection";
+import { alertDataSourceCodes } from "../../domain/entities/alert/AlertDataSource";
+import { DataSourceCode } from "../../domain/entities/DataSource";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -81,7 +79,7 @@ type EventTrackerOverviewInDataStore = {
     confirmedCasesId: Id;
     deathsId: Id;
     probableCasesId: Id;
-    dataSource?: keyof typeof DataSource;
+    dataSource?: DataSourceCode;
 };
 
 type IdValue = {
@@ -228,7 +226,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     private getEventTrackerOverviewIdsFromDatastore(
         type: string,
-        dataSource: Maybe<DataSource>
+        dataSource: Maybe<DataSourceCode>
     ): FutureData<EventTrackerOverviewInDataStore> {
         const datastoreKey = CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY;
 
@@ -292,7 +290,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
     getEventTrackerOverviewMetrics(
         type: string,
-        dataSource?: DataSource
+        dataSource?: DataSourceCode
     ): FutureData<OverviewCard[]> {
         return this.getEventTrackerOverviewIdsFromDatastore(type, dataSource).flatMap(
             eventTrackerOverview => {
@@ -646,8 +644,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                             .map(metrics => ({
                                 ...metrics,
                                 eventSource: metrics.eventEBSId
-                                    ? AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_EBS
-                                    : AlertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_IBS,
+                                    ? alertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_EBS
+                                    : alertDataSourceCodes.RTSL_ZEB_OS_DATA_SOURCE_IBS,
                             }));
 
                         return Future.success(mappedIndicators);

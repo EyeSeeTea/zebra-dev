@@ -37,6 +37,7 @@ export class GetDiseaseOutbreakByIdUseCase {
         }
     ): FutureData<DiseaseOutbreakEvent> {
         const { mainSyndromes, notificationSources } = options;
+
         return this.options.diseaseOutbreakEventRepository
             .get(id)
             .flatMap(diseaseOutbreakEventBase => {
@@ -57,7 +58,7 @@ export class GetDiseaseOutbreakByIdUseCase {
                         suspectedDisease => suspectedDisease.id === suspectedDiseaseCode
                     );
                 const notificationSource = notificationSources.find(
-                    notificationSource => notificationSource.id === notificationSourceCode
+                    notificationSource => notificationSource.code === notificationSourceCode
                 );
 
                 if (!notificationSource)

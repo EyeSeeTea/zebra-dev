@@ -21,10 +21,6 @@ export type DiseaseOutbreakEventOptions = {
     casesDataSource: Option[];
 };
 
-export type DiseaseOutbreakCaseDataOptions = {
-    dataSources: Option[];
-};
-
 export type RiskAssessmentGradingOptions = {
     populationAtRisk: Option[];
     attackRate: Option[];
