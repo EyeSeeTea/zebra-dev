@@ -28,7 +28,7 @@ export type FormSummaryData = {
     notes: string;
 };
 export function useDiseaseOutbreakEvent(id: Id) {
-    const { compositionRoot, configurations, mainSyndromes } = useAppContext();
+    const { compositionRoot, configurations, mainSyndromes, notificationSources } = useAppContext();
     const [formSummary, setFormSummary] = useState<FormSummaryData>();
     const [globalMessage, setGlobalMessage] = useState<Maybe<GlobalMessage>>();
     const [riskAssessmentRows, setRiskAssessmentRows] = useState<TableRowType[]>([]);
@@ -38,23 +38,34 @@ export function useDiseaseOutbreakEvent(id: Id) {
         useExistingEventTrackerTypes();
 
     useEffect(() => {
-        compositionRoot.diseaseOutbreakEvent.get.execute(id, configurations, mainSyndromes).run(
-            diseaseOutbreakEvent => {
-                setFormSummary(mapDiseaseOutbreakEventToFormSummary(diseaseOutbreakEvent));
-                setRiskAssessmentRows(
-                    mapDiseaseOutbreakEventToRiskAssessmentRows(diseaseOutbreakEvent)
-                );
-                setEventTrackerDetails(diseaseOutbreakEvent);
-            },
-            err => {
-                console.debug(err);
-                setGlobalMessage({
-                    type: "error",
-                    text: `Event tracker with id: ${id} does not exist`,
-                });
-            }
-        );
-    }, [compositionRoot.diseaseOutbreakEvent.get, configurations, id, mainSyndromes]);
+        compositionRoot.diseaseOutbreakEvent.get
+            .execute(id, configurations, {
+                mainSyndromes: mainSyndromes,
+                notificationSources: notificationSources,
+            })
+            .run(
+                diseaseOutbreakEvent => {
+                    setFormSummary(mapDiseaseOutbreakEventToFormSummary(diseaseOutbreakEvent));
+                    setRiskAssessmentRows(
+                        mapDiseaseOutbreakEventToRiskAssessmentRows(diseaseOutbreakEvent)
+                    );
+                    setEventTrackerDetails(diseaseOutbreakEvent);
+                },
+                err => {
+                    console.debug(err);
+                    setGlobalMessage({
+                        type: "error",
+                        text: `Event tracker with id: ${id} does not exist`,
+                    });
+                }
+            );
+    }, [
+        compositionRoot.diseaseOutbreakEvent.get,
+        configurations,
+        id,
+        mainSyndromes,
+        notificationSources,
+    ]);
 
     const mapDiseaseOutbreakEventToFormSummary = (
         diseaseOutbreakEvent: DiseaseOutbreakEvent

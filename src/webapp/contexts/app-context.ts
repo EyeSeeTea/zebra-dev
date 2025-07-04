@@ -6,6 +6,7 @@ import { Configurations } from "../../domain/entities/AppConfigurations";
 import { AlertDataSource } from "../../domain/entities/alert/AlertDataSource";
 import { MainSyndrome } from "../../domain/entities/disease-outbreak-event/MainSyndrome";
 import { AppSettings } from "../../domain/entities/AppSettings";
+import { NotificationSource } from "../../domain/entities/disease-outbreak-event/NotificationSources";
 
 export interface AppContextState {
     api: D2Api;
@@ -16,6 +17,7 @@ export interface AppContextState {
     configurations: Configurations;
     alertDataSources: AlertDataSource[];
     mainSyndromes: MainSyndrome[];
+    notificationSources: NotificationSource[];
 }
 
 export const AppContext = React.createContext<AppContextState | null>(null);

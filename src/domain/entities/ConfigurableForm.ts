@@ -17,7 +17,6 @@ import { ResourceType, ResourceTypeNamed } from "./resources/ResourceTypeNamed";
 
 export type DiseaseOutbreakEventOptions = {
     suspectedDiseases: Option[];
-    notificationSources: Option[];
     incidentManagers: TeamMember[];
     casesDataSource: Option[];
 };

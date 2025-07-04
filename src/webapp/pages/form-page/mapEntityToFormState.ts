@@ -20,6 +20,7 @@ import {
     mapRiskAssessmentSummaryToInitialFormState,
     mapRiskGradingToInitialFormState,
 } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
+import { NotificationSource } from "../../../domain/entities/disease-outbreak-event/NotificationSources";
 
 export function mapEntityToFormState(options: {
     configurableForm: ConfigurableForm;
@@ -28,6 +29,7 @@ export function mapEntityToFormState(options: {
     isIncidentManager?: boolean;
     resourcePermissions: ResourcePermissions;
     mainSyndromes: MainSyndrome[];
+    notificationSources: NotificationSource[];
 }): FormState {
     const {
         configurableForm,
@@ -36,6 +38,7 @@ export function mapEntityToFormState(options: {
         isIncidentManager,
         resourcePermissions,
         mainSyndromes,
+        notificationSources,
     } = options;
 
     switch (configurableForm.type) {
@@ -45,7 +48,8 @@ export function mapEntityToFormState(options: {
                 diseaseOutbreakEventWithOptions: configurableForm,
                 editMode: editMode ?? false,
                 existingEventTrackerTypes: existingEventTrackerTypes ?? [],
-                mainSyndromes,
+                mainSyndromes: mainSyndromes,
+                notificationSources: notificationSources,
             });
         case "risk-assessment-grading":
             return mapRiskGradingToInitialFormState(configurableForm);

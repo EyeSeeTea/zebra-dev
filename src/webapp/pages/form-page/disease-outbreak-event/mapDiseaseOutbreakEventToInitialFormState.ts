@@ -10,6 +10,7 @@ import { Option as PresentationOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
 import { DiseaseNames } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { MainSyndrome } from "../../../../domain/entities/disease-outbreak-event/MainSyndrome";
+import { NotificationSource } from "../../../../domain/entities/disease-outbreak-event/NotificationSources";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -86,19 +87,22 @@ export function mapDiseaseOutbreakEventToInitialFormState(params: {
     editMode: boolean;
     existingEventTrackerTypes: DiseaseNames[];
     mainSyndromes: MainSyndrome[];
+    notificationSources: NotificationSource[];
 }): FormState {
     const {
         diseaseOutbreakEventWithOptions,
         editMode,
         existingEventTrackerTypes = [],
         mainSyndromes = [],
+        notificationSources = [],
     } = params;
     return diseaseOutbreakEventWithOptions.type === "disease-outbreak-event"
         ? getInitialFormStateForDiseaseOutbreakEvent({
               diseaseOutbreakEventWithOptions,
               editMode,
               existingEventTrackerTypes,
-              mainSyndromes,
+              mainSyndromes: mainSyndromes,
+              notificationSources: notificationSources,
           })
         : getInitialFormStateForDiseaseOutbreakCaseData(diseaseOutbreakEventWithOptions);
 }
@@ -108,9 +112,15 @@ function getInitialFormStateForDiseaseOutbreakEvent(params: {
     editMode: boolean;
     existingEventTrackerTypes: DiseaseNames[];
     mainSyndromes: MainSyndrome[];
+    notificationSources: NotificationSource[];
 }): FormState {
-    const { diseaseOutbreakEventWithOptions, editMode, existingEventTrackerTypes, mainSyndromes } =
-        params;
+    const {
+        diseaseOutbreakEventWithOptions,
+        editMode,
+        existingEventTrackerTypes,
+        mainSyndromes,
+        notificationSources,
+    } = params;
 
     const {
         entity: diseaseOutbreakEvent,
@@ -120,7 +130,7 @@ function getInitialFormStateForDiseaseOutbreakEvent(params: {
         uploadedCasesDataFileId,
     } = diseaseOutbreakEventWithOptions;
 
-    const { incidentManagers, suspectedDiseases, notificationSources, casesDataSource } = options;
+    const { incidentManagers, suspectedDiseases, casesDataSource } = options;
 
     //If An Event Tracker has already been created for a given suspected disease or harzd type,
     //then do not allow to create another one. Remove it from dropwdown options

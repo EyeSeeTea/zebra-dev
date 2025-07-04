@@ -9,7 +9,6 @@ import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/Ris
 const optionSetCode: Record<string, string> = {
     dataSources: "RTSL_ZEB_OS_DEFAULT_DATA_SOURCE",
     suspectedDiseases: "RTSL_ZEB_OS_DISEASE",
-    notificationSources: "RTSL_ZEB_OS_SOURCE",
     incidentStatus: "RTSL_ZEB_OS_INCIDENT_STATUS",
     populationAtRisk: "RTSL_ZEB_OS_POPULATION_AT_RISK",
     lowMediumHigh: "RTSL_ZEB_OS_LMH",
@@ -50,13 +49,6 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                     if (suspectedDiseases)
                         selectableOptions.eventTrackerConfigurations.suspectedDiseases =
                             this.mapD2OptionSetToOptions(suspectedDiseases);
-                } else if (key === "notificationSources") {
-                    const notificationSources = optionsResponse.optionSets.find(
-                        optionSet => optionSet.code === value
-                    );
-                    if (notificationSources)
-                        selectableOptions.eventTrackerConfigurations.notificationSources =
-                            this.mapD2OptionSetToOptions(notificationSources);
                 } else if (key === "populationAtRisk") {
                     const populationAtRisk = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
@@ -190,7 +182,6 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
             eventTrackerConfigurations: {
                 dataSources: [],
                 suspectedDiseases: [],
-                notificationSources: [],
                 incidentManagers: [],
                 casesDataSource: [],
             },

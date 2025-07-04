@@ -30,7 +30,6 @@ export function getTestContext() {
                 eventTrackerConfigurations: {
                     dataSources: [],
                     suspectedDiseases: [],
-                    notificationSources: [],
                     incidentManagers: [],
                     casesDataSource: [],
                 },
@@ -75,6 +74,7 @@ export function getTestContext() {
         },
         alertDataSources: [],
         mainSyndromes: [],
+        notificationSources: [],
     };
 
     return context;

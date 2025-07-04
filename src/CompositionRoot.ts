@@ -101,6 +101,10 @@ import { AppSettingsTestRepository } from "./data/repositories/test/AppSettingsT
 import { AppSettingsD2Repository } from "./data/repositories/AppSettingsD2Repository";
 import { AppSettingsRepository } from "./domain/repositories/AppSettingsRepository";
 import { GetAppSettingsUseCase } from "./domain/usecases/GetAppSettingsUseCase";
+import { NotificationSourcesD2Repository } from "./data/repositories/NotificationSourcesD2Repository";
+import { NotificationSourcesRepository } from "./domain/repositories/NotificationSourcesRepository";
+import { NotificationSourcesTestRepository } from "./data/repositories/test/NotificationSourcesTestRepository";
+import { GetNotificationSourcesUseCase } from "./domain/usecases/GetNotificationSourcesUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -128,6 +132,7 @@ type Repositories = {
     alertDataSourceRepository: AlertDataSourceRepository;
     mainSyndromeRepository: MainSyndromeRepository;
     appSettingsRepository: AppSettingsRepository;
+    notificationSourcesRepository: NotificationSourcesRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -153,6 +158,7 @@ function getCompositionRoot(repositories: Repositories) {
             ),
             complete: new CompleteEventTrackerUseCase(repositories),
             getMainSyndromes: new GetMainSyndromesUseCase(repositories),
+            getNotificationSources: new GetNotificationSourcesUseCase(repositories),
         },
         incidentActionPlan: {
             get: new GetIncidentActionByIdUseCase(repositories),
@@ -227,6 +233,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         alertDataSourceRepository: new AlertDataSourceD2Repository(api),
         mainSyndromeRepository: new MainSyndromeD2Repository(api),
         appSettingsRepository: new AppSettingsD2Repository(dataStoreClient),
+        notificationSourcesRepository: new NotificationSourcesD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -257,6 +264,7 @@ export function getTestCompositionRoot() {
         alertDataSourceRepository: new AlertDataSourceTestRepository(),
         mainSyndromeRepository: new MainSyndromeTestRepository(),
         appSettingsRepository: new AppSettingsTestRepository(),
+        notificationSourcesRepository: new NotificationSourcesTestRepository(),
     };
 
     return getCompositionRoot(repositories);

@@ -2,6 +2,7 @@ import { FutureData } from "../../data/api-futures";
 import { Configurations } from "../entities/AppConfigurations";
 import { DiseaseOutbreakEvent } from "../entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { MainSyndrome } from "../entities/disease-outbreak-event/MainSyndrome";
+import { NotificationSource } from "../entities/disease-outbreak-event/NotificationSources";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
@@ -30,8 +31,12 @@ export class GetDiseaseOutbreakByIdUseCase {
     public execute(
         id: Id,
         configurations: Configurations,
-        mainSyndromes: MainSyndrome[]
+        options: {
+            mainSyndromes: MainSyndrome[];
+            notificationSources: NotificationSource[];
+        }
     ): FutureData<DiseaseOutbreakEvent> {
+        const { mainSyndromes, notificationSources } = options;
         return this.options.diseaseOutbreakEventRepository
             .get(id)
             .flatMap(diseaseOutbreakEventBase => {
@@ -51,10 +56,9 @@ export class GetDiseaseOutbreakByIdUseCase {
                     selectableOptions.eventTrackerConfigurations.suspectedDiseases.find(
                         suspectedDisease => suspectedDisease.id === suspectedDiseaseCode
                     );
-                const notificationSource =
-                    selectableOptions.eventTrackerConfigurations.notificationSources.find(
-                        notificationSource => notificationSource.id === notificationSourceCode
-                    );
+                const notificationSource = notificationSources.find(
+                    notificationSource => notificationSource.id === notificationSourceCode
+                );
 
                 if (!notificationSource)
                     return Future.error(new Error("Notification source not found"));

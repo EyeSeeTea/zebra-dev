@@ -69,8 +69,14 @@ type State = {
 };
 
 export function useForm(formType: FormType, id?: Id): State {
-    const { compositionRoot, currentUser, configurations, mainSyndromes, appSettings } =
-        useAppContext();
+    const {
+        compositionRoot,
+        currentUser,
+        configurations,
+        mainSyndromes,
+        appSettings,
+        notificationSources,
+    } = useAppContext();
     const { goTo } = useRoutes();
 
     const { getCurrentEventTracker } = useCurrentEventTracker();
@@ -136,7 +142,8 @@ export function useForm(formType: FormType, id?: Id): State {
                             existingEventTrackerTypes: existingEventTrackerTypes,
                             isIncidentManager: isIncidentManager,
                             resourcePermissions: resourcePermissions,
-                            mainSyndromes,
+                            mainSyndromes: mainSyndromes,
+                            notificationSources: notificationSources,
                         }),
                     });
                     setEntityData(formData);

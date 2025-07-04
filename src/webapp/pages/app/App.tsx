@@ -50,6 +50,11 @@ function App(props: AppProps) {
                 .execute()
                 .toPromise();
 
+            const notificationSources =
+                await compositionRoot.diseaseOutbreakEvent.getNotificationSources
+                    .execute()
+                    .toPromise();
+
             const isDev = process.env.NODE_ENV === "development";
             setAppContext({
                 currentUser,
@@ -60,6 +65,7 @@ function App(props: AppProps) {
                 appSettings,
                 alertDataSources,
                 mainSyndromes,
+                notificationSources,
             });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);
