@@ -30,6 +30,7 @@ import { StatisticTable } from "../../components/table/statistic-table/Statistic
 import { Pagination } from "../../components/pagination/Pagination";
 import { useMappedAlerts } from "./useMappedAlerts";
 import { useDataSourceFilter } from "./useDataSourceFilter";
+import { Loader } from "../../components/loader/Loader";
 
 //TO DO : Create Risk assessment section
 export const riskAssessmentColumns: TableColumn[] = [
@@ -60,6 +61,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         onCompleteClick,
         onOpenCompleteModal,
         orderByRiskAssessmentDate,
+        isCompletingEvent,
     } = useDiseaseOutbreakEvent(id);
     const { changeCurrentEventTracker, getCurrentEventTracker } = useCurrentEventTracker();
     const currentEventTracker = getCurrentEventTracker();
@@ -110,7 +112,9 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         }
     }, [changeCurrentEventTracker, eventTrackerDetails]);
 
-    return (
+    return isCompletingEvent ? (
+        <Loader />
+    ) : (
         <Layout title={i18n.t("Event Tracker")} lastAnalyticsRuntime={lastAnalyticsRuntime}>
             <EventTrackerFormSummary
                 id={id}

@@ -185,7 +185,9 @@ function getDiseaseOutbreakEventFromDiseaseOutbreakForm(
         created: diseaseOutbreakEvent?.created,
         lastUpdated: diseaseOutbreakEvent?.lastUpdated,
         createdByName: diseaseOutbreakEvent?.createdByName || currentUserName,
-        dataSource: diseaseOutbreakEvent?.dataSource || appDefaults.diseaseOutbreakDataSource,
+        dataSource: isCasesDataUserDefined
+            ? undefined
+            : diseaseOutbreakEvent?.dataSource || appDefaults.diseaseOutbreakDataSource,
         ...diseaseOutbreakEventEditableData,
     };
     const newDiseaseOutbreakEvent = new DiseaseOutbreakEvent({

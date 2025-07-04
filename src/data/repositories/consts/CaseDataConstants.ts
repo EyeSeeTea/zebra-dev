@@ -17,6 +17,7 @@ export const casesDataCodes = {
     confirmedCases: "RTSL_ZEB_DET_CONF_CASES",
     deaths: "RTSL_ZEB_DET_DEATHS",
     diseaseOutbreakId: "RTSL_ZEB_DET_NATIONAL_EVENT_ID",
+    dataSource: "RTSL_ZEB_DET_DATA_SOURCE",
 } as const;
 
 export type CasesDataCode = GetValue<typeof casesDataCodes>;
@@ -47,5 +48,6 @@ export function getCasesDataValuesFromDiseaseOutbreak(
         RTSL_ZEB_DET_CONF_CASES: caseData.confirmedCases.toString(),
         RTSL_ZEB_DET_DEATHS: caseData.deaths.toString(),
         RTSL_ZEB_DET_NATIONAL_EVENT_ID: nationalEventId,
+        RTSL_ZEB_DET_DATA_SOURCE: "",
     };
 }

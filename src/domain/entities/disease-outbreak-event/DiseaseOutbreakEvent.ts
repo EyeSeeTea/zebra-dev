@@ -78,7 +78,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     incidentManagerName: string;
     notes: Maybe<string>;
     casesDataSource: CasesDataSource;
-    dataSource: DataSourceKey;
+    dataSource: Maybe<DataSourceKey>;
 };
 
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {
