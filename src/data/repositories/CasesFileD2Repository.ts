@@ -7,7 +7,16 @@ import { Maybe } from "../../utils/ts-utils";
 import { Id } from "../../domain/entities/Ref";
 import { Future } from "../../domain/entities/generic/Future";
 import { CaseFile } from "../../domain/entities/CasesFile";
-import { AppDatastoreConfig } from "../entities/AppDatastoreConfig";
+import { DatastorePermissionsSettings } from "../entities/DatastorePermissionsSettings";
+
+type DatastoreCasesFileTemplateSettings = {
+    fileId: Id;
+    fileName: string;
+};
+
+export type DatastoreCasesFileSettings = {
+    casesFileTemplate: DatastoreCasesFileTemplateSettings;
+};
 
 export class CasesFileD2Repository implements CasesFileRepository {
     constructor(private api: D2Api, private dataStoreClient: DataStoreClient) {}
@@ -33,15 +42,15 @@ export class CasesFileD2Repository implements CasesFileRepository {
 
     getTemplate(): FutureData<CaseFile> {
         return this.dataStoreClient
-            .getObject<AppDatastoreConfig>("app-config")
-            .flatMap(appConfig => {
+            .getObject<DatastoreCasesFileSettings>("case-file-settings")
+            .flatMap(caseFileSettings => {
                 if (
-                    !appConfig?.casesFileTemplate?.fileId ||
-                    !appConfig?.casesFileTemplate?.fileName
+                    !caseFileSettings?.casesFileTemplate?.fileId ||
+                    !caseFileSettings?.casesFileTemplate?.fileName
                 )
                     return Future.error(new Error("No cases file template found"));
 
-                const { casesFileTemplate } = appConfig;
+                const { casesFileTemplate } = caseFileSettings;
                 return this.downloadCasesFile(
                     casesFileTemplate.fileId,
                     casesFileTemplate.fileName,
@@ -123,18 +132,18 @@ export class CasesFileD2Repository implements CasesFileRepository {
             })
         ).flatMap(response => {
             return this.dataStoreClient
-                .getObject<AppDatastoreConfig>("app-config")
-                .flatMap(appConfig => {
+                .getObject<DatastorePermissionsSettings>("permissions-settings")
+                .flatMap(permissionsSettings => {
                     const captureAccessUserGroups = [
-                        ...(appConfig?.userGroups.admin || []),
-                        ...(appConfig?.userGroups.capture || []),
+                        ...(permissionsSettings?.userGroups.admin || []),
+                        ...(permissionsSettings?.userGroups.capture || []),
                     ].map(userGroupId => ({
                         access: "rw------",
                         id: userGroupId,
                     }));
 
                     const visualizerAccessUserGroups = [
-                        ...(appConfig?.userGroups.visualizer || []),
+                        ...(permissionsSettings?.userGroups.visualizer || []),
                     ].map(userGroupId => ({
                         access: "r-------",
                         id: userGroupId,

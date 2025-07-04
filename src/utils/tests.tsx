@@ -20,15 +20,6 @@ export function getTestContext() {
         api: {} as D2Api,
         isDev: true,
         appSettings: {
-            userGroups: {
-                visualizer: ["visualizerUserGroup"],
-                capture: ["captureUserGroup"],
-                admin: ["adminUserGroup"],
-            },
-            casesFileTemplate: {
-                fileId: "casesFileTemplateFileId",
-                fileName: "casesFileTemplateFileName",
-            },
             appDefaults: {
                 diseaseOutbreakDataSource: DataSource.ND1,
             },

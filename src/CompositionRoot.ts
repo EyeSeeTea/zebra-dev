@@ -226,7 +226,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         resourceTypeNamedRepository: new ResourceTypeNamedD2Repository(api),
         alertDataSourceRepository: new AlertDataSourceD2Repository(api),
         mainSyndromeRepository: new MainSyndromeD2Repository(api),
-        appSettingsRepository: new AppSettingsD2Repository(api, dataStoreClient),
+        appSettingsRepository: new AppSettingsD2Repository(dataStoreClient),
     };
 
     return getCompositionRoot(repositories);

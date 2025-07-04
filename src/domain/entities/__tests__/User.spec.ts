@@ -15,7 +15,15 @@ describe("User", () => {
     it("should return belong to user group equal to false when the id exist", () => {
         const userGroupId = "BwyMfDBLih9";
 
-        const user = createUserWithGroups([{ id: userGroupId, name: "Group 1" }]);
+        const user = createUserWithGroups([
+            {
+                id: userGroupId,
+                name: "Group 1",
+                hasAdminAccess: true,
+                hasCaptureAccess: false,
+                hasVisualizerAccess: false,
+            },
+        ]);
 
         expect(user.belongToUserGroup(userGroupId)).toBe(true);
     });
@@ -23,7 +31,15 @@ describe("User", () => {
         const existedUserGroupId = "BwyMfDBLih9";
         const nonExistedUserGroupId = "f31IM13BgwJ";
 
-        const user = createUserWithGroups([{ id: existedUserGroupId, name: "Group 1" }]);
+        const user = createUserWithGroups([
+            {
+                id: existedUserGroupId,
+                name: "Group 1",
+                hasAdminAccess: true,
+                hasCaptureAccess: false,
+                hasVisualizerAccess: false,
+            },
+        ]);
 
         expect(user.belongToUserGroup(nonExistedUserGroupId)).toBe(false);
     });
