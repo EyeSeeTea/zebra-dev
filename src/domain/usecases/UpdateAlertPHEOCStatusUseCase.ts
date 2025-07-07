@@ -20,7 +20,6 @@ export class UpdateAlertPHEOCStatusUseCase {
             .flatMap(alert =>
                 this.fetchAndValidateMaybeDiseaseOutbreakEventId(
                     newPheocStatus,
-                    alertId,
                     alert.confirmedDiseaseCode
                 )
             )
@@ -44,7 +43,6 @@ export class UpdateAlertPHEOCStatusUseCase {
 
     private fetchAndValidateMaybeDiseaseOutbreakEventId(
         newPheocStatus: IncidentStatus,
-        alertId: Id,
         alertConfirmedDisease: Maybe<Code>
     ): FutureData<Maybe<Id>> {
         if (newPheocStatus === "Respond" && alertConfirmedDisease) {

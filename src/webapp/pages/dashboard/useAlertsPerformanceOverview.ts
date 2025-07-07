@@ -24,7 +24,6 @@ import {
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
-    event: string;
     teiId: Id;
     eventEBSId: Id;
     eventIBSId: Id;
@@ -102,7 +101,7 @@ export function useAlertsPerformanceOverview(): State {
 
     const filtersConfig = useMemo<FiltersConfig[]>(
         () => [
-            { value: "event", label: i18n.t("Disease"), type: "multiselector" },
+            { value: "confirmedDisease", label: i18n.t("Disease"), type: "multiselector" },
             { value: "province", label: i18n.t("Province"), type: "multiselector" },
             { value: "date", label: i18n.t("Duration"), type: "datepicker" },
         ],
@@ -142,7 +141,7 @@ export function useAlertsPerformanceOverview(): State {
         () => [
             {
                 label: i18n.t("Confirmed disease"),
-                value: "event", // TODO: Check why event and not confirmedDisease?
+                value: "confirmedDisease",
                 type: "selector",
                 options: diseaseOptions,
                 disableSelection: (row: Row) =>
@@ -184,7 +183,6 @@ export function useAlertsPerformanceOverview(): State {
             const incidentManager = allTeamMembers.find(tm => tm.name === data.incidentManager);
             return {
                 ...data,
-                event: data.confirmedDisease, // TODO: Check why event is used for disease
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
                 province: data.province.trim(),
