@@ -15,9 +15,11 @@ export interface AlertRepository {
     ): FutureData<void>;
     updateConfirmedDiseaseAndChangeMappedEventId(
         alertId: Id,
-        diseaseName: string,
+        newDiseaseCode: Code,
         maybeDiseaseOutbreakId: Maybe<Id>
     ): FutureData<void>;
+    getAlertsById(ids: Id[]): FutureData<Alert[]>;
+    getAlertsByDiseaseOutbreakId(diseaseOutbreakId: Id): FutureData<Alert[]>;
 }
 
 export type AlertOptions = {

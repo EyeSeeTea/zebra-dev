@@ -1,7 +1,7 @@
 import { Alert } from "../../../domain/entities/alert/Alert";
 import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Future } from "../../../domain/entities/generic/Future";
-import { Id } from "../../../domain/entities/Ref";
+import { Code, Id } from "../../../domain/entities/Ref";
 import {
     AlertOptions,
     AlertRepository,
@@ -23,6 +23,7 @@ export class AlertTestRepository implements AlertRepository {
             districtId: "District",
             confirmedDiseaseCode: "DiseaseCode",
             suspectedDiseaseCode: "SuspectedDiseaseCode",
+            diseaseOutbreakId: "DiseaseOutbreakId",
         });
     }
     updateAlertsPHEOCStatusByDiseaseOutbreakId(
@@ -33,13 +34,21 @@ export class AlertTestRepository implements AlertRepository {
     }
     updateConfirmedDiseaseAndChangeMappedEventId(
         _alertId: Id,
-        _diseaseName: string,
+        _newDiseaseCode: Code,
         _maybeDiseaseOutbreakId: Maybe<Id>
     ): FutureData<void> {
         return Future.success(undefined);
     }
 
     getAllActive(): FutureData<Alert[]> {
+        return Future.success([]);
+    }
+
+    getAlertsById(_ids: Id[]): FutureData<Alert[]> {
+        return Future.success([]);
+    }
+
+    getAlertsByDiseaseOutbreakId(_diseaseOutbreakId: Id): FutureData<Alert[]> {
         return Future.success([]);
     }
 }

@@ -2,8 +2,9 @@ import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
 import { Alert } from "../entities/alert/Alert";
 import { Future } from "../entities/generic/Future";
-import { Id } from "../entities/Ref";
+import { Id, Option } from "../entities/Ref";
 import { AlertRepository } from "../repositories/AlertRepository";
+import { ConfigurationsRepository } from "../repositories/ConfigurationsRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 
 export class UpdateAlertConfirmedDiseaseUseCase {
@@ -11,25 +12,36 @@ export class UpdateAlertConfirmedDiseaseUseCase {
         private options: {
             alertRepository: AlertRepository;
             diseaseOutbreakEventRepository: DiseaseOutbreakEventRepository;
+            configurationsRepository: ConfigurationsRepository;
         }
     ) {}
 
-    public execute(alertId: Id, diseaseName: string): FutureData<void> {
-        return this.fetchAndValidateAlert(alertId, diseaseName).flatMap(alert =>
-            this.fetchAndValidateMaybeDiseaseOutbreakEventId(alert).flatMap(
-                maybeDiseaseOutbreakId =>
-                    this.options.alertRepository.updateConfirmedDiseaseAndChangeMappedEventId(
-                        alert.id,
-                        diseaseName,
-                        maybeDiseaseOutbreakId
-                    )
-            )
-        );
+    public execute(alertId: Id, newDiseaseName: string): FutureData<void> {
+        return this.getDiseaseOptions().flatMap(diseaseOptions => {
+            const newDiseaseCode = diseaseOptions.find(
+                option => option.name === newDiseaseName
+            )?.id;
+
+            if (!newDiseaseCode) {
+                return Future.error(new Error(`Invalid disease: ${newDiseaseName}`));
+            }
+
+            return this.fetchAndValidateAlert(alertId, newDiseaseCode).flatMap(alert =>
+                this.fetchAndValidateMaybeDiseaseOutbreakEventId(alert, newDiseaseCode).flatMap(
+                    maybeDiseaseOutbreakId =>
+                        this.options.alertRepository.updateConfirmedDiseaseAndChangeMappedEventId(
+                            alert.id,
+                            newDiseaseCode,
+                            maybeDiseaseOutbreakId
+                        )
+                )
+            );
+        });
     }
 
-    private fetchAndValidateAlert(alertId: Id, confirmedDiseaseName: string): FutureData<Alert> {
+    private fetchAndValidateAlert(alertId: Id, newDiseaseCode: string): FutureData<Alert> {
         return this.options.alertRepository.getById(alertId).flatMap(alert => {
-            if (alert.status !== "ACTIVE" || confirmedDiseaseName === "Unknown") {
+            if (alert.status !== "ACTIVE" || newDiseaseCode === "RTSL_ZEB_OS_DISEASE_UNKNOWN") {
                 return Future.error(
                     new Error(
                         alert.status !== "ACTIVE"
@@ -42,14 +54,17 @@ export class UpdateAlertConfirmedDiseaseUseCase {
         });
     }
 
-    private fetchAndValidateMaybeDiseaseOutbreakEventId(alert: Alert): FutureData<Maybe<Id>> {
-        if (alert.incidentStatus === "Respond" && alert.confirmedDiseaseCode) {
+    private fetchAndValidateMaybeDiseaseOutbreakEventId(
+        alert: Alert,
+        newDiseaseCode: string
+    ): FutureData<Maybe<Id>> {
+        if (alert.incidentStatus === "Respond" && newDiseaseCode) {
             return this.options.diseaseOutbreakEventRepository
-                .getActiveByDisease(alert.confirmedDiseaseCode)
+                .getActiveByDisease(newDiseaseCode)
                 .flatMap(maybeDiseaseOutbreakEvent => {
                     if (!maybeDiseaseOutbreakEvent?.id) {
                         console.error(
-                            `No active disease outbreak event found for disease ${alert.confirmedDiseaseCode}`
+                            `No active disease outbreak event found for disease ${newDiseaseCode}`
                         );
                         return Future.success(undefined);
                     }
@@ -57,5 +72,15 @@ export class UpdateAlertConfirmedDiseaseUseCase {
                 });
         }
         return Future.success(undefined);
+    }
+
+    private getDiseaseOptions(): FutureData<Option[]> {
+        return this.options.configurationsRepository
+            .getSelectableOptions()
+            .flatMap(selectableOptions => {
+                const { suspectedDiseases } = selectableOptions.eventTrackerConfigurations;
+
+                return Future.success(suspectedDiseases);
+            });
     }
 }

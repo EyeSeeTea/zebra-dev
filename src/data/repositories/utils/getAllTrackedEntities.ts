@@ -22,9 +22,10 @@ export async function getAllTrackedEntitiesAsync(
         ouMode?: "SELECTED" | "DESCENDANTS";
         filter?: { id: string; value: Maybe<string> };
         programStatus?: ProgramStatus;
+        ids?: Id[];
     }
 ): Promise<D2TrackerTrackedEntity[]> {
-    const { programId, orgUnitId, ouMode, filter, programStatus } = options;
+    const { programId, orgUnitId, ouMode, filter, programStatus, ids } = options;
     const d2TrackerTrackedEntities: D2TrackerTrackedEntity[] = [];
 
     const pageSize = 250;
@@ -43,6 +44,7 @@ export async function getAllTrackedEntitiesAsync(
                     pageSize: pageSize,
                     fields: fields,
                     filter: filter ? `${filter.id}:eq:${filter.value}` : undefined,
+                    trackedEntity: ids ? ids.join(";") : undefined,
                     ...(programStatus ? { programStatus } : {}),
                 })
                 .getData();

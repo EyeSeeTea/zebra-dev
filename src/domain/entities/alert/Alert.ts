@@ -5,6 +5,7 @@ import { Code, Id } from "../Ref";
 export type Alert = {
     id: Id;
     districtId: Id;
+    diseaseOutbreakId: Id;
     suspectedDiseaseCode: Code;
     confirmedDiseaseCode: Maybe<Code>;
     status?: "ACTIVE" | "COMPLETED" | "CANCELLED";

@@ -29,8 +29,8 @@ export class UpdateAlertPHEOCStatusUseCase {
         return this.options.alertRepository.getById(alertId).flatMap(alert => {
             if (
                 alert.status !== "ACTIVE" ||
-                !!alert.confirmedDiseaseCode ||
-                alert.confirmedDiseaseCode !== "Unknown"
+                !alert.confirmedDiseaseCode ||
+                alert.confirmedDiseaseCode === "Unknown"
             ) {
                 return Future.error(
                     new Error(

@@ -26,7 +26,6 @@ import {
 import { getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
 import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { assertOrError } from "./utils/AssertOrError";
-import { getDiseaseOptions } from "./common/getDiseaseOptions";
 
 const incidentStatusOptionMap = new Map<IncidentStatus, string>([
     ["Alert", "PHEOC_STATUS_ALERT"],
@@ -73,11 +72,16 @@ export class AlertD2Repository implements AlertRepository {
                         trackedEntity
                     );
 
+                    const diseaseOutbreakId = getAlertValueFromMap(
+                        "nationalEventId",
+                        trackedEntity
+                    );
                     const alert: Alert = {
                         id: trackedEntity.trackedEntity || "",
                         districtId: trackedEntity.orgUnit || "",
                         confirmedDiseaseCode: confirmedDisease,
                         suspectedDiseaseCode: suspectedDisease,
+                        diseaseOutbreakId: diseaseOutbreakId || "",
                     };
 
                     return alert;
@@ -158,6 +162,7 @@ export class AlertD2Repository implements AlertRepository {
         const suspectedDisease = getAlertValueFromMap("suspectedDisease", alertTrackedEntity);
         const confirmedDisease = getAlertValueFromMap("confirmedDisease", alertTrackedEntity);
         const pheocStatus = getAlertValueFromMap("pheocStatus", alertTrackedEntity);
+        const diseaseOutbreakId = getAlertValueFromMap("nationalEventId", alertTrackedEntity);
 
         const alert = {
             id: alertTrackedEntity.trackedEntity || "",
@@ -166,6 +171,7 @@ export class AlertD2Repository implements AlertRepository {
             confirmedDiseaseCode: confirmedDisease,
             status: enrollment.status,
             incidentStatus: this.mapOptionToIncidentStatus(pheocStatus),
+            diseaseOutbreakId: diseaseOutbreakId || "",
         };
 
         return alert;
@@ -178,6 +184,41 @@ export class AlertD2Repository implements AlertRepository {
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
                 ouMode: "DESCENDANTS",
                 programStatus: programStatusOptions.ACTIVE,
+            })
+        ).map(alertTrackedEntities => {
+            return alertTrackedEntities.map(alertTrackedEntity =>
+                this.mapAlertTrackedEntityToAlert(alertTrackedEntity)
+            );
+        });
+    }
+
+    getAlertsById(ids: Id[]): FutureData<Alert[]> {
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                ouMode: "DESCENDANTS",
+                programStatus: programStatusOptions.ACTIVE,
+                ids: ids,
+            })
+        ).map(alertTrackedEntities => {
+            return alertTrackedEntities.map(alertTrackedEntity =>
+                this.mapAlertTrackedEntityToAlert(alertTrackedEntity)
+            );
+        });
+    }
+
+    getAlertsByDiseaseOutbreakId(diseaseOutbreakId: Id): FutureData<Alert[]> {
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                ouMode: "DESCENDANTS",
+                programStatus: programStatusOptions.ACTIVE,
+                filter: {
+                    id: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
+                    value: diseaseOutbreakId,
+                },
             })
         ).map(alertTrackedEntities => {
             return alertTrackedEntities.map(alertTrackedEntity =>
@@ -249,22 +290,10 @@ export class AlertD2Repository implements AlertRepository {
 
     updateConfirmedDiseaseAndChangeMappedEventId(
         alertId: Id,
-        diseaseName: string,
+        newDiseaseCode: Code,
         maybeDiseaseOutbreakId: Maybe<Id>
     ): FutureData<void> {
-        return Future.joinObj({
-            alertTrackedEntity: this._getAlertTrackedEntityById(alertId),
-            diseaseOptions: getDiseaseOptions(this.api),
-        }).flatMap(({ alertTrackedEntity, diseaseOptions }) => {
-            const diseaseCode = diseaseOptions.options.find(
-                option => option.name === diseaseName
-            )?.code;
-            if (!diseaseCode) {
-                return Future.error(
-                    new Error(`Disease with name ${diseaseName} not found in options.`)
-                );
-            }
-
+        return this._getAlertTrackedEntityById(alertId).flatMap(alertTrackedEntity => {
             const alertsToPost: D2TrackerTrackedEntity = {
                 trackedEntity: alertId,
                 trackedEntityType: alertTrackedEntity.trackedEntityType,
@@ -272,7 +301,7 @@ export class AlertD2Repository implements AlertRepository {
                 attributes: [
                     {
                         attribute: RTSL_ZEBRA_ALERTS_CONFIRMED_DISEASE_TEA_ID,
-                        value: diseaseCode,
+                        value: newDiseaseCode,
                     },
                     {
                         attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,

@@ -111,7 +111,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     return;
                 }
                 updateAlertIncidentStatus(alertId, value);
-            } else if (columnName === "event") {
+            } else if (columnName === "confirmedDisease") {
                 if (!alertId) {
                     console.debug("Alert id cannot be null, not updating confirmed disease");
                     return;
@@ -269,7 +269,7 @@ function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardAc
             setSingleSelectFilters("disease", cardCount.name);
             setFilters(prev => ({
                 ...prev,
-                event: [cardCount.name],
+                confirmedDisease: [cardCount.name],
             }));
         },
         [setFilters, setSingleSelectFilters]
@@ -307,7 +307,7 @@ function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardAc
                 case "disease":
                     setFilters(prev => ({
                         ...prev,
-                        event: [value].filter(Boolean),
+                        confirmedDisease: [value].filter(Boolean),
                     }));
                     break;
                 default:
