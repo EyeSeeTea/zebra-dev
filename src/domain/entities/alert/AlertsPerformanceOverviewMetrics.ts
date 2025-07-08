@@ -22,5 +22,4 @@ export type AlertsPerformanceOverviewMetrics = {
     respond7d: string;
     incidentStatus: string;
     eventSource: AlertDataSource;
-    confirmedDiseaseAlreadyChosen: boolean;
 };

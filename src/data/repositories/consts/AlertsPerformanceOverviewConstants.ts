@@ -18,7 +18,6 @@ export type AlertsPerformanceOverviewDimensions = {
     respond7d: Id;
     incidentStatus: Id;
     emergedDate: Id;
-    confirmedDiseaseAlreadyChosen: Id;
 };
 
 export type AlertsPerformanceOverviewDimensionsKey = keyof AlertsPerformanceOverviewDimensions;

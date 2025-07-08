@@ -50,8 +50,6 @@ export class GetAllAlertsPerformanceOverviewMetricsUseCase {
                             incidentStatus: activeAlert.incidentStatus
                                 ? activeAlert.incidentStatus
                                 : "",
-                            confirmedDiseaseAlreadyChosen:
-                                activeAlert.confirmedDiseaseAlreadyChosen ?? false,
                         };
                         return [...acc, alertsPerformanceOverviewMetric];
                     },

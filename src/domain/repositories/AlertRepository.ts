@@ -13,7 +13,11 @@ export interface AlertRepository {
         diseaseOutbreakId: Id,
         pheocStatus: IncidentStatus
     ): FutureData<void>;
-    updateConfirmedDiseaseAndCleanMappedEventId(alertId: Id, diseaseName: string): FutureData<void>;
+    updateConfirmedDiseaseAndChangeMappedEventId(
+        alertId: Id,
+        diseaseName: string,
+        maybeDiseaseOutbreakId: Maybe<Id>
+    ): FutureData<void>;
 }
 
 export type AlertOptions = {

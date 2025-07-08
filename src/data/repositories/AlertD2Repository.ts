@@ -1,7 +1,6 @@
 import { D2Api } from "@eyeseetea/d2-api/2.36";
 import { apiToFuture, FutureData } from "../api-futures";
 import {
-    RTSL_ZEB_TEA_CONFIRMED_DISEASE_ALREADY_CHOSEN,
     RTSL_ZEBRA_ALERTS_CONFIRMED_DISEASE_TEA_ID,
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
@@ -74,17 +73,11 @@ export class AlertD2Repository implements AlertRepository {
                         trackedEntity
                     );
 
-                    const confirmedDiseaseAlreadyChosen = getAlertValueFromMap(
-                        "confirmedDiseaseAlreadyChosen",
-                        trackedEntity
-                    );
-
                     const alert: Alert = {
                         id: trackedEntity.trackedEntity || "",
                         districtId: trackedEntity.orgUnit || "",
                         confirmedDiseaseCode: confirmedDisease,
                         suspectedDiseaseCode: suspectedDisease,
-                        confirmedDiseaseAlreadyChosen: confirmedDiseaseAlreadyChosen === "true",
                     };
 
                     return alert;
@@ -165,10 +158,6 @@ export class AlertD2Repository implements AlertRepository {
         const suspectedDisease = getAlertValueFromMap("suspectedDisease", alertTrackedEntity);
         const confirmedDisease = getAlertValueFromMap("confirmedDisease", alertTrackedEntity);
         const pheocStatus = getAlertValueFromMap("pheocStatus", alertTrackedEntity);
-        const confirmedDiseaseAlreadyChosen = getAlertValueFromMap(
-            "confirmedDiseaseAlreadyChosen",
-            alertTrackedEntity
-        );
 
         const alert = {
             id: alertTrackedEntity.trackedEntity || "",
@@ -177,7 +166,6 @@ export class AlertD2Repository implements AlertRepository {
             confirmedDiseaseCode: confirmedDisease,
             status: enrollment.status,
             incidentStatus: this.mapOptionToIncidentStatus(pheocStatus),
-            confirmedDiseaseAlreadyChosen: confirmedDiseaseAlreadyChosen === "true",
         };
 
         return alert;
@@ -259,9 +247,10 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
-    updateConfirmedDiseaseAndCleanMappedEventId(
+    updateConfirmedDiseaseAndChangeMappedEventId(
         alertId: Id,
-        diseaseName: string
+        diseaseName: string,
+        maybeDiseaseOutbreakId: Maybe<Id>
     ): FutureData<void> {
         return Future.joinObj({
             alertTrackedEntity: this._getAlertTrackedEntityById(alertId),
@@ -286,12 +275,8 @@ export class AlertD2Repository implements AlertRepository {
                         value: diseaseCode,
                     },
                     {
-                        attribute: RTSL_ZEB_TEA_CONFIRMED_DISEASE_ALREADY_CHOSEN,
-                        value: "true",
-                    },
-                    {
                         attribute: RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
-                        value: "",
+                        value: maybeDiseaseOutbreakId ?? "",
                     },
                 ],
             };

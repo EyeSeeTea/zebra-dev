@@ -7,6 +7,7 @@ import {
     AlertRepository,
     UpdatePHEOCStatusOptions,
 } from "../../../domain/repositories/AlertRepository";
+import { Maybe } from "../../../utils/ts-utils";
 import { FutureData } from "../../api-futures";
 
 export class AlertTestRepository implements AlertRepository {
@@ -22,7 +23,6 @@ export class AlertTestRepository implements AlertRepository {
             districtId: "District",
             confirmedDiseaseCode: "DiseaseCode",
             suspectedDiseaseCode: "SuspectedDiseaseCode",
-            confirmedDiseaseAlreadyChosen: false,
         });
     }
     updateAlertsPHEOCStatusByDiseaseOutbreakId(
@@ -31,9 +31,10 @@ export class AlertTestRepository implements AlertRepository {
     ): FutureData<void> {
         return Future.success(undefined);
     }
-    updateConfirmedDiseaseAndCleanMappedEventId(
+    updateConfirmedDiseaseAndChangeMappedEventId(
         _alertId: Id,
-        _diseaseName: string
+        _diseaseName: string,
+        _maybeDiseaseOutbreakId: Maybe<Id>
     ): FutureData<void> {
         return Future.success(undefined);
     }

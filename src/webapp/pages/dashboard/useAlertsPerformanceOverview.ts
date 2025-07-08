@@ -43,7 +43,6 @@ export type AlertsPerformanceOverviewMetricsTableData = {
     incidentManagerUsername: string;
     respond7d: string;
     incidentStatus: string;
-    confirmedDiseaseAlreadyChosen: string;
 };
 
 type State = {
@@ -87,6 +86,7 @@ export function useAlertsPerformanceOverview(): State {
     } = useAppContext();
     const [refreshAlertsPerformanceOverviewMetrics, setRefreshAlertsPerformanceOverviewMetrics] =
         useState({});
+
     const [isLoading, setIsLoading] = useState(true);
     const snackbar = useSnackbar();
 
@@ -144,9 +144,7 @@ export function useAlertsPerformanceOverview(): State {
                 value: "confirmedDisease",
                 type: "selector",
                 options: diseaseOptions,
-                disableSelection: (row: Row) =>
-                    row.incidentManagerUsername !== currentUser.username ||
-                    row.confirmedDiseaseAlreadyChosen === "true",
+                disableSelection: (_row: Row) => !currentUser.canBeIncidentManager,
             },
             {
                 label: i18n.t("Suspected disease"),
@@ -167,12 +165,14 @@ export function useAlertsPerformanceOverview(): State {
                 type: "selector",
                 options: incidentStatusOptions,
                 disableSelection: (row: Row) =>
-                    row.incidentManagerUsername !== currentUser.username,
+                    !currentUser.canBeIncidentManager ||
+                    !row.confirmedDisease ||
+                    row.confirmedDisease === "Unknown",
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
         ],
-        [currentUser.username, diseaseOptions]
+        [currentUser.canBeIncidentManager, diseaseOptions]
     );
 
     const mapEntityToTableData = useCallback(
@@ -186,7 +186,6 @@ export function useAlertsPerformanceOverview(): State {
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
                 province: data.province.trim(),
-                confirmedDiseaseAlreadyChosen: String(data.confirmedDiseaseAlreadyChosen),
             };
         },
         []

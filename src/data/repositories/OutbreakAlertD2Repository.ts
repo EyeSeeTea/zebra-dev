@@ -166,17 +166,12 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
             throw new Error(`Alert data not found for ${confirmedDiseaseCode}`);
 
         const suspectedDiseaseCode = getAlertValueFromMap("suspectedDisease", trackedEntity);
-        const confirmedDiseaseAlreadyChosen = getAlertValueFromMap(
-            "confirmedDiseaseAlreadyChosen",
-            trackedEntity
-        );
 
         const alert: Alert = {
             id: trackedEntity.trackedEntity,
             districtId: trackedEntity.orgUnit,
             suspectedDiseaseCode: suspectedDiseaseCode,
             confirmedDiseaseCode: confirmedDiseaseCode,
-            confirmedDiseaseAlreadyChosen: confirmedDiseaseAlreadyChosen === "true",
         };
 
         return {

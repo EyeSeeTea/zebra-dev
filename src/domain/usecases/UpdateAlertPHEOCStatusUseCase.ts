@@ -1,7 +1,7 @@
 import { FutureData } from "../../data/api-futures";
 import { IncidentStatus } from "../entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Future } from "../entities/generic/Future";
-import { Code, Id } from "../entities/Ref";
+import { Id } from "../entities/Ref";
 import { AlertRepository } from "../repositories/AlertRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { Maybe } from "../../utils/ts-utils";
@@ -18,22 +18,25 @@ export class UpdateAlertPHEOCStatusUseCase {
     public execute(alertId: Id, newPheocStatus: IncidentStatus): FutureData<void> {
         return this.fetchAndValidateAlert(alertId)
             .flatMap(alert =>
-                this.fetchAndValidateMaybeDiseaseOutbreakEventId(
-                    newPheocStatus,
-                    alert.confirmedDiseaseCode
-                )
+                this.fetchAndValidateMaybeDiseaseOutbreakEventId(newPheocStatus, alert)
             )
-            .flatMap(diseaseOutbreakId =>
-                this.updateStatus(alertId, newPheocStatus, diseaseOutbreakId)
+            .flatMap(maybeDiseaseOutbreakId =>
+                this.updateStatus(alertId, newPheocStatus, maybeDiseaseOutbreakId)
             );
     }
 
     private fetchAndValidateAlert(alertId: Id): FutureData<Alert> {
         return this.options.alertRepository.getById(alertId).flatMap(alert => {
-            if (alert.status !== "ACTIVE") {
+            if (
+                alert.status !== "ACTIVE" ||
+                !!alert.confirmedDiseaseCode ||
+                alert.confirmedDiseaseCode !== "Unknown"
+            ) {
                 return Future.error(
                     new Error(
-                        "This alert is not active and therefore the PHEOC status cannot be changed."
+                        alert.status !== "ACTIVE"
+                            ? "This alert is not active and therefore the PHEOC status cannot be changed."
+                            : "An alert without a confirmed disease cannot change its PHEOC status."
                     )
                 );
             }
@@ -43,15 +46,15 @@ export class UpdateAlertPHEOCStatusUseCase {
 
     private fetchAndValidateMaybeDiseaseOutbreakEventId(
         newPheocStatus: IncidentStatus,
-        alertConfirmedDisease: Maybe<Code>
+        alert: Alert
     ): FutureData<Maybe<Id>> {
-        if (newPheocStatus === "Respond" && alertConfirmedDisease) {
+        if (newPheocStatus === "Respond" && alert.confirmedDiseaseCode) {
             return this.options.diseaseOutbreakEventRepository
-                .getActiveByDisease(alertConfirmedDisease)
+                .getActiveByDisease(alert.confirmedDiseaseCode)
                 .flatMap(maybeDiseaseOutbreakEvent => {
                     if (!maybeDiseaseOutbreakEvent?.id) {
                         console.error(
-                            `No active disease outbreak event found for disease ${alertConfirmedDisease}`
+                            `No active disease outbreak event found for disease ${alert.confirmedDiseaseCode}`
                         );
                         return Future.success(undefined);
                     }

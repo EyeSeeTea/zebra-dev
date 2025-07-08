@@ -116,7 +116,6 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
                 ...data,
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
-                confirmedDiseaseAlreadyChosen: String(data.confirmedDiseaseAlreadyChosen),
             };
         },
         []
