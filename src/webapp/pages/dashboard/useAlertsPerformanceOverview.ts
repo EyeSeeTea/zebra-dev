@@ -20,6 +20,7 @@ import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 import {
     diseaseNames,
     IncidentStatus,
+    UNKNOWN_DISEASE_NAME,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
 
@@ -133,6 +134,7 @@ export function useAlertsPerformanceOverview(): State {
             diseaseNames.map(diseaseName => ({
                 value: diseaseName,
                 label: diseaseName,
+                disabled: diseaseName === UNKNOWN_DISEASE_NAME,
             })),
         []
     );

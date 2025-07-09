@@ -17,47 +17,46 @@ export class GetAllAlertsPerformanceOverviewMetricsUseCase {
     ) {}
 
     public execute(): FutureData<AlertsPerformanceOverviewMetrics[]> {
+        // Fetch active alert from alerts program, as we need the ability to update it
+        //and see the update reflected real-time. Fetching alert data from analytics
+        //has stale data until the next analytics run is completed.
         return Future.joinObj({
             alertMetrics:
                 this.options.performanceOverviewRepository.getAlertsPerformanceOverviewMetrics(),
             diseaseOptions: this.getDiseaseOptions(),
-        }).flatMap(({ alertMetrics, diseaseOptions }) => {
-            // Fetch active alert from alerts program, as we need the ability to update it
-            //and see the update reflected real-time. Fetching alert data from analytics
-            //has stale data until the next analytics run is completed.
-            return this.options.alertRepository.getAllActive().flatMap(activeAlerts => {
-                const alertsPerformanceOverviewMetrics = alertMetrics.reduce(
-                    (
-                        acc: AlertsPerformanceOverviewMetrics[],
-                        alertMetric: AlertsPerformanceOverviewMetrics
-                    ): AlertsPerformanceOverviewMetrics[] => {
-                        const alertId = alertMetric.teiId;
-                        const activeAlert = activeAlerts.find(alert => alert.id === alertId);
+            activeAlerts: this.options.alertRepository.getAllActive(),
+        }).flatMap(({ alertMetrics, diseaseOptions, activeAlerts }) => {
+            const alertsPerformanceOverviewMetrics = alertMetrics.reduce(
+                (
+                    acc: AlertsPerformanceOverviewMetrics[],
+                    alertMetric: AlertsPerformanceOverviewMetrics
+                ): AlertsPerformanceOverviewMetrics[] => {
+                    const alertId = alertMetric.teiId;
+                    const activeAlert = activeAlerts.find(alert => alert.id === alertId);
 
-                        if (!activeAlert) {
-                            return acc;
-                        }
+                    if (!activeAlert) {
+                        return acc;
+                    }
 
-                        const confirmedDiseaseName = activeAlert.confirmedDiseaseCode
-                            ? diseaseOptions.find(
-                                  option => option.id === activeAlert.confirmedDiseaseCode
-                              )?.name
-                            : alertMetric.confirmedDisease;
+                    const confirmedDiseaseName = activeAlert.confirmedDiseaseCode
+                        ? diseaseOptions.find(
+                              option => option.id === activeAlert.confirmedDiseaseCode
+                          )?.name
+                        : alertMetric.confirmedDisease;
 
-                        const alertsPerformanceOverviewMetric: AlertsPerformanceOverviewMetrics = {
-                            ...alertMetric,
-                            confirmedDisease: confirmedDiseaseName ?? "",
-                            incidentStatus: activeAlert.incidentStatus
-                                ? activeAlert.incidentStatus
-                                : "",
-                        };
-                        return [...acc, alertsPerformanceOverviewMetric];
-                    },
-                    []
-                );
+                    const alertsPerformanceOverviewMetric: AlertsPerformanceOverviewMetrics = {
+                        ...alertMetric,
+                        confirmedDisease: confirmedDiseaseName ?? "",
+                        incidentStatus: activeAlert.incidentStatus
+                            ? activeAlert.incidentStatus
+                            : "",
+                    };
+                    return [...acc, alertsPerformanceOverviewMetric];
+                },
+                []
+            );
 
-                return Future.success(alertsPerformanceOverviewMetrics);
-            });
+            return Future.success(alertsPerformanceOverviewMetrics);
         });
     }
 

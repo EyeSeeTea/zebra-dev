@@ -1,5 +1,4 @@
 import { FutureData } from "../../data/api-futures";
-import { Alert } from "../entities/alert/Alert";
 import { AlertsPerformanceOverviewMetrics } from "../entities/alert/AlertsPerformanceOverviewMetrics";
 import { Future } from "../entities/generic/Future";
 import { Id } from "../entities/Ref";
@@ -15,22 +14,18 @@ export class GetMappedAlertsUseCase {
     ) {}
 
     public execute(diseaseOutbreakId: Id): FutureData<AlertsPerformanceOverviewMetrics[]> {
-        return this.options.performanceOverviewRepository
-            .getMappedAlerts(diseaseOutbreakId)
-            .flatMap((alertMetrics: AlertsPerformanceOverviewMetrics[]) => {
-                // Fetching alert data from analytics has stale data until the next analytics run is completed.
-                return this.options.alertRepository
-                    .getAlertsByDiseaseOutbreakId(diseaseOutbreakId)
-                    .flatMap((alerts: Alert[]) => {
-                        const alertIdsWithDiseaseOutbreakId = alerts
-                            .filter(alert => alert.diseaseOutbreakId === diseaseOutbreakId)
-                            .map(alert => alert.id);
+        // Fetching alert data from analytics has stale data until the next analytics run is completed.
+        return Future.joinObj({
+            alertMetrics:
+                this.options.performanceOverviewRepository.getMappedAlerts(diseaseOutbreakId),
+            alerts: this.options.alertRepository.getAlertsByDiseaseOutbreakId(diseaseOutbreakId),
+        }).flatMap(({ alertMetrics, alerts }) => {
+            const alertIdsWithDiseaseOutbreakId = alerts.map(alert => alert.id);
 
-                        const alertsPerformanceOverviewMetrics = alertMetrics.filter(alert =>
-                            alertIdsWithDiseaseOutbreakId.includes(alert.teiId)
-                        );
-                        return Future.success(alertsPerformanceOverviewMetrics);
-                    });
-            });
+            const alertsPerformanceOverviewMetrics = alertMetrics.filter(alert =>
+                alertIdsWithDiseaseOutbreakId.includes(alert.teiId)
+            );
+            return Future.success(alertsPerformanceOverviewMetrics);
+        });
     }
 }

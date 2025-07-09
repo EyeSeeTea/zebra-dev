@@ -1,6 +1,7 @@
 import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
 import { Alert } from "../entities/alert/Alert";
+import { UNKNOWN_DISEASE_CODE } from "../entities/alert/OutbreakAlert";
 import { Future } from "../entities/generic/Future";
 import { Id, Option } from "../entities/Ref";
 import { AlertRepository } from "../repositories/AlertRepository";
@@ -41,7 +42,7 @@ export class UpdateAlertConfirmedDiseaseUseCase {
 
     private fetchAndValidateAlert(alertId: Id, newDiseaseCode: string): FutureData<Alert> {
         return this.options.alertRepository.getById(alertId).flatMap(alert => {
-            if (alert.status !== "ACTIVE" || newDiseaseCode === "RTSL_ZEB_OS_DISEASE_UNKNOWN") {
+            if (alert.status !== "ACTIVE" || newDiseaseCode === UNKNOWN_DISEASE_CODE) {
                 return Future.error(
                     new Error(
                         alert.status !== "ACTIVE"
