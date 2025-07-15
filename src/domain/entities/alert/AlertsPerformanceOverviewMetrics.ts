@@ -14,7 +14,6 @@ export type AlertsPerformanceOverviewMetrics = {
     orgUnitType: OrgUnitLevelType;
     cases: string;
     deaths: string;
-    duration: string;
     date: string;
     detect7d: string;
     notify1d: string;
@@ -22,4 +21,7 @@ export type AlertsPerformanceOverviewMetrics = {
     respond7d: string;
     incidentStatus: string;
     eventSource: AlertDataSource;
+    emergedDate: string;
+    notifiedDate: string;
+    respondedDate: string;
 };

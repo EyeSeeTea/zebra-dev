@@ -36,7 +36,6 @@ export type AlertsPerformanceOverviewMetricsTableData = {
     orgUnitType: OrgUnitLevelType;
     cases: string;
     deaths: string;
-    duration: string;
     date: string;
     notify1d: string;
     detect7d: string;
@@ -44,6 +43,9 @@ export type AlertsPerformanceOverviewMetricsTableData = {
     incidentManagerUsername: string;
     respond7d: string;
     incidentStatus: string;
+    emergedDate: string;
+    notifiedDate: string;
+    respondedDate: string;
 };
 
 type State = {
@@ -160,7 +162,9 @@ export function useAlertsPerformanceOverview(): State {
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
-            { label: i18n.t("Duration"), value: "duration", type: "text" },
+            { label: i18n.t("Emergence Date"), value: "emergedDate", type: "text" },
+            { label: i18n.t("Notification Date"), value: "notifiedDate", type: "text" },
+            { label: i18n.t("Response Date"), value: "respondedDate", type: "text" },
             { label: i18n.t("Manager"), value: "incidentManager", type: "text" },
             { label: i18n.t("Detect 7d"), dark: true, value: "detect7d", type: "text" },
             { label: i18n.t("Notify 1d"), dark: true, value: "notify1d", type: "text" },

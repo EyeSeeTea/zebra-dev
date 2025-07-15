@@ -245,6 +245,15 @@ msgstr ""
 msgid "Organisation unit type"
 msgstr ""
 
+msgid "Emergence Date"
+msgstr ""
+
+msgid "Notification Date"
+msgstr ""
+
+msgid "Response Date"
+msgstr ""
+
 msgid "Manager"
 msgstr ""
 
