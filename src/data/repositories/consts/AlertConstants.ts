@@ -1,7 +1,8 @@
 import { AlertVerificationStatus } from "../../../domain/entities/alert/Alert";
 
 export const alertOutbreakCodes = {
-    suspectedDisease: "RTSL_ZEB_TEA_DISEASE",
+    suspectedDisease: "RTSL_ZEB_ALERTS_TEA_SUSPECTED_DISEASE",
+    confirmedDisease: "RTSL_ZEB_TEA_DISEASE",
     verificationStatus: "RTSL_ZEB_TEA_VERIFICATION_STATUS",
     incidentManager: "RTSL_ZEB_TEA_ ALERT_IM_NAME",
     outbreakId: "RTSL_ZEB_TEA_ OutBreak_ID",

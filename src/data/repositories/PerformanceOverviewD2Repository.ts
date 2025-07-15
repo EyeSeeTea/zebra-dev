@@ -16,7 +16,6 @@ import {
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
 import {
-    CasesDataSource,
     DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -48,6 +47,7 @@ import {
 import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { VerificationStatus } from "../../domain/entities/alert/Alert";
+import _c from "../../domain/entities/generic/Collection";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -59,8 +59,6 @@ const formatDate = (date: Date): string => {
 const DEFAULT_END_DATE: string = formatDate(new Date());
 const DEFAULT_START_DATE = "2000-01-01";
 
-const ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
-    "alerts-program-event-tracker-overview-ids";
 const CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY =
     "cases-program-event-tracker-overview-ids";
 const NATIONAL_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY =
@@ -84,10 +82,6 @@ type EventTrackerOverviewInDataStore = {
     deathsId: Id;
     probableCasesId: Id;
     dataSource?: keyof typeof DataSource;
-};
-
-type EventTrackerOverview = EventTrackerOverviewInDataStore & {
-    casesDataSource: CasesDataSource;
 };
 
 type IdValue = {
@@ -263,64 +257,37 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             });
     }
 
-    private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<EventTrackerOverview[]> {
-        return Future.joinObj({
-            alertsEventTrackerOverviewIdsResponse: this.datastore.getObject<
-                EventTrackerOverviewInDataStore[]
-            >(ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY),
-            casesEventTrackerOverviewIdsResponse: this.datastore.getObject<
-                EventTrackerOverviewInDataStore[]
-            >(CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY),
-        }).flatMap(
-            ({ alertsEventTrackerOverviewIdsResponse, casesEventTrackerOverviewIdsResponse }) => {
+    private getAllEventTrackerOverviewIdsFromDatastore(): FutureData<
+        EventTrackerOverviewInDataStore[]
+    > {
+        return this.datastore
+            .getObject<EventTrackerOverviewInDataStore[]>(
+                CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+            )
+            .flatMap(casesEventTrackerOverviewIdsResponse => {
                 return assertOrError(
-                    alertsEventTrackerOverviewIdsResponse,
-                    ALERTS_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                ).flatMap(alertsEventTrackerOverviewIds => {
-                    return assertOrError(
-                        casesEventTrackerOverviewIdsResponse,
-                        CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
-                    ).flatMap(casesEventTrackerOverviewIds => {
-                        return Future.success([
-                            ...alertsEventTrackerOverviewIds.map(
-                                ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                }) => ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                    casesDataSource:
-                                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR,
-                                })
-                            ),
-                            ...casesEventTrackerOverviewIds.map(
-                                ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                }) => ({
-                                    key,
-                                    suspectedCasesId,
-                                    confirmedCasesId,
-                                    deathsId,
-                                    probableCasesId,
-                                    casesDataSource:
-                                        CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_USER_DEF,
-                                })
-                            ),
-                        ]);
-                    });
+                    casesEventTrackerOverviewIdsResponse,
+                    CASES_PROGRAM_EVENT_TRACKER_OVERVIEW_DATASTORE_KEY
+                ).map(casesEventTrackerOverviewIds => {
+                    return casesEventTrackerOverviewIds.map(
+                        ({
+                            key,
+                            suspectedCasesId,
+                            confirmedCasesId,
+                            deathsId,
+                            probableCasesId,
+                            dataSource,
+                        }) => ({
+                            key,
+                            suspectedCasesId,
+                            confirmedCasesId,
+                            deathsId,
+                            probableCasesId,
+                            dataSource,
+                        })
+                    );
                 });
-            }
-        );
+            });
     }
 
     getEventTrackerOverviewMetrics(
@@ -472,17 +439,20 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                         )
                                     ) || [];
 
-                                const keys = _(
-                                    diseaseOutbreakEvents.map(
-                                        diseaseOutbreak => diseaseOutbreak.suspectedDiseaseCode
-                                    )
-                                )
-                                    .compact()
-                                    .uniq()
-                                    .value();
+                                const diseaseOutbreakEventsMap = _c(diseaseOutbreakEvents).keyBy(
+                                    diseaseOutbreakEvent =>
+                                        diseaseOutbreakEvent.suspectedDiseaseCode
+                                );
 
                                 const eventTrackerOverviewsForKeys = eventTrackerOverviews.filter(
-                                    overview => keys.includes(overview.key)
+                                    overview => {
+                                        const event = diseaseOutbreakEventsMap.get(overview.key);
+                                        return (
+                                            !!event &&
+                                            ((!event.dataSource && !overview.dataSource) ||
+                                                event.dataSource === overview.dataSource)
+                                        );
+                                    }
                                 );
 
                                 const casesIndicatorIds = eventTrackerOverviewsForKeys.map(
@@ -492,7 +462,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 const deathsIndicatorIds = eventTrackerOverviewsForKeys.map(
                                     overview => overview.deathsId
                                 );
-
                                 return Future.joinObj({
                                     allCases: this.getAnalyticsByIndicators(casesIndicatorIds),
                                     allDeaths: this.getAnalyticsByIndicators(deathsIndicatorIds),
@@ -512,10 +481,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 );
                                             const currentEventTrackerOverview =
                                                 eventTrackerOverviewsForKeys.find(
-                                                    overview =>
-                                                        overview.key === key &&
-                                                        overview.casesDataSource ===
-                                                            event.casesDataSource
+                                                    overview => overview.key === key
                                                 );
 
                                             const currentCases = allCases.find(
@@ -601,13 +567,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.eventIBSId,
                                     performanceOverviewDimensions.nationalDiseaseOutbreakEventId,
                                     performanceOverviewDimensions.suspectedDisease,
-                                    performanceOverviewDimensions.cases,
-                                    performanceOverviewDimensions.deaths,
+                                    performanceOverviewDimensions.confirmedDisease,
+                                    performanceOverviewDimensions.cases, // cases is not shown in table as now cases data comes from Cases program
+                                    performanceOverviewDimensions.deaths, // deaths is not shown in table as now cases data comes from Cases program
                                     performanceOverviewDimensions.notify1d,
                                     performanceOverviewDimensions.detect7d,
                                     performanceOverviewDimensions.incidentManager,
                                     performanceOverviewDimensions.respond7d,
-                                    performanceOverviewDimensions.incidentStatus,
+                                    performanceOverviewDimensions.incidentStatus, // PHEOC status
                                     performanceOverviewDimensions.emergedDate,
                                 ],
                                 startDate: DEFAULT_START_DATE,
@@ -630,6 +597,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                         const index = response.headers.findIndex(
                                             header => header.name === dimension
                                         );
+
                                         if (dimension === "enrollmentdate") {
                                             const inputDate = row[index];
                                             const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
@@ -667,7 +635,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             const nameValue = Object.values(
                                                 response.metaData.items
                                             ).find(item => item.code === row[index])?.name;
-
+                                            // TODO: Check why name instead of code. Name is only needed in presentation layer but for filters we should use code
                                             return {
                                                 ...acc,
                                                 [dimensionKey]: nameValue || row[index],

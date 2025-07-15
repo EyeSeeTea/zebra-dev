@@ -36,7 +36,6 @@ import {
     getCasesDataValuesFromDiseaseOutbreak,
     isStringInCasesDataCodes,
 } from "./consts/CaseDataConstants";
-import { OutbreakData } from "../../domain/entities/alert/OutbreakAlert";
 import _c from "../../domain/entities/generic/Collection";
 import { Maybe } from "../../utils/ts-utils";
 
@@ -49,7 +48,12 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
                 program: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnit: RTSL_ZEBRA_ORG_UNIT_ID,
                 trackedEntity: id,
-                fields: { attributes: true, trackedEntity: true, updatedAt: true },
+                fields: {
+                    attributes: true,
+                    trackedEntity: true,
+                    updatedAt: true,
+                    enrollments: true,
+                },
             })
         )
             .flatMap(response => assertOrError(response.instances[0], "Tracked entity"))
@@ -81,14 +85,14 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
         );
     }
 
-    getEventByDisease(filter: OutbreakData): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
+    getAllActiveByDisease(disease: Code): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
         return Future.fromPromise(
             getAllTrackedEntitiesAsync(this.api, {
                 programId: RTSL_ZEBRA_PROGRAM_ID,
                 orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
                 filter: {
                     id: RTSL_ZEB_TEA_SUSPECTED_DISEASE_ID,
-                    value: filter.value,
+                    value: disease,
                 },
                 programStatus: programStatusOptions.ACTIVE,
             })
@@ -212,7 +216,7 @@ export class DiseaseOutbreakEventD2Repository implements DiseaseOutbreakEventRep
     }
 
     getActiveByDisease(disease: Code): FutureData<Maybe<DiseaseOutbreakEventBaseAttrs>> {
-        return this.getEventByDisease({ type: "disease", value: disease }).map(diseaseOutbreaks => {
+        return this.getAllActiveByDisease(disease).map(diseaseOutbreaks => {
             if (diseaseOutbreaks.length === 0) return undefined;
             const activeDiseaseOutbreaks = diseaseOutbreaks.filter(
                 outbreak => outbreak.status === "ACTIVE"

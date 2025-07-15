@@ -32,7 +32,7 @@ export class NotificationD2Repository implements NotificationRepository {
             const notifiedAlertExists = notifiedAlerts.some(
                 notifiedAlert =>
                     notifiedAlert.outbreak === outbreakName &&
-                    notifiedAlert.district === alert.district
+                    notifiedAlert.district === alert.districtId
             );
             if (notifiedAlertExists) {
                 return Future.success(undefined);
@@ -40,11 +40,11 @@ export class NotificationD2Repository implements NotificationRepository {
 
             const updatedNotifiedAlerts = [
                 ...notifiedAlerts,
-                { district: alert.district, outbreak: outbreakName },
+                { district: alert.districtId, outbreak: outbreakName },
             ];
 
             return Future.joinObj({
-                districtName: this.getDistrictName(alert.district),
+                districtName: this.getDistrictName(alert.districtId),
                 saveNotification: this.saveNotifiedAlertsToDataStore(updatedNotifiedAlerts),
             }).flatMap(({ districtName }) => {
                 return apiToFuture(

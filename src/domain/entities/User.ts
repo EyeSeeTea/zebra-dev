@@ -9,6 +9,7 @@ export interface UserAttrs {
     userRoles: UserRole[];
     userGroups: NamedRef[];
     hasCaptureAccess: boolean;
+    canBeIncidentManager: boolean;
 }
 
 export interface UserRole extends NamedRef {

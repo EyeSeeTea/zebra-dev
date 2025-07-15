@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-06-05T14:25:45.470Z\n"
-"PO-Revision-Date: 2025-06-05T14:25:45.470Z\n"
+"POT-Creation-Date: 2025-07-15T07:39:28.840Z\n"
+"PO-Revision-Date: 2025-07-15T07:39:28.840Z\n"
 
 msgid "Low"
 msgstr ""
@@ -232,6 +232,12 @@ msgid "Disease"
 msgstr ""
 
 msgid "Province"
+msgstr ""
+
+msgid "Confirmed disease"
+msgstr ""
+
+msgid "Suspected disease"
 msgstr ""
 
 msgid "Organisation unit"

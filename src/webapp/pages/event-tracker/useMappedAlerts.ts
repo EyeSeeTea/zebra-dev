@@ -89,7 +89,7 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
 
     const columns = useMemo<TableColumn[]>(
         () => [
-            { label: i18n.t("Disease"), value: "event", type: "text" },
+            { label: i18n.t("Disease"), value: "confirmedDisease", type: "text" },
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
@@ -114,7 +114,6 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
 
             return {
                 ...data,
-                event: data.suspectedDisease,
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
             };
