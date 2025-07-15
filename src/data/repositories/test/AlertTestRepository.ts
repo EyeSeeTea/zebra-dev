@@ -32,6 +32,9 @@ export class AlertTestRepository implements AlertRepository {
     ): FutureData<void> {
         return Future.success(undefined);
     }
+    complete(_id: Id): FutureData<void> {
+        return Future.success(undefined);
+    }
     updateConfirmedDiseaseAndChangeMappedEventId(
         _alertId: Id,
         _newDiseaseCode: Code,

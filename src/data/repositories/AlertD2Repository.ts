@@ -26,6 +26,7 @@ import {
 import { getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
 import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { assertOrError } from "./utils/AssertOrError";
+import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 
 const incidentStatusOptionMap = new Map<IncidentStatus, string>([
     ["Alert", "PHEOC_STATUS_ALERT"],
@@ -140,6 +141,68 @@ export class AlertD2Repository implements AlertRepository {
                     );
                 else return Future.success(undefined);
             });
+        });
+    }
+
+    complete(id: Id): FutureData<void> {
+        return this.getTrackedEntityEnrollment(id).flatMap(currentEnrollment => {
+            const enrollment: D2TrackerEnrollment = {
+                ...currentEnrollment,
+                orgUnit: currentEnrollment.orgUnit,
+                program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                trackedEntity: id,
+                status: "COMPLETED",
+            };
+
+            return apiToFuture(
+                this.api.tracker.post({ importStrategy: "UPDATE" }, { enrollments: [enrollment] })
+            ).flatMap(response => {
+                if (response.status !== "OK") {
+                    return Future.error(new Error(`Error completing alert: ${response.message}`));
+                }
+                return Future.success(undefined);
+            });
+        });
+    }
+
+    private getTrackedEntityEnrollment(id: Id): FutureData<D2TrackerEnrollment> {
+        return this._getAlertTrackedEntityById(id, { orgUnit: true }).flatMap(trackedEntity =>
+            apiToFuture(
+                this.api.tracker.enrollments.get({
+                    fields: {
+                        enrollment: true,
+                        enrolledAt: true,
+                        occurredAt: true,
+                        orgUnit: true,
+                    },
+                    trackedEntity: id,
+                    enrolledBefore: new Date().toISOString(),
+                    program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                    orgUnit: trackedEntity.orgUnit,
+                })
+            ).flatMap(enrollmentResponse =>
+                assertOrError(
+                    enrollmentResponse.instances[0],
+                    `Enrollment for tracked entity with id ${id}`
+                )
+            )
+        );
+    }
+
+    getIncidentStatusByAlert(alertId: Id): FutureData<Maybe<IncidentStatus>> {
+        return apiToFuture(
+            this.api.tracker.trackedEntities.get({
+                trackedEntity: alertId,
+                program: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                enrollmentEnrolledBefore: new Date().toISOString(),
+                fields: { attributes: true },
+            })
+        ).flatMap(trackedEntityResponse => {
+            const status = trackedEntityResponse.instances[0]?.attributes?.find(
+                attr => attr.attribute === RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID
+            )?.value;
+
+            return Future.success(this.mapOptionToIncidentStatus(status));
         });
     }
 
