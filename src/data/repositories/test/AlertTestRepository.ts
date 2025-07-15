@@ -1,29 +1,29 @@
 import { Alert } from "../../../domain/entities/alert/Alert";
 import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { Future } from "../../../domain/entities/generic/Future";
-import { Id } from "../../../domain/entities/Ref";
+import { Code, Id } from "../../../domain/entities/Ref";
 import {
     AlertOptions,
     AlertRepository,
     UpdatePHEOCStatusOptions,
 } from "../../../domain/repositories/AlertRepository";
+import { Maybe } from "../../../utils/ts-utils";
 import { FutureData } from "../../api-futures";
 
 export class AlertTestRepository implements AlertRepository {
-    updateAlertPHEOCStatus(_options: UpdatePHEOCStatusOptions): FutureData<void> {
+    updateAlertPHEOCStatusAndMappedEventId(_options: UpdatePHEOCStatusOptions): FutureData<void> {
         return Future.success(undefined);
     }
-    getIncidentStatusByAlert(_alertId: Id): FutureData<IncidentStatus> {
-        return Future.success("Alert");
-    }
-    updateAlerts(_alertOptions: AlertOptions): FutureData<Alert[]> {
+    updateActiveVerifiedRespondAlerts(_alertOptions: AlertOptions): FutureData<Alert[]> {
         return Future.success([]);
     }
-    getAlertById(alertId: Id): FutureData<Alert> {
+    getById(alertId: Id): FutureData<Alert> {
         return Future.success({
             id: alertId,
-            district: "District",
-            disease: "Disease",
+            districtId: "District",
+            confirmedDiseaseCode: "DiseaseCode",
+            suspectedDiseaseCode: "SuspectedDiseaseCode",
+            diseaseOutbreakId: "DiseaseOutbreakId",
         });
     }
     updateAlertsPHEOCStatusByDiseaseOutbreakId(
@@ -31,5 +31,24 @@ export class AlertTestRepository implements AlertRepository {
         _pheocStatus: IncidentStatus
     ): FutureData<void> {
         return Future.success(undefined);
+    }
+    updateConfirmedDiseaseAndChangeMappedEventId(
+        _alertId: Id,
+        _newDiseaseCode: Code,
+        _maybeDiseaseOutbreakId: Maybe<Id>
+    ): FutureData<void> {
+        return Future.success(undefined);
+    }
+
+    getAllActive(): FutureData<Alert[]> {
+        return Future.success([]);
+    }
+
+    getAlertsById(_ids: Id[]): FutureData<Alert[]> {
+        return Future.success([]);
+    }
+
+    getAlertsByDiseaseOutbreakId(_diseaseOutbreakId: Id): FutureData<Alert[]> {
+        return Future.success([]);
     }
 }

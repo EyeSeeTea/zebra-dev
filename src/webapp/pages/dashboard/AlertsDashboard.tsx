@@ -64,6 +64,7 @@ export type AlertsDashboardProps = {
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
+    updateAlertConfirmedDisease: (alertId: Id, diseaseName: string) => void;
     performanceMetricsStatus: PerformanceMetricsStatus;
     setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
 };
@@ -85,6 +86,7 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         setFilters,
         goToPage,
         updateAlertIncidentStatus,
+        updateAlertConfirmedDisease,
         performanceMetricsStatus,
         setPerformanceMetricsStatus,
         ...restAlertsPerformanceOverview
@@ -109,11 +111,17 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     return;
                 }
                 updateAlertIncidentStatus(alertId, value);
+            } else if (columnName === "confirmedDisease") {
+                if (!alertId) {
+                    console.debug("Alert id cannot be null, not updating confirmed disease");
+                    return;
+                }
+                updateAlertConfirmedDisease(alertId, value);
             } else {
                 console.debug(`Unhandled column edit :  ${columnName}`);
             }
         },
-        [updateAlertIncidentStatus]
+        [updateAlertConfirmedDisease, updateAlertIncidentStatus]
     );
 
     const performanceStatusOptions: Option<PerformanceMetricsStatus>[] = useMemo(() => {
@@ -261,7 +269,7 @@ function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardAc
             setSingleSelectFilters("disease", cardCount.name);
             setFilters(prev => ({
                 ...prev,
-                event: [cardCount.name],
+                confirmedDisease: [cardCount.name],
             }));
         },
         [setFilters, setSingleSelectFilters]
@@ -299,7 +307,7 @@ function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardAc
                 case "disease":
                     setFilters(prev => ({
                         ...prev,
-                        event: [value].filter(Boolean),
+                        confirmedDisease: [value].filter(Boolean),
                     }));
                     break;
                 default:

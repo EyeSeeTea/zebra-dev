@@ -15,20 +15,28 @@ export class UpdateAlertPHEOCStatusUseCase {
         }
     ) {}
 
-    public execute(alertId: Id, pheocStatus: IncidentStatus): FutureData<void> {
+    public execute(alertId: Id, newPheocStatus: IncidentStatus): FutureData<void> {
         return this.fetchAndValidateAlert(alertId)
-            .flatMap(alert => this.fetchAndValidateMaybeDiseaseOutbreakEventId(pheocStatus, alert))
-            .flatMap(diseaseOutbreakId =>
-                this.updateStatus(alertId, pheocStatus, diseaseOutbreakId)
+            .flatMap(alert =>
+                this.fetchAndValidateMaybeDiseaseOutbreakEventId(newPheocStatus, alert)
+            )
+            .flatMap(maybeDiseaseOutbreakId =>
+                this.updateStatus(alertId, newPheocStatus, maybeDiseaseOutbreakId)
             );
     }
 
     private fetchAndValidateAlert(alertId: Id): FutureData<Alert> {
-        return this.options.alertRepository.getAlertById(alertId).flatMap(alert => {
-            if (alert.status !== "ACTIVE") {
+        return this.options.alertRepository.getById(alertId).flatMap(alert => {
+            if (
+                alert.status !== "ACTIVE" ||
+                !alert.confirmedDiseaseCode ||
+                alert.confirmedDiseaseCode === "Unknown"
+            ) {
                 return Future.error(
                     new Error(
-                        "This alert is not active and therefore the PHEOC status cannot be changed."
+                        alert.status !== "ACTIVE"
+                            ? "This alert is not active and therefore the PHEOC status cannot be changed."
+                            : "An alert without a confirmed disease cannot change its PHEOC status."
                     )
                 );
             }
@@ -37,16 +45,16 @@ export class UpdateAlertPHEOCStatusUseCase {
     }
 
     private fetchAndValidateMaybeDiseaseOutbreakEventId(
-        pheocStatus: IncidentStatus,
+        newPheocStatus: IncidentStatus,
         alert: Alert
     ): FutureData<Maybe<Id>> {
-        if (pheocStatus === "Respond") {
+        if (newPheocStatus === "Respond" && alert.confirmedDiseaseCode) {
             return this.options.diseaseOutbreakEventRepository
-                .getActiveByDisease(alert.disease)
+                .getActiveByDisease(alert.confirmedDiseaseCode)
                 .flatMap(maybeDiseaseOutbreakEvent => {
                     if (!maybeDiseaseOutbreakEvent?.id) {
                         console.error(
-                            `No active disease outbreak event found for disease ${alert.disease}`
+                            `No active disease outbreak event found for disease ${alert.confirmedDiseaseCode}`
                         );
                         return Future.success(undefined);
                     }
@@ -58,12 +66,12 @@ export class UpdateAlertPHEOCStatusUseCase {
 
     private updateStatus(
         alertId: Id,
-        pheocStatus: IncidentStatus,
+        newPheocStatus: IncidentStatus,
         diseaseOutbreakId: Maybe<Id>
     ): FutureData<void> {
-        return this.options.alertRepository.updateAlertPHEOCStatus({
+        return this.options.alertRepository.updateAlertPHEOCStatusAndMappedEventId({
             alertId,
-            pheocStatus,
+            pheocStatus: newPheocStatus,
             diseaseOutbreakId,
         });
     }
