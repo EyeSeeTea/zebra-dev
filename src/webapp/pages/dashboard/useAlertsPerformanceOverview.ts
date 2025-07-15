@@ -5,6 +5,7 @@ import { useAppContext } from "../../contexts/app-context";
 import {
     FiltersConfig,
     FiltersValuesType,
+    Row,
     TableColumn,
 } from "../../components/table/statistic-table/StatisticTable";
 import { Maybe } from "../../../utils/ts-utils";
@@ -16,16 +17,20 @@ import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
 import { AlertDataSource } from "../../../domain/entities/alert/Alert";
-import { IncidentStatus } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
+import {
+    diseaseNames,
+    IncidentStatus,
+    UNKNOWN_DISEASE_NAME,
+} from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
-    event: string;
     teiId: Id;
     eventEBSId: Id;
     eventIBSId: Id;
     nationalDiseaseOutbreakEventId: Id;
     suspectedDisease: string;
+    confirmedDisease: string;
     province: string;
     orgUnit: string;
     orgUnitType: OrgUnitLevelType;
@@ -68,6 +73,11 @@ type State = {
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
+    completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
+    completeAlert: (alertId: Maybe<Id>) => void;
+    closeCompleteModal: () => void;
+    openCompleteModal: (alertId: Id) => void;
+    updateAlertConfirmedDisease: (alertId: Id, diseaseName: string) => void;
 };
 
 export type Order = {
@@ -83,6 +93,7 @@ export function useAlertsPerformanceOverview(): State {
     } = useAppContext();
     const [refreshAlertsPerformanceOverviewMetrics, setRefreshAlertsPerformanceOverviewMetrics] =
         useState({});
+
     const [isLoading, setIsLoading] = useState(true);
     const snackbar = useSnackbar();
 
@@ -97,7 +108,7 @@ export function useAlertsPerformanceOverview(): State {
 
     const filtersConfig = useMemo<FiltersConfig[]>(
         () => [
-            { value: "event", label: i18n.t("Disease"), type: "multiselector" },
+            { value: "confirmedDisease", label: i18n.t("Disease"), type: "multiselector" },
             { value: "province", label: i18n.t("Province"), type: "multiselector" },
             { value: "date", label: i18n.t("Duration"), type: "datepicker" },
         ],
@@ -123,9 +134,31 @@ export function useAlertsPerformanceOverview(): State {
         setEventSourceSelected,
     } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>(filtersConfig, true);
 
+    // TODO: Use disease options codes instead of names
+    const diseaseOptions = useMemo(
+        () =>
+            diseaseNames.map(diseaseName => ({
+                value: diseaseName,
+                label: diseaseName,
+                disabled: diseaseName === UNKNOWN_DISEASE_NAME,
+            })),
+        []
+    );
+
     const columns = useMemo<TableColumn[]>(
         () => [
-            { label: i18n.t("Disease"), value: "event", type: "text" },
+            {
+                label: i18n.t("Confirmed disease"),
+                value: "confirmedDisease",
+                type: "selector",
+                options: diseaseOptions,
+                disableSelection: (_row: Row) => !currentUser.canBeIncidentManager,
+            },
+            {
+                label: i18n.t("Suspected disease"),
+                value: "suspectedDisease",
+                type: "text",
+            },
             { label: i18n.t("Province"), value: "province", type: "text" },
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
@@ -140,12 +173,16 @@ export function useAlertsPerformanceOverview(): State {
                 label: i18n.t("Incident Status"),
                 value: "incidentStatus",
                 type: "selector",
-                options: incidentStatusOptions,
+                options: [...incidentStatusOptions, { value: "Completed", label: "Completed" }],
+                disableSelection: (row: Row) =>
+                    !currentUser.canBeIncidentManager ||
+                    !row.confirmedDisease ||
+                    row.confirmedDisease === "Unknown",
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
         ],
-        []
+        [currentUser.canBeIncidentManager, diseaseOptions]
     );
 
     const mapEntityToTableData = useCallback(
@@ -154,10 +191,8 @@ export function useAlertsPerformanceOverview(): State {
             allTeamMembers: TeamMember[]
         ): AlertsPerformanceOverviewMetricsTableData => {
             const incidentManager = allTeamMembers.find(tm => tm.name === data.incidentManager);
-
             return {
                 ...data,
-                event: data.suspectedDisease,
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
                 province: data.province.trim(),
@@ -202,6 +237,41 @@ export function useAlertsPerformanceOverview(): State {
         refreshAlertsPerformanceOverviewMetrics,
     ]);
 
+    const [completeModalState, updateCompleteModalState] = useState<{
+        isVisible: boolean;
+        alertId: Maybe<string>;
+    }>({ isVisible: false, alertId: undefined });
+    const openCompleteModal = useCallback(
+        (alertId: Id) => updateCompleteModalState({ isVisible: true, alertId: alertId }),
+        []
+    );
+    const closeCompleteModal = useCallback(
+        () => updateCompleteModalState({ isVisible: false, alertId: undefined }),
+        []
+    );
+
+    const completeAlert = useCallback(
+        (alertId: Maybe<Id>) => {
+            if (!alertId) return;
+
+            setIsLoading(true);
+            compositionRoot.performanceOverview.completeAlert.execute(alertId).run(
+                () => {
+                    snackbar.info("Alert completed successfully!");
+                    setRefreshAlertsPerformanceOverviewMetrics({}); //trigger reload of data
+                    setIsLoading(false);
+                    closeCompleteModal();
+                },
+                error => {
+                    snackbar.error(`Error while completing alert: ${error.message}`);
+                    setIsLoading(false);
+                    closeCompleteModal();
+                }
+            );
+        },
+        [closeCompleteModal, compositionRoot.performanceOverview.completeAlert, snackbar]
+    );
+
     const updateAlertIncidentStatus = useCallback(
         (alertId: Id, status: IncidentStatus) => {
             setIsLoading(true);
@@ -215,6 +285,26 @@ export function useAlertsPerformanceOverview(): State {
                     },
                     error => {
                         snackbar.error(`Error while updating PHEOC status : ${error.message}`);
+                        setIsLoading(false);
+                    }
+                );
+        },
+        [compositionRoot, snackbar]
+    );
+
+    const updateAlertConfirmedDisease = useCallback(
+        (alertId: Id, diseaseName: string) => {
+            setIsLoading(true);
+            compositionRoot.performanceOverview.updateAlertConfirmedDisease
+                .execute(alertId, diseaseName)
+                .run(
+                    () => {
+                        snackbar.info("Confirmed disease updated successfully!");
+                        setRefreshAlertsPerformanceOverviewMetrics({}); //trigger reload of data
+                        setIsLoading(false);
+                    },
+                    error => {
+                        snackbar.error(`Error while updating confirmed disease: ${error.message}`);
                         setIsLoading(false);
                     }
                 );
@@ -244,5 +334,10 @@ export function useAlertsPerformanceOverview(): State {
         setEventSourceSelected,
         hasEventSourceFilter: true,
         updateAlertIncidentStatus,
+        completeModalState,
+        completeAlert,
+        closeCompleteModal,
+        openCompleteModal,
+        updateAlertConfirmedDisease,
     };
 }

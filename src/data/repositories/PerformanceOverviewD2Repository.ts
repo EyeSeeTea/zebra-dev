@@ -16,7 +16,6 @@ import {
 } from "./consts/PerformanceOverviewConstants";
 import moment from "moment";
 import {
-    CasesDataSource,
     DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
@@ -569,13 +568,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.eventIBSId,
                                     performanceOverviewDimensions.nationalDiseaseOutbreakEventId,
                                     performanceOverviewDimensions.suspectedDisease,
-                                    performanceOverviewDimensions.cases,
-                                    performanceOverviewDimensions.deaths,
+                                    performanceOverviewDimensions.confirmedDisease,
+                                    performanceOverviewDimensions.cases, // cases is not shown in table as now cases data comes from Cases program
+                                    performanceOverviewDimensions.deaths, // deaths is not shown in table as now cases data comes from Cases program
                                     performanceOverviewDimensions.notify1d,
                                     performanceOverviewDimensions.detect7d,
                                     performanceOverviewDimensions.incidentManager,
                                     performanceOverviewDimensions.respond7d,
-                                    performanceOverviewDimensions.incidentStatus,
+                                    performanceOverviewDimensions.incidentStatus, // PHEOC status
                                     performanceOverviewDimensions.emergedDate,
                                     performanceOverviewDimensions.notifiedDate,
                                     performanceOverviewDimensions.respondedDate,
@@ -600,6 +600,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                         const index = response.headers.findIndex(
                                             header => header.name === dimension
                                         );
+
                                         if (dimension === "enrollmentdate") {
                                             const inputDate = row[index];
                                             const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
@@ -640,7 +641,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             const nameValue = Object.values(
                                                 response.metaData.items
                                             ).find(item => item.code === row[index])?.name;
-
+                                            // TODO: Check why name instead of code. Name is only needed in presentation layer but for filters we should use code
                                             return {
                                                 ...acc,
                                                 [dimensionKey]: nameValue || row[index],

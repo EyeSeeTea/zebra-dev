@@ -1,4 +1,3 @@
-import { OutbreakData } from "../../../domain/entities/alert/OutbreakAlert";
 import {
     CasesDataSource,
     DataSource,
@@ -111,7 +110,7 @@ export class DiseaseOutbreakEventTestRepository implements DiseaseOutbreakEventR
             },
         ]);
     }
-    getEventByDisease(_filter: OutbreakData): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
+    getAllActiveByDisease(_disease: Code): FutureData<DiseaseOutbreakEventBaseAttrs[]> {
         return Future.success([
             {
                 id: "1",

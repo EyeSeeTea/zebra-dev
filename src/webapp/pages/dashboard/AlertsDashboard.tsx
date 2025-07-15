@@ -29,6 +29,7 @@ import { Maybe } from "../../../utils/ts-utils";
 import { Option } from "../../components/utils/option";
 import { Id } from "../../../domain/entities/Ref";
 import { formatStatCardPreTitle } from "./NationalDashboard";
+import { CompleteEventModal } from "../event-tracker/CompleteEventModal";
 
 export type AlertsDashboardProps = {
     selectorFiltersConfig: SelectorFiltersConfig[];
@@ -64,8 +65,13 @@ export type AlertsDashboardProps = {
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
     updateAlertIncidentStatus: (alertId: Id, status: IncidentStatus) => void;
+    updateAlertConfirmedDisease: (alertId: Id, diseaseName: string) => void;
     performanceMetricsStatus: PerformanceMetricsStatus;
     setPerformanceMetricsStatus: (status: PerformanceMetricsStatus) => void;
+    completeModalState: { isVisible: boolean; alertId: Maybe<Id> };
+    completeAlert: (alertId: Maybe<Id>) => void;
+    closeCompleteModal: () => void;
+    openCompleteModal: (alertId: Id) => void;
 };
 
 export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props => {
@@ -85,8 +91,13 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
         setFilters,
         goToPage,
         updateAlertIncidentStatus,
+        updateAlertConfirmedDisease,
         performanceMetricsStatus,
         setPerformanceMetricsStatus,
+        completeAlert,
+        completeModalState,
+        closeCompleteModal,
+        openCompleteModal,
         ...restAlertsPerformanceOverview
     } = props;
 
@@ -104,16 +115,26 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     console.debug("Alert id cannot be null, not updating status");
                     return;
                 }
+                if (value === "Completed") {
+                    openCompleteModal(alertId);
+                    return;
+                }
                 if (!isIncidentStatus(value)) {
                     console.debug("Invalid incident status, not updating status");
                     return;
                 }
                 updateAlertIncidentStatus(alertId, value);
+            } else if (columnName === "confirmedDisease") {
+                if (!alertId) {
+                    console.debug("Alert id cannot be null, not updating confirmed disease");
+                    return;
+                }
+                updateAlertConfirmedDisease(alertId, value);
             } else {
                 console.debug(`Unhandled column edit :  ${columnName}`);
             }
         },
-        [updateAlertIncidentStatus]
+        [openCompleteModal, updateAlertConfirmedDisease, updateAlertIncidentStatus]
     );
 
     const performanceStatusOptions: Option<PerformanceMetricsStatus>[] = useMemo(() => {
@@ -238,6 +259,14 @@ export const AlertsDashboard: React.FC<AlertsDashboardProps> = React.memo(props 
                     />
                 </StatisticTableWrapper>
             </Section>
+            <CompleteEventModal
+                modalText={i18n.t(
+                    "Are you sure you want to complete this alert? This cannot be undone."
+                )}
+                openModal={completeModalState.isVisible}
+                onCloseModal={closeCompleteModal}
+                onCompleteClick={() => completeAlert(completeModalState.alertId)}
+            />
         </>
     );
 });
@@ -261,7 +290,7 @@ function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardAc
             setSingleSelectFilters("disease", cardCount.name);
             setFilters(prev => ({
                 ...prev,
-                event: [cardCount.name],
+                confirmedDisease: [cardCount.name],
             }));
         },
         [setFilters, setSingleSelectFilters]
@@ -299,7 +328,7 @@ function useAlertDashboardActions(props: AlertsDashboardProps): AlertDashboardAc
                 case "disease":
                     setFilters(prev => ({
                         ...prev,
-                        event: [value].filter(Boolean),
+                        confirmedDisease: [value].filter(Boolean),
                     }));
                     break;
                 default:
