@@ -13,6 +13,9 @@ export const useStatisticCalculations = (
     const calculateMedian = useCallback(
         (column: string) => {
             const values = getFilteredRowsByColumn(column).map(row => Number(row[column]));
+
+            if (!values.length) return 0;
+
             values.sort((a, b) => a - b);
             const mid = Math.floor(values.length / 2);
             return (

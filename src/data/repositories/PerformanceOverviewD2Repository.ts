@@ -584,6 +584,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.emergedDate,
                                     performanceOverviewDimensions.notifiedDate,
                                     performanceOverviewDimensions.respondedDate,
+                                    performanceOverviewDimensions.detectedDate,
                                 ],
                                 startDate: DEFAULT_START_DATE,
                                 endDate: DEFAULT_END_DATE,
@@ -642,6 +643,22 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                           ] || "National"
                                                         : "National",
                                             };
+                                        } else if (
+                                            dimensionKey === "detect7d" ||
+                                            dimensionKey === "notify1d" ||
+                                            dimensionKey === "respond7d"
+                                        ) {
+                                            return {
+                                                ...acc,
+                                                [dimensionKey]: this.getDetect7dNotify1dOrRespond7d(
+                                                    {
+                                                        dimensionKey,
+                                                        row,
+                                                        performanceOverviewDimensions,
+                                                        headers: response.headers,
+                                                    }
+                                                ),
+                                            };
                                         } else {
                                             const nameValue = Object.values(
                                                 response.metaData.items
@@ -667,6 +684,70 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     });
                 });
             });
+    }
+
+    private getDetect7dNotify1dOrRespond7d(params: {
+        dimensionKey: "detect7d" | "notify1d" | "respond7d";
+        headers: { name: string; column: string }[];
+        performanceOverviewDimensions: AlertsPerformanceOverviewDimensions;
+        row: string[];
+    }): string {
+        const { dimensionKey, row, performanceOverviewDimensions, headers } = params;
+
+        const hasNeededDates = this.checkDetect7dNotify1dOrRespond7dDates(params);
+
+        if (hasNeededDates) {
+            const dimension: AlertsPerformanceOverviewDimensionsValue =
+                performanceOverviewDimensions[
+                    dimensionKey as AlertsPerformanceOverviewDimensionsKey
+                ];
+
+            const index = headers.findIndex(header => header.name === dimension);
+
+            return row[index] || "";
+        } else {
+            return "";
+        }
+    }
+
+    private checkDetect7dNotify1dOrRespond7dDates(params: {
+        dimensionKey: "detect7d" | "notify1d" | "respond7d";
+        headers: { name: string; column: string }[];
+        performanceOverviewDimensions: AlertsPerformanceOverviewDimensions;
+        row: string[];
+    }): boolean {
+        const { dimensionKey, row, performanceOverviewDimensions, headers } = params;
+
+        const emergedDateDimension: AlertsPerformanceOverviewDimensionsValue =
+            performanceOverviewDimensions.emergedDate;
+        const notifiedDateDimension: AlertsPerformanceOverviewDimensionsValue =
+            performanceOverviewDimensions.notifiedDate;
+        const respondedDateDimension: AlertsPerformanceOverviewDimensionsValue =
+            performanceOverviewDimensions.respondedDate;
+        const detectedDateDimension: AlertsPerformanceOverviewDimensionsValue =
+            performanceOverviewDimensions.detectedDate;
+
+        const emergedDateIndex = headers.findIndex(header => header.name === emergedDateDimension);
+        const notifiedDateIndex = headers.findIndex(
+            header => header.name === notifiedDateDimension
+        );
+        const respondedDateIndex = headers.findIndex(
+            header => header.name === respondedDateDimension
+        );
+        const detectedDateIndex = headers.findIndex(
+            header => header.name === detectedDateDimension
+        );
+
+        switch (dimensionKey) {
+            case "detect7d":
+                return !!row[emergedDateIndex] && !!row[detectedDateIndex];
+            case "notify1d":
+                return !!row[detectedDateIndex] && !!row[notifiedDateIndex];
+            case "respond7d":
+                return !!row[respondedDateIndex] && !!row[notifiedDateIndex];
+            default:
+                return false;
+        }
     }
 
     private getAnalyticsByIndicators(ids: Id[]): FutureData<IdValue[]> {

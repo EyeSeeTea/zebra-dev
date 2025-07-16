@@ -20,6 +20,7 @@ export type AlertsPerformanceOverviewDimensions = {
     emergedDate: Id;
     notifiedDate: Id;
     respondedDate: Id;
+    detectedDate: Id;
 };
 
 export type AlertsPerformanceOverviewDimensionsKey = keyof AlertsPerformanceOverviewDimensions;
