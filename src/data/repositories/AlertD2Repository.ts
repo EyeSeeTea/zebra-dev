@@ -405,14 +405,20 @@ export class AlertD2Repository implements AlertRepository {
             })
         ).flatMap(alertTrackedEntities => {
             console.debug(
-                `[${new Date().toISOString()}] Mapping suspected disease with confirmed disease in alerts.`
+                `[${new Date().toISOString()}] ${alertTrackedEntities.length} active alerts found.`
+            );
+
+            console.debug(
+                `[${new Date().toISOString()}] Mapping confirmed disease in suspected disease in alerts with empty suspected disease`
             );
 
             const updatedAlertTrackedEntities =
                 this.mapSuspectedDiseaseWithConfirmedAndEmptyToUnknown(alertTrackedEntities);
 
             console.debug(
-                `[${new Date().toISOString()}] Saving updated alerts with suspected disease mapped to confirmed disease.`
+                `[${new Date().toISOString()}] Saving updated alerts with suspected disease mapped to confirmed disease. Total: ${
+                    updatedAlertTrackedEntities.length
+                }`
             );
 
             return apiToFuture(
