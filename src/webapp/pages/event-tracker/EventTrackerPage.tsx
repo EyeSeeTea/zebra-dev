@@ -124,8 +124,33 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 globalMessage={globalMessage}
                 isCasesDataUserDefined={isCasesDataUserDefined}
             />
+
+            <Section
+                title={i18n.t("7-1-7 performance")}
+                hasSeparator={true}
+                titleVariant="secondary"
+            >
+                <GridWrapper>
+                    {performanceMetrics717.map(
+                        (perfMetric: PerformanceMetric717, index: number) => (
+                            <StatsCard
+                                key={index}
+                                stat={`${perfMetric.primaryValue}`}
+                                title={perfMetric.title}
+                                color={perfMetric.color}
+                                fillParent
+                            />
+                        )
+                    )}
+                </GridWrapper>
+            </Section>
+
             <LoaderContainer loading={alertsPerformanceOverviewLoading}>
-                <Section title={i18n.t("Alerts")} hasSeparator={true} titleVariant="secondary">
+                <Section
+                    title={i18n.t("Associated District Events")}
+                    hasSeparator={true}
+                    titleVariant="secondary"
+                >
                     <StatisticTableWrapper>
                         <StatisticTable
                             rows={dataAlertsPerformanceOverview}
@@ -175,6 +200,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     />
                 </LoaderContainer>
             </Section>
+
             <Section
                 title={
                     riskAssessmentRows.length === 0
@@ -221,6 +247,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     </NoticeBox>
                 )}
             </Section>
+
             {riskAssessmentRows.length > 0 ? (
                 <Section
                     title={i18n.t("Risk Assessment Grade")}
@@ -311,25 +338,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     chartProp={chartsDataSourceFilter.value || "all"}
                 />
             </Section>
-            <Section
-                title={i18n.t("7-1-7 performance")}
-                hasSeparator={true}
-                titleVariant="secondary"
-            >
-                <GridWrapper>
-                    {performanceMetrics717.map(
-                        (perfMetric: PerformanceMetric717, index: number) => (
-                            <StatsCard
-                                key={index}
-                                stat={`${perfMetric.primaryValue}`}
-                                title={perfMetric.title}
-                                color={perfMetric.color}
-                                fillParent
-                            />
-                        )
-                    )}
-                </GridWrapper>
-            </Section>
+
             <CompleteEventModal
                 openModal={openCompleteModal}
                 onCloseModal={onCloseCompleteModal}

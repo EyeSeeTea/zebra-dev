@@ -49,6 +49,7 @@ import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { VerificationStatus } from "../../domain/entities/alert/Alert";
 import _c from "../../domain/entities/generic/Collection";
 import { getDateAsMonthYearString } from "./utils/DateTimeHelper";
+import { programStatusOptions } from "./utils/getAllTrackedEntities";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -411,22 +412,26 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     PERFORMANCE_OVERVIEW_DIMENSIONS_DATASTORE_KEY
                 ).flatMap(performanceOverviewDimensions => {
                     return apiToFuture(
-                        this.api.analytics.getEnrollmentsQuery({
-                            programId: RTSL_ZEBRA_PROGRAM_ID,
-                            dimension: [
-                                performanceOverviewDimensions.suspectedDisease,
-                                performanceOverviewDimensions.event,
-                                performanceOverviewDimensions.era1ProgramIndicator,
-                                performanceOverviewDimensions.era2ProgramIndicator,
-                                performanceOverviewDimensions.era3ProgramIndicator,
-                                performanceOverviewDimensions.era4ProgramIndicator,
-                                performanceOverviewDimensions.era5ProgramIndicator,
-                                performanceOverviewDimensions.era6ProgramIndicator,
-                                performanceOverviewDimensions.era7ProgramIndicator,
-                            ],
-                            startDate: DEFAULT_START_DATE,
-                            endDate: DEFAULT_END_DATE,
-                        })
+                        this.api.get<AnalyticsResponse>(
+                            `/analytics/enrollments/query/${RTSL_ZEBRA_PROGRAM_ID}`,
+                            {
+                                dimension: [
+                                    performanceOverviewDimensions.suspectedDisease,
+                                    performanceOverviewDimensions.event,
+                                    performanceOverviewDimensions.era1ProgramIndicator,
+                                    performanceOverviewDimensions.era2ProgramIndicator,
+                                    performanceOverviewDimensions.era3ProgramIndicator,
+                                    performanceOverviewDimensions.era4ProgramIndicator,
+                                    performanceOverviewDimensions.era5ProgramIndicator,
+                                    performanceOverviewDimensions.era6ProgramIndicator,
+                                    performanceOverviewDimensions.era7ProgramIndicator,
+                                ],
+                                startDate: DEFAULT_START_DATE,
+                                endDate: DEFAULT_END_DATE,
+                                paging: false,
+                                programStatus: programStatusOptions.ACTIVE,
+                            }
+                        )
                     ).flatMap(indicatorsProgramFuture => {
                         return this.getAllEventTrackerOverviewIdsFromDatastore().flatMap(
                             eventTrackerOverviews => {
@@ -583,7 +588,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                 startDate: DEFAULT_START_DATE,
                                 endDate: DEFAULT_END_DATE,
                                 paging: false,
-                                programStatus: "ACTIVE",
+                                programStatus: programStatusOptions.ACTIVE,
                                 filter: options.filter,
                             }
                         )
@@ -803,12 +808,16 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         return this.get717PerformanceIndicators("event").flatMap(
             performance717ProgramIndicators => {
                 return apiToFuture(
-                    this.api.analytics.getEnrollmentsQuery({
-                        programId: RTSL_ZEBRA_PROGRAM_ID,
-                        dimension: [...performance717ProgramIndicators.map(({ id }) => id)],
-                        startDate: DEFAULT_START_DATE,
-                        endDate: DEFAULT_END_DATE,
-                    })
+                    this.api.get<AnalyticsResponse>(
+                        `/analytics/enrollments/query/${RTSL_ZEBRA_PROGRAM_ID}`,
+                        {
+                            dimension: [...performance717ProgramIndicators.map(({ id }) => id)],
+                            startDate: DEFAULT_START_DATE,
+                            endDate: DEFAULT_END_DATE,
+                            paging: false,
+                            programStatus: programStatusOptions.ACTIVE,
+                        }
+                    )
                 ).flatMap(response => {
                     const filteredRow = filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
                         diseaseOutbreakEventId,

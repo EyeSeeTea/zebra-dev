@@ -92,8 +92,6 @@ export function useNationalPerformanceOverview(): State {
             { label: i18n.t("Deaths"), value: "deaths", type: "text" },
             { label: i18n.t("Duration"), value: "duration", type: "text" },
             { label: i18n.t("Manager"), value: "incidentManager", type: "text" },
-            { label: i18n.t("Detect 7d"), dark: true, value: "detect7d", type: "text" },
-            { label: i18n.t("Notify 1d"), dark: true, value: "notify1d", type: "text" },
             { label: i18n.t("ERA1"), value: "era1", type: "text" },
             { label: i18n.t("ERA2"), value: "era2", type: "text" },
             { label: i18n.t("ERA3"), value: "era3", type: "text" },
@@ -101,7 +99,6 @@ export function useNationalPerformanceOverview(): State {
             { label: i18n.t("ERA5"), value: "era5", type: "text" },
             { label: i18n.t("ERA6"), value: "era6", type: "text" },
             { label: i18n.t("ERA7"), value: "era7", type: "text" },
-            { label: i18n.t("Respond 7d"), dark: true, value: "respond7d", type: "text" },
             { label: i18n.t("Incident Status"), value: "nationalIncidentStatus", type: "text" },
         ],
         []
