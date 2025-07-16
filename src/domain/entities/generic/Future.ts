@@ -69,6 +69,14 @@ export class Future<E, D> {
         return new Future(() => this._promise().then(data => fn(data)._promise()));
     }
 
+    flatMapError<E2>(fn: (error: E) => Future<E2, D>): Future<E2, D> {
+        return new Future(() => {
+            return this._promise().catch((error: E) => {
+                return fn(error)._promise();
+            });
+        });
+    }
+
     chain<U, E>(fn: (data: D) => Future<U, E>): Future<U, E> {
         return this.flatMap(fn);
     }
