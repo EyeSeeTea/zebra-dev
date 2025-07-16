@@ -118,7 +118,8 @@
         "update-po": "yarn extract-pot && find i18n/ -name '*.po' -exec msgmerge --backup=off -U {} i18n/en.pot \\;",
         "prepare": "husky install",
         "script-example": "npx ts-node src/scripts/example.ts",
-        "script-map-outbreak-to-alerts": "npx ts-node -r dotenv/config src/scripts/mapDiseaseOutbreakToAlerts.ts --debug"
+        "script-map-outbreak-to-alerts": "npx ts-node -r dotenv/config src/scripts/mapDiseaseOutbreakToAlerts.ts --debug",
+        "script-map-confirmed-disease-to-suspected": "npx ts-node -r dotenv/config src/scripts/mapConfirmedDiseaseToSuspected.ts"
     },
     "manifest.webapp": {
         "name": "ZEBRA",

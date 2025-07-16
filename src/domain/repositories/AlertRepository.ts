@@ -21,6 +21,7 @@ export interface AlertRepository {
     ): FutureData<void>;
     getAlertsById(ids: Id[]): FutureData<Alert[]>;
     getAlertsByDiseaseOutbreakId(diseaseOutbreakId: Id): FutureData<Alert[]>;
+    updateAllSuspectedDiseaseWithConfirmed(): FutureData<void>;
 }
 
 export type AlertOptions = {

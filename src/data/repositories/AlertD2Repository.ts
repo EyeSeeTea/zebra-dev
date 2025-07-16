@@ -5,6 +5,7 @@ import {
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PHEOC_STATUS_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+    RTSL_ZEBRA_ALERTS_SUSPECTED_DISEASE_TEA_ID,
     RTSL_ZEBRA_ORG_UNIT_ID,
 } from "./consts/DiseaseOutbreakConstants";
 import {
@@ -17,7 +18,12 @@ import _ from "../../domain/entities/generic/Collection";
 import { Future } from "../../domain/entities/generic/Future";
 import { Attribute, D2TrackerTrackedEntity } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
 import { Maybe } from "../../utils/ts-utils";
-import { Alert, PHEOCStatus, VerificationStatus } from "../../domain/entities/alert/Alert";
+import {
+    Alert,
+    PHEOCStatus,
+    UNKNOWN_DISEASE_CODE,
+    VerificationStatus,
+} from "../../domain/entities/alert/Alert";
 import {
     getAllTrackedEntitiesAsync,
     ProgramStatus,
@@ -388,6 +394,146 @@ export class AlertD2Repository implements AlertRepository {
         });
     }
 
+    updateAllSuspectedDiseaseWithConfirmed(): FutureData<void> {
+        console.debug(`[${new Date().toISOString()}] Getting all active alerts.`);
+        return Future.fromPromise(
+            getAllTrackedEntitiesAsync(this.api, {
+                programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
+                orgUnitId: RTSL_ZEBRA_ORG_UNIT_ID,
+                ouMode: "DESCENDANTS",
+                programStatus: programStatusOptions.ACTIVE,
+            })
+        ).flatMap(alertTrackedEntities => {
+            console.debug(
+                `[${new Date().toISOString()}] Mapping suspected disease with confirmed disease in alerts.`
+            );
+
+            const updatedAlertTrackedEntities =
+                this.mapSuspectedDiseaseWithConfirmedAndEmptyToUnknown(alertTrackedEntities);
+
+            console.debug(
+                `[${new Date().toISOString()}] Saving updated alerts with suspected disease mapped to confirmed disease.`
+            );
+
+            return apiToFuture(
+                this.api.tracker.post(
+                    { importStrategy: "UPDATE" },
+                    { trackedEntities: updatedAlertTrackedEntities }
+                )
+            )
+                .flatMapError((error: unknown) => {
+                    const maybeResponse = (error as TrackerPostErrorResponse)?.response?.data;
+                    if (
+                        maybeResponse?.status === "ERROR" &&
+                        Array.isArray(maybeResponse?.validationReport?.errorReports)
+                    ) {
+                        const errorReports = maybeResponse.validationReport.errorReports;
+                        return Future.error(
+                            new Error(
+                                `Error saving updated alerts with suspected disease mapped to confirmed disease: ${errorReports
+                                    .map(e => e.message)
+                                    .join(", ")}`
+                            )
+                        );
+                    } else {
+                        return Future.error(
+                            new Error(
+                                `Error saving updated alerts with suspected disease mapped to confirmed disease: ${error}`
+                            )
+                        );
+                    }
+                })
+                .flatMap(saveResponse => {
+                    if (saveResponse.status === "ERROR") {
+                        return Future.error(
+                            new Error(
+                                `Error saving general AMC questionnaire: ${saveResponse.validationReport.errorReports
+                                    .map(e => e.message)
+                                    .join(", ")}`
+                            )
+                        );
+                    } else return Future.success(undefined);
+                });
+        });
+    }
+
+    private mapSuspectedDiseaseWithConfirmedAndEmptyToUnknown(
+        alertTrackedEntities: D2TrackerTrackedEntity[]
+    ): D2TrackerTrackedEntity[] {
+        return alertTrackedEntities.reduce(
+            (
+                updatedAlerts: D2TrackerTrackedEntity[],
+                alertTrackedEntity: D2TrackerTrackedEntity
+            ) => {
+                const confirmedDiseaseCode = getAlertValueFromMap(
+                    "confirmedDisease",
+                    alertTrackedEntity
+                );
+                const suspectedDiseaseCode = getAlertValueFromMap(
+                    "suspectedDisease",
+                    alertTrackedEntity
+                );
+
+                if (!!confirmedDiseaseCode && !suspectedDiseaseCode) {
+                    const restAttributes =
+                        alertTrackedEntity.attributes?.filter(
+                            attr => attr.attribute !== RTSL_ZEBRA_ALERTS_SUSPECTED_DISEASE_TEA_ID
+                        ) || [];
+
+                    const updatedAlert = {
+                        trackedEntity: alertTrackedEntity.trackedEntity,
+                        trackedEntityType: alertTrackedEntity.trackedEntityType,
+                        orgUnit: alertTrackedEntity.orgUnit,
+                        attributes: [
+                            ...restAttributes.map(attr => ({
+                                attribute: attr.attribute,
+                                value: attr.value,
+                            })),
+                            {
+                                attribute: RTSL_ZEBRA_ALERTS_SUSPECTED_DISEASE_TEA_ID,
+                                value: confirmedDiseaseCode,
+                            },
+                        ],
+                    };
+
+                    return [...updatedAlerts, updatedAlert];
+                } else if (!confirmedDiseaseCode && !suspectedDiseaseCode) {
+                    const restAttributes =
+                        alertTrackedEntity.attributes?.filter(
+                            attr =>
+                                attr.attribute !== RTSL_ZEBRA_ALERTS_SUSPECTED_DISEASE_TEA_ID &&
+                                attr.attribute !== RTSL_ZEBRA_ALERTS_CONFIRMED_DISEASE_TEA_ID
+                        ) || [];
+
+                    const updatedAlert = {
+                        trackedEntity: alertTrackedEntity.trackedEntity,
+                        trackedEntityType: alertTrackedEntity.trackedEntityType,
+                        orgUnit: alertTrackedEntity.orgUnit,
+                        attributes: [
+                            ...restAttributes.map(attr => ({
+                                attribute: attr.attribute,
+                                value: attr.value,
+                            })),
+                            {
+                                attribute: RTSL_ZEBRA_ALERTS_SUSPECTED_DISEASE_TEA_ID,
+                                value: UNKNOWN_DISEASE_CODE,
+                            },
+                            {
+                                attribute: RTSL_ZEBRA_ALERTS_CONFIRMED_DISEASE_TEA_ID,
+                                value: UNKNOWN_DISEASE_CODE,
+                            },
+                        ],
+                    };
+
+                    return [...updatedAlerts, updatedAlert];
+                } else {
+                    return updatedAlerts;
+                }
+            },
+            []
+        );
+    }
+
     private mapIncidentStatusToOption(status: IncidentStatus): string {
         return incidentStatusOptionMap.get(status) || "";
     }
@@ -478,3 +624,24 @@ const alertTrackerEntityFields = {
 } as const;
 
 type AlertTrackerEntityFields = Partial<typeof alertTrackerEntityFields>;
+
+type ErrorReport = {
+    message: string;
+    errorCode: string;
+    trackerType: string;
+    uid: string;
+};
+
+type TrackerPostErrorResponseData = {
+    status: "ERROR";
+    validationReport: {
+        errorReports: ErrorReport[];
+    };
+};
+
+type TrackerPostErrorResponse = {
+    request: unknown;
+    response: {
+        data: TrackerPostErrorResponseData;
+    };
+};
