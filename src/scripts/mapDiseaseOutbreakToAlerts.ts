@@ -13,6 +13,7 @@ import { DiseaseOutbreakEventD2Repository } from "../data/repositories/DiseaseOu
 import { ConfigurationsD2Repository } from "../data/repositories/ConfigurationsD2Repository";
 import { Future } from "../domain/entities/generic/Future";
 import { DataStoreClient } from "../data/DataStoreClient";
+import logger from "../utils/console-logger";
 
 function main() {
     const cmd = command({
@@ -27,7 +28,7 @@ function main() {
             }),
         },
         handler: async args => {
-            console.debug(`[${new Date().toISOString()}] Starting mapping script.`);
+            logger.info(`Starting mapping script.`);
             const { api, instance } = getApiInstanceFromEnvVariables();
             const dataStoreClient = new DataStoreClient(api);
 
@@ -53,16 +54,11 @@ function main() {
                 .flatMap(() => mapAndSaveAlertsUseCase.execute())
                 .run(
                     () => {
-                        console.debug(
-                            `[${new Date().toISOString()}] Mapping script completed successfully.`
-                        );
+                        logger.info(`Mapping script completed successfully.`);
                         process.exit(0);
                     },
                     error => {
-                        console.error(
-                            `[${new Date().toISOString()}] Error during mapping script:`,
-                            error
-                        );
+                        logger.error(`Error during mapping script: ${error}`);
                         process.exit(1);
                     }
                 );

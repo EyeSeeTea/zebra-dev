@@ -33,6 +33,7 @@ import { getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
 import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { assertOrError } from "./utils/AssertOrError";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
+import logger from "../../utils/console-logger";
 
 const incidentStatusOptionMap = new Map<IncidentStatus, string>([
     ["Alert", "PHEOC_STATUS_ALERT"],
@@ -395,7 +396,7 @@ export class AlertD2Repository implements AlertRepository {
     }
 
     updateAllSuspectedDiseaseWithConfirmed(): FutureData<void> {
-        console.debug(`[${new Date().toISOString()}] Getting all active alerts.`);
+        logger.info(`Getting all active alerts.`);
         return Future.fromPromise(
             getAllTrackedEntitiesAsync(this.api, {
                 programId: RTSL_ZEBRA_ALERTS_PROGRAM_ID,
@@ -404,21 +405,17 @@ export class AlertD2Repository implements AlertRepository {
                 programStatus: programStatusOptions.ACTIVE,
             })
         ).flatMap(alertTrackedEntities => {
-            console.debug(
-                `[${new Date().toISOString()}] ${alertTrackedEntities.length} active alerts found.`
-            );
+            logger.info(`${alertTrackedEntities.length} active alerts found.`);
 
-            console.debug(
-                `[${new Date().toISOString()}] Mapping confirmed disease in suspected disease in alerts with empty suspected disease`
+            logger.info(
+                `Mapping confirmed disease in suspected disease in alerts with empty suspected disease`
             );
 
             const updatedAlertTrackedEntities =
                 this.mapSuspectedDiseaseWithConfirmedAndEmptyToUnknown(alertTrackedEntities);
 
-            console.debug(
-                `[${new Date().toISOString()}] Saving updated alerts with suspected disease mapped to confirmed disease. Total: ${
-                    updatedAlertTrackedEntities.length
-                }`
+            logger.info(
+                `Saving updated alerts with suspected disease mapped to confirmed disease. Total: ${updatedAlertTrackedEntities.length}`
             );
 
             return apiToFuture(
@@ -453,7 +450,7 @@ export class AlertD2Repository implements AlertRepository {
                     if (saveResponse.status === "ERROR") {
                         return Future.error(
                             new Error(
-                                `Error saving general AMC questionnaire: ${saveResponse.validationReport.errorReports
+                                `Error saving updated alerts with suspected disease mapped to confirmed disease: ${saveResponse.validationReport.errorReports
                                     .map(e => e.message)
                                     .join(", ")}`
                             )
@@ -480,6 +477,12 @@ export class AlertD2Repository implements AlertRepository {
                     alertTrackedEntity
                 );
 
+                const updatedAlertBase = {
+                    trackedEntity: alertTrackedEntity.trackedEntity,
+                    trackedEntityType: alertTrackedEntity.trackedEntityType,
+                    orgUnit: alertTrackedEntity.orgUnit,
+                };
+
                 if (!!confirmedDiseaseCode && !suspectedDiseaseCode) {
                     const restAttributes =
                         alertTrackedEntity.attributes?.filter(
@@ -487,9 +490,7 @@ export class AlertD2Repository implements AlertRepository {
                         ) || [];
 
                     const updatedAlert = {
-                        trackedEntity: alertTrackedEntity.trackedEntity,
-                        trackedEntityType: alertTrackedEntity.trackedEntityType,
-                        orgUnit: alertTrackedEntity.orgUnit,
+                        ...updatedAlertBase,
                         attributes: [
                             ...restAttributes.map(attr => ({
                                 attribute: attr.attribute,
@@ -512,9 +513,7 @@ export class AlertD2Repository implements AlertRepository {
                         ) || [];
 
                     const updatedAlert = {
-                        trackedEntity: alertTrackedEntity.trackedEntity,
-                        trackedEntityType: alertTrackedEntity.trackedEntityType,
-                        orgUnit: alertTrackedEntity.orgUnit,
+                        ...updatedAlertBase,
                         attributes: [
                             ...restAttributes.map(attr => ({
                                 attribute: attr.attribute,

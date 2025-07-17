@@ -74,3 +74,10 @@ export function recordOf<T>() {
 export function assertUnreachable(value: never, message = `Invalid union value: ${value}`) {
     throw new Error(message);
 }
+
+export function isElementOfUnion<Union extends string>(
+    value: string,
+    values: readonly Union[]
+): value is Union {
+    return (values as readonly string[]).includes(value);
+}
