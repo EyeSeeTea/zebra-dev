@@ -17,7 +17,7 @@ import LoaderContainer from "../../components/loader/LoaderContainer";
 import { useMapFilters } from "./useMapFilters";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 import { NoticeBox } from "../../components/notice-box/NoticeBox";
-import { PerformanceMetric717, use717Performance } from "../dashboard/use717Performance";
+import { PerformanceMetric717 } from "../dashboard/use717Performance";
 import { GridWrapper, StyledStatsCard } from "../dashboard/DashboardPage";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
@@ -91,11 +91,8 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
-    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance({
-        type: "event",
-        diseaseOutbreakEventId: id,
-    });
     const {
+        performanceMetrics717,
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
         isLoading: alertsPerformanceOverviewLoading,
