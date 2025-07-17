@@ -42,7 +42,7 @@ function main() {
                 );
             } catch (err) {
                 logger.error(
-                    `[${new Date().toISOString()}] Error occurred while mapping confirmed disease to suspected disease: ${
+                    `Error occurred while mapping confirmed disease to suspected disease: ${
                         err instanceof Error ? err.message : String(err)
                     }`
                 );
