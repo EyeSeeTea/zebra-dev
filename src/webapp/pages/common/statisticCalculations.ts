@@ -8,6 +8,6 @@ export function calculateMedian(values: number[]) {
     if (sorted.length % 2 !== 0) {
         return sorted[mid] || 0;
     } else {
-        return ((values[mid - 1] || 0) + (values[mid] || 0)) / 2 || 0;
+        return ((sorted[mid - 1] || 0) + (sorted[mid] || 0)) / 2 || 0;
     }
 }
