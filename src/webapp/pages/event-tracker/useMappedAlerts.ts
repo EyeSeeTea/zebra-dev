@@ -150,11 +150,12 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
                     .map(row => Number(row[columnKey]))
                     .filter(value => !isNaN(value));
 
+                const value = calculateMedian(values);
                 return {
                     title: i18n.t(metricKey),
-                    primaryValue: calculateMedian(values),
-                    secondaryValue: 0,
-                    color: getColor(metricKey, 0, "event"),
+                    primaryValue: value,
+                    secondaryValue: 0, // Not used in these metrics
+                    color: getColor(metricKey, value, "event"),
                 };
             });
         },

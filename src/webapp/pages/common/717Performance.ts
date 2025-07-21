@@ -35,11 +35,10 @@ export function getColor(
     } else {
         switch (key) {
             case DAYS_DETECTION:
+            case DAYS_RESPONSE:
                 return value === "Inc" ? "red" : value <= 7 ? "green" : "red";
             case DAYS_NOTIFICATION:
                 return value === "Inc" ? "red" : value <= 1 ? "green" : "red";
-            case DAYS_RESPONSE:
-                return value === "Inc" ? "red" : value <= 7 ? "green" : "red";
         }
     }
 }
