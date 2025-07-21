@@ -62,6 +62,9 @@ export const responseActionConstants = {
     dueDate: "RTSL_ZEB_DET_DUE_DATE",
     status: "RTSL_ZEB_DET_STATUS",
     verification: "RTSL_ZEB_DET_VERIFICATION",
+    comments: "RTSL_ZEB_DET_COMMENTS",
+    blockers: "RTSL_ZEB_DET_BLOCKERS",
+    enablers: "RTSL_ZEB_DET_ENABLERS",
 } as const;
 
 export type ResponseActionCodes = GetValue<typeof responseActionConstants>;
@@ -128,5 +131,8 @@ export function getValueFromIncidentResponseAction(
         RTSL_ZEB_DET_DUE_DATE: incidentResponseAction.dueDate.toISOString(),
         RTSL_ZEB_DET_STATUS: incidentResponseAction.status,
         RTSL_ZEB_DET_VERIFICATION: incidentResponseAction.verification,
+        RTSL_ZEB_DET_COMMENTS: incidentResponseAction.comments || "",
+        RTSL_ZEB_DET_BLOCKERS: incidentResponseAction.blockers || "",
+        RTSL_ZEB_DET_ENABLERS: incidentResponseAction.enablers || "",
     };
 }

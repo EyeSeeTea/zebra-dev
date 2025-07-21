@@ -63,6 +63,9 @@ export const incidentResponseActionsIds = {
     timeLine: "xvWvQ3K1GVA",
     status: "mUR4eNxgAwg",
     verification: "M62NkbKXhqZ",
+    comments: "rq9gzEbcXuN",
+    blockers: "aooGA9D9v09",
+    enablers: "oHYnYMbgTJh",
 };
 
 export type IncidentResponseActionDataValues = {
@@ -74,6 +77,9 @@ export type IncidentResponseActionDataValues = {
     dueDate: Maybe<string>;
     status: Maybe<Status>;
     verification: Maybe<Verification>;
+    comments: Maybe<string>;
+    blockers: Maybe<string>;
+    enablers: Maybe<string>;
 };
 
 export class IncidentActionD2Repository implements IncidentActionRepository {

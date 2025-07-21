@@ -84,6 +84,9 @@ export function mapDataElementsToIncidentResponseActions(
             dataValues,
             incidentResponseActionsIds.verification
         ) as Verification;
+        const comments = getValueById(dataValues, incidentResponseActionsIds.comments);
+        const blockers = getValueById(dataValues, incidentResponseActionsIds.blockers);
+        const enablers = getValueById(dataValues, incidentResponseActionsIds.enablers);
 
         return {
             id: event,
@@ -94,6 +97,9 @@ export function mapDataElementsToIncidentResponseActions(
             dueDate,
             status,
             verification,
+            comments,
+            blockers,
+            enablers,
         };
     });
 
