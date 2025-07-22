@@ -124,19 +124,33 @@ export function mapFormStateToIncidentResponseAction(
     formState: FormState,
     formData: SingleResponseActionFormData
 ): ResponseAction {
+    const section = formState.sections[0];
+    if (!section) throw new Error("No section found in form state");
+
+    const sectionIndex = extractIndex(section.id);
     const allFields: FormFieldState[] = getAllFieldsFromSections(formState.sections);
 
-    const mainTask = getStringFieldValue(responseActionConstants.mainTask, allFields);
+    const mainTask = getStringFieldValue(
+        `${responseActionConstants.mainTask}_${sectionIndex}`,
+        allFields
+    );
 
-    const subActivities = getStringFieldValue(responseActionConstants.subActivities, allFields);
+    const subActivities = getStringFieldValue(
+        `${responseActionConstants.subActivities}_${sectionIndex}`,
+        allFields
+    );
 
-    const subPillar = getStringFieldValue(responseActionConstants.subPillar, allFields);
+    const subPillar = getStringFieldValue(
+        `${responseActionConstants.subPillar}_${sectionIndex}`,
+        allFields
+    );
 
-    const dueDate = allFields.find(field => field.id.includes(responseActionConstants.dueDate))
-        ?.value as Date;
+    const dueDate = allFields.find(field =>
+        field.id.includes(`${responseActionConstants.dueDate}_${sectionIndex}`)
+    )?.value as Date;
 
     const searchAssignROValue = getStringFieldValue(
-        responseActionConstants.searchAssignRO,
+        `${responseActionConstants.searchAssignRO}_${sectionIndex}`,
         allFields
     );
 
@@ -145,12 +159,18 @@ export function mapFormStateToIncidentResponseAction(
     );
     if (!searchAssignRO) throw new Error("Responsible officer not found");
 
-    const statusValue = getStringFieldValue(responseActionConstants.status, allFields);
+    const statusValue = getStringFieldValue(
+        `${responseActionConstants.status}_${sectionIndex}`,
+        allFields
+    );
 
     const status = formData.options.status.find(option => option.id === statusValue);
     if (!status) throw new Error("Status not found");
 
-    const verificationValue = getStringFieldValue(responseActionConstants.verification, allFields);
+    const verificationValue = getStringFieldValue(
+        `${responseActionConstants.verification}_${sectionIndex}`,
+        allFields
+    );
 
     const verification = formData.options.verification.find(
         option => option.id === verificationValue
@@ -161,11 +181,20 @@ export function mapFormStateToIncidentResponseAction(
 
     if (!verification) throw new Error("Verification not found");
 
-    const comments = getStringFieldValue(responseActionConstants.comments, allFields);
+    const comments = getStringFieldValue(
+        `${responseActionConstants.comments}_${sectionIndex}`,
+        allFields
+    );
 
-    const blockers = getStringFieldValue(responseActionConstants.blockers, allFields);
+    const blockers = getStringFieldValue(
+        `${responseActionConstants.blockers}_${sectionIndex}`,
+        allFields
+    );
 
-    const enablers = getStringFieldValue(responseActionConstants.enablers, allFields);
+    const enablers = getStringFieldValue(
+        `${responseActionConstants.enablers}_${sectionIndex}`,
+        allFields
+    );
 
     const responseAction = new ResponseAction({
         id: formData.entity?.id ?? "",
