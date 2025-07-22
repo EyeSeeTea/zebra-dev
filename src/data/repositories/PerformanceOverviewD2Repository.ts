@@ -596,22 +596,12 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     ).flatMap(response => {
                         const mappedIndicators: AlertsPerformanceOverviewMetrics[] = response.rows
                             .map((row: string[]) => {
-                                const isAlertsPerformanceOverviewDimensionsKey = (
-                                    key: string
-                                ): key is keyof typeof performanceOverviewDimensions => {
-                                    return key in performanceOverviewDimensions;
-                                };
-
                                 return Object.keys(performanceOverviewDimensions).reduce(
                                     (acc, dimensionKey) => {
-                                        if (
-                                            !isAlertsPerformanceOverviewDimensionsKey(dimensionKey)
-                                        ) {
-                                            return acc;
-                                        }
-
                                         const dimension: AlertsPerformanceOverviewDimensionsValue =
-                                            performanceOverviewDimensions[dimensionKey];
+                                            performanceOverviewDimensions[
+                                                dimensionKey as AlertsPerformanceOverviewDimensionsKey
+                                            ];
 
                                         const index = response.headers.findIndex(
                                             header => header.name === dimension
@@ -708,9 +698,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
         if (hasNeededDates) {
             const dimension: AlertsPerformanceOverviewDimensionsValue =
-                performanceOverviewDimensions[
-                    dimensionKey as AlertsPerformanceOverviewDimensionsKey
-                ];
+                performanceOverviewDimensions[dimensionKey];
 
             const index = headers.findIndex(header => header.name === dimension);
 
