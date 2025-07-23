@@ -7,13 +7,13 @@ export type AlertsPerformanceOverviewMetrics = {
     eventEBSId: Id;
     eventIBSId: Id;
     nationalDiseaseOutbreakEventId: Id;
+    confirmedDisease: string;
     suspectedDisease: string;
     province: string;
     orgUnit: string;
     orgUnitType: OrgUnitLevelType;
     cases: string;
     deaths: string;
-    duration: string;
     date: string;
     detect7d: string;
     notify1d: string;
@@ -21,4 +21,7 @@ export type AlertsPerformanceOverviewMetrics = {
     respond7d: string;
     incidentStatus: string;
     eventSource: AlertDataSourceCode;
+    emergedDate: string;
+    notifiedDate: string;
+    respondedDate: string;
 };

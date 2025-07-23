@@ -68,20 +68,32 @@ export function usePerformanceOverviewTable<T>(
 
     useEffect(() => {
         if (filteredData.length && order) {
-            setData(prevData => {
-                const sortedData = _(prevData)
+            setData(prevData =>
+                _(prevData)
                     .orderBy([
                         [
-                            item =>
-                                Number.isNaN(Number(item[order.name]))
-                                    ? item[order.name]
-                                    : Number(item[order.name]),
+                            item => {
+                                const value = item[order.name];
+                                const isEmpty =
+                                    value === "" || value === null || value === undefined;
+                                const isAscOrder = order.direction === "asc";
+
+                                return isEmpty ? (isAscOrder ? 1 : 0) : isAscOrder ? 0 : 1;
+                            },
+                            "asc",
+                        ],
+                        [
+                            item => {
+                                const value = item[order.name];
+                                const numValue = Number(value);
+
+                                return Number.isNaN(numValue) ? value : numValue;
+                            },
                             order.direction,
                         ],
                     ])
-                    .toArray();
-                return sortedData;
-            });
+                    .toArray()
+            );
         }
     }, [filteredData.length, order]);
 

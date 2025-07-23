@@ -46,6 +46,7 @@ import { VerificationStatus } from "../../domain/entities/alert/Alert";
 import _c from "../../domain/entities/generic/Collection";
 import { alertDataSourceCodes } from "../../domain/entities/alert/AlertDataSource";
 import { DataSourceCode } from "../../domain/entities/DataSource";
+import { getDateAsMonthYearString } from "./utils/DateTimeHelper";
 
 const formatDate = (date: Date): string => {
     const year = date.getFullYear();
@@ -565,14 +566,17 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.eventIBSId,
                                     performanceOverviewDimensions.nationalDiseaseOutbreakEventId,
                                     performanceOverviewDimensions.suspectedDisease,
-                                    performanceOverviewDimensions.cases,
-                                    performanceOverviewDimensions.deaths,
+                                    performanceOverviewDimensions.confirmedDisease,
+                                    performanceOverviewDimensions.cases, // cases is not shown in table as now cases data comes from Cases program
+                                    performanceOverviewDimensions.deaths, // deaths is not shown in table as now cases data comes from Cases program
                                     performanceOverviewDimensions.notify1d,
                                     performanceOverviewDimensions.detect7d,
                                     performanceOverviewDimensions.incidentManager,
                                     performanceOverviewDimensions.respond7d,
-                                    performanceOverviewDimensions.incidentStatus,
+                                    performanceOverviewDimensions.incidentStatus, // PHEOC status
                                     performanceOverviewDimensions.emergedDate,
+                                    performanceOverviewDimensions.notifiedDate,
+                                    performanceOverviewDimensions.respondedDate,
                                 ],
                                 startDate: DEFAULT_START_DATE,
                                 endDate: DEFAULT_END_DATE,
@@ -594,6 +598,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                         const index = response.headers.findIndex(
                                             header => header.name === dimension
                                         );
+
                                         if (dimension === "enrollmentdate") {
                                             const inputDate = row[index];
                                             const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
@@ -601,16 +606,19 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 ...acc,
                                                 [dimensionKey]: formattedDate,
                                             };
-                                        } else if (dimensionKey === "emergedDate") {
-                                            const duration = row[index]
-                                                ? `${moment()
-                                                      .diff(moment(row[index]), "days")
-                                                      .toString()}d`
-                                                : "";
-
+                                        } else if (
+                                            [
+                                                "emergedDate",
+                                                "notifiedDate",
+                                                "respondedDate",
+                                            ].includes(dimensionKey)
+                                        ) {
+                                            const inputDate = row[index];
                                             return {
                                                 ...acc,
-                                                duration: duration,
+                                                [dimensionKey]: inputDate
+                                                    ? getDateAsMonthYearString(new Date(inputDate))
+                                                    : null,
                                             };
                                         } else if (dimension === "ounamehierarchy") {
                                             const hierarchyArray = row[index]?.split("/");
@@ -631,7 +639,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             const nameValue = Object.values(
                                                 response.metaData.items
                                             ).find(item => item.code === row[index])?.name;
-
+                                            // TODO: Check why name instead of code. Name is only needed in presentation layer but for filters we should use code
                                             return {
                                                 ...acc,
                                                 [dimensionKey]: nameValue || row[index],

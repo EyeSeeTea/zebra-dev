@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-06-11T12:01:49.186Z\n"
-"PO-Revision-Date: 2025-06-11T12:01:49.186Z\n"
+"POT-Creation-Date: 2025-07-15T07:39:28.840Z\n"
+"PO-Revision-Date: 2025-07-15T07:39:28.840Z\n"
 
 msgid "Low"
 msgstr ""
@@ -216,6 +216,9 @@ msgstr ""
 msgid "Performance overview"
 msgstr ""
 
+msgid "Are you sure you want to complete this alert? This cannot be undone."
+msgstr ""
+
 msgid "eIDSR Alerts Dashboard"
 msgstr ""
 
@@ -231,10 +234,25 @@ msgstr ""
 msgid "Province"
 msgstr ""
 
+msgid "Confirmed disease"
+msgstr ""
+
+msgid "Suspected disease"
+msgstr ""
+
 msgid "Organisation unit"
 msgstr ""
 
 msgid "Organisation unit type"
+msgstr ""
+
+msgid "Emergence Date"
+msgstr ""
+
+msgid "Notification Date"
+msgstr ""
+
+msgid "Response Date"
 msgstr ""
 
 msgid "Manager"
@@ -288,6 +306,18 @@ msgstr ""
 msgid "ERA7"
 msgstr ""
 
+msgid "Complete event"
+msgstr ""
+
+msgid "Not now"
+msgstr ""
+
+msgid "Complete"
+msgstr ""
+
+msgid "Are you sure you want to complete this Event? This cannot be undone."
+msgstr ""
+
 msgid "Event Tracker"
 msgstr ""
 
@@ -334,18 +364,6 @@ msgid "Overview"
 msgstr ""
 
 msgid "Cases and Deaths"
-msgstr ""
-
-msgid "Complete event"
-msgstr ""
-
-msgid "Not now"
-msgstr ""
-
-msgid "Complete"
-msgstr ""
-
-msgid "Are you sure you want to complete this Event? This cannot be undone."
 msgstr ""
 
 msgid "Overall Risk"

@@ -109,6 +109,8 @@ import { DataSourceRepository } from "./domain/repositories/DataSourceRepository
 import { DataSourceD2Repository } from "./data/repositories/DataSourceD2Repository";
 import { DataSourceTestRepository } from "./data/repositories/test/DataSourceTestRepository";
 import { GetDataSourcesUseCase } from "./domain/usecases/GetDataSourcesUseCase";
+import { CompleteAlertUseCase } from "./domain/usecases/CompleteAlertUseCase";
+import { UpdateAlertConfirmedDiseaseUseCase } from "./domain/usecases/UpdateAlertConfirmedDiseaseUseCase";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -188,6 +190,8 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.performanceOverviewRepository
             ),
             updateAlertIncidentStatus: new UpdateAlertPHEOCStatusUseCase(repositories),
+            completeAlert: new CompleteAlertUseCase(repositories),
+            updateAlertConfirmedDisease: new UpdateAlertConfirmedDiseaseUseCase(repositories),
         },
         maps: {
             getConfig: new GetMapConfigUseCase(repositories.mapConfigRepository),

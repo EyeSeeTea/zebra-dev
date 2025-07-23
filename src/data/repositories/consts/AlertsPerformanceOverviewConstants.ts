@@ -6,6 +6,7 @@ export type AlertsPerformanceOverviewDimensions = {
     eventIBSId: Id;
     nationalDiseaseOutbreakEventId: Id;
     suspectedDisease: Id;
+    confirmedDisease: Id;
     orgUnit: "ouname";
     orgUnitHierarchy: "ounamehierarchy";
     cases: Id;
@@ -17,6 +18,8 @@ export type AlertsPerformanceOverviewDimensions = {
     respond7d: Id;
     incidentStatus: Id;
     emergedDate: Id;
+    notifiedDate: Id;
+    respondedDate: Id;
 };
 
 export type AlertsPerformanceOverviewDimensionsKey = keyof AlertsPerformanceOverviewDimensions;

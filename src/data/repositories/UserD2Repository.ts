@@ -6,6 +6,8 @@ import { apiToFuture, FutureData } from "../api-futures";
 import { DataStoreClient } from "../DataStoreClient";
 import { DatastorePermissionsSettings } from "../entities/DatastorePermissionsSettings";
 
+const RTSL_ZEBRA_INCIDENT_MANAGER_CODE = "RTSL_ZEBRA_INCIDENTMANAGER";
+
 export class UserD2Repository implements UserRepository {
     constructor(private api: D2Api, private dataStoreClient: DataStoreClient) {}
 
@@ -45,6 +47,9 @@ export class UserD2Repository implements UserRepository {
                     (permissionsSettings?.userGroups.admin.includes(id) ||
                         permissionsSettings?.userGroups.visualizer.includes(id)) ??
                     false,
+                canBeIncidentManager: d2User.userGroups.some(
+                    ({ code }) => code === RTSL_ZEBRA_INCIDENT_MANAGER_CODE
+                ),
             })),
             ...d2User.userCredentials,
         });
@@ -54,7 +59,7 @@ export class UserD2Repository implements UserRepository {
 const userFields = {
     id: true,
     displayName: true,
-    userGroups: { id: true, name: true },
+    userGroups: { id: true, name: true, code: true },
     userCredentials: {
         username: true,
         userRoles: { id: true, name: true, authorities: true },

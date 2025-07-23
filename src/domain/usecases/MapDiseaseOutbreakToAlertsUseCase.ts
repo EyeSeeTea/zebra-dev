@@ -26,14 +26,14 @@ export class MapDiseaseOutbreakToAlertsUseCase {
             return Future.error(new Error("Disease Outbreak Event Id is required"));
 
         const outbreakKey = getOutbreakKey({
-            outbreakValue: suspectedDiseaseCode,
-            suspectedDiseases: suspectedDiseases,
+            diseaseCode: suspectedDiseaseCode,
+            diseaseOptions: suspectedDiseases,
         });
 
         return this.alertRepository
-            .updateAlerts({
-                eventId: diseaseOutbreakEventId,
-                outbreakValue: suspectedDiseaseCode,
+            .updateActiveVerifiedRespondAlerts({
+                diseaseOutbreakEventId: diseaseOutbreakEventId,
+                diseaseCode: suspectedDiseaseCode,
             })
             .flatMap((alerts: Alert[]) =>
                 Future.sequential(

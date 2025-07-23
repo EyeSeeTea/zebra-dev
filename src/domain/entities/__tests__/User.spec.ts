@@ -22,6 +22,7 @@ describe("User", () => {
                 hasAdminAccess: true,
                 hasCaptureAccess: false,
                 hasVisualizerAccess: false,
+                canBeIncidentManager: false,
             },
         ]);
 
@@ -38,6 +39,7 @@ describe("User", () => {
                 hasAdminAccess: true,
                 hasCaptureAccess: false,
                 hasVisualizerAccess: false,
+                canBeIncidentManager: false,
             },
         ]);
 

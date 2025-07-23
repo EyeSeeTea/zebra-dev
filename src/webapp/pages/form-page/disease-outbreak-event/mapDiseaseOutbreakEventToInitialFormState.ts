@@ -11,9 +11,12 @@ import {
     mapCodeNameRefToPresentationOptions,
     mapToPresentationOptions,
 } from "../mapEntityToFormState";
-import { DiseaseNames } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { MainSyndrome } from "../../../../domain/entities/disease-outbreak-event/MainSyndrome";
 import { NotificationSource } from "../../../../domain/entities/disease-outbreak-event/NotificationSources";
+import {
+    DiseaseNames,
+    UNKNOWN_DISEASE_NAME,
+} from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
 export const diseaseOutbreakEventFieldIds = {
     name: "name",
@@ -138,7 +141,10 @@ function getInitialFormStateForDiseaseOutbreakEvent(params: {
     //If An Event Tracker has already been created for a given suspected disease or harzd type,
     //then do not allow to create another one. Remove it from dropwdown options
     const filteredSuspectedDiseases = suspectedDiseases.filter(suspectedDisease => {
-        return !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames);
+        return (
+            !existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames) &&
+            suspectedDisease.name !== UNKNOWN_DISEASE_NAME
+        );
     });
 
     const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));

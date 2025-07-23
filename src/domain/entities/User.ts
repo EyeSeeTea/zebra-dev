@@ -7,6 +7,7 @@ export type UserGroupPermissions = NamedRef & {
     hasAdminAccess: boolean;
     hasCaptureAccess: boolean;
     hasVisualizerAccess: boolean;
+    canBeIncidentManager: boolean;
 };
 
 export interface UserAttrs {
@@ -40,5 +41,9 @@ export class User extends Struct<UserAttrs>() {
 
     hasDataVisualizerAccess(): boolean {
         return this.userGroups.some(({ hasVisualizerAccess }) => hasVisualizerAccess);
+    }
+
+    canBeIncidentManager(): boolean {
+        return this.userGroups.some(({ canBeIncidentManager }) => canBeIncidentManager);
     }
 }
