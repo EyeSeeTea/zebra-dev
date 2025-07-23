@@ -3,13 +3,23 @@ import { CompositionRoot } from "../../CompositionRoot";
 import { User } from "../../domain/entities/User";
 import { D2Api } from "../../types/d2-api";
 import { Configurations } from "../../domain/entities/AppConfigurations";
+import { AlertDataSource } from "../../domain/entities/alert/AlertDataSource";
+import { MainSyndrome } from "../../domain/entities/disease-outbreak-event/MainSyndrome";
+import { AppSettings } from "../../domain/entities/AppSettings";
+import { NotificationSource } from "../../domain/entities/disease-outbreak-event/NotificationSources";
+import { DataSource } from "../../domain/entities/DataSource";
 
 export interface AppContextState {
     api: D2Api;
     isDev: boolean;
     currentUser: User;
     compositionRoot: CompositionRoot;
+    appSettings: AppSettings;
     configurations: Configurations;
+    alertDataSources: AlertDataSource[];
+    mainSyndromes: MainSyndrome[];
+    notificationSources: NotificationSource[];
+    dataSources: DataSource[];
 }
 
 export const AppContext = React.createContext<AppContextState | null>(null);

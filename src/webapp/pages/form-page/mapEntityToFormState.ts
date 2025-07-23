@@ -1,7 +1,8 @@
 import { ConfigurableForm } from "../../../domain/entities/ConfigurableForm";
+import { MainSyndrome } from "../../../domain/entities/disease-outbreak-event/MainSyndrome";
 import { DiseaseNames } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
-import { Option } from "../../../domain/entities/Ref";
+import { CodedNamedRef, Option } from "../../../domain/entities/Ref";
 import { ResourcePermissions } from "../../../domain/entities/resources/ResourcePermissions";
 import { FormState } from "../../components/form/FormState";
 import { User } from "../../components/user-selector/UserSelector";
@@ -19,6 +20,7 @@ import {
     mapRiskAssessmentSummaryToInitialFormState,
     mapRiskGradingToInitialFormState,
 } from "./risk-assessment/mapRiskAssessmentToInitialFormState";
+import { NotificationSource } from "../../../domain/entities/disease-outbreak-event/NotificationSources";
 
 export function mapEntityToFormState(options: {
     configurableForm: ConfigurableForm;
@@ -26,6 +28,8 @@ export function mapEntityToFormState(options: {
     existingEventTrackerTypes?: DiseaseNames[];
     isIncidentManager?: boolean;
     resourcePermissions: ResourcePermissions;
+    mainSyndromes: MainSyndrome[];
+    notificationSources: NotificationSource[];
 }): FormState {
     const {
         configurableForm,
@@ -33,16 +37,20 @@ export function mapEntityToFormState(options: {
         existingEventTrackerTypes,
         isIncidentManager,
         resourcePermissions,
+        mainSyndromes,
+        notificationSources,
     } = options;
 
     switch (configurableForm.type) {
         case "disease-outbreak-event":
         case "disease-outbreak-event-case-data":
-            return mapDiseaseOutbreakEventToInitialFormState(
-                configurableForm,
-                editMode ?? false,
-                existingEventTrackerTypes ?? []
-            );
+            return mapDiseaseOutbreakEventToInitialFormState({
+                diseaseOutbreakEventWithOptions: configurableForm,
+                editMode: editMode ?? false,
+                existingEventTrackerTypes: existingEventTrackerTypes ?? [],
+                mainSyndromes: mainSyndromes,
+                notificationSources: notificationSources,
+            });
         case "risk-assessment-grading":
             return mapRiskGradingToInitialFormState(configurableForm);
         case "risk-assessment-summary":
@@ -72,6 +80,17 @@ export function mapToPresentationOptions(options: Option[]): PresentationOption[
     return options.map(
         (option): PresentationOption => ({
             value: option.id,
+            label: option.name,
+        })
+    );
+}
+
+export function mapCodeNameRefToPresentationOptions(
+    options: CodedNamedRef[]
+): PresentationOption[] {
+    return options.map(
+        (option): PresentationOption => ({
+            value: option.code,
             label: option.name,
         })
     );

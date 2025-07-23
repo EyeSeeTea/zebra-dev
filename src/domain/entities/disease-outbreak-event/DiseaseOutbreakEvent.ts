@@ -7,6 +7,7 @@ import { RiskAssessment } from "../risk-assessment/RiskAssessment";
 import { Maybe } from "../../../utils/ts-utils";
 import { ValidationError } from "../ValidationError";
 import { Username } from "../User";
+import { DataSourceCode } from "../DataSource";
 
 export enum NationalIncidentStatus {
     RTSL_ZEB_OS_INCIDENT_STATUS_WATCH = "RTSL_ZEB_OS_INCIDENT_STATUS_WATCH",
@@ -36,11 +37,6 @@ type EarlyResponseActions = {
     establishCoordination: DateWithNA;
     responseNarrative: string;
 };
-
-export enum DataSource {
-    ND1 = "ND1",
-    ND2 = "ND2",
-}
 
 export enum CasesDataSource {
     RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR = "RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR",
@@ -72,7 +68,7 @@ export type DiseaseOutbreakEventBaseAttrs = NamedRef & {
     incidentManagerName: string;
     notes: Maybe<string>;
     casesDataSource: CasesDataSource;
-    dataSource: Maybe<DataSource>;
+    dataSource: Maybe<DataSourceCode>;
 };
 
 export type DiseaseOutbreakEventAttrs = DiseaseOutbreakEventBaseAttrs & {

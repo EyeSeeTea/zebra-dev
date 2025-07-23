@@ -1,6 +1,6 @@
-import { AlertDataSource } from "./Alert";
 import { OrgUnitLevelType } from "../OrgUnit";
 import { Id } from "../Ref";
+import { AlertDataSourceCode } from "./AlertDataSource";
 
 export type AlertsPerformanceOverviewMetrics = {
     teiId: Id;
@@ -20,7 +20,7 @@ export type AlertsPerformanceOverviewMetrics = {
     incidentManager: string;
     respond7d: string;
     incidentStatus: string;
-    eventSource: AlertDataSource;
+    eventSource: AlertDataSourceCode;
     emergedDate: string;
     notifiedDate: string;
     respondedDate: string;

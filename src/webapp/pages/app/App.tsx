@@ -40,6 +40,23 @@ function App(props: AppProps) {
                 .execute()
                 .toPromise();
 
+            const appSettings = await compositionRoot.getAppSettings.execute().toPromise();
+
+            const alertDataSources = await compositionRoot.alerts.getAlertDataSources
+                .execute()
+                .toPromise();
+
+            const mainSyndromes = await compositionRoot.diseaseOutbreakEvent.getMainSyndromes
+                .execute()
+                .toPromise();
+
+            const notificationSources =
+                await compositionRoot.diseaseOutbreakEvent.getNotificationSources
+                    .execute()
+                    .toPromise();
+
+            const dataSources = await compositionRoot.dataSource.getAll.execute().toPromise();
+
             const isDev = process.env.NODE_ENV === "development";
             setAppContext({
                 currentUser,
@@ -47,6 +64,11 @@ function App(props: AppProps) {
                 isDev,
                 api,
                 configurations,
+                appSettings,
+                alertDataSources,
+                mainSyndromes,
+                notificationSources,
+                dataSources,
             });
             setShowShareButton(isShareButtonVisible);
             setLoading(false);

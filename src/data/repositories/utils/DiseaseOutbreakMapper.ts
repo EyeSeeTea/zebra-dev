@@ -1,6 +1,5 @@
 import {
     CasesDataSource,
-    DataSource,
     DiseaseOutbreakEventBaseAttrs,
 } from "../../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { D2TrackerTrackedEntity, Attribute } from "@eyeseetea/d2-api/api/trackerTrackedEntities";
@@ -14,12 +13,16 @@ import {
     RTSL_ZEBRA_PROGRAM_ID,
     RTSL_ZEBRA_TRACKED_ENTITY_TYPE_ID,
     casesDataSourceMap,
-    dataSourceMap,
 } from "../consts/DiseaseOutbreakConstants";
 import { SelectedPick } from "@eyeseetea/d2-api/api";
 import { D2TrackedEntityAttributeSchema } from "../../../types/d2-api";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 import { getCurrentTimeString, getISODateAsLocaleDateString } from "./DateTimeHelper";
+import {
+    DataSourceCode,
+    dataSourceCodes,
+    isDataSourceCode,
+} from "../../../domain/entities/DataSource";
 
 type D2TrackedEntityAttribute = {
     trackedEntityAttribute: SelectedPick<
@@ -43,10 +46,10 @@ export function mapTrackedEntityAttributesToDiseaseOutbreak(
         casesDataSourceMap[fromMap("casesDataSource")] ??
         CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR;
 
-    const dataSource =
-        casesDataSource === CasesDataSource.RTSL_ZEB_OS_CASE_DATA_SOURCE_eIDSR
-            ? dataSourceMap[fromMap("dataSource")] || DataSource.ND1
-            : undefined;
+    const dataSourceMapKey = fromMap("dataSource");
+    const dataSource: DataSourceCode = isDataSourceCode(dataSourceMapKey)
+        ? dataSourceCodes[dataSourceMapKey]
+        : dataSourceCodes.ND1;
 
     const diseaseOutbreak: DiseaseOutbreakEventBaseAttrs = {
         id: trackedEntity.trackedEntity,

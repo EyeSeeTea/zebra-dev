@@ -51,7 +51,7 @@ import { isResouceType, Resource } from "../../../domain/entities/resources/Reso
 import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { ResourceType } from "../../../domain/entities/resources/ResourceTypeNamed";
-import { AppDefaults } from "../../../domain/entities/AppConfigurations";
+import { AppDefaults } from "../../../domain/entities/AppSettings";
 
 type MapFormStateToEntityDataProps = {
     formState: FormState;

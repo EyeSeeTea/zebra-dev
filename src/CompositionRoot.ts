@@ -89,6 +89,26 @@ import { UpdateAlertPHEOCStatusUseCase } from "./domain/usecases/UpdateAlertPHEO
 import { ResourceTypeNamedRepository } from "./domain/repositories/ResourceTypeNamedRepository";
 import { ResourceTypeNamedTestRepository } from "./data/repositories/test/ResourceTypeNamedTestRepository";
 import { ResourceTypeNamedD2Repository } from "./data/repositories/ResourceTypeNamedD2Repository";
+import { AlertDataSourceD2Repository } from "./data/repositories/AlertDataSourceD2Repository";
+import { AlertDataSourceRepository } from "./domain/repositories/AlertDataSourceRepository";
+import { AlertDataSourceTestRepository } from "./data/repositories/test/AlertDataSourceTestRepository";
+import { GetAlertDataSources } from "./domain/usecases/GetAlertDataSources";
+import { MainSyndromeRepository } from "./domain/repositories/MainSyndromeRepository";
+import { MainSyndromeD2Repository } from "./data/repositories/MainSyndromeD2Repository";
+import { MainSyndromeTestRepository } from "./data/repositories/test/MainSyndromeTestRepository";
+import { GetMainSyndromesUseCase } from "./domain/usecases/GetMainSyndromesUseCase";
+import { AppSettingsTestRepository } from "./data/repositories/test/AppSettingsTestRepository";
+import { AppSettingsD2Repository } from "./data/repositories/AppSettingsD2Repository";
+import { AppSettingsRepository } from "./domain/repositories/AppSettingsRepository";
+import { GetAppSettingsUseCase } from "./domain/usecases/GetAppSettingsUseCase";
+import { NotificationSourcesD2Repository } from "./data/repositories/NotificationSourcesD2Repository";
+import { NotificationSourcesRepository } from "./domain/repositories/NotificationSourcesRepository";
+import { NotificationSourcesTestRepository } from "./data/repositories/test/NotificationSourcesTestRepository";
+import { GetNotificationSourcesUseCase } from "./domain/usecases/GetNotificationSourcesUseCase";
+import { DataSourceRepository } from "./domain/repositories/DataSourceRepository";
+import { DataSourceD2Repository } from "./data/repositories/DataSourceD2Repository";
+import { DataSourceTestRepository } from "./data/repositories/test/DataSourceTestRepository";
+import { GetDataSourcesUseCase } from "./domain/usecases/GetDataSourcesUseCase";
 import { CompleteAlertUseCase } from "./domain/usecases/CompleteAlertUseCase";
 import { UpdateAlertConfirmedDiseaseUseCase } from "./domain/usecases/UpdateAlertConfirmedDiseaseUseCase";
 
@@ -115,10 +135,16 @@ type Repositories = {
     resourceRepository: ResourceRepository;
     resourceFileRepository: ResourceFileRepository;
     resourceTypeNamedRepository: ResourceTypeNamedRepository;
+    alertDataSourceRepository: AlertDataSourceRepository;
+    mainSyndromeRepository: MainSyndromeRepository;
+    appSettingsRepository: AppSettingsRepository;
+    notificationSourcesRepository: NotificationSourcesRepository;
+    dataSourceRepository: DataSourceRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
     return {
+        getAppSettings: new GetAppSettingsUseCase(repositories),
         getConfigurableForm: new GetConfigurableFormUseCase(repositories),
         save: new SaveEntityUseCase(repositories),
         users: {
@@ -138,6 +164,8 @@ function getCompositionRoot(repositories: Repositories) {
                 repositories.userGroupRepository
             ),
             complete: new CompleteEventTrackerUseCase(repositories),
+            getMainSyndromes: new GetMainSyndromesUseCase(repositories),
+            getNotificationSources: new GetNotificationSourcesUseCase(repositories),
         },
         incidentActionPlan: {
             get: new GetIncidentActionByIdUseCase(repositories),
@@ -182,6 +210,12 @@ function getCompositionRoot(repositories: Repositories) {
             delete: new DeleteResourceUseCase(repositories),
             getPermissions: new GetResourceUserPermissionsUseCase(repositories),
         },
+        alerts: {
+            getAlertDataSources: new GetAlertDataSources(repositories),
+        },
+        dataSource: {
+            getAll: new GetDataSourcesUseCase(repositories),
+        },
     };
 }
 
@@ -202,12 +236,17 @@ export function getWebappCompositionRoot(api: D2Api) {
         incidentManagementTeamRepository: new IncidentManagementTeamD2Repository(api),
         chartConfigRepository: new ChartConfigD2Repository(dataStoreClient),
         systemRepository: new SystemD2Repository(api),
-        configurationsRepository: new ConfigurationsD2Repository(api, dataStoreClient),
+        configurationsRepository: new ConfigurationsD2Repository(api),
         casesFileRepository: new CasesFileD2Repository(api, dataStoreClient),
         userGroupRepository: new UserGroupD2Repository(api),
         resourceRepository: new ResourceD2Repository(api),
         resourceFileRepository: new ResourceFileD2Repository(api),
         resourceTypeNamedRepository: new ResourceTypeNamedD2Repository(api),
+        alertDataSourceRepository: new AlertDataSourceD2Repository(api),
+        mainSyndromeRepository: new MainSyndromeD2Repository(api),
+        appSettingsRepository: new AppSettingsD2Repository(dataStoreClient),
+        notificationSourcesRepository: new NotificationSourcesD2Repository(api),
+        dataSourceRepository: new DataSourceD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -235,6 +274,11 @@ export function getTestCompositionRoot() {
         resourceRepository: new ResourceTestRepository(),
         resourceFileRepository: new ResourceFileTestRepository(),
         resourceTypeNamedRepository: new ResourceTypeNamedTestRepository(),
+        alertDataSourceRepository: new AlertDataSourceTestRepository(),
+        mainSyndromeRepository: new MainSyndromeTestRepository(),
+        appSettingsRepository: new AppSettingsTestRepository(),
+        notificationSourcesRepository: new NotificationSourcesTestRepository(),
+        dataSourceRepository: new DataSourceTestRepository(),
     };
 
     return getCompositionRoot(repositories);

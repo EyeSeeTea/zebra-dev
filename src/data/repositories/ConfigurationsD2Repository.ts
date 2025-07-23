@@ -3,19 +3,11 @@ import { ConfigurationsRepository as ConfigurationsRepository } from "../../doma
 import { Option } from "../../domain/entities/Ref";
 import { apiToFuture, FutureData } from "../api-futures";
 import { Future } from "../../domain/entities/generic/Future";
-import { AppDefaults, SelectableOptions } from "../../domain/entities/AppConfigurations";
+import { SelectableOptions } from "../../domain/entities/AppConfigurations";
 import { RiskAssessmentGrading } from "../../domain/entities/risk-assessment/RiskAssessmentGrading";
-import { AppDatastoreConfig } from "../entities/AppDatastoreConfig";
-import { DataStoreClient } from "../DataStoreClient";
-import { DataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
-import { dataSourceMap } from "./consts/DiseaseOutbreakConstants";
 
 const optionSetCode: Record<string, string> = {
-    alertDataSources: "RTSL_ZEB_OS_DATA_SOURCE",
-    dataSources: "RTSL_ZEB_OS_DEFAULT_DATA_SOURCE",
-    mainSyndromes: "AGENTS",
     suspectedDiseases: "RTSL_ZEB_OS_DISEASE",
-    notificationSources: "RTSL_ZEB_OS_SOURCE",
     incidentStatus: "RTSL_ZEB_OS_INCIDENT_STATUS",
     populationAtRisk: "RTSL_ZEB_OS_POPULATION_AT_RISK",
     lowMediumHigh: "RTSL_ZEB_OS_LMH",
@@ -32,7 +24,7 @@ const optionSetCode: Record<string, string> = {
 };
 
 export class ConfigurationsD2Repository implements ConfigurationsRepository {
-    constructor(private api: D2Api, private dataStoreClient: DataStoreClient) {}
+    constructor(private api: D2Api) {}
 
     getSelectableOptions(): FutureData<SelectableOptions> {
         return apiToFuture(
@@ -42,41 +34,13 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         ).flatMap(optionsResponse => {
             const selectableOptions = this.createEmptySelectableOptions();
             Object.entries(optionSetCode).map(([key, value]) => {
-                if (key === "alertDataSources") {
-                    const alertDataSources = optionsResponse.optionSets.find(
-                        optionSet => optionSet.code === value
-                    );
-                    if (alertDataSources)
-                        selectableOptions.alertOptions.alertDataSources =
-                            this.mapD2OptionSetToOptions(alertDataSources);
-                } else if (key === "dataSources") {
-                    const dataSources = optionsResponse.optionSets.find(
-                        optionSet => optionSet.code === value
-                    );
-                    if (dataSources)
-                        selectableOptions.eventTrackerConfigurations.dataSources =
-                            this.mapD2OptionSetToOptions(dataSources);
-                } else if (key === "mainSyndromes") {
-                    const mainSyndromes = optionsResponse.optionSets.find(
-                        optionSet => optionSet.code === value
-                    );
-                    if (mainSyndromes)
-                        selectableOptions.eventTrackerConfigurations.mainSyndromes =
-                            this.mapD2OptionSetToOptions(mainSyndromes);
-                } else if (key === "suspectedDiseases") {
+                if (key === "suspectedDiseases") {
                     const suspectedDiseases = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
                     );
                     if (suspectedDiseases)
                         selectableOptions.eventTrackerConfigurations.suspectedDiseases =
                             this.mapD2OptionSetToOptions(suspectedDiseases);
-                } else if (key === "notificationSources") {
-                    const notificationSources = optionsResponse.optionSets.find(
-                        optionSet => optionSet.code === value
-                    );
-                    if (notificationSources)
-                        selectableOptions.eventTrackerConfigurations.notificationSources =
-                            this.mapD2OptionSetToOptions(notificationSources);
                 } else if (key === "populationAtRisk") {
                     const populationAtRisk = optionsResponse.optionSets.find(
                         optionSet => optionSet.code === value
@@ -205,24 +169,12 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
         });
     }
 
-    getAppDefaults(): FutureData<AppDefaults> {
-        return this.dataStoreClient
-            .getObject<AppDatastoreConfig>("app-config")
-            .map(appConfig => this.mapD2AppDefaultsToAppDefaults(appConfig));
-    }
-
     private createEmptySelectableOptions(): SelectableOptions {
         const selectableOptions: SelectableOptions = {
             eventTrackerConfigurations: {
-                dataSources: [],
-                mainSyndromes: [],
                 suspectedDiseases: [],
-                notificationSources: [],
                 incidentManagers: [],
                 casesDataSource: [],
-            },
-            alertOptions: {
-                alertDataSources: [],
             },
             riskAssessmentGradingConfigurations: {
                 populationAtRisk: [],
@@ -265,15 +217,6 @@ export class ConfigurationsD2Repository implements ConfigurationsRepository {
                 name: option.name.trim(),
             })
         );
-    }
-
-    private mapD2AppDefaultsToAppDefaults(appConfig?: AppDatastoreConfig): AppDefaults {
-        const defaultDataSource = appConfig?.appDefaults.diseaseOutbreakDataSource;
-        const dataSource =
-            (defaultDataSource ? dataSourceMap[defaultDataSource] : null) || DataSource.ND1;
-        return {
-            diseaseOutbreakDataSource: dataSource,
-        };
     }
 }
 

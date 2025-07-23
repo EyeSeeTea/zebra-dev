@@ -7,7 +7,12 @@ import { FormSectionState } from "../../../components/form/FormSectionsState";
 import { FormState } from "../../../components/form/FormState";
 import { User } from "../../../components/user-selector/UserSelector";
 import { Option as PresentationOption } from "../../../components/utils/option";
-import { mapToPresentationOptions } from "../mapEntityToFormState";
+import {
+    mapCodeNameRefToPresentationOptions,
+    mapToPresentationOptions,
+} from "../mapEntityToFormState";
+import { MainSyndrome } from "../../../../domain/entities/disease-outbreak-event/MainSyndrome";
+import { NotificationSource } from "../../../../domain/entities/disease-outbreak-event/NotificationSources";
 import {
     DiseaseNames,
     UNKNOWN_DISEASE_NAME,
@@ -83,25 +88,46 @@ type ResponseActionsSubsectionKeys =
     | "responseNarrative";
 
 // TODO: Thinking for the future about generate this FormState by iterating over Object.Keys(diseaseOutbreakEvent)
-export function mapDiseaseOutbreakEventToInitialFormState(
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
-    editMode: boolean,
-    existingEventTrackerTypes: DiseaseNames[]
-): FormState {
+export function mapDiseaseOutbreakEventToInitialFormState(params: {
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData;
+    editMode: boolean;
+    existingEventTrackerTypes: DiseaseNames[];
+    mainSyndromes: MainSyndrome[];
+    notificationSources: NotificationSource[];
+}): FormState {
+    const {
+        diseaseOutbreakEventWithOptions,
+        editMode,
+        existingEventTrackerTypes = [],
+        mainSyndromes = [],
+        notificationSources = [],
+    } = params;
     return diseaseOutbreakEventWithOptions.type === "disease-outbreak-event"
-        ? getInitialFormStateForDiseaseOutbreakEvent(
+        ? getInitialFormStateForDiseaseOutbreakEvent({
               diseaseOutbreakEventWithOptions,
               editMode,
-              existingEventTrackerTypes
-          )
+              existingEventTrackerTypes,
+              mainSyndromes: mainSyndromes,
+              notificationSources: notificationSources,
+          })
         : getInitialFormStateForDiseaseOutbreakCaseData(diseaseOutbreakEventWithOptions);
 }
 
-function getInitialFormStateForDiseaseOutbreakEvent(
-    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData,
-    editMode: boolean,
-    existingEventTrackerTypes: DiseaseNames[]
-): FormState {
+function getInitialFormStateForDiseaseOutbreakEvent(params: {
+    diseaseOutbreakEventWithOptions: DiseaseOutbreakEventFormData;
+    editMode: boolean;
+    existingEventTrackerTypes: DiseaseNames[];
+    mainSyndromes: MainSyndrome[];
+    notificationSources: NotificationSource[];
+}): FormState {
+    const {
+        diseaseOutbreakEventWithOptions,
+        editMode,
+        existingEventTrackerTypes,
+        mainSyndromes,
+        notificationSources,
+    } = params;
+
     const {
         entity: diseaseOutbreakEvent,
         options,
@@ -110,13 +136,7 @@ function getInitialFormStateForDiseaseOutbreakEvent(
         uploadedCasesDataFileId,
     } = diseaseOutbreakEventWithOptions;
 
-    const {
-        incidentManagers,
-        mainSyndromes,
-        suspectedDiseases,
-        notificationSources,
-        casesDataSource,
-    } = options;
+    const { incidentManagers, suspectedDiseases, casesDataSource } = options;
 
     //If An Event Tracker has already been created for a given suspected disease or harzd type,
     //then do not allow to create another one. Remove it from dropwdown options
@@ -129,11 +149,13 @@ function getInitialFormStateForDiseaseOutbreakEvent(
 
     const teamMemberOptions: User[] = incidentManagers.map(tm => mapTeamMemberToUser(tm));
     const casesDataSourceOptions: PresentationOption[] = mapToPresentationOptions(casesDataSource);
-    const mainSyndromesOptions: PresentationOption[] = mapToPresentationOptions(mainSyndromes);
+    const mainSyndromesOptions: PresentationOption[] =
+        mapCodeNameRefToPresentationOptions(mainSyndromes);
+
     const suspectedDiseasesOptions: PresentationOption[] =
         mapToPresentationOptions(filteredSuspectedDiseases);
     const notificationSourcesOptions: PresentationOption[] =
-        mapToPresentationOptions(notificationSources);
+        mapCodeNameRefToPresentationOptions(notificationSources);
 
     const isCasesDataUserDefined =
         diseaseOutbreakEvent?.casesDataSource ===

@@ -11,7 +11,7 @@ import OldMuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 import muiThemeLegacy from "../webapp/pages/app/themes/dhis2-legacy.theme";
 import { muiTheme } from "../webapp/pages/app/themes/dhis2.theme";
 import { D2Api } from "../types/d2-api";
-import { DataSource } from "../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { dataSourceCodes } from "../domain/entities/DataSource";
 
 export function getTestContext() {
     const context: AppContextState = {
@@ -19,19 +19,18 @@ export function getTestContext() {
         compositionRoot: getTestCompositionRoot(),
         api: {} as D2Api,
         isDev: true,
+        appSettings: {
+            appDefaults: {
+                diseaseOutbreakDataSource: dataSourceCodes.ND1,
+            },
+        },
         configurations: {
             incidentManagerUserGroup: { id: "incidentManagerUserGroup" },
             selectableOptions: {
                 eventTrackerConfigurations: {
-                    dataSources: [],
-                    mainSyndromes: [],
                     suspectedDiseases: [],
-                    notificationSources: [],
                     incidentManagers: [],
                     casesDataSource: [],
-                },
-                alertOptions: {
-                    alertDataSources: [],
                 },
                 riskAssessmentGradingConfigurations: {
                     populationAtRisk: [],
@@ -71,10 +70,11 @@ export function getTestContext() {
                 responseOfficers: [],
             },
             orgUnits: [],
-            appDefaults: {
-                diseaseOutbreakDataSource: DataSource.ND1,
-            },
         },
+        alertDataSources: [],
+        mainSyndromes: [],
+        notificationSources: [],
+        dataSources: [],
     };
 
     return context;

@@ -11,7 +11,7 @@ export function useCheckWritePermission(formType: FormType) {
     const history = useHistory();
 
     useEffect(() => {
-        if (!currentUser.hasCaptureAccess) {
+        if (!currentUser.hasDataCaptureAccess()) {
             switch (formType) {
                 case "disease-outbreak-event":
                     snackbar.error(i18n.t("You do not have permission to create/edit events"));
@@ -52,5 +52,5 @@ export function useCheckWritePermission(formType: FormType) {
             }
             history.goBack();
         }
-    }, [currentUser.hasCaptureAccess, formType, history, snackbar]);
+    }, [currentUser, formType, history, snackbar]);
 }

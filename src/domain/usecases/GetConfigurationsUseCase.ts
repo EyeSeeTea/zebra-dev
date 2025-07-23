@@ -22,7 +22,6 @@ export class GetConfigurationsUseCase {
             managers: this.teamMemberRepository.getIncidentManagers(),
             riskAssessors: this.teamMemberRepository.getRiskAssessors(),
             selectableOptionsResponse: this.configurationsRepository.getSelectableOptions(),
-            appDefaults: this.configurationsRepository.getAppDefaults(),
             orgUnits: this.orgUnitRepository.getAll(),
             incidentManagerUserGroup: this.userGroupRepository.getIncidentManagerUserGroupByCode(),
         }).flatMap(
@@ -32,7 +31,6 @@ export class GetConfigurationsUseCase {
                 managers,
                 riskAssessors,
                 selectableOptionsResponse,
-                appDefaults,
                 orgUnits,
                 incidentManagerUserGroup,
             }) => {
@@ -54,7 +52,6 @@ export class GetConfigurationsUseCase {
                         responseOfficers: incidentResponseOfficers,
                     },
                     orgUnits,
-                    appDefaults,
                 };
                 return Future.success(configurations);
             }
@@ -71,9 +68,6 @@ export class GetConfigurationsUseCase {
             eventTrackerConfigurations: {
                 ...selectableOptionsResponse.eventTrackerConfigurations,
                 incidentManagers: managers,
-            },
-            alertOptions: {
-                ...selectableOptionsResponse.alertOptions,
             },
             riskAssessmentGradingConfigurations: {
                 ...selectableOptionsResponse.riskAssessmentGradingConfigurations,

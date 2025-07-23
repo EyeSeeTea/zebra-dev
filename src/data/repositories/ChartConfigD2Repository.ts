@@ -2,12 +2,10 @@ import { DataStoreClient } from "../DataStoreClient";
 import { FutureData } from "../api-futures";
 import { ChartConfigRepository } from "../../domain/repositories/ChartConfigRepository";
 import { Id } from "../../domain/entities/Ref";
-import {
-    CasesDataSource,
-    DataSource,
-} from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
+import { CasesDataSource } from "../../domain/entities/disease-outbreak-event/DiseaseOutbreakEvent";
 import { Maybe } from "../../utils/ts-utils";
 import { Future } from "../../domain/entities/generic/Future";
+import { DataSourceCode } from "../../domain/entities/DataSource";
 
 type ChartConfig = {
     key: string;
@@ -15,7 +13,7 @@ type ChartConfig = {
     deathsId: Id;
     riskAssessmentHistoryId: Id;
     casesDataSource: CasesDataSource;
-    casesAndDeathsByDataSource: { [K in DataSource]: Id } | { all: Id } | null;
+    casesAndDeathsByDataSource: { [K in DataSourceCode]: Id } | { all: Id } | null;
 };
 
 const chartConfigDatastoreKey = "charts-config";

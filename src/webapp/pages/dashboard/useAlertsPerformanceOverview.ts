@@ -16,13 +16,13 @@ import { usePerformanceOverviewTable } from "./usePerformanceOverviewTable";
 import { OrgUnitLevelType } from "../../../domain/entities/OrgUnit";
 import i18n from "../../../utils/i18n";
 import { Option } from "../../components/utils/option";
-import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 import {
     diseaseNames,
     IncidentStatus,
     UNKNOWN_DISEASE_NAME,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
+import { AlertDataSourceCode } from "../../../domain/entities/alert/AlertDataSource";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     teiId: Id;
@@ -63,7 +63,7 @@ type State = {
     setFilters: Dispatch<SetStateAction<FiltersValuesType>>;
     filterOptions: (
         column: string,
-        dataSource?: AlertDataSource
+        dataSource?: AlertDataSourceCode
     ) => { value: string; label: string }[];
     totalPages: number;
     currentPage: number;
@@ -152,7 +152,7 @@ export function useAlertsPerformanceOverview(): State {
                 value: "confirmedDisease",
                 type: "selector",
                 options: diseaseOptions,
-                disableSelection: (_row: Row) => !currentUser.canBeIncidentManager,
+                disableSelection: (_row: Row) => !currentUser.canBeIncidentManager(),
             },
             {
                 label: i18n.t("Suspected disease"),
@@ -175,14 +175,14 @@ export function useAlertsPerformanceOverview(): State {
                 type: "selector",
                 options: [...incidentStatusOptions, { value: "Completed", label: "Completed" }],
                 disableSelection: (row: Row) =>
-                    !currentUser.canBeIncidentManager ||
+                    !currentUser.canBeIncidentManager() ||
                     !row.confirmedDisease ||
                     row.confirmedDisease === "Unknown",
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
         ],
-        [currentUser.canBeIncidentManager, diseaseOptions]
+        [currentUser, diseaseOptions]
     );
 
     const mapEntityToTableData = useCallback(

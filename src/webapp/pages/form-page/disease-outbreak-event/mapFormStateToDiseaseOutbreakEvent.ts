@@ -1,3 +1,4 @@
+import { AppDefaults } from "../../../../domain/entities/AppSettings";
 import { DiseaseOutbreakEventFormData } from "../../../../domain/entities/ConfigurableForm";
 import {
     DiseaseOutbreakEvent,
@@ -17,7 +18,6 @@ import {
 import { FormState } from "../../../components/form/FormState";
 import { getCaseDataFromField } from "./CaseDataFileFieldHelper";
 import { diseaseOutbreakEventFieldIds } from "./mapDiseaseOutbreakEventToInitialFormState";
-import { AppDefaults } from "../../../../domain/entities/AppConfigurations";
 
 type MapFormStateToDiseaseOutbreakEventProps = {
     formState: FormState;
