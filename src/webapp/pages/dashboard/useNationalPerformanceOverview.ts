@@ -99,7 +99,6 @@ export function useNationalPerformanceOverview(): State {
             { label: i18n.t("ERA5"), value: "era5", type: "text" },
             { label: i18n.t("ERA6"), value: "era6", type: "text" },
             { label: i18n.t("ERA7"), value: "era7", type: "text" },
-            { label: i18n.t("Incident Status"), value: "nationalIncidentStatus", type: "text" },
         ],
         []
     );
