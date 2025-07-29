@@ -101,6 +101,9 @@ export function useIncidentActionPlan(id: Id) {
             },
             { value: "timeLine", label: "Timeline", type: "text" },
             { value: "dueDate", label: "Due date", type: "text" },
+            { value: "comments", label: "Comments", type: "text" },
+            { value: "blockers", label: "Blockers", type: "text" },
+            { value: "enablers", label: "Enablers", type: "text" },
         ];
     }, [incidentActionOptions, saveTableOption, isIncidentManager]);
 
@@ -269,6 +272,9 @@ const mapIncidentResponseActionToTableRows = (
                     dueDate: getISODateAsLocaleDateString(
                         responseAction.dueDate.toISOString()
                     ).toDateString(),
+                    comments: responseAction.comments ?? "",
+                    blockers: responseAction.blockers ?? "",
+                    enablers: responseAction.enablers ?? "",
                 }))
                 //DHIS returns events last updated first, zebra app needs it in order of creation,
                 //so we reverse the order

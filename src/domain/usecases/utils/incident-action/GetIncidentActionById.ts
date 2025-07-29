@@ -67,6 +67,9 @@ export function getIncidentAction(
                                     : new Date(),
                                 status: status,
                                 verification: verification,
+                                comments: responseActionDataValue?.comments ?? "",
+                                blockers: responseActionDataValue?.blockers ?? "",
+                                enablers: responseActionDataValue?.enablers ?? "",
                             });
                         }) ?? [];
 

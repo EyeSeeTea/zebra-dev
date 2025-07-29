@@ -27,6 +27,9 @@ interface ResponseActionAttrs {
     dueDate: Date;
     status: Status;
     verification: Verification;
+    comments: Maybe<string>;
+    blockers: Maybe<string>;
+    enablers: Maybe<string>;
 }
 
 export class ResponseAction extends Struct<ResponseActionAttrs>() {}
