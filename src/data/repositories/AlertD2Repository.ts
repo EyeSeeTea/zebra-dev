@@ -33,7 +33,7 @@ import { getAlertValueFromMap } from "./utils/AlertOutbreakMapper";
 import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { assertOrError } from "./utils/AssertOrError";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
-import logger from "../../utils/console-logger";
+import logger from "../../scripts/utils/console-logger";
 
 const incidentStatusOptionMap = new Map<IncidentStatus, string>([
     ["Alert", "PHEOC_STATUS_ALERT"],

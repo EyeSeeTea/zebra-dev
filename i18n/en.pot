@@ -5,8 +5,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"POT-Creation-Date: 2025-07-17T09:15:00.540Z\n"
-"PO-Revision-Date: 2025-07-17T09:15:00.540Z\n"
+"POT-Creation-Date: 2025-07-29T09:15:44.439Z\n"
+"PO-Revision-Date: 2025-07-29T09:15:44.439Z\n"
 
 msgid "Low"
 msgstr ""
@@ -219,7 +219,7 @@ msgstr ""
 msgid "Are you sure you want to complete this alert? This cannot be undone."
 msgstr ""
 
-msgid "eIDSR Alerts Dashboard"
+msgid "eIDSR Events Dashboard"
 msgstr ""
 
 msgid "Zebra Events Dashboard"
@@ -277,6 +277,9 @@ msgid "Outbreak Id"
 msgstr ""
 
 msgid "Event"
+msgstr ""
+
+msgid "Event Created Date"
 msgstr ""
 
 msgid "Cases"

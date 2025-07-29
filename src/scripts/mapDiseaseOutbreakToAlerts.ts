@@ -13,7 +13,7 @@ import { DiseaseOutbreakEventD2Repository } from "../data/repositories/DiseaseOu
 import { ConfigurationsD2Repository } from "../data/repositories/ConfigurationsD2Repository";
 import { Future } from "../domain/entities/generic/Future";
 import { DataStoreClient } from "../data/DataStoreClient";
-import logger from "../utils/console-logger";
+import logger from "./utils/console-logger";
 
 function main() {
     const cmd = command({

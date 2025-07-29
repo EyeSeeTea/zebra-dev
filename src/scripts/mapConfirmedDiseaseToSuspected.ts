@@ -4,7 +4,7 @@ import { getApiInstanceFromEnvVariables } from "./common";
 import _ from "../domain/entities/generic/Collection";
 import { AlertD2Repository } from "../data/repositories/AlertD2Repository";
 import { MapConfirmedDiseaseToSuspectedUseCase } from "../domain/usecases/MapConfirmedDiseaseToSuspectedUseCase";
-import logger from "../utils/console-logger";
+import logger from "./utils/console-logger";
 
 function main() {
     const cmd = command({

@@ -95,6 +95,7 @@ export type StatisticTableProps = {
         orgUnitName: Maybe<string>,
         value: string
     ) => void;
+    hidePercentTargetMetRow?: boolean;
 };
 
 const DEFAULT_ARRAY_VALUE: string[] = [];
@@ -120,6 +121,7 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
         allowGoToEventOnClick = false,
         hasEventSourceFilter = false,
         handleColumnEdit,
+        hidePercentTargetMetRow = false,
     }) => {
         const { generatePath } = useRoutes();
         const { currentUser } = useAppContext();
@@ -282,12 +284,14 @@ export const StatisticTable: React.FC<StatisticTableProps> = React.memo(
                                 label={i18n.t("Median")}
                                 calculate={calculateMedian}
                             />
-                            <CalculationRow
-                                columns={columns}
-                                calculateColumns={calculateColumns}
-                                label={i18n.t("% Target Met")}
-                                calculate={calculatePercentTargetMet}
-                            />
+                            {hidePercentTargetMetRow ? null : (
+                                <CalculationRow
+                                    columns={columns}
+                                    calculateColumns={calculateColumns}
+                                    label={i18n.t("% Target Met")}
+                                    calculate={calculatePercentTargetMet}
+                                />
+                            )}
                         </TableBody>
                     </Table>
                 </StyledTableContainer>
