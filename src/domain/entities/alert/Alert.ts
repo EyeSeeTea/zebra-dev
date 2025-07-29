@@ -36,3 +36,5 @@ export enum PHEOCStatus {
     Respond = "PHEOC_STATUS_RESPOND",
     Watch = "PHEOC_STATUS_WATCH",
 }
+
+export const UNKNOWN_DISEASE_CODE = "RTSL_ZEB_OS_DISEASE_UNKNOWN";
