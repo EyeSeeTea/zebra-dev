@@ -17,7 +17,7 @@ import LoaderContainer from "../../components/loader/LoaderContainer";
 import { useMapFilters } from "./useMapFilters";
 import { DateRangePicker } from "../../components/date-picker/DateRangePicker";
 import { NoticeBox } from "../../components/notice-box/NoticeBox";
-import { PerformanceMetric717, use717Performance } from "../dashboard/use717Performance";
+import { PerformanceMetric717 } from "../dashboard/use717Performance";
 import { GridWrapper, StyledStatsCard } from "../dashboard/DashboardPage";
 import { StatsCard } from "../../components/stats-card/StatsCard";
 import { useLastAnalyticsRuntime } from "../../hooks/useLastAnalyticsRuntime";
@@ -91,11 +91,8 @@ export const EventTrackerPage: React.FC = React.memo(() => {
         });
     }, [goTo]);
 
-    const { performanceMetrics717, isLoading: _717CardsLoading } = use717Performance({
-        type: "event",
-        diseaseOutbreakEventId: id,
-    });
     const {
+        performanceMetrics717,
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,
         isLoading: alertsPerformanceOverviewLoading,
@@ -124,8 +121,33 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                 globalMessage={globalMessage}
                 isCasesDataUserDefined={isCasesDataUserDefined}
             />
+
+            <Section
+                title={i18n.t("7-1-7 performance")}
+                hasSeparator={true}
+                titleVariant="secondary"
+            >
+                <GridWrapper>
+                    {performanceMetrics717.map(
+                        (perfMetric: PerformanceMetric717, index: number) => (
+                            <StatsCard
+                                key={index}
+                                stat={`${perfMetric.primaryValue}`}
+                                title={perfMetric.title}
+                                color={perfMetric.color}
+                                fillParent
+                            />
+                        )
+                    )}
+                </GridWrapper>
+            </Section>
+
             <LoaderContainer loading={alertsPerformanceOverviewLoading}>
-                <Section title={i18n.t("Alerts")} hasSeparator={true} titleVariant="secondary">
+                <Section
+                    title={i18n.t("Associated District Events")}
+                    hasSeparator={true}
+                    titleVariant="secondary"
+                >
                     <StatisticTableWrapper>
                         <StatisticTable
                             rows={dataAlertsPerformanceOverview}
@@ -175,6 +197,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     />
                 </LoaderContainer>
             </Section>
+
             <Section
                 title={
                     riskAssessmentRows.length === 0
@@ -221,6 +244,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     </NoticeBox>
                 )}
             </Section>
+
             {riskAssessmentRows.length > 0 ? (
                 <Section
                     title={i18n.t("Risk Assessment Grade")}
@@ -311,25 +335,7 @@ export const EventTrackerPage: React.FC = React.memo(() => {
                     chartProp={chartsDataSourceFilter.value || "all"}
                 />
             </Section>
-            <Section
-                title={i18n.t("7-1-7 performance")}
-                hasSeparator={true}
-                titleVariant="secondary"
-            >
-                <GridWrapper>
-                    {performanceMetrics717.map(
-                        (perfMetric: PerformanceMetric717, index: number) => (
-                            <StatsCard
-                                key={index}
-                                stat={`${perfMetric.primaryValue}`}
-                                title={perfMetric.title}
-                                color={perfMetric.color}
-                                fillParent
-                            />
-                        )
-                    )}
-                </GridWrapper>
-            </Section>
+
             <CompleteEventModal
                 openModal={openCompleteModal}
                 onCloseModal={onCloseCompleteModal}

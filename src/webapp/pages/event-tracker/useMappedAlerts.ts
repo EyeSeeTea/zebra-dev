@@ -17,6 +17,14 @@ import { Id } from "../../../domain/entities/Ref";
 import { Maybe } from "../../../utils/ts-utils";
 import { AlertDataSource } from "../../../domain/entities/alert/Alert";
 import { Option } from "../../components/utils/option";
+import { PerformanceMetric717 } from "../dashboard/use717Performance";
+import { calculateMedian } from "../common/statisticCalculations";
+import {
+    DAYS_DETECTION,
+    DAYS_NOTIFICATION,
+    DAYS_RESPONSE,
+    getColor,
+} from "../common/717Performance";
 
 type State = {
     columns: TableColumn[];
@@ -42,6 +50,7 @@ type State = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
+    performanceMetrics717: PerformanceMetric717[];
 };
 
 export function useMappedAlerts(diseaseOutbreakId: Id): State {
@@ -51,6 +60,7 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
         currentUser,
     } = useAppContext();
     const [isLoading, setIsLoading] = useState(true);
+    const [performanceMetrics717, setPerformanceMetrics717] = useState<PerformanceMetric717[]>([]);
 
     const columnRules = useMemo(
         () => ({
@@ -121,10 +131,42 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
         []
     );
 
+    const getPerformanceMetrics717 = useCallback(
+        (metrics: AlertsPerformanceOverviewMetrics[]): PerformanceMetric717[] => {
+            const METRIC_KEYS: Record<string, "detect7d" | "notify1d" | "respond7d"> = {
+                [DAYS_DETECTION]: "detect7d",
+                [DAYS_NOTIFICATION]: "notify1d",
+                [DAYS_RESPONSE]: "respond7d",
+            };
+
+            return Object.entries(METRIC_KEYS).map(([metricKey, columnKey]) => {
+                const values = metrics
+                    .filter(
+                        row =>
+                            row[columnKey] !== "" &&
+                            row[columnKey] !== null &&
+                            row[columnKey] !== undefined
+                    )
+                    .map(row => Number(row[columnKey]))
+                    .filter(value => !isNaN(value));
+
+                const value = calculateMedian(values);
+                return {
+                    title: i18n.t(metricKey),
+                    primaryValue: value,
+                    secondaryValue: 0, // Not used in these metrics
+                    color: getColor(metricKey, value, "event"),
+                };
+            });
+        },
+        []
+    );
+
     useEffect(() => {
         setIsLoading(true);
         compositionRoot.performanceOverview.getMappedAlerts.execute(diseaseOutbreakId).run(
             performanceOverviewMetrics => {
+                setPerformanceMetrics717(getPerformanceMetrics717(performanceOverviewMetrics));
                 const tableData = performanceOverviewMetrics.map(data =>
                     mapEntityToTableData(data, teamMembers.all)
                 );
@@ -155,9 +197,11 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
         teamMembers.all,
         currentUser.username,
         diseaseOutbreakId,
+        getPerformanceMetrics717,
     ]);
 
     return {
+        performanceMetrics717: performanceMetrics717,
         columns,
         dataAlertsPerformanceOverview,
         paginatedDataAlertsPerformanceOverview,

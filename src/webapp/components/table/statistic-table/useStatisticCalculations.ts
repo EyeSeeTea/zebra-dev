@@ -1,10 +1,8 @@
 import { useCallback } from "react";
-import { StatisticTableProps } from "./StatisticTable";
+import { Row } from "./StatisticTable";
+import { calculateMedian as calculateMedianFunction } from "../../../pages/common/statisticCalculations";
 
-export const useStatisticCalculations = (
-    rows: StatisticTableProps["rows"],
-    columnRules: { [key: string]: number }
-) => {
+export const useStatisticCalculations = (rows: Row[], columnRules: { [key: string]: number }) => {
     const getFilteredRowsByColumn = useCallback(
         (column: string) => rows.filter(row => row[column] !== ""),
         [rows]
@@ -13,13 +11,7 @@ export const useStatisticCalculations = (
     const calculateMedian = useCallback(
         (column: string) => {
             const values = getFilteredRowsByColumn(column).map(row => Number(row[column]));
-            values.sort((a, b) => a - b);
-            const mid = Math.floor(values.length / 2);
-            return (
-                (values.length % 2 !== 0
-                    ? values[mid]
-                    : ((values[mid - 1] || 0) + (values[mid] || 0)) / 2) || 0
-            );
+            return calculateMedianFunction(values);
         },
         [getFilteredRowsByColumn]
     );
