@@ -48,7 +48,7 @@ const DASHBOARD_SIDEBAR_OPTIONS: SideBarOption[] = [
         value: RouteName.ZEBRA_DASHBOARD,
     },
     {
-        text: "eIDSR Alerts Dashboard",
+        text: "eIDSR Events Dashboard",
         value: RouteName.ALERTS_DASHBOARD,
     },
 ];

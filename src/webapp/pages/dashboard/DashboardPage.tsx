@@ -95,7 +95,7 @@ export const DashboardPage: React.FC = React.memo(() => {
         <Layout
             title={
                 isAlertsDashboard
-                    ? i18n.t("eIDSR Alerts Dashboard")
+                    ? i18n.t("eIDSR Events Dashboard")
                     : i18n.t("Zebra Events Dashboard")
             }
             showCreateEvent

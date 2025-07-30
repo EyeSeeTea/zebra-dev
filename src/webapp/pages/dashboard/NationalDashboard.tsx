@@ -38,6 +38,7 @@ export type NationalDashboardProps = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
+    hidePercentTargetMetRow?: boolean;
 };
 
 export const NationalDashboard: React.FC<NationalDashboardProps> = React.memo(props => {

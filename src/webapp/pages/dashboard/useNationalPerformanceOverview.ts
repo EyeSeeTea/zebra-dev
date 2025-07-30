@@ -59,6 +59,7 @@ type State = {
     eventSourceSelected: string;
     setEventSourceSelected: (selection: string) => void;
     hasEventSourceFilter?: boolean;
+    hidePercentTargetMetRow?: boolean;
 };
 
 export type Order = { name: keyof PerformanceOverviewMetricsTableData; direction: "asc" | "desc" };
@@ -88,6 +89,7 @@ export function useNationalPerformanceOverview(): State {
             { label: i18n.t("Event"), value: "event", type: "text" },
             { label: i18n.t("Disease"), value: "suspectedDisease", type: "text" },
             { label: i18n.t("Province"), value: "province", type: "text" },
+            { label: i18n.t("Event Created Date"), value: "date", type: "text" },
             { label: i18n.t("Cases"), value: "cases", type: "text" },
             { label: i18n.t("Deaths"), value: "deaths", type: "text" },
             { label: i18n.t("Duration"), value: "duration", type: "text" },
@@ -213,5 +215,6 @@ export function useNationalPerformanceOverview(): State {
         eventSourceOptions,
         eventSourceSelected,
         setEventSourceSelected,
+        hidePercentTargetMetRow: true,
     };
 }
