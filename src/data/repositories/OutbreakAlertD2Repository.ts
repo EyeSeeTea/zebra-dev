@@ -90,6 +90,11 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
                         const { maybeSuspectedDiseaseAttribute } =
                             this.getAlertTEAttributes(trackedEntity);
 
+                        const updatedAlertBase = {
+                            trackedEntity: trackedEntity.trackedEntity,
+                            trackedEntityType: trackedEntity.trackedEntityType,
+                            orgUnit: trackedEntity.orgUnit,
+                        };
                         const suspectedDiseaseCode = maybeSuspectedDiseaseAttribute?.value;
                         const confirmedDiseaseValue =
                             diseaseOptions.options.find(
@@ -114,7 +119,7 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
                         return [
                             ...acc,
                             {
-                                ...trackedEntity,
+                                ...updatedAlertBase,
                                 attributes: updatedAttributes,
                             },
                         ];
