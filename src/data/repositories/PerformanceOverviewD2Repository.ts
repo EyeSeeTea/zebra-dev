@@ -426,6 +426,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.era5ProgramIndicator,
                                     performanceOverviewDimensions.era6ProgramIndicator,
                                     performanceOverviewDimensions.era7ProgramIndicator,
+                                    performanceOverviewDimensions.detect7dProgramIndicator,
+                                    performanceOverviewDimensions.notify1dProgramIndicator,
+                                    performanceOverviewDimensions.respond7dProgramIndicator,
                                 ],
                                 startDate: DEFAULT_START_DATE,
                                 endDate: DEFAULT_END_DATE,
@@ -1094,6 +1097,17 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     acc.date = formattedDate;
                     break;
                 }
+
+                case "notify1dProgramIndicator":
+                    acc.notify1d = row[index];
+                    break;
+
+                case "respond7dProgramIndicator":
+                    acc.respond7d = row[index];
+                    break;
+                case "detect7dProgramIndicator":
+                    acc.detect7d = row[index];
+                    break;
 
                 default:
                     acc[key] = row[index];
