@@ -873,8 +873,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                         },
                         []
                     );
-
-                    return [];
                 });
             }
         );
