@@ -582,6 +582,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.respond7d,
                                     performanceOverviewDimensions.incidentStatus, // PHEOC status
                                     performanceOverviewDimensions.emergedDate,
+                                    performanceOverviewDimensions.detectionDate,
                                     performanceOverviewDimensions.notifiedDate,
                                     performanceOverviewDimensions.respondedDate,
                                     performanceOverviewDimensions.detectedDate,
@@ -619,6 +620,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                 "emergedDate",
                                                 "notifiedDate",
                                                 "respondedDate",
+                                                "detectionDate",
                                             ].includes(dimensionKey)
                                         ) {
                                             const inputDate = row[index];
@@ -986,71 +988,79 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         metaData: AnalyticsResponse["metaData"],
         performanceOverviewDimensions: PerformanceOverviewDimensions
     ): Partial<PerformanceOverviewMetrics> {
-        return headers.reduce((acc, header, index) => {
-            const key = Object.keys(performanceOverviewDimensions).find(
-                key =>
-                    performanceOverviewDimensions[key as keyof PerformanceOverviewDimensions] ===
-                    header.name
-            ) as Maybe<keyof PerformanceOverviewDimensions>;
+        return headers.reduce(
+            (
+                acc: Partial<PerformanceOverviewMetrics>,
+                header,
+                index
+            ): Partial<PerformanceOverviewMetrics> => {
+                const key = Object.keys(performanceOverviewDimensions).find(
+                    key =>
+                        performanceOverviewDimensions[
+                            key as keyof PerformanceOverviewDimensions
+                        ] === header.name
+                ) as Maybe<keyof PerformanceOverviewDimensions>;
 
-            if (!key) return acc;
+                if (!key) return acc;
 
-            switch (key) {
-                case "suspectedDisease":
-                    acc.suspectedDisease =
-                        ((
-                            Object.values(metaData.items).find(
-                                item => (item as any).code === row[index]
-                            ) as any
-                        )?.name as DiseaseNames) || "";
-                    break;
+                switch (key) {
+                    case "suspectedDisease":
+                        acc.suspectedDisease =
+                            ((
+                                Object.values(metaData.items).find(
+                                    item => (item as any).code === row[index]
+                                ) as any
+                            )?.name as DiseaseNames) || "";
+                        break;
 
-                case "teiId":
-                    acc.id = row[index];
-                    break;
+                    case "teiId":
+                        acc.id = row[index];
+                        break;
 
-                case "era1ProgramIndicator":
-                    acc.era1 = row[index];
-                    break;
+                    case "era1ProgramIndicator":
+                        acc.era1 = row[index];
+                        break;
 
-                case "era2ProgramIndicator":
-                    acc.era2 = row[index];
-                    break;
+                    case "era2ProgramIndicator":
+                        acc.era2 = row[index];
+                        break;
 
-                case "era3ProgramIndicator":
-                    acc.era3 = row[index];
-                    break;
+                    case "era3ProgramIndicator":
+                        acc.era3 = row[index];
+                        break;
 
-                case "era4ProgramIndicator":
-                    acc.era4 = row[index];
-                    break;
+                    case "era4ProgramIndicator":
+                        acc.era4 = row[index];
+                        break;
 
-                case "era5ProgramIndicator":
-                    acc.era5 = row[index];
-                    break;
+                    case "era5ProgramIndicator":
+                        acc.era5 = row[index];
+                        break;
 
-                case "era6ProgramIndicator":
-                    acc.era6 = row[index];
-                    break;
+                    case "era6ProgramIndicator":
+                        acc.era6 = row[index];
+                        break;
 
-                case "era7ProgramIndicator":
-                    acc.era7 = row[index];
-                    break;
+                    case "era7ProgramIndicator":
+                        acc.era7 = row[index];
+                        break;
 
-                case "date": {
-                    const inputDate = row[index];
-                    const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
-                    acc.date = formattedDate;
-                    break;
+                    case "date": {
+                        const inputDate = row[index];
+                        const formattedDate = inputDate?.split(" ")[0]; // YYYY-MM-DD
+                        acc.date = formattedDate;
+                        break;
+                    }
+
+                    default:
+                        acc[key] = row[index];
+                        break;
                 }
 
-                default:
-                    acc[key] = row[index];
-                    break;
-            }
-
-            return acc;
-        }, {} as Partial<PerformanceOverviewMetrics>);
+                return acc;
+            },
+            {}
+        );
     }
 }
 

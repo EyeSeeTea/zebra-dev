@@ -44,6 +44,7 @@ export type AlertsPerformanceOverviewMetricsTableData = {
     respond7d: string;
     incidentStatus: string;
     emergedDate: string;
+    detectionDate: string;
     notifiedDate: string;
     respondedDate: string;
 };
@@ -163,6 +164,7 @@ export function useAlertsPerformanceOverview(): State {
             { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
             { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
             { label: i18n.t("Emergence Date"), value: "emergedDate", type: "text" },
+            { label: i18n.t("Detection Date"), value: "detectionDate", type: "text" },
             { label: i18n.t("Notification Date"), value: "notifiedDate", type: "text" },
             { label: i18n.t("Response Date"), value: "respondedDate", type: "text" },
             { label: i18n.t("Manager"), value: "incidentManager", type: "text" },
