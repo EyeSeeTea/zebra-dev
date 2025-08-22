@@ -30,6 +30,7 @@ import { Maybe } from "../../utils/ts-utils";
 import { NotificationOptions } from "../../domain/repositories/NotificationRepository";
 import { Alert } from "../../domain/entities/alert/Alert";
 import { getDiseaseOptions } from "./common/getDiseaseOptions";
+import { parseTrackerPostErrorResponse } from "./utils/parseTrackerPostErrorResponse";
 
 export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
     constructor(private api: D2Api) {}
@@ -135,15 +136,22 @@ export class OutbreakAlertD2Repository implements OutbreakAlertRepository {
                         { importStrategy: "UPDATE" },
                         { trackedEntities: alertTEIsWithConfirmedDisease }
                     )
-                ).flatMap(response => {
-                    if (response.status !== "OK") {
-                        return Future.error(
-                            new Error(
-                                `Error saving alerts with Confirmed Disease: ${response.message}`
-                            )
-                        );
-                    } else return Future.success(undefined);
-                });
+                )
+                    .flatMapError(error =>
+                        parseTrackerPostErrorResponse(
+                            error,
+                            "Error updating Confirmed Disease in alerts"
+                        )
+                    )
+                    .flatMap(response => {
+                        if (response.status !== "OK") {
+                            return Future.error(
+                                new Error(
+                                    `Error updating Confirmed Disease in alerts: ${response.message}`
+                                )
+                            );
+                        } else return Future.success(undefined);
+                    });
             }
         });
     }

@@ -91,6 +91,10 @@ import { ResourceTypeNamedTestRepository } from "./data/repositories/test/Resour
 import { ResourceTypeNamedD2Repository } from "./data/repositories/ResourceTypeNamedD2Repository";
 import { CompleteAlertUseCase } from "./domain/usecases/CompleteAlertUseCase";
 import { UpdateAlertConfirmedDiseaseUseCase } from "./domain/usecases/UpdateAlertConfirmedDiseaseUseCase";
+import { GetAlertsSuspectedDiseasesUseCase } from "./domain/usecases/GetAlertsSuspectedDiseasesUseCase";
+import { AlertsSuspectedDiseaseRepository } from "./domain/repositories/AlertsSuspectedDiseaseRepository";
+import { AlertsSuspectedDiseaseTestRepository } from "./data/repositories/test/AlertsSuspectedDiseaseTestRepository";
+import { AlertsSuspectedDiseaseD2Repository } from "./data/repositories/AlertsSuspectedDiseaseD2Repository";
 
 export type CompositionRoot = ReturnType<typeof getCompositionRoot>;
 
@@ -115,6 +119,7 @@ type Repositories = {
     resourceRepository: ResourceRepository;
     resourceFileRepository: ResourceFileRepository;
     resourceTypeNamedRepository: ResourceTypeNamedRepository;
+    alertsSuspectedDiseaseRepository: AlertsSuspectedDiseaseRepository;
 };
 
 function getCompositionRoot(repositories: Repositories) {
@@ -182,6 +187,9 @@ function getCompositionRoot(repositories: Repositories) {
             delete: new DeleteResourceUseCase(repositories),
             getPermissions: new GetResourceUserPermissionsUseCase(repositories),
         },
+        alerts: {
+            getAlertsSuspectedDiseases: new GetAlertsSuspectedDiseasesUseCase(repositories),
+        },
     };
 }
 
@@ -208,6 +216,7 @@ export function getWebappCompositionRoot(api: D2Api) {
         resourceRepository: new ResourceD2Repository(api),
         resourceFileRepository: new ResourceFileD2Repository(api),
         resourceTypeNamedRepository: new ResourceTypeNamedD2Repository(api),
+        alertsSuspectedDiseaseRepository: new AlertsSuspectedDiseaseD2Repository(api),
     };
 
     return getCompositionRoot(repositories);
@@ -235,6 +244,7 @@ export function getTestCompositionRoot() {
         resourceRepository: new ResourceTestRepository(),
         resourceFileRepository: new ResourceFileTestRepository(),
         resourceTypeNamedRepository: new ResourceTypeNamedTestRepository(),
+        alertsSuspectedDiseaseRepository: new AlertsSuspectedDiseaseTestRepository(),
     };
 
     return getCompositionRoot(repositories);

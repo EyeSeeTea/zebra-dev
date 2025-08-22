@@ -34,6 +34,7 @@ import { IncidentStatus } from "../../domain/entities/disease-outbreak-event/Per
 import { assertOrError } from "./utils/AssertOrError";
 import { D2TrackerEnrollment } from "@eyeseetea/d2-api/api/trackerEnrollments";
 import logger from "../../scripts/utils/console-logger";
+import { parseTrackerPostErrorResponse } from "./utils/parseTrackerPostErrorResponse";
 
 const incidentStatusOptionMap = new Map<IncidentStatus, string>([
     ["Alert", "PHEOC_STATUS_ALERT"],
@@ -103,13 +104,20 @@ export class AlertD2Repository implements AlertRepository {
                     { importStrategy: "UPDATE" },
                     { trackedEntities: alertsTrackedEntitiesToPost }
                 )
-            ).flatMap(saveResponse => {
-                if (saveResponse.status === "ERROR")
-                    return Future.error(
-                        new Error("Error mapping disease outbreak event id to alert")
-                    );
-                else return Future.success(activeVerifiedAlerts);
-            });
+            )
+                .flatMapError(error =>
+                    parseTrackerPostErrorResponse(
+                        error,
+                        "Error mapping disease outbreak event id to alert"
+                    )
+                )
+                .flatMap(saveResponse => {
+                    if (saveResponse.status === "ERROR")
+                        return Future.error(
+                            new Error("Error mapping disease outbreak event id to alert")
+                        );
+                    else return Future.success(activeVerifiedAlerts);
+                });
         });
     }
 
@@ -424,28 +432,12 @@ export class AlertD2Repository implements AlertRepository {
                     { trackedEntities: updatedAlertTrackedEntities }
                 )
             )
-                .flatMapError((error: unknown) => {
-                    const maybeResponse = (error as TrackerPostErrorResponse)?.response?.data;
-                    if (
-                        maybeResponse?.status === "ERROR" &&
-                        Array.isArray(maybeResponse?.validationReport?.errorReports)
-                    ) {
-                        const errorReports = maybeResponse.validationReport.errorReports;
-                        return Future.error(
-                            new Error(
-                                `Error saving updated alerts with suspected disease mapped to confirmed disease: ${errorReports
-                                    .map(e => e.message)
-                                    .join(", ")}`
-                            )
-                        );
-                    } else {
-                        return Future.error(
-                            new Error(
-                                `Error saving updated alerts with suspected disease mapped to confirmed disease: ${error}`
-                            )
-                        );
-                    }
-                })
+                .flatMapError(error =>
+                    parseTrackerPostErrorResponse(
+                        error,
+                        "Error saving updated alerts with suspected disease mapped to confirmed disease"
+                    )
+                )
                 .flatMap(saveResponse => {
                     if (saveResponse.status === "ERROR") {
                         return Future.error(
@@ -483,7 +475,10 @@ export class AlertD2Repository implements AlertRepository {
                     orgUnit: alertTrackedEntity.orgUnit,
                 };
 
-                if (!!confirmedDiseaseCode && !suspectedDiseaseCode) {
+                if (
+                    !!confirmedDiseaseCode &&
+                    (!suspectedDiseaseCode || suspectedDiseaseCode === UNKNOWN_DISEASE_CODE)
+                ) {
                     const restAttributes =
                         alertTrackedEntity.attributes?.filter(
                             attr => attr.attribute !== RTSL_ZEBRA_ALERTS_SUSPECTED_DISEASE_TEA_ID
@@ -629,24 +624,3 @@ const alertTrackerEntityFields = {
 } as const;
 
 type AlertTrackerEntityFields = Partial<typeof alertTrackerEntityFields>;
-
-type ErrorReport = {
-    message: string;
-    errorCode: string;
-    trackerType: string;
-    uid: string;
-};
-
-type TrackerPostErrorResponseData = {
-    status: "ERROR";
-    validationReport: {
-        errorReports: ErrorReport[];
-    };
-};
-
-type TrackerPostErrorResponse = {
-    request: unknown;
-    response: {
-        data: TrackerPostErrorResponseData;
-    };
-};
