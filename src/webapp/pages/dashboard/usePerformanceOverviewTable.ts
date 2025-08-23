@@ -33,10 +33,13 @@ type State<T> = {
 
 const PAGE_SIZE = 20;
 
-export function usePerformanceOverviewTable<T>(
-    filtersConfig: FiltersConfig[],
-    isPaginated?: boolean
-): State<T> {
+export function usePerformanceOverviewTable<T>(params: {
+    filtersConfig: FiltersConfig[];
+    isPaginated?: boolean;
+    dateColumns?: string[];
+}): State<T> {
+    const { filtersConfig, isPaginated = false, dateColumns = [] } = params;
+
     const [data, setData] = useState<T[]>([]);
     const [filteredData, setFilteredData] = useState<T[]>([]);
     const [order, setOrder] = useState<Order<T>>();
@@ -84,7 +87,14 @@ export function usePerformanceOverviewTable<T>(
                         ],
                         [
                             item => {
-                                const value = item[order.name];
+                                const columnName = order.name;
+                                const value = item[columnName];
+                                const isDateColumn = !!dateColumns.find(col => col === columnName);
+                                if (isDateColumn) {
+                                    const timestamp = columnValueToTimestamp(value);
+                                    return timestamp ?? Number.NEGATIVE_INFINITY;
+                                }
+
                                 const numValue = Number(value);
 
                                 return Number.isNaN(numValue) ? value : numValue;
@@ -95,7 +105,7 @@ export function usePerformanceOverviewTable<T>(
                     .toArray()
             );
         }
-    }, [filteredData.length, order]);
+    }, [dateColumns, filteredData.length, order]);
 
     const paginatedData = useMemo(() => {
         if (isPaginated) {
@@ -133,4 +143,17 @@ export function usePerformanceOverviewTable<T>(
         eventSourceSelected,
         setEventSourceSelected,
     };
+}
+
+function columnValueToTimestamp(value: unknown): number | null {
+    if (value == null || value === "") return null;
+
+    if (value instanceof Date) return +value;
+
+    if (typeof value === "string") {
+        const timestamp = Date.parse(value);
+        return Number.isNaN(timestamp) ? null : timestamp;
+    } else {
+        return null;
+    }
 }
