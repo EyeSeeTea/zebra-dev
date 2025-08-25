@@ -18,6 +18,7 @@ export type AlertsPerformanceOverviewDimensions = {
     respond7d: Id;
     incidentStatus: Id;
     emergedDate: Id;
+    detectionDate: Id;
     notifiedDate: Id;
     respondedDate: Id;
     detectedDate: Id;

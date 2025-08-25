@@ -22,6 +22,7 @@ export type AlertsPerformanceOverviewMetrics = {
     incidentStatus: string;
     eventSource: AlertDataSource;
     emergedDate: string;
+    detectionDate: string;
     notifiedDate: string;
     respondedDate: string;
 };

@@ -107,6 +107,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 emergedDate: "2024-08-27",
                 notifiedDate: "2024-08-27",
                 respondedDate: "2024-08-27",
+                detectionDate: "2024-08-27",
             },
             {
                 cases: "22",
@@ -130,6 +131,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 emergedDate: "2024-08-27",
                 notifiedDate: "2024-08-27",
                 respondedDate: "2024-08-27",
+                detectionDate: "2024-08-27",
             },
             {
                 cases: "5",
@@ -153,6 +155,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 emergedDate: "2024-08-27",
                 notifiedDate: "2024-08-27",
                 respondedDate: "2024-08-27",
+                detectionDate: "2024-08-27",
             },
         ]);
     }
@@ -181,6 +184,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 emergedDate: "2024-08-27",
                 notifiedDate: "2024-08-27",
                 respondedDate: "2024-08-27",
+                detectionDate: "2024-08-27",
             },
             {
                 cases: "22",
@@ -204,6 +208,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 emergedDate: "2024-08-27",
                 notifiedDate: "2024-08-27",
                 respondedDate: "2024-08-27",
+                detectionDate: "2024-08-27",
             },
             {
                 cases: "5",
@@ -227,6 +232,7 @@ export class PerformanceOverviewTestRepository implements PerformanceOverviewRep
                 emergedDate: "2024-08-27",
                 notifiedDate: "2024-08-27",
                 respondedDate: "2024-08-27",
+                detectionDate: "2024-08-27",
             },
         ]);
     }
