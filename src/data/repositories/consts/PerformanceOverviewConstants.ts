@@ -17,6 +17,9 @@ export type PerformanceOverviewDimensions = {
     era7ProgramIndicator: Id;
     suspectedDisease: Id;
     date: "enrollmentdate";
+    notify1dProgramIndicator: Id;
+    detect7dProgramIndicator: Id;
+    respond7dProgramIndicator: Id;
 };
 
 type EventTrackerCountIndicatorBase = {
