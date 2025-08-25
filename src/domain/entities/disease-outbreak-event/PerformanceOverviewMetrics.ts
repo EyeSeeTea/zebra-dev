@@ -45,6 +45,9 @@ export type PerformanceOverviewMetrics = {
     suspectedDisease: DiseaseNames;
     date: string;
     incidentManagerUsername: string;
+    detect7d: string;
+    notify1d: string;
+    respond7d: string;
 };
 
 const incidentStatuses = ["Watch", "Alert", "Respond"] as const;

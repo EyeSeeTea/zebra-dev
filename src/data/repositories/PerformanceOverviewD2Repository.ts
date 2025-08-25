@@ -6,6 +6,7 @@ import {
     RTSL_ZEBRA_ALERTS_NATIONAL_DISEASE_OUTBREAK_EVENT_ID_TEA_ID,
     RTSL_ZEBRA_ALERTS_PROGRAM_ID,
     RTSL_ZEBRA_ALERTS_VERIFICATION_STATUS_ID,
+    RTSL_ZEBRA_ORG_UNIT_ID,
     RTSL_ZEBRA_PROGRAM_ID,
 } from "./consts/DiseaseOutbreakConstants";
 import _ from "../../domain/entities/generic/Collection";
@@ -425,6 +426,9 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     performanceOverviewDimensions.era5ProgramIndicator,
                                     performanceOverviewDimensions.era6ProgramIndicator,
                                     performanceOverviewDimensions.era7ProgramIndicator,
+                                    performanceOverviewDimensions.detect7dProgramIndicator,
+                                    performanceOverviewDimensions.notify1dProgramIndicator,
+                                    performanceOverviewDimensions.respond7dProgramIndicator,
                                 ],
                                 startDate: DEFAULT_START_DATE,
                                 endDate: DEFAULT_END_DATE,
@@ -798,31 +802,80 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
     }
 
     getNational717Performance(): FutureData<PerformanceMetrics717[]> {
-        return Future.joinObj({
-            performance717ProgramIndicators: this.get717PerformanceIndicators("national"),
-            totalPerformance717ProgramIndicator:
-                this.getTotalPerformance717ProgramIndicator("national"),
-        }).flatMap(({ performance717ProgramIndicators, totalPerformance717ProgramIndicator }) => {
-            const performance717ProgramIndicatorIds = [
-                ...performance717ProgramIndicators.map(({ id }) => id),
-                totalPerformance717ProgramIndicator?.id,
-            ];
+        return this.get717PerformanceIndicators("national").flatMap(
+            performance717ProgramIndicators => {
+                const performance717ProgramIndicatorsNumbers =
+                    performance717ProgramIndicators.filter(({ type }) => type === "secondary");
 
-            return apiToFuture(
-                this.api.analytics.get({
-                    dimension: [`dx:${performance717ProgramIndicatorIds.join(";")}`],
-                    startDate: DEFAULT_START_DATE,
-                    endDate: DEFAULT_END_DATE,
-                    includeMetadataDetails: true,
-                })
-            ).map(res => {
-                return this.mapIndicatorsTo717PerformanceMetrics(
-                    res.rows,
-                    performance717ProgramIndicators,
-                    totalPerformance717ProgramIndicator
-                );
-            });
-        });
+                return apiToFuture(
+                    this.api.get<AnalyticsEnrollmentsResponse>(
+                        `/analytics/enrollments/query/${RTSL_ZEBRA_PROGRAM_ID}`,
+                        {
+                            dimension: [
+                                ...performance717ProgramIndicatorsNumbers.map(({ id }) => id),
+                                `ou:${RTSL_ZEBRA_ORG_UNIT_ID}`,
+                            ],
+                            startDate: DEFAULT_START_DATE,
+                            endDate: DEFAULT_END_DATE,
+                            includeMetadataDetails: true,
+                            ouMode: "SELECTED",
+                            paging: false,
+                            programStatus: programStatusOptions.ACTIVE,
+                        }
+                    )
+                ).map(res => {
+                    const filteredRowsByZebraOrgUnit = res.rows.filter(row => {
+                        const orgUnitIndex = res.headers.findIndex(header => header.name === "ou");
+                        return row[orgUnitIndex] === RTSL_ZEBRA_ORG_UNIT_ID;
+                    });
+
+                    const totalEnrollmentsValue = filteredRowsByZebraOrgUnit.length;
+
+                    return performance717ProgramIndicatorsNumbers.reduce(
+                        (
+                            acc: PerformanceMetrics717[],
+                            performance717ProgramIndicator: PerformanceMetrics717
+                        ): PerformanceMetrics717[] => {
+                            const programIndicatorId = performance717ProgramIndicator.id;
+                            const programIndicatorIdIndex = res.headers.findIndex(
+                                header => header.name === programIndicatorId
+                            );
+                            const sumOfProgramIndicatorValue = filteredRowsByZebraOrgUnit.reduce(
+                                (sum, row) => {
+                                    const numberValue = Number(row[programIndicatorIdIndex] || "0");
+                                    return isNaN(numberValue) ? sum : sum + numberValue;
+                                },
+                                0
+                            );
+
+                            const percentageValue =
+                                sumOfProgramIndicatorValue !== 0
+                                    ? (sumOfProgramIndicatorValue / totalEnrollmentsValue) * 100
+                                    : 0;
+
+                            return [
+                                ...acc,
+                                {
+                                    ...performance717ProgramIndicator,
+                                    id: `${performance717ProgramIndicator.id}-primary`,
+                                    type: "primary",
+                                    value: percentageValue,
+                                    total: totalEnrollmentsValue,
+                                },
+                                {
+                                    ...performance717ProgramIndicator,
+                                    id: `${performance717ProgramIndicator.id}-secondary`,
+                                    type: "secondary",
+                                    value: sumOfProgramIndicatorValue,
+                                    total: totalEnrollmentsValue,
+                                },
+                            ];
+                        },
+                        []
+                    );
+                });
+            }
+        );
     }
 
     getAlerts717Performance(
@@ -943,7 +996,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     : COMPLETED_ALERTS_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY,
             event: EVENT_TRACKER_PERFORMANCE_717_PROGRAM_INDICATORS_DATASTORE_KEY,
         }[key];
-
         return this.datastore
             .getObject<PerformanceMetrics717[]>(datastoreKey)
             .flatMap(nullable717PerformanceProgramIndicators => {
@@ -1044,6 +1096,17 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     break;
                 }
 
+                case "notify1dProgramIndicator":
+                    acc.notify1d = row[index];
+                    break;
+
+                case "respond7dProgramIndicator":
+                    acc.respond7d = row[index];
+                    break;
+                case "detect7dProgramIndicator":
+                    acc.detect7d = row[index];
+                    break;
+
                 default:
                     acc[key] = row[index];
                     break;
@@ -1074,3 +1137,37 @@ function filterAnalyticsEnrollmentDataByDiseaseOutbreakEvent(
 
     return filteredRows;
 }
+
+type AnalyticsEnrollmentsResponse = {
+    headers: Array<{
+        name: string;
+        column: "Data";
+        valueType: "TEXT" | "NUMBER";
+        type: "java.lang.String" | "java.lang.Double";
+        hidden: boolean;
+        meta: boolean;
+    }>;
+    metaData:
+        | Record<string, never>
+        | {
+              dimensions: Record<string, string[]>;
+              items: Record<
+                  string,
+                  {
+                      name: string;
+                      uid?: Id;
+                      code?: string;
+                      options: any[];
+                  }
+              >;
+              pager?: {
+                  page: number;
+                  pageCount: number;
+                  total: number;
+                  pageSize: number;
+              };
+          };
+    rows: Array<string[]>;
+    width: number;
+    height: number;
+};
