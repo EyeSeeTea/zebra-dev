@@ -67,6 +67,8 @@ type State = {
 
 export type Order = { name: keyof PerformanceOverviewMetricsTableData; direction: "asc" | "desc" };
 
+const DATE_COLUMNS = ["date"];
+
 export function useNationalPerformanceOverview(): State {
     const {
         compositionRoot,
@@ -141,7 +143,10 @@ export function useNationalPerformanceOverview(): State {
         eventSourceOptions,
         eventSourceSelected,
         setEventSourceSelected,
-    } = usePerformanceOverviewTable<PerformanceOverviewMetricsTableData>(filtersConfig);
+    } = usePerformanceOverviewTable<PerformanceOverviewMetricsTableData>({
+        filtersConfig: filtersConfig,
+        dateColumns: DATE_COLUMNS,
+    });
 
     const mapEntityToTableData = useCallback(
         (

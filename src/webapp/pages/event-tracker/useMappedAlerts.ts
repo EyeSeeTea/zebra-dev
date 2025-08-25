@@ -95,7 +95,10 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
         eventSourceOptions,
         eventSourceSelected,
         setEventSourceSelected,
-    } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>(filtersConfig, true);
+    } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>({
+        filtersConfig: filtersConfig,
+        isPaginated: true,
+    });
 
     const columns = useMemo<TableColumn[]>(
         () => [

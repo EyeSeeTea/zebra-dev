@@ -86,6 +86,8 @@ export type Order = {
     direction: "asc" | "desc";
 };
 
+const DATE_COLUMNS = ["emergedDate", "notifiedDate", "respondedDate", "detectionDate"];
+
 export function useAlertsPerformanceOverview(): State {
     const {
         compositionRoot,
@@ -133,7 +135,11 @@ export function useAlertsPerformanceOverview(): State {
         eventSourceOptions,
         eventSourceSelected,
         setEventSourceSelected,
-    } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>(filtersConfig, true);
+    } = usePerformanceOverviewTable<AlertsPerformanceOverviewMetricsTableData>({
+        filtersConfig: filtersConfig,
+        isPaginated: true,
+        dateColumns: DATE_COLUMNS,
+    });
 
     // TODO: Use disease options codes instead of names
     const diseaseOptions = useMemo(
