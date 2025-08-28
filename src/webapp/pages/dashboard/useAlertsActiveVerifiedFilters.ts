@@ -4,6 +4,7 @@ import { OrgUnit } from "../../../domain/entities/OrgUnit";
 import { Option } from "../../components/utils/option";
 import {
     diseaseNames,
+    UNCONFIRMABLE_DISEASE_NAME,
     UNKNOWN_DISEASE_NAME,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
@@ -82,7 +83,11 @@ export function useAlertsActiveVerifiedFilters(): State {
                     value: diseaseName,
                     label: diseaseName,
                 }))
-                .filter(option => option.value !== UNKNOWN_DISEASE_NAME);
+                .filter(
+                    option =>
+                        option.value !== UNKNOWN_DISEASE_NAME &&
+                        option.value !== UNCONFIRMABLE_DISEASE_NAME
+                );
 
             return [
                 {

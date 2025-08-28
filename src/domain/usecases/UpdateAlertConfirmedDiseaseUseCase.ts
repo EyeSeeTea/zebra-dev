@@ -1,7 +1,7 @@
 import { FutureData } from "../../data/api-futures";
 import { Maybe } from "../../utils/ts-utils";
 import { Alert } from "../entities/alert/Alert";
-import { UNKNOWN_DISEASE_CODE } from "../entities/alert/OutbreakAlert";
+import { UNCONFIRMABLE_DISEASE_CODE, UNKNOWN_DISEASE_CODE } from "../entities/alert/OutbreakAlert";
 import { Future } from "../entities/generic/Future";
 import { Id, Option } from "../entities/Ref";
 import { AlertRepository } from "../repositories/AlertRepository";
@@ -59,7 +59,12 @@ export class UpdateAlertConfirmedDiseaseUseCase {
         alert: Alert,
         newDiseaseCode: string
     ): FutureData<Maybe<Id>> {
-        if (alert.incidentStatus === "Respond" && newDiseaseCode) {
+        if (
+            alert.incidentStatus === "Respond" &&
+            newDiseaseCode &&
+            newDiseaseCode !== UNKNOWN_DISEASE_CODE &&
+            newDiseaseCode !== UNCONFIRMABLE_DISEASE_CODE
+        ) {
             return this.options.diseaseOutbreakEventRepository
                 .getActiveByDisease(newDiseaseCode)
                 .flatMap(maybeDiseaseOutbreakEvent => {
