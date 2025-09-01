@@ -49,7 +49,6 @@ import { AlertDataSource } from "../../domain/entities/alert/Alert";
 import { orgUnitLevelTypeByLevelNumber } from "../../domain/entities/OrgUnit";
 import { VerificationStatus } from "../../domain/entities/alert/Alert";
 import _c from "../../domain/entities/generic/Collection";
-import { getDateAsMonthYearString } from "./utils/DateTimeHelper";
 import { programStatusOptions } from "./utils/getAllTrackedEntities";
 
 const formatDate = (date: Date): string => {
@@ -628,11 +627,10 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                             ].includes(dimensionKey)
                                         ) {
                                             const inputDate = row[index];
+
                                             return {
                                                 ...acc,
-                                                [dimensionKey]: inputDate
-                                                    ? getDateAsMonthYearString(new Date(inputDate))
-                                                    : null,
+                                                [dimensionKey]: inputDate,
                                             };
                                         } else if (dimension === "ounamehierarchy") {
                                             const hierarchyArray = row[index]?.split("/");

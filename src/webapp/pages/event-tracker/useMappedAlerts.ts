@@ -104,9 +104,7 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
         () => [
             { label: i18n.t("Disease"), value: "confirmedDisease", type: "text" },
             { label: i18n.t("Province"), value: "province", type: "text" },
-            { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
-            { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
-            { label: i18n.t("Duration"), value: "duration", type: "text" },
+            { label: i18n.t("District"), value: "orgUnit", type: "text" },
             { label: i18n.t("Emergence Date"), value: "emergedDate", type: "text" },
             { label: i18n.t("Detection Date"), value: "detectionDate", type: "text" },
             { label: i18n.t("Notification Date"), value: "notifiedDate", type: "text" },

@@ -16,6 +16,7 @@ import i18n from "../../../utils/i18n";
 import { TeamMember } from "../../../domain/entities/incident-management-team/TeamMember";
 import { Option } from "../../components/utils/option";
 import { Id } from "../../../domain/entities/Ref";
+import { getDateStringAsMonthYearString } from "../../components/utils/getDateStringAsMonthYearString";
 
 export type PerformanceOverviewMetricsTableData = {
     id: Id;
@@ -160,6 +161,7 @@ export function useNationalPerformanceOverview(): State {
             return {
                 ...programIndicator,
                 event: programIndicator.event,
+                date: getDateStringAsMonthYearString(programIndicator.date),
                 incidentManager: incidentManagerName || programIndicator.incidentManagerUsername,
             };
         },

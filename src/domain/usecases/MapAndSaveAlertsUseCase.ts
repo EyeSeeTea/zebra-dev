@@ -6,7 +6,11 @@ import _ from "../entities/generic/Collection";
 import { logger } from "../../utils/logger";
 import { NotificationRepository } from "../repositories/NotificationRepository";
 import { UserGroupRepository } from "../repositories/UserGroupRepository";
-import { OutbreakAlert, UNKNOWN_DISEASE_CODE } from "../entities/alert/OutbreakAlert";
+import {
+    OutbreakAlert,
+    UNCONFIRMABLE_DISEASE_CODE,
+    UNKNOWN_DISEASE_CODE,
+} from "../entities/alert/OutbreakAlert";
 import { OutbreakAlertRepository } from "../repositories/OutbreakAlertRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { getOutbreakKey } from "../entities/AlertsAndCaseForCasesData";
@@ -60,7 +64,8 @@ export class MapAndSaveAlertsUseCase {
                     alertsByDisease.toPairs().map(([confirmedDiseaseCode, outbreakAlerts]) => {
                         if (
                             !confirmedDiseaseCode ||
-                            confirmedDiseaseCode === UNKNOWN_DISEASE_CODE
+                            confirmedDiseaseCode === UNKNOWN_DISEASE_CODE ||
+                            confirmedDiseaseCode === UNCONFIRMABLE_DISEASE_CODE
                         ) {
                             return Future.success(undefined);
                         }

@@ -23,6 +23,7 @@ import {
     UNKNOWN_DISEASE_NAME,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
+import { getDateStringAsMonthYearString } from "../../components/utils/getDateStringAsMonthYearString";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     teiId: Id;
@@ -167,8 +168,7 @@ export function useAlertsPerformanceOverview(): State {
                 type: "text",
             },
             { label: i18n.t("Province"), value: "province", type: "text" },
-            { label: i18n.t("Organisation unit"), value: "orgUnit", type: "text" },
-            { label: i18n.t("Organisation unit type"), value: "orgUnitType", type: "text" },
+            { label: i18n.t("District"), value: "orgUnit", type: "text" },
             { label: i18n.t("Emergence Date"), value: "emergedDate", type: "text" },
             { label: i18n.t("Detection Date"), value: "detectionDate", type: "text" },
             { label: i18n.t("Notification Date"), value: "notifiedDate", type: "text" },
@@ -185,7 +185,7 @@ export function useAlertsPerformanceOverview(): State {
                 disableSelection: (row: Row) =>
                     !currentUser.canBeIncidentManager ||
                     !row.confirmedDisease ||
-                    row.confirmedDisease === "Unknown",
+                    row.confirmedDisease === UNKNOWN_DISEASE_NAME,
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
@@ -201,6 +201,10 @@ export function useAlertsPerformanceOverview(): State {
             const incidentManager = allTeamMembers.find(tm => tm.name === data.incidentManager);
             return {
                 ...data,
+                emergedDate: getDateStringAsMonthYearString(data.emergedDate),
+                notifiedDate: getDateStringAsMonthYearString(data.notifiedDate),
+                respondedDate: getDateStringAsMonthYearString(data.respondedDate),
+                detectionDate: getDateStringAsMonthYearString(data.detectionDate),
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
                 province: data.province.trim(),
@@ -249,10 +253,12 @@ export function useAlertsPerformanceOverview(): State {
         isVisible: boolean;
         alertId: Maybe<string>;
     }>({ isVisible: false, alertId: undefined });
+
     const openCompleteModal = useCallback(
         (alertId: Id) => updateCompleteModalState({ isVisible: true, alertId: alertId }),
         []
     );
+
     const closeCompleteModal = useCallback(
         () => updateCompleteModalState({ isVisible: false, alertId: undefined }),
         []
