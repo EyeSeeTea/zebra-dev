@@ -5,7 +5,7 @@ import { Id } from "../entities/Ref";
 import { AlertRepository } from "../repositories/AlertRepository";
 import { DiseaseOutbreakEventRepository } from "../repositories/DiseaseOutbreakEventRepository";
 import { Maybe } from "../../utils/ts-utils";
-import { Alert } from "../entities/alert/Alert";
+import { Alert, UNKNOWN_DISEASE_CODE, UNCONFIRMABLE_DISEASE_CODE } from "../entities/alert/Alert";
 
 export class UpdateAlertPHEOCStatusUseCase {
     constructor(
@@ -30,7 +30,7 @@ export class UpdateAlertPHEOCStatusUseCase {
             if (
                 alert.status !== "ACTIVE" ||
                 !alert.confirmedDiseaseCode ||
-                alert.confirmedDiseaseCode === "Unknown"
+                alert.confirmedDiseaseCode === UNKNOWN_DISEASE_CODE
             ) {
                 return Future.error(
                     new Error(
@@ -48,7 +48,12 @@ export class UpdateAlertPHEOCStatusUseCase {
         newPheocStatus: IncidentStatus,
         alert: Alert
     ): FutureData<Maybe<Id>> {
-        if (newPheocStatus === "Respond" && alert.confirmedDiseaseCode) {
+        if (
+            newPheocStatus === "Respond" &&
+            alert.confirmedDiseaseCode &&
+            alert.confirmedDiseaseCode !== UNKNOWN_DISEASE_CODE &&
+            alert.confirmedDiseaseCode !== UNCONFIRMABLE_DISEASE_CODE
+        ) {
             return this.options.diseaseOutbreakEventRepository
                 .getActiveByDisease(alert.confirmedDiseaseCode)
                 .flatMap(maybeDiseaseOutbreakEvent => {

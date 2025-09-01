@@ -186,7 +186,7 @@ export function useAlertsPerformanceOverview(): State {
                 disableSelection: (row: Row) =>
                     !currentUser.canBeIncidentManager ||
                     !row.confirmedDisease ||
-                    row.confirmedDisease === "Unknown",
+                    row.confirmedDisease === UNKNOWN_DISEASE_NAME,
             },
             { label: i18n.t("EMS Id"), value: "eventEBSId", type: "text" },
             { label: i18n.t("Outbreak Id"), value: "eventIBSId", type: "text" },
@@ -254,10 +254,12 @@ export function useAlertsPerformanceOverview(): State {
         isVisible: boolean;
         alertId: Maybe<string>;
     }>({ isVisible: false, alertId: undefined });
+
     const openCompleteModal = useCallback(
         (alertId: Id) => updateCompleteModalState({ isVisible: true, alertId: alertId }),
         []
     );
+
     const closeCompleteModal = useCallback(
         () => updateCompleteModalState({ isVisible: false, alertId: undefined }),
         []

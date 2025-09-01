@@ -2,6 +2,7 @@ import { isValueInUnionType, Maybe } from "../../../utils/ts-utils";
 import { Id } from "../Ref";
 
 export const UNKNOWN_DISEASE_NAME = "Unknown" as const;
+export const UNCONFIRMABLE_DISEASE_NAME = "Unconfirmable" as const;
 
 export const diseaseNames = [
     "AFP",
@@ -19,6 +20,7 @@ export const diseaseNames = [
     "SARIs",
     "Typhoid fever",
     "Zika fever",
+    UNCONFIRMABLE_DISEASE_NAME,
     UNKNOWN_DISEASE_NAME,
 ] as const;
 

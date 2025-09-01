@@ -10,6 +10,7 @@ import { Option as PresentationOption } from "../../../components/utils/option";
 import { mapToPresentationOptions } from "../mapEntityToFormState";
 import {
     DiseaseNames,
+    UNCONFIRMABLE_DISEASE_NAME,
     UNKNOWN_DISEASE_NAME,
 } from "../../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 
@@ -126,7 +127,8 @@ function getInitialFormStateForDiseaseOutbreakEvent(
         return (
             (!existingEventTrackerTypes.includes(suspectedDisease.name as DiseaseNames) ||
                 isCurrentDisease) &&
-            suspectedDisease.name !== UNKNOWN_DISEASE_NAME
+            suspectedDisease.name !== UNKNOWN_DISEASE_NAME &&
+            suspectedDisease.name !== UNCONFIRMABLE_DISEASE_NAME
         );
     });
 
