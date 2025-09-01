@@ -23,6 +23,7 @@ import {
     UNKNOWN_DISEASE_NAME,
 } from "../../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
 import { incidentStatusOptions } from "./useAlertsActiveVerifiedFilters";
+import { getDateStringAsMonthYearString } from "../../components/utils/getDateStringAsMonthYearString";
 
 export type AlertsPerformanceOverviewMetricsTableData = {
     teiId: Id;
@@ -201,6 +202,10 @@ export function useAlertsPerformanceOverview(): State {
             const incidentManager = allTeamMembers.find(tm => tm.name === data.incidentManager);
             return {
                 ...data,
+                emergedDate: getDateStringAsMonthYearString(data.emergedDate),
+                notifiedDate: getDateStringAsMonthYearString(data.notifiedDate),
+                respondedDate: getDateStringAsMonthYearString(data.respondedDate),
+                detectionDate: getDateStringAsMonthYearString(data.detectionDate),
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
                 province: data.province.trim(),
