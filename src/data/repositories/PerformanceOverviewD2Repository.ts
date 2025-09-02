@@ -547,15 +547,15 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
         currentCases: number;
         currentDeaths: number;
     } {
-        const currentEventTrackerOverview = eventTrackerOverviewsForKeys.filter(
+        const currentEventTrackerOverviews = eventTrackerOverviewsForKeys.filter(
             overview => overview.key === diseaseCode
         );
 
-        const allSuspectedCasesIds = currentEventTrackerOverview.map(
+        const allSuspectedCasesIds = currentEventTrackerOverviews.map(
             overview => overview.suspectedCasesId
         );
 
-        const allDeathsIds = currentEventTrackerOverview.map(overview => overview.deathsId);
+        const allDeathsIds = currentEventTrackerOverviews.map(overview => overview.deathsId);
 
         const currentCases = allCases.filter(caseIdValue =>
             allSuspectedCasesIds.includes(caseIdValue.id)
