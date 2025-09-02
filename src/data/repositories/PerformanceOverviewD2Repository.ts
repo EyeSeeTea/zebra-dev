@@ -458,9 +458,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     overview => {
                                         const event = diseaseOutbreakEventsMap.get(overview.key);
                                         return (
-                                            !!event &&
-                                            ((!event.dataSource && !overview.dataSource) ||
-                                                (!!event.dataSource && !!overview.dataSource))
+                                            !!event && !!event.dataSource === !!overview.dataSource
                                         );
                                     }
                                 );
