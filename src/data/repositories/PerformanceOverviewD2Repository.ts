@@ -551,17 +551,19 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
             overview => overview.key === diseaseCode
         );
 
-        const allSuspectedCasesIds = currentEventTrackerOverviews.map(
-            overview => overview.suspectedCasesId
+        const allSuspectedCasesIds = new Set(
+            currentEventTrackerOverviews.map(overview => overview.suspectedCasesId)
         );
 
-        const allDeathsIds = currentEventTrackerOverviews.map(overview => overview.deathsId);
+        const allDeathsIds = new Set(
+            currentEventTrackerOverviews.map(overview => overview.deathsId)
+        );
 
         const currentCases = allCases.filter(caseIdValue =>
-            allSuspectedCasesIds.includes(caseIdValue.id)
+            allSuspectedCasesIds.has(caseIdValue.id)
         );
 
-        const currentDeaths = allDeaths.filter(death => allDeathsIds.includes(death.id));
+        const currentDeaths = allDeaths.filter(death => allDeathsIds.has(death.id));
 
         const sumValues = (currentValues: IdValue[]) =>
             currentValues.reduce((acc, curr) => {
