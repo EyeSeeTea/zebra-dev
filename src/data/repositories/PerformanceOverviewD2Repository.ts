@@ -31,7 +31,7 @@ import {
     TotalPerformanceMetrics717,
     PerformanceMetricsStatus,
 } from "../../domain/entities/disease-outbreak-event/PerformanceOverviewMetrics";
-import { Id } from "../../domain/entities/Ref";
+import { Code, Id } from "../../domain/entities/Ref";
 import { OverviewCard } from "../../domain/entities/PerformanceOverview";
 import { assertOrError } from "./utils/AssertOrError";
 import {
@@ -457,9 +457,7 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                     overview => {
                                         const event = diseaseOutbreakEventsMap.get(overview.key);
                                         return (
-                                            !!event &&
-                                            ((!event.dataSource && !overview.dataSource) ||
-                                                event.dataSource === overview.dataSource)
+                                            !!event && !!event.dataSource === !!overview.dataSource
                                         );
                                     }
                                 );
@@ -488,22 +486,14 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                         `No suspected disease found for event : ${event.id}`
                                                     )
                                                 );
-                                            const currentEventTrackerOverview =
-                                                eventTrackerOverviewsForKeys.find(
-                                                    overview => overview.key === key
+
+                                            const casesAndDeaths =
+                                                this.getCasesAndDeathsFromBothDataSourcesByDisease(
+                                                    key,
+                                                    eventTrackerOverviewsForKeys,
+                                                    allCases,
+                                                    allDeaths
                                                 );
-
-                                            const currentCases = allCases.find(
-                                                caseIdValue =>
-                                                    caseIdValue.id ===
-                                                    currentEventTrackerOverview?.suspectedCasesId
-                                            );
-
-                                            const currentDeaths = allDeaths.find(
-                                                death =>
-                                                    death.id ===
-                                                    currentEventTrackerOverview?.deathsId
-                                            );
 
                                             //TODO: 8698prv94 - replace with correct
                                             const duration = `${moment()
@@ -517,8 +507,10 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                     incidentManagerUsername:
                                                         event.incidentManagerName,
                                                     duration: duration,
-                                                    cases: currentCases?.value || "",
-                                                    deaths: currentDeaths?.value || "",
+                                                    cases:
+                                                        String(casesAndDeaths.currentCases) || "",
+                                                    deaths:
+                                                        String(casesAndDeaths.currentDeaths) || "",
                                                 } as PerformanceOverviewMetrics;
                                                 return Future.success(metrics);
                                             } else {
@@ -527,8 +519,10 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                     incidentManagerUsername:
                                                         event.incidentManagerName,
                                                     duration: duration,
-                                                    cases: currentCases?.value || "",
-                                                    deaths: currentDeaths?.value || "",
+                                                    cases:
+                                                        String(casesAndDeaths.currentCases) || "",
+                                                    deaths:
+                                                        String(casesAndDeaths.currentDeaths) || "",
                                                 } as PerformanceOverviewMetrics;
                                                 return Future.success(metrics);
                                             }
@@ -541,6 +535,49 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                     });
                 });
             });
+    }
+
+    private getCasesAndDeathsFromBothDataSourcesByDisease(
+        diseaseCode: Code,
+        eventTrackerOverviewsForKeys: EventTrackerOverviewInDataStore[],
+        allCases: IdValue[],
+        allDeaths: IdValue[]
+    ): {
+        currentCases: number;
+        currentDeaths: number;
+    } {
+        const currentEventTrackerOverviews = eventTrackerOverviewsForKeys.filter(
+            overview => overview.key === diseaseCode
+        );
+
+        const allSuspectedCasesIds = new Set(
+            currentEventTrackerOverviews.map(overview => overview.suspectedCasesId)
+        );
+
+        const allDeathsIds = new Set(
+            currentEventTrackerOverviews.map(overview => overview.deathsId)
+        );
+
+        const currentCases = allCases.filter(caseIdValue =>
+            allSuspectedCasesIds.has(caseIdValue.id)
+        );
+
+        const currentDeaths = allDeaths.filter(death => allDeathsIds.has(death.id));
+
+        const sumValues = (currentValues: IdValue[]) =>
+            currentValues.reduce((acc, curr) => {
+                const number = Number.isFinite(Number(curr.value)) ? Number(curr.value) : 0;
+                return acc + number;
+            }, 0);
+
+        const sumCurrentCases = sumValues(currentCases);
+
+        const sumCurrentDeaths = sumValues(currentDeaths);
+
+        return {
+            currentCases: sumCurrentCases,
+            currentDeaths: sumCurrentDeaths,
+        };
     }
 
     getAlertsPerformanceOverviewMetrics(): FutureData<AlertsPerformanceOverviewMetrics[]> {
