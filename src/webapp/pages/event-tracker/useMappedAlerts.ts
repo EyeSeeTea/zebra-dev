@@ -25,6 +25,7 @@ import {
     DAYS_RESPONSE,
     getColor,
 } from "../common/717Performance";
+import { getDateStringAsMonthYearString } from "../../components/utils/getDateStringAsMonthYearString";
 
 type State = {
     columns: TableColumn[];
@@ -129,8 +130,13 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
 
             return {
                 ...data,
+                emergedDate: getDateStringAsMonthYearString(data.emergedDate),
+                notifiedDate: getDateStringAsMonthYearString(data.notifiedDate),
+                respondedDate: getDateStringAsMonthYearString(data.respondedDate),
+                detectionDate: getDateStringAsMonthYearString(data.detectionDate),
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
+                province: data.province.trim(),
             };
         },
         []
