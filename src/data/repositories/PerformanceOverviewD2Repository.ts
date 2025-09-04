@@ -497,7 +497,8 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
 
                                             //TODO: 8698prv94 - replace with correct
                                             const duration = `${moment()
-                                                .diff(moment(event.created), "days")
+                                                .startOf("day")
+                                                .diff(moment(event.created).startOf("day"), "days")
                                                 .toString()}d`;
 
                                             if (!baseIndicator) {
