@@ -38,11 +38,11 @@ export const DatePicker: React.FC<DatePickerProps> = React.memo(
     }) => {
         const notifyChange = useCallback(
             (date: Date | null) => {
-                onChange(
-                    date
-                        ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
-                        : null
-                );
+                const normalizedDate = date
+                    ? new Date(date.getFullYear(), date.getMonth(), date.getDate())
+                    : null;
+
+                onChange(normalizedDate);
             },
             [onChange]
         );

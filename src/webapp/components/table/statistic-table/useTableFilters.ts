@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
+import moment from "moment";
+
 import _ from "../../../../domain/entities/generic/Collection";
 import { useAppContext } from "../../../contexts/app-context";
 import {
@@ -44,10 +46,13 @@ export const useTableFilters = (
                         if (filterValues.length === 0) {
                             return true;
                         } else if (isDatePickerFilter) {
-                            return row[key] && filterValues[0] && filterValues[1]
-                                ? filterValues[0] <= (row[key] || "") &&
-                                      (row[key] || "") <= filterValues[1]
-                                : true;
+                            if (!row[key] || !filterValues[0] || !filterValues[1]) return true;
+
+                            const start = moment(filterValues[0], "YYYY-MM-DD");
+                            const end = moment(filterValues[1], "YYYY-MM-DD");
+                            const target = moment(row[key], "MMMM D, YYYY");
+
+                            return target.isBetween(start, end, "day", "[]");
                         } else {
                             return filterValues.includes(row[key] || "");
                         }

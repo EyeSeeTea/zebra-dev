@@ -1,13 +1,14 @@
-import i18n from "../../../utils/i18n";
 import React, { useState, useMemo, useCallback } from "react";
 import { Popover, InputAdornment, TextField, InputLabel } from "@material-ui/core";
 import moment from "moment";
+import styled from "styled-components";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "./DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { IconCalendar24 } from "@dhis2/ui";
+
+import i18n from "../../../utils/i18n";
+import { DatePicker } from "./DatePicker";
 import { Button } from "../button/Button";
-import styled from "styled-components";
 
 type DateRangePickerProps = {
     label?: string;
@@ -49,8 +50,10 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
                 return placeholder;
             }
 
-            return `${moment(new Date(value[0])).format("DD/MM/yyyy")} — ${moment(
-                new Date(value[1])
+            return `${moment(value[0], "YYYY-MM-DD", true).format("DD/MM/yyyy")} — ${moment(
+                value[1],
+                "YYYY-MM-DD",
+                true
             ).format("DD/MM/yyyy")}`;
         }, [placeholder, value]);
 
@@ -63,10 +66,10 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = React.memo(
         const onSave = useCallback(() => {
             if (startDate && endDate) {
                 setAnchorEl(null);
-                onChange([
-                    moment(startDate).format("YYYY-MM-DD"),
-                    moment(endDate).format("YYYY-MM-DD"),
-                ]);
+                const momentStartDate = moment(startDate).format("YYYY-MM-DD");
+                const momentEndDate = moment(endDate).format("YYYY-MM-DD");
+
+                onChange([momentStartDate, momentEndDate]);
             }
         }, [endDate, onChange, startDate]);
 
