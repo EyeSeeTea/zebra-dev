@@ -495,11 +495,15 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                     allDeaths
                                                 );
 
-                                            //TODO: 8698prv94 - replace with correct
                                             const duration = `${moment()
+                                                .utc()
                                                 .startOf("day")
-                                                .diff(moment(event.created).startOf("day"), "days")
-                                                .toString()}d`;
+                                                .diff(
+                                                    moment(event.created).utc().startOf("day"),
+                                                    "days"
+                                                )}d`;
+
+                                            console.log(event.created, duration, event.id);
 
                                             if (!baseIndicator) {
                                                 const metrics = {
