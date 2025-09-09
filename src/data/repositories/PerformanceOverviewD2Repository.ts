@@ -503,8 +503,6 @@ export class PerformanceOverviewD2Repository implements PerformanceOverviewRepos
                                                     "days"
                                                 )}d`;
 
-                                            console.log(event.created, duration, event.id);
-
                                             if (!baseIndicator) {
                                                 const metrics = {
                                                     id: event.id,
