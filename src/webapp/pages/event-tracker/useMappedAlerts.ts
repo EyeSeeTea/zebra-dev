@@ -134,6 +134,7 @@ export function useMappedAlerts(diseaseOutbreakId: Id): State {
                 notifiedDate: getDateStringAsMonthYearString(data.notifiedDate),
                 respondedDate: getDateStringAsMonthYearString(data.respondedDate),
                 detectionDate: getDateStringAsMonthYearString(data.detectionDate),
+                date: getDateStringAsMonthYearString(data.date),
                 incidentManager: incidentManager?.name || data.incidentManager,
                 incidentManagerUsername: incidentManager?.username || "",
                 province: data.province.trim(),
