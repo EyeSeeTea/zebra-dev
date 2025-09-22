@@ -20,6 +20,7 @@ export const diseaseNames = [
     "SARIs",
     "Typhoid fever",
     "Zika fever",
+    "Chemical Exposure (general)",
     UNCONFIRMABLE_DISEASE_NAME,
     UNKNOWN_DISEASE_NAME,
 ] as const;
